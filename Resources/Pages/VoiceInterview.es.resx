@@ -1,0 +1,153 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <data name="Voice Interview" xml:space="preserve">
+    <value>Entrevista por Voz</value>
+  </data>
+  <data name="Connecting..." xml:space="preserve">
+    <value>Conectando...</value>
+  </data>
+  <data name="Question" xml:space="preserve">
+    <value>Pregunta</value>
+  </data>
+  <data name="End Early" xml:space="preserve">
+    <value>Terminar Antes</value>
+  </data>
+  <data name="AI Interviewer" xml:space="preserve">
+    <value>Entrevistador IA</value>
+  </data>
+  <data name="Voice Interview Ready" xml:space="preserve">
+    <value>Entrevista por Voz Lista</value>
+  </data>
+  <data name="Mute" xml:space="preserve">
+    <value>Silenciar</value>
+  </data>
+  <data name="Unmute" xml:space="preserve">
+    <value>Activar Micrófono</value>
+  </data>
+  <data name="Start Voice" xml:space="preserve">
+    <value>Iniciar Voz</value>
+  </data>
+  <data name="AI Voice: ON" xml:space="preserve">
+    <value>Voz IA: ACTIVADA</value>
+  </data>
+  <data name="Interview Chat" xml:space="preserve">
+    <value>Chat de Entrevista</value>
+  </data>
+  <data name="Type your answer..." xml:space="preserve">
+    <value>Escribe tu respuesta...</value>
+  </data>
+  <data name="Send" xml:space="preserve">
+    <value>Enviar</value>
+  </data>
+  <data name="Interviewer is typing..." xml:space="preserve">
+    <value>El entrevistador está escribiendo...</value>
+  </data>
+  <data name="Complete Interview" xml:space="preserve">
+    <value>Completar Entrevista</value>
+  </data>
+  <data name="Voice Ready" xml:space="preserve">
+    <value>Voz Lista</value>
+  </data>
+  <data name="Voice interview is ready. Click 'Start Voice' to begin." xml:space="preserve">
+    <value>La entrevista por voz está lista. Haz clic en 'Iniciar Voz' para comenzar.</value>
+  </data>
+  <data name="Microphone Access Denied" xml:space="preserve">
+    <value>Acceso al Micrófono Denegado</value>
+  </data>
+  <data name="Please allow microphone access for voice interview." xml:space="preserve">
+    <value>Por favor permite el acceso al micrófono para la entrevista por voz.</value>
+  </data>
+  <data name="Stop Voice" xml:space="preserve">
+    <value>Detener Voz</value>
+  </data>
+  <data name="Voice interview started. You can now speak and type simultaneously." xml:space="preserve">
+    <value>Entrevista por voz iniciada. Ahora puedes hablar y escribir simultáneamente.</value>
+  </data>
+  <data name="Voice interview stopped." xml:space="preserve">
+    <value>Entrevista por voz detenida.</value>
+  </data>
+  <data name="AI voice enabled." xml:space="preserve">
+    <value>Voz IA habilitada.</value>
+  </data>
+  <data name="AI Voice: OFF" xml:space="preserve">
+    <value>Voz IA: DESACTIVADA</value>
+  </data>
+  <data name="AI voice disabled." xml:space="preserve">
+    <value>Voz IA deshabilitada.</value>
+  </data>
+  <data name="AI is speaking..." xml:space="preserve">
+    <value>La IA está hablando...</value>
+  </data>
+  <data name="Connected" xml:space="preserve">
+    <value>Conectado</value>
+  </data>
+  <data name="Failed to connect" xml:space="preserve">
+    <value>Error al conectar</value>
+  </data>
+  <data name="Failed to connect. Please refresh the page." xml:space="preserve">
+    <value>Error al conectar. Por favor actualiza la página.</value>
+  </data>
+  <data name="Please wait while we reconnect..." xml:space="preserve">
+    <value>Por favor espera mientras nos reconectamos...</value>
+  </data>
+  <data name="Failed to send message. Please try again." xml:space="preserve">
+    <value>Error al enviar mensaje. Por favor intenta de nuevo.</value>
+  </data>
+  <data name="Completing interview and generating evaluation..." xml:space="preserve">
+    <value>Completando entrevista y generando evaluación...</value>
+  </data>
+  <data name="Failed to complete interview. Please try again." xml:space="preserve">
+    <value>Error al completar la entrevista. Por favor intenta de nuevo.</value>
+  </data>
+  <data name="Are you sure you want to end the interview early? Your progress will be saved." xml:space="preserve">
+    <value>¿Estás seguro de que quieres terminar la entrevista antes? Tu progreso se guardará.</value>
+  </data>
+  <data name="Ending interview early..." xml:space="preserve">
+    <value>Terminando entrevista antes...</value>
+  </data>
+  <data name="Failed to end interview early. Please try again." xml:space="preserve">
+    <value>Error al terminar la entrevista antes. Por favor intenta de nuevo.</value>
+  </data>
+  <data name="Disconnected" xml:space="preserve">
+    <value>Desconectado</value>
+  </data>
+  <data name="Connection lost. Reconnecting..." xml:space="preserve">
+    <value>Conexión perdida. Reconectando...</value>
+  </data>
+  <data name="Reconnected. Resuming your interview..." xml:space="preserve">
+    <value>Reconectado. Reanudando tu entrevista...</value>
+  </data>
+  <data name="Speaking..." xml:space="preserve">
+    <value>Hablando...</value>
+  </data>
+  <data name="Speech recognition started. You can now speak your answers." xml:space="preserve">
+    <value>Reconocimiento de voz iniciado. Ahora puedes hablar tus respuestas.</value>
+  </data>
+  <data name="Speech recognition failed to start. You can still type your answers." xml:space="preserve">
+    <value>El reconocimiento de voz falló al iniciar. Aún puedes escribir tus respuestas.</value>
+  </data>
+  <data name="No Microphone Found" xml:space="preserve">
+    <value>No se Encontró Micrófono</value>
+  </data>
+  <data name="No microphone detected. Please connect a microphone and refresh the page." xml:space="preserve">
+    <value>No se detectó micrófono. Por favor conecta un micrófono y actualiza la página.</value>
+  </data>
+  <data name="Microphone Error" xml:space="preserve">
+    <value>Error de Micrófono</value>
+  </data>
+  <data name="Error accessing microphone. Please check your microphone settings." xml:space="preserve">
+    <value>Error al acceder al micrófono. Por favor verifica la configuración de tu micrófono.</value>
+  </data>
+  <data name="Voice Monitor: OFF" xml:space="preserve">
+    <value>Monitor de Voz: DESACTIVADO</value>
+  </data>
+  <data name="Voice Monitor: ON" xml:space="preserve">
+    <value>Monitor de Voz: ACTIVADO</value>
+  </data>
+  <data name="Voice monitor enabled. You can now hear your own voice." xml:space="preserve">
+    <value>Monitor de voz habilitado. Ahora puedes escuchar tu propia voz.</value>
+  </data>
+  <data name="Voice monitor disabled." xml:space="preserve">
+    <value>Monitor de voz deshabilitado.</value>
+  </data>
+</root> 

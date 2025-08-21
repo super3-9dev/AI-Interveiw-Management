@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <data name="Verify Your Email" xml:space="preserve">
+    <value>Verify Your Email</value>
+  </data>
+  <data name="Please enter your email to receive a verification code." xml:space="preserve">
+    <value>Please enter your email to receive a verification code.</value>
+  </data>
+  <data name="Email Address" xml:space="preserve">
+    <value>Email Address</value>
+  </data>
+  <data name="Email address from your interview invitation" xml:space="preserve">
+    <value>Email address from your interview invitation</value>
+  </data>
+  <data name="Send Verification Code" xml:space="preserve">
+    <value>Send Verification Code</value>
+  </data>
+  <data name="Already have a code?" xml:space="preserve">
+    <value>Already have a code?</value>
+  </data>
+  <data name="Login here" xml:space="preserve">
+    <value>Login here</value>
+  </data>
+  <data name="Enter your email and verification code to login." xml:space="preserve">
+    <value>Enter your email and verification code to login.</value>
+  </data>
+  <data name="Verification Code" xml:space="preserve">
+    <value>Verification Code</value>
+  </data>
+  <data name="Login with Code" xml:space="preserve">
+    <value>Login with Code</value>
+  </data>
+  <data name="Need a new code?" xml:space="preserve">
+    <value>Need a new code?</value>
+  </data>
+  <data name="Send code" xml:space="preserve">
+    <value>Send code</value>
+  </data>
+  <data name="Please enter a valid email address." xml:space="preserve">
+    <value>Please enter a valid email address.</value>
+  </data>
+  <data name="Verification code has been sent to your email address." xml:space="preserve">
+    <value>Verification code has been sent to your email address.</value>
+  </data>
+  <data name="Failed to send verification code. Please try again." xml:space="preserve">
+    <value>Failed to send verification code. Please try again.</value>
+  </data>
+  <data name="Please enter both email and verification code." xml:space="preserve">
+    <value>Please enter both email and verification code.</value>
+  </data>
+  <data name="Verification code not found. Please request a new code." xml:space="preserve">
+    <value>Verification code not found. Please request a new code.</value>
+  </data>
+  <data name="Email address mismatch." xml:space="preserve">
+    <value>Email address mismatch.</value>
+  </data>
+  <data name="Verification code has expired. Please request a new code." xml:space="preserve">
+    <value>Verification code has expired. Please request a new code.</value>
+  </data>
+  <data name="Invalid verification code. Please try again." xml:space="preserve">
+    <value>Invalid verification code. Please try again.</value>
+  </data>
+  <data name="An error occurred during login. Please try again." xml:space="preserve">
+    <value>An error occurred during login. Please try again.</value>
+  </data>
+</root> 

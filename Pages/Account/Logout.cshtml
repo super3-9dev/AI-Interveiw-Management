@@ -1,0 +1,12 @@
+﻿@page
+@model InterviewBot.Pages.Account.LogoutModel
+@{
+    ViewData["Title"] = "Logout";
+    Layout = "_AuthLayout";
+}
+
+<div class="text-center">
+    <h2>You have been logged out</h2>
+    <p>Thank you for using InterviewBot.</p>
+    <a asp-page="/Account/Login" class="btn btn-primary">Login Again</a>
+</div>

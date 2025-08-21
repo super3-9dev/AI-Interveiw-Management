@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <data name="Enter Verification Code" xml:space="preserve">
+    <value>Ingresar Código de Verificación</value>
+  </data>
+  <data name="We've sent a verification code to" xml:space="preserve">
+    <value>Hemos enviado un código de verificación a</value>
+  </data>
+  <data name="Verification Code" xml:space="preserve">
+    <value>Código de Verificación</value>
+  </data>
+  <data name="Verify Code" xml:space="preserve">
+    <value>Verificar Código</value>
+  </data>
+  <data name="Send new code" xml:space="preserve">
+    <value>Enviar nuevo código</value>
+  </data>
+  <data name="Please enter both email and verification code." xml:space="preserve">
+    <value>Por favor ingresa tanto el email como el código de verificación.</value>
+  </data>
+  <data name="Verification code not found. Please request a new code." xml:space="preserve">
+    <value>Código de verificación no encontrado. Por favor solicita un nuevo código.</value>
+  </data>
+  <data name="Email address mismatch." xml:space="preserve">
+    <value>La dirección de email no coincide.</value>
+  </data>
+  <data name="Verification code has expired. Please request a new code." xml:space="preserve">
+    <value>El código de verificación ha expirado. Por favor solicita un nuevo código.</value>
+  </data>
+  <data name="Invalid verification code. Please try again." xml:space="preserve">
+    <value>Código de verificación inválido. Por favor intenta de nuevo.</value>
+  </data>
+  <data name="An error occurred during verification. Please try again." xml:space="preserve">
+    <value>Ocurrió un error durante la verificación. Por favor intenta de nuevo.</value>
+  </data>
+  <data name="You are not authorized to access any interview. Please contact the administrator or use a valid invitation link." xml:space="preserve">
+    <value>No estás autorizado para acceder a ninguna entrevista. Por favor contacta al administrador o usa un enlace de invitación válido.</value>
+  </data>
+  <data name="The requested interview topic was not found." xml:space="preserve">
+    <value>El tema de entrevista solicitado no fue encontrado.</value>
+  </data>
+  <data name="The requested interview is not currently available." xml:space="preserve">
+    <value>La entrevista solicitada no está disponible actualmente.</value>
+  </data>
+</root> 

@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <data name="Interview Sessions" xml:space="preserve">
+    <value>Sesiones de Entrevista</value>
+  </data>
+  <data name="SubTopic" xml:space="preserve">
+    <value>Subtema</value>
+  </data>
+  <data name="Start Time" xml:space="preserve">
+    <value>Hora de Inicio</value>
+  </data>
+  <data name="End Time" xml:space="preserve">
+    <value>Hora de Fin</value>
+  </data>
+  <data name="Score" xml:space="preserve">
+    <value>Puntuación</value>
+  </data>
+  <data name="Actions" xml:space="preserve">
+    <value>Acciones</value>
+  </data>
+  <data name="Ongoing" xml:space="preserve">
+    <value>En Curso</value>
+  </data>
+  <data name="PDF" xml:space="preserve">
+    <value>PDF</value>
+  </data>
+  <data name="View Results" xml:space="preserve">
+    <value>Ver Resultados</value>
+  </data>
+  <data name="Disconnected" xml:space="preserve">
+    <value>Desconectado</value>
+  </data>
+  <data name="Resume" xml:space="preserve">
+    <value>Reanudar</value>
+  </data>
+  <data name="In Progress" xml:space="preserve">
+    <value>En Progreso</value>
+  </data>
+  <data name="Continue" xml:space="preserve">
+    <value>Continuar</value>
+  </data>
+  <data name="No actions available" xml:space="preserve">
+    <value>No hay acciones disponibles</value>
+  </data>
+</root> 

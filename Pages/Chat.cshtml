@@ -1,0 +1,334 @@
+﻿@page
+@model InterviewBot.Pages.ChatModel
+@using Microsoft.AspNetCore.Mvc.Localization
+@inject IViewLocalizer Localizer
+@{
+    ViewData["Title"] = Localizer["Interview Chat"];
+}
+
+<div class="container mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2>@Localizer["Interview"]: @Model.SubTopic.Title</h2>
+        <div id="connectionStatus">
+            <span id="connectionIndicator" class="badge bg-secondary">@Localizer["Connecting..."]</span>
+            <span id="progressIndicator" class="badge bg-info ms-2">@Localizer["Question"] 0</span>
+            <button class="btn btn-outline-danger" id="endEarlyBtn">
+                <i class="bi bi-stop-circle"></i> @Localizer["End Early"]
+            </button>
+        </div>
+    </div>
+
+    <div class="card shadow-sm">
+        <div class="card-body">
+            <div id="chatBox" class="chat-container mb-3 p-3 bg-light rounded" style="height: 400px; overflow-y: auto;">
+                <!-- Messages will appear here -->
+            </div>
+
+            <div class="input-group mb-2">
+                <input type="text" id="messageInput" class="form-control" placeholder="@Localizer["Type your answer..."]" />
+                <button class="btn btn-primary" id="sendButton" onclick="sendMessage()">
+                    <i class="bi bi-send"></i> @Localizer["Send"]
+                </button>
+            </div>
+            <div class="text-end">
+                <small id="typingIndicator" class="text-muted" style="display: none;">
+                    <i class="bi bi-pencil"></i> @Localizer["Interviewer is typing..."]
+                </small>
+            </div>
+            <div id="completeButtonContainer" class="text-end mt-3" style="display: none;">
+                <button class="btn btn-success" id="completeButton" onclick="completeInterview()">
+                    <i class="bi bi-check-circle"></i> @Localizer["Complete Interview"]
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Styles {
+    <style>
+        .chat-container {
+            border: 1px solid #dee2e6;
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+        }
+
+        .chat-message {
+            margin-bottom: 0.5rem;
+            padding: 0.75rem 1rem;
+            border-radius: 0.5rem;
+            max-width: 80%;
+            word-wrap: break-word;
+        }
+
+        .bot-message {
+            background-color: #f8f9fa;
+            align-self: flex-start;
+            border: 1px solid #dee2e6;
+        }
+
+        .user-message {
+            background-color: #0d6efd;
+            color: white;
+            align-self: flex-end;
+            margin-left: auto;
+        }
+
+        #connectionStatus {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .badge {
+            padding: 0.5em 0.75em;
+            font-size: 0.85em;
+            transition: all 0.3s ease;
+        }
+    </style>
+}
+
+@section Scripts {
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/microsoft-signalr/7.0.5/signalr.min.js"></script>
+    <script>
+        // DOM Elements
+        const chatBox = document.getElementById("chatBox");
+        const messageInput = document.getElementById("messageInput");
+        const sendButton = document.getElementById("sendButton");
+        const connectionIndicator = document.getElementById("connectionIndicator");
+        const progressIndicator = document.getElementById("progressIndicator");
+        const typingIndicator = document.getElementById("typingIndicator");
+        const completeButtonContainer = document.getElementById("completeButtonContainer");
+        const completeButton = document.getElementById("completeButton");
+        const endEarlyBtn = document.getElementById("endEarlyBtn");
+
+        // SignalR Connection
+        const connection = new signalR.HubConnectionBuilder()
+            .withUrl("/chatHub", {
+                skipNegotiation: true,
+                transport: signalR.HttpTransportType.WebSockets
+            })
+            .configureLogging(signalR.LogLevel.Information)
+            .withAutomaticReconnect({
+                nextRetryDelayInMilliseconds: retryContext => {
+                    return Math.min(10000, 1000 * Math.pow(2, retryContext.previousRetryCount));
+                }
+            })
+            .build();
+
+        // Connection Management
+        async function startConnection() {
+            try {
+                updateConnectionStatus("@Localizer["Connecting..."]", "bg-warning");
+                await connection.start();
+                updateConnectionStatus("@Localizer["Connected"]", "bg-success");
+                sendButton.disabled = false;
+
+                const urlParams = new URLSearchParams(window.location.search);
+                const resumeSessionId = urlParams.get('resume');
+                const sessionId = urlParams.get('sessionId');
+                const currentCulture = urlParams.get('culture') || 'en';
+
+                if (resumeSessionId) {
+                    showTypingIndicator(true);
+                    await connection.invoke("ResumeInterview", parseInt(resumeSessionId));
+                } else {
+                    // Always use regular interview for authenticated users
+                    // The sessionId parameter is only for public interviews, not for determining user type
+                    showTypingIndicator(true);
+                    await connection.invoke("StartInterview", @Model.SubTopicId, currentCulture);
+                }
+            } catch (err) {
+                console.error("Connection error:", err);
+                updateConnectionStatus("@Localizer["Failed to connect"]", "bg-danger");
+                sendButton.disabled = true;
+                addSystemMessage("@Localizer["Failed to connect. Please refresh the page."]");
+            }
+        }
+
+        function updateConnectionStatus(text, badgeClass) {
+            connectionIndicator.textContent = text;
+            connectionIndicator.className = `badge ${badgeClass}`;
+        }
+
+        function updateProgressIndicator(questionNumber) {
+            progressIndicator.textContent = `@Localizer["Question"] ${questionNumber}`;
+        }
+
+        function showTypingIndicator(show) {
+            typingIndicator.style.display = show ? "block" : "none";
+        }
+
+        function addSystemMessage(text) {
+            const messageElement = document.createElement("div");
+            messageElement.className = "chat-message text-center text-muted";
+            messageElement.innerHTML = `<em>${text}</em>`;
+            chatBox.appendChild(messageElement);
+            chatBox.scrollTop = chatBox.scrollHeight;
+        }
+
+        // Message Handling
+        connection.on("ReceiveMessage", (user, message) => {
+            showTypingIndicator(false);
+
+            const messageClass = user === "Interviewer" ? "bot-message" : "user-message";
+            const messageElement = document.createElement("div");
+            messageElement.className = `chat-message ${messageClass}`;
+
+            const formattedMessage = message.replace(/\n/g, '<br>');
+            messageElement.innerHTML = `<strong>${user}:</strong> ${formattedMessage}`;
+
+            chatBox.appendChild(messageElement);
+            chatBox.scrollTop = chatBox.scrollHeight;
+
+            if (user === "Interviewer" && (message.includes("Question") || message.includes("Pregunta"))) {
+                const match = message.match(/(?:Question|Pregunta) (\d+):/);
+                if (match && match[1]) {
+                    updateProgressIndicator(parseInt(match[1]));
+                }
+            }
+        });
+
+        connection.on("ShowCompleteButton", () => {
+            completeButtonContainer.style.display = "block";
+            messageInput.disabled = true;
+            sendButton.disabled = true;
+        });
+
+        connection.on("InterviewCompleted", (score, evaluation) => {
+            completeButtonContainer.style.display = "none";
+            messageInput.disabled = true;
+            sendButton.disabled = true;
+
+            const resultHtml = `
+                <div class="modal fade" id="resultModal" tabindex="-1" aria-hidden="true">
+                    <div class="modal-dialog modal-lg">
+                        <div class="modal-content">
+                            <div class="modal-header bg-primary text-white">
+                                <h5 class="modal-title">Interview Completed Successfully!</h5>
+                                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                            </div>
+                            <div class="modal-body">
+                                <div class="text-center mb-4">
+                                    <i class="bi bi-check-circle text-success" style="font-size: 3rem;"></i>
+                                    <h4 class="text-success mt-2">Interview Completed!</h4>
+                                    <p class="text-muted">Your interview has been completed and evaluated.</p>
+                                </div>
+                                <div class="alert alert-info">
+                                    <i class="bi bi-info-circle me-2"></i>
+                                    You will be redirected to your detailed results page in a few seconds...
+                                </div>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-primary" onclick="window.location.href='/InterviewSessions'">
+                                    View Results Now
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+
+            document.body.insertAdjacentHTML('beforeend', resultHtml);
+            const modal = new bootstrap.Modal(document.getElementById('resultModal'));
+            modal.show();
+
+            progressIndicator.textContent = "@Localizer["Completed"]";
+            progressIndicator.className = "badge bg-success";
+
+            // Redirect to results page after a longer delay to allow user to see the modal
+            setTimeout(() => {
+                window.location.href = '/InterviewSessions';
+            }, 5000);
+        });
+
+        connection.on("RedirectToResults", (sessionId) => {
+            // Always redirect to the regular results page for authenticated users
+            // The sessionId parameter in URL is just for public interviews, not for determining user type
+            window.location.href = `/InterviewSessions/Results?id=${sessionId}`;
+        });
+
+        connection.onclose(error => {
+            updateConnectionStatus("@Localizer["Disconnected"]", "bg-danger");
+            sendButton.disabled = true;
+            if (error) {
+                addSystemMessage("@Localizer["Connection lost. Reconnecting..."]");
+            }
+        });
+
+        connection.onreconnected(connectionId => {
+            updateConnectionStatus("@Localizer["Connected"]", "bg-success");
+            addSystemMessage("@Localizer["Reconnected. Resuming your interview..."]");
+            sendButton.disabled = false;
+        });
+
+        // Message Sending
+        async function sendMessage() {
+            const message = messageInput.value.trim();
+            if (!message) return;
+
+            if (connection.state !== signalR.HubConnectionState.Connected) {
+                addSystemMessage("@Localizer["Please wait while we reconnect..."]");
+                return;
+            }
+
+            messageInput.disabled = true;
+            sendButton.disabled = true;
+
+            try {
+                // Always use SendAnswer for authenticated users
+                await connection.invoke("SendAnswer", message);
+                
+                messageInput.value = '';
+                showTypingIndicator(true);
+            } catch (err) {
+                console.error("Error sending message:", err);
+                addSystemMessage("@Localizer["Failed to send message. Please try again."]");
+            } finally {
+                messageInput.disabled = false;
+                sendButton.disabled = false;
+                messageInput.focus();
+            }
+        }
+
+        async function completeInterview() {
+            completeButton.disabled = true;
+            try {
+                addSystemMessage("@Localizer["Completing interview and generating evaluation..."]");
+                await connection.invoke("CompleteInterviewManually");
+            } catch (err) {
+                console.error("Error completing interview:", err);
+                addSystemMessage("@Localizer["Failed to complete interview. Please try again."]");
+                completeButton.disabled = false;
+            }
+        }
+
+        // End Early Button
+        endEarlyBtn.addEventListener('click', async function() {
+            try {
+                if (confirm("@Localizer["Are you sure you want to end the interview early? Your progress will be saved."]")) {
+                    addSystemMessage("@Localizer["Ending interview early..."]");
+                    await connection.invoke("EndInterviewEarly");
+
+                    // Disable UI elements
+                    messageInput.disabled = true;
+                    sendButton.disabled = true;
+                    endEarlyBtn.disabled = true;
+                }
+            } catch (err) {
+                console.error("Error ending interview early:", err);
+                addSystemMessage("@Localizer["Failed to end interview early. Please try again."]");
+            }
+        });
+
+        // Event Listeners
+        messageInput.addEventListener("keypress", function(e) {
+            if (e.key === "Enter") {
+                sendMessage();
+            }
+        });
+
+        // Initialize
+        startConnection();
+    </script>
+}

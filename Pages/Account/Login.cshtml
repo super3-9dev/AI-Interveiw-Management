@@ -1,0 +1,264 @@
+﻿@page
+@model InterviewBot.Pages.Account.LoginModel
+@using Microsoft.AspNetCore.Mvc.Localization
+@inject IViewLocalizer Localizer
+@{
+    ViewData["Title"] = Localizer["Login"];
+    Layout = "_AuthLayout";
+    var currentCulture = HttpContext.Request.Query["culture"].ToString();
+    if (string.IsNullOrEmpty(currentCulture))
+    {
+        currentCulture = HttpContext.Request.Cookies["culture"] ?? "en";
+    }
+    currentCulture = string.IsNullOrEmpty(currentCulture) ? "en" : currentCulture;
+}
+
+<style>
+    body, html {
+        height: 100%;
+        background: #f5f5f5;
+        margin: 0;
+        padding: 0;
+    }
+
+    .login-wrapper {
+        min-height: 100vh;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        padding: 2rem;
+        background: #f5f5f5;
+    }
+
+    .brand-header {
+        text-align: center;
+        margin-bottom: 2rem;
+        position: relative;
+        z-index: 10;
+    }
+
+    .brand-icon {
+        width: 80px;
+        height: 80px;
+        background: linear-gradient(135deg, #4a90e2, #357abd);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto 1rem;
+        box-shadow: 0 4px 15px rgba(74, 144, 226, 0.3);
+    }
+
+    .brand-icon i {
+        font-size: 2.5rem;
+        color: white;
+    }
+
+    .brand-title {
+        color: #4a90e2;
+        font-size: 1.5rem;
+        font-weight: 700;
+        margin-bottom: 0.5rem;
+    }
+
+    .language-selector {
+        position: fixed;
+        top: 2rem;
+        right: 2rem;
+        z-index: 1000;
+    }
+
+    .language-dropdown {
+        background: white;
+        border: 1px solid #dee2e6;
+        border-radius: 0.5rem;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        padding: 0.5rem 0;
+        min-width: 120px;
+    }
+
+    .language-dropdown a {
+        display: block;
+        padding: 0.5rem 1rem;
+        color: #495057;
+        text-decoration: none;
+        transition: background-color 0.2s;
+    }
+
+    .language-dropdown a:hover {
+        background-color: #f8f9fa;
+        color: #4a90e2;
+    }
+
+    .login-card {
+        max-width: 380px;
+        width: 100%;
+        padding: 2rem;
+        border-radius: 0.75rem;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+        background: #fff;
+        border: none;
+    }
+
+    .welcome-title {
+        font-size: 1.5rem;
+        font-weight: 700;
+        color: #333;
+        margin-bottom: 0.5rem;
+        text-align: center;
+    }
+
+    .welcome-subtitle {
+        color: #666;
+        text-align: center;
+        margin-bottom: 1.5rem;
+        font-size: 0.9rem;
+        line-height: 1.4;
+    }
+
+    .form-control {
+        border: 1px solid #ddd;
+        border-radius: 0.5rem;
+        padding: 0.75rem 1rem;
+        font-size: 0.95rem;
+        transition: all 0.2s;
+        background: #fff;
+    }
+
+    .form-control:focus {
+        border-color: #4a90e2;
+        box-shadow: 0 0 0 0.2rem rgba(74, 144, 226, 0.25);
+        outline: none;
+    }
+
+    .form-label {
+        font-weight: 600;
+        color: #333;
+        margin-bottom: 0.5rem;
+        font-size: 0.9rem;
+    }
+
+    .btn-primary {
+        background: linear-gradient(135deg, #4a90e2, #357abd);
+        border: none;
+        border-radius: 0.5rem;
+        padding: 0.75rem 2rem;
+        font-weight: 600;
+        font-size: 1rem;
+        transition: all 0.2s;
+        width: 100%;
+    }
+
+    .btn-primary:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 4px 15px rgba(74, 144, 226, 0.4);
+    }
+
+    .forgot-password {
+        text-align: left;
+        margin: 1rem 0 1.5rem 0;
+    }
+
+    .forgot-password a {
+        color: #4a90e2;
+        text-decoration: none;
+        font-weight: 500;
+        font-size: 0.9rem;
+    }
+
+    .forgot-password a:hover {
+        text-decoration: underline;
+    }
+
+    .signup-section {
+        text-align: center;
+        margin-top: 1.5rem;
+        padding-top: 1.5rem;
+        border-top: 1px solid #eee;
+        color: #666;
+        font-size: 0.9rem;
+    }
+
+    .signup-section a {
+        color: #4a90e2;
+        text-decoration: none;
+        font-weight: 600;
+        margin-left: 0.25rem;
+    }
+
+    .signup-section a:hover {
+        text-decoration: underline;
+    }
+
+    .form-group {
+        margin-bottom: 1.25rem;
+    }
+</style>
+
+<div class="login-wrapper">
+    <!-- Language Selector (Fixed position, top-right of page) -->
+    <div class="language-selector">
+        <div class="dropdown">
+            <button class="btn btn-light" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                <i class="bi bi-globe"></i>
+            </button>
+            <ul class="language-dropdown dropdown-menu">
+                <li><a href="?culture=en" class="@(currentCulture == "en" ? "active" : "")">English</a></li>
+                <li><a href="?culture=es" class="@(currentCulture == "es" ? "active" : "")">Spanish</a></li>
+            </ul>
+        </div>
+    </div>
+
+    <!-- Brand Header (Above the card) -->
+    <div class="brand-header">
+        <div class="brand-icon">
+            <i class="bi bi-eye"></i>
+        </div>
+        <div class="brand-title">Intrevidor Guiado</div>
+    </div>
+
+    <!-- Login Card -->
+    <div class="login-card">
+        <!-- Welcome Section -->
+        <div class="welcome-title">@Localizer["Welcome Back!"]</div>
+        <div class="welcome-subtitle">@Localizer["Enter your credentials to access your dashboard."]</div>
+
+        <!-- Login Form -->
+        <form method="post">
+            <div asp-validation-summary="ModelOnly" class="alert alert-danger"></div>
+
+            <div class="form-group">
+                <label asp-for="Input.Email" class="form-label">@Localizer["Email"]</label>
+                <input asp-for="Input.Email" class="form-control" placeholder="@Localizer["Enter your email"]" />
+                <span asp-validation-for="Input.Email" class="text-danger"></span>
+            </div>
+
+            <div class="form-group">
+                <label asp-for="Input.Password" class="form-label">@Localizer["Password"]</label>
+                <input asp-for="Input.Password" type="password" class="form-control" placeholder="@Localizer["Enter your password"]" />
+                <span asp-validation-for="Input.Password" class="text-danger"></span>
+            </div>
+
+            <!-- Forgot Password (Left-aligned, above login button) -->
+            <div class="forgot-password">
+                <a href="#">@Localizer["Forgot your password?"]</a>
+            </div>
+
+            <!-- Login Button -->
+            <div class="d-grid mb-3">
+                <button type="submit" class="btn btn-primary btn-lg">@Localizer["Sign In"]</button>
+            </div>
+
+            <!-- Sign Up Section -->
+            <div class="signup-section">
+                <span>@Localizer["Don't have an account?"]</span>
+                <a asp-page="/Account/Register" asp-route-culture="@currentCulture">@Localizer["Sign Up"]</a>
+            </div>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

@@ -1,0 +1,120 @@
+@page
+@model InterviewBot.Pages.EmailVerificationModel
+@using Microsoft.AspNetCore.Mvc.Localization
+@inject IViewLocalizer Localizer
+@{
+    ViewData["Title"] = Localizer["Verify Your Email"];
+}
+
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-6 col-lg-4">
+            <div class="card shadow">
+                <div class="card-body p-4">
+                    <h2 class="text-center mb-4">@Localizer["Verify Your Email"]</h2>
+                    
+                    @if (!Model.IsLoginMode)
+                    {
+                        <p class="text-muted text-center mb-4">@Localizer["Please enter your email to receive a verification code."]</p>
+                        
+                        <form method="post">
+                            <div class="mb-3">
+                                <label for="email" class="form-label">@Localizer["Email Address"]</label>
+                                <input type="email" class="form-control" id="email" name="Email" 
+                                       value="@Model.Email" placeholder="you@example.com" 
+                                       @(string.IsNullOrEmpty(Model.Email) ? "" : "readonly") required>
+                                @if (!string.IsNullOrEmpty(Model.Email))
+                                {
+                                    <div class="form-text">
+                                        <i class="bi bi-info-circle"></i>
+                                        @Localizer["Email address from your interview invitation"]
+                                    </div>
+                                }
+                            </div>
+                            
+                            <button type="submit" class="btn btn-primary w-100">
+                                @Localizer["Send Verification Code"]
+                            </button>
+                        </form>
+                        
+                        <div class="text-center mt-3">
+                            <small class="text-muted">@Localizer["Already have a code?"] <a href="#" onclick="showLoginForm()">@Localizer["Login here"]</a></small>
+                        </div>
+                    }
+                    else
+                    {
+                        <p class="text-muted text-center mb-4">@Localizer["Enter your email and verification code to login."]</p>
+                        
+                        <form method="post" asp-page-handler="Login">
+                            <div class="mb-3">
+                                <label for="email" class="form-label">@Localizer["Email Address"]</label>
+                                <input type="email" class="form-control" id="email" name="Email" 
+                                       value="@Model.Email" placeholder="you@example.com" required>
+                            </div>
+                            
+                            <div class="mb-3">
+                                <label for="verificationCode" class="form-label">@Localizer["Verification Code"]</label>
+                                <input type="text" class="form-control text-center" id="verificationCode" 
+                                       name="VerificationCode" placeholder="123456" maxlength="6" required
+                                       style="font-size: 1.5rem; letter-spacing: 0.5rem;">
+                            </div>
+                            
+                            <button type="submit" class="btn btn-success w-100">
+                                @Localizer["Login with Code"]
+                            </button>
+                        </form>
+                        
+                        <div class="text-center mt-3">
+                            <small class="text-muted">@Localizer["Need a new code?"] <a href="#" onclick="showSendCodeForm()">@Localizer["Send code"]</a></small>
+                        </div>
+                    }
+                    
+                    @if (!string.IsNullOrEmpty(Model.ErrorMessage))
+                    {
+                        <div class="alert alert-danger mt-3" role="alert">
+                            @Model.ErrorMessage
+                        </div>
+                    }
+                    
+                    @if (!string.IsNullOrEmpty(Model.SuccessMessage))
+                    {
+                        <div class="alert alert-success mt-3" role="alert">
+                            @Model.SuccessMessage
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.getElementById('verificationCode')?.addEventListener('input', function(e) {
+    // Only allow numbers
+    this.value = this.value.replace(/[^0-9]/g, '');
+});
+
+function showLoginForm() {
+    // Get current URL and preserve culture parameter
+    const currentUrl = new URL(window.location.href);
+    const currentParams = currentUrl.searchParams;
+    
+    // Set mode to login
+    currentParams.set('mode', 'login');
+    
+    // Navigate to the new URL with all parameters preserved
+    window.location.href = currentUrl.toString();
+}
+
+function showSendCodeForm() {
+    // Get current URL and preserve culture parameter
+    const currentUrl = new URL(window.location.href);
+    const currentParams = currentUrl.searchParams;
+    
+    // Remove mode parameter to go back to send code form
+    currentParams.delete('mode');
+    
+    // Navigate to the new URL with all parameters preserved
+    window.location.href = currentUrl.toString();
+}
+</script> 

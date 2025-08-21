@@ -1,0 +1,134 @@
+﻿@page
+@model InterviewBot.Pages.SubTopics.IndexModel
+@using Microsoft.AspNetCore.Mvc.Localization
+@inject IViewLocalizer Localizer
+@{
+    ViewData["Title"] = Localizer["SubTopics"];
+    var topicIdForCreate = Model.CurrentTopic?.Id;
+    var currentCulture = HttpContext.Request.Query["culture"].ToString();
+    if (string.IsNullOrEmpty(currentCulture))
+    {
+        currentCulture = HttpContext.Request.Cookies["culture"] ?? "en";
+    }
+}
+
+<div class="container mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h2>@Localizer["List of SUB TOPICS"]</h2>
+            @if (Model.CurrentTopic != null)
+            {
+                <h4 class="text-muted">@Localizer["TOPIC"]: @Model.CurrentTopic.Title</h4>
+            }
+        </div>
+        <a href="/SubTopics/Create?topicId=@topicIdForCreate@(!string.IsNullOrEmpty(currentCulture) ? $"&culture={currentCulture}" : "")" class="btn btn-primary">
+            <i class="bi bi-plus-lg"></i> @Localizer["Create New"]
+        </a>
+    </div>
+
+    <div class="card shadow-sm">
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead class="table-light">
+                        <tr>
+                            <th>@Localizer["Title"]</th>
+                            <th>@Localizer["Topic"]</th>
+                            <th>@Localizer["Interview Status"]</th>
+                            <th>@Localizer["Publish Status"]</th>
+                            <th>@Localizer["Actions"]</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var st in Model.SubTopics)
+                        {
+                            <tr>
+                                <td>@st.Title</td>
+                                <td>@st.TopicName</td>
+                                <td>
+                                    @if (st.IsInterviewCompleted)
+                                    {
+                                        <span class="badge bg-success">@Localizer["Completed"]</span>
+                                    }
+                                    else if (st.HasIncompleteSession)
+                                    {
+                                        <span class="badge bg-warning">@Localizer["In Progress"]</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="badge bg-secondary">@Localizer["Not Started"]</span>
+                                    }
+                                </td>
+                                <td>
+                                    @if (st.IsPublished)
+                                    {
+                                        <span class="badge bg-success">@Localizer["Published"]</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="badge bg-secondary">@Localizer["Draft"]</span>
+                                    }
+                                </td>
+                                <td>
+                                    @{
+                                        var buttonText = "Start Interview";
+                                        var buttonClass = "btn-outline-primary";
+                                        var buttonIcon = "bi-play-circle";
+                                        var buttonUrl = $"/Chat?subTopicId={st.Id}";
+                                        
+                                        if (st.IsInterviewCompleted)
+                                        {
+                                            buttonText = "View Results";
+                                            buttonClass = "btn-outline-success";
+                                            buttonIcon = "bi-eye";
+                                            buttonUrl = $"/InterviewSessions/Results?id={st.CompletedSessionId}";
+                                        }
+                                        else if (st.HasIncompleteSession)
+                                        {
+                                            buttonText = "Resume Interview";
+                                            buttonClass = "btn-outline-warning";
+                                            buttonIcon = "bi-arrow-clockwise";
+                                            buttonUrl = $"/Chat?subTopicId={st.Id}&resume={st.LatestSessionId}";
+                                        }
+                                        
+                                        if (!string.IsNullOrEmpty(currentCulture))
+                                        {
+                                            buttonUrl += $"&culture={currentCulture}";
+                                        }
+                                    }
+                                    <a href="@buttonUrl" class="btn btn-sm @buttonClass">
+                                        <i class="@buttonIcon"></i> @Localizer[buttonText]
+                                    </a>
+                                    @if (st.IsNewInterview && !st.IsPublished)
+                                    {
+                                        <form method="post" action="/SubTopics?handler=Publish&id=@st.Id&topicId=@Model.CurrentTopic?.Id@(!string.IsNullOrEmpty(currentCulture) ? $"&culture={currentCulture}" : "")" class="d-inline">
+                                            <button type="submit" class="btn btn-sm btn-outline-success" title="@Localizer["Publish"]">
+                                                <i class="bi bi-eye"></i> @Localizer["Publish"]
+                                            </button>
+                                        </form>
+                                    }
+                                    @if (st.IsPublished)
+                                    {
+                                        <form method="post" action="/SubTopics?handler=Republish&id=@st.Id&topicId=@Model.CurrentTopic?.Id@(!string.IsNullOrEmpty(currentCulture) ? $"&culture={currentCulture}" : "")" class="d-inline">
+                                            <button type="submit" class="btn btn-sm btn-outline-info" title="@Localizer["Republish"]">
+                                                <i class="bi bi-arrow-repeat"></i> @Localizer["Republish"]
+                                            </button>
+                                        </form>
+                                    }
+                                    <a href="/SubTopics/Edit/@st.Id@(!string.IsNullOrEmpty(currentCulture) ? $"?culture={currentCulture}" : "")" class="btn btn-sm btn-outline-secondary">
+                                        <i class="bi bi-pencil"></i> @Localizer["Edit"]
+                                    </a>
+                                    <form method="post" action="/SubTopics?handler=Delete&id=@st.Id&topicId=@Model.CurrentTopic?.Id@(!string.IsNullOrEmpty(currentCulture) ? $"&culture={currentCulture}" : "")" class="d-inline">
+                                        <button type="submit" class="btn btn-sm btn-outline-danger" onclick="return confirm('@Localizer["Are you sure?"]');">
+                                            <i class="bi bi-trash"></i> @Localizer["Delete"]
+                                        </button>
+                                    </form>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>

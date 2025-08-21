@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <data name="Interview Results" xml:space="preserve">
+    <value>Interview Results</value>
+  </data>
+  <data name="Back to Sessions" xml:space="preserve">
+    <value>Back to Sessions</value>
+  </data>
+  <data name="Export PDF" xml:space="preserve">
+    <value>Export PDF</value>
+  </data>
+  <data name="out of 100" xml:space="preserve">
+    <value>out of 100</value>
+  </data>
+  <data name="Excellent" xml:space="preserve">
+    <value>Excellent</value>
+  </data>
+  <data name="Good" xml:space="preserve">
+    <value>Good</value>
+  </data>
+  <data name="Needs Improvement" xml:space="preserve">
+    <value>Needs Improvement</value>
+  </data>
+  <data name="Performance" xml:space="preserve">
+    <value>Performance</value>
+  </data>
+  <data name="Completion Date" xml:space="preserve">
+    <value>Completion Date</value>
+  </data>
+  <data name="Candidate Information" xml:space="preserve">
+    <value>Candidate Information</value>
+  </data>
+  <data name="Name" xml:space="preserve">
+    <value>Name</value>
+  </data>
+  <data name="Email" xml:space="preserve">
+    <value>Email</value>
+  </data>
+  <data name="Education" xml:space="preserve">
+    <value>Education</value>
+  </data>
+  <data name="Experience" xml:space="preserve">
+    <value>Experience</value>
+  </data>
+  <data name="years" xml:space="preserve">
+    <value>years</value>
+  </data>
+  <data name="Interview Details" xml:space="preserve">
+    <value>Interview Details</value>
+  </data>
+  <data name="Topic" xml:space="preserve">
+    <value>Topic</value>
+  </data>
+  <data name="Duration" xml:space="preserve">
+    <value>Duration</value>
+  </data>
+  <data name="Questions" xml:space="preserve">
+    <value>Questions</value>
+  </data>
+  <data name="Status" xml:space="preserve">
+    <value>Status</value>
+  </data>
+  <data name="Not completed" xml:space="preserve">
+    <value>Not completed</value>
+  </data>
+  <data name="answered" xml:space="preserve">
+    <value>answered</value>
+  </data>
+  <data name="Completed" xml:space="preserve">
+    <value>Completed</value>
+  </data>
+  <data name="Detailed Evaluation" xml:space="preserve">
+    <value>Detailed Evaluation</value>
+  </data>
+  <data name="Questions &amp; Answers" xml:space="preserve">
+    <value>Questions &amp; Answers</value>
+  </data>
+  <data name="Your Answer" xml:space="preserve">
+    <value>Your Answer</value>
+  </data>
+  <data name="Feedback" xml:space="preserve">
+    <value>Feedback</value>
+  </data>
+  <data name="No questions available for this session." xml:space="preserve">
+    <value>No questions available for this session.</value>
+  </data>
+  <data name="Interview results are not yet available." xml:space="preserve">
+    <value>Interview results are not yet available.</value>
+  </data>
+</root> 

@@ -1,0 +1,85 @@
+@page
+@model InterviewBot.Pages.InterviewSessions.IndexModel
+@using Microsoft.AspNetCore.Mvc.Localization
+@inject IViewLocalizer Localizer
+@{
+    ViewData["Title"] = Localizer["Interview Sessions"];
+    var currentCulture = HttpContext.Request.Query["culture"].ToString();
+    if (string.IsNullOrEmpty(currentCulture))
+    {
+        currentCulture = HttpContext.Request.Cookies["culture"] ?? "en";
+    }
+}
+
+<div class="container mt-4">
+    <h2 class="mb-4">@Localizer["Interview Sessions"]</h2>
+
+    <div class="card shadow-sm">
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead class="table-light">
+                        <tr>
+                            <th>@Localizer["SubTopic"]</th>
+                            <th>@Localizer["Start Time"]</th>
+                            <th>@Localizer["End Time"]</th>
+                            <th>@Localizer["Score"]</th>
+                            <th>@Localizer["Actions"]</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var session in Model.Sessions)
+                        {
+                            <tr>
+                                <td>@session.SubTopic.Title</td>
+                                <td>@session.StartTime.ToString("g")</td>
+                                <td>@(session.IsCompleted ? session.EndTime?.ToString("g") : Localizer["Ongoing"])</td>
+                                <td>
+                                    @if (session.Result != null)
+                                    {
+                                        <span class="badge @(session.Result.Score >= 70 ? "bg-success" : session.Result.Score >= 50 ? "bg-warning" : "bg-danger")">
+                                            @session.Result.Score/100
+                                        </span>
+                                    }
+                                    else
+                                    {
+                                        <span>-</span>
+                                    }
+                                </td>
+                                <td>
+                                    @if (session.IsCompleted && session.Result != null)
+                                    {
+                                        <a asp-page="Export" asp-route-id="@session.Id" asp-route-culture="@currentCulture" class="btn btn-sm btn-outline-primary">
+                                            <i class="bi bi-download"></i> @Localizer["PDF"]
+                                        </a>
+                                        <a asp-page="Results" asp-route-id="@session.Id" asp-route-culture="@currentCulture" class="btn btn-sm btn-outline-success ms-2">
+                                            <i class="bi bi-graph-up"></i> @Localizer["View Results"]
+                                        </a>
+                                    }
+                                    else if (session.EndTime.HasValue && !session.IsCompleted)
+                                    {
+                                        <span class="text-muted">@Localizer["Disconnected"]</span>
+                                        <a href="/Chat?subTopicId=@session.SubTopicId&resume=@session.Id@(!string.IsNullOrEmpty(currentCulture) ? $"&culture={currentCulture}" : "")" class="btn btn-sm btn-outline-primary ms-2">
+                                            <i class="bi bi-arrow-clockwise"></i> @Localizer["Resume"]
+                                        </a>
+                                    }
+                                    else if (!session.IsCompleted && session.EndTime == null)
+                                    {
+                                        <span class="text-muted">@Localizer["In Progress"]</span>
+                                        <a href="/Chat?subTopicId=@session.SubTopicId&resume=@session.Id@(!string.IsNullOrEmpty(currentCulture) ? $"&culture={currentCulture}" : "")" class="btn btn-sm btn-outline-primary ms-2">
+                                            <i class="bi bi-play-circle"></i> @Localizer["Continue"]
+                                        </a>
+                                    }
+                                    else
+                                    {
+                                        <span class="text-muted">@Localizer["No actions available"]</span>
+                                    }
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>

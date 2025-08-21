@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <data name="Interview Chat" xml:space="preserve">
+    <value>Chat de Entrevista</value>
+  </data>
+  <data name="Interview" xml:space="preserve">
+    <value>Entrevista</value>
+  </data>
+  <data name="Connecting..." xml:space="preserve">
+    <value>Conectando...</value>
+  </data>
+  <data name="Question" xml:space="preserve">
+    <value>Pregunta</value>
+  </data>
+  <data name="End Early" xml:space="preserve">
+    <value>Terminar Antes</value>
+  </data>
+  <data name="Type your answer..." xml:space="preserve">
+    <value>Escribe tu respuesta...</value>
+  </data>
+  <data name="Send" xml:space="preserve">
+    <value>Enviar</value>
+  </data>
+  <data name="Interviewer is typing..." xml:space="preserve">
+    <value>El entrevistador está escribiendo...</value>
+  </data>
+  <data name="Complete Interview" xml:space="preserve">
+    <value>Completar Entrevista</value>
+  </data>
+  <data name="Connected" xml:space="preserve">
+    <value>Conectado</value>
+  </data>
+  <data name="Failed to connect" xml:space="preserve">
+    <value>Error al conectar</value>
+  </data>
+  <data name="Failed to connect. Please refresh the page." xml:space="preserve">
+    <value>Error al conectar. Por favor, actualiza la página.</value>
+  </data>
+  <data name="Completed" xml:space="preserve">
+    <value>Completado</value>
+  </data>
+  <data name="Disconnected" xml:space="preserve">
+    <value>Desconectado</value>
+  </data>
+  <data name="Connection lost. Reconnecting..." xml:space="preserve">
+    <value>Conexión perdida. Reconectando...</value>
+  </data>
+  <data name="Reconnected. Resuming your interview..." xml:space="preserve">
+    <value>Reconectado. Reanudando tu entrevista...</value>
+  </data>
+  <data name="Please wait while we reconnect..." xml:space="preserve">
+    <value>Por favor espera mientras nos reconectamos...</value>
+  </data>
+  <data name="Failed to send message. Please try again." xml:space="preserve">
+    <value>Error al enviar mensaje. Por favor, inténtalo de nuevo.</value>
+  </data>
+  <data name="Completing interview and generating evaluation..." xml:space="preserve">
+    <value>Completando entrevista y generando evaluación...</value>
+  </data>
+  <data name="Failed to complete interview. Please try again." xml:space="preserve">
+    <value>Error al completar la entrevista. Por favor, inténtalo de nuevo.</value>
+  </data>
+  <data name="Are you sure you want to end the interview early? Your progress will be saved." xml:space="preserve">
+    <value>¿Estás seguro de que quieres terminar la entrevista antes? Tu progreso se guardará.</value>
+  </data>
+  <data name="Ending interview early..." xml:space="preserve">
+    <value>Terminando entrevista antes...</value>
+  </data>
+  <data name="Failed to end interview early. Please try again." xml:space="preserve">
+    <value>Error al terminar la entrevista antes. Por favor, inténtalo de nuevo.</value>
+  </data>
+</root> 

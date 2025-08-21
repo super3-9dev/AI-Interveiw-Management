@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <data name="SubTopics" xml:space="preserve">
+    <value>SubTemas</value>
+  </data>
+  <data name="List of SUB TOPICS" xml:space="preserve">
+    <value>Lista de SUB TEMAS</value>
+  </data>
+
+  <data name="Create New" xml:space="preserve">
+    <value>Crear Nuevo</value>
+  </data>
+  <data name="Title" xml:space="preserve">
+    <value>Título</value>
+  </data>
+  <data name="Topic" xml:space="preserve">
+    <value>Tema</value>
+  </data>
+  <data name="Interview Status" xml:space="preserve">
+    <value>Estado de la Entrevista</value>
+  </data>
+  <data name="Actions" xml:space="preserve">
+    <value>Acciones</value>
+  </data>
+  <data name="Completed" xml:space="preserve">
+    <value>Completada</value>
+  </data>
+  <data name="In Progress" xml:space="preserve">
+    <value>En Progreso</value>
+  </data>
+  <data name="Not Started" xml:space="preserve">
+    <value>No Iniciada</value>
+  </data>
+  <data name="Start Interview" xml:space="preserve">
+    <value>Comenzar Entrevista</value>
+  </data>
+  <data name="View Results" xml:space="preserve">
+    <value>Ver Resultados</value>
+  </data>
+  <data name="Resume Interview" xml:space="preserve">
+    <value>Reanudar Entrevista</value>
+  </data>
+  <data name="Edit" xml:space="preserve">
+    <value>Editar</value>
+  </data>
+  <data name="Delete" xml:space="preserve">
+    <value>Eliminar</value>
+  </data>
+  <data name="Are you sure?" xml:space="preserve">
+    <value>¿Estás seguro?</value>
+  </data>
+  <data name="Publish Status" xml:space="preserve">
+    <value>Estado de Publicación</value>
+  </data>
+  <data name="Published" xml:space="preserve">
+    <value>Publicado</value>
+  </data>
+  <data name="Draft" xml:space="preserve">
+    <value>Borrador</value>
+  </data>
+  <data name="Publish" xml:space="preserve">
+    <value>Publicar</value>
+  </data>
+  <data name="Republish" xml:space="preserve">
+    <value>Republicar</value>
+  </data>
+
+</root> 

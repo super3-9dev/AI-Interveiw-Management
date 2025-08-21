@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <data name="Choose Interview Format" xml:space="preserve">
+    <value>Choose Interview Format</value>
+  </data>
+  <data name="You have never signed up!" xml:space="preserve">
+    <value>You have never signed up!</value>
+  </data>
+  <data name="So I gonna set your password as default password." xml:space="preserve">
+    <value>So I gonna set your password as default password.</value>
+  </data>
+  <data name="Choose Your Interview Format" xml:space="preserve">
+    <value>Choose Your Interview Format</value>
+  </data>
+  <data name="Please choose your preferred interview format below to begin your online session." xml:space="preserve">
+    <value>Please choose your preferred interview format below to begin your online session.</value>
+  </data>
+  <data name="Text Interview" xml:space="preserve">
+    <value>Text Interview</value>
+  </data>
+  <data name="Voice Interview" xml:space="preserve">
+    <value>Voice Interview</value>
+  </data>
+  <data name="You have already completed this interview. You cannot access it again." xml:space="preserve">
+    <value>You have already completed this interview. You cannot access it again.</value>
+  </data>
+  <data name="Failed to start interview. Please try again." xml:space="preserve">
+    <value>Failed to start interview. Please try again.</value>
+  </data>
+</root> 

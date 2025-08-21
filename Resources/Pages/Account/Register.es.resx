@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+    <xsd:element name="root" msdata:IsDataSet="true">
+      <xsd:complexType>
+        <xsd:choice maxOccurs="unbounded">
+          <xsd:element name="data">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" />
+                <xsd:element name="comment" type="xsd:string" minOccurs="0" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" />
+              <xsd:attribute name="type" type="xsd:string" />
+              <xsd:attribute name="mimetype" type="xsd:string" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="resheader">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" />
+            </xsd:complexType>
+          </xsd:element>
+        </xsd:choice>
+      </xsd:complexType>
+    </xsd:element>
+  </xsd:schema>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="Register">
+    <value>Registrarse</value>
+  </data>
+  <data name="Create Account">
+    <value>Crear Cuenta</value>
+  </data>
+  <data name="FullName">
+    <value>Nombre Completo</value>
+  </data>
+  <data name="Email">
+    <value>Correo Electrónico</value>
+  </data>
+  <data name="Password">
+    <value>Contraseña</value>
+  </data>
+  <data name="ConfirmPassword">
+    <value>Confirmar Contraseña</value>
+  </data>
+  <data name="Education">
+    <value>Educación</value>
+  </data>
+  <data name="Experience">
+    <value>Experiencia</value>
+  </data>
+  <data name="CurrentPosition">
+    <value>Cargo Actual</value>
+  </data>
+  <data name="Already have an account? Login">
+    <value>¿Ya tienes una cuenta? Inicia Sesión</value>
+  </data>
+  <data name="Email is already registered.">
+    <value>El correo electrónico ya está registrado.</value>
+  </data>
+  <data name="Passwords don't match.">
+    <value>Las contraseñas no coinciden.</value>
+  </data>
+</root> 

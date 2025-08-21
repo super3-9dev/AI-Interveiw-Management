@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <data name="My Interview Topics" xml:space="preserve">
+    <value>My Interview Topics</value>
+  </data>
+  <data name="Create New Topic" xml:space="preserve">
+    <value>Create New Topic</value>
+  </data>
+  <data name="No subtopics available" xml:space="preserve">
+    <value>No subtopics available</value>
+  </data>
+  <data name="Start" xml:space="preserve">
+    <value>Start</value>
+  </data>
+  <data name="Language" xml:space="preserve">
+    <value>Language</value>
+  </data>
+  <data name="Welcome to InterviewBot!" xml:space="preserve">
+    <value>Welcome to InterviewBot!</value>
+  </data>
+  <data name="Get started by creating your first interview topic. You can organize your interview preparation by creating topics and subtopics." xml:space="preserve">
+    <value>Get started by creating your first interview topic. You can organize your interview preparation by creating topics and subtopics.</value>
+  </data>
+  <data name="Create Topics" xml:space="preserve">
+    <value>Create Topics</value>
+  </data>
+  <data name="Organize your interview preparation by creating main topics like 'Technical Skills', 'Behavioral Questions', etc." xml:space="preserve">
+    <value>Organize your interview preparation by creating main topics like 'Technical Skills', 'Behavioral Questions', etc.</value>
+  </data>
+  <data name="Add Subtopics" xml:space="preserve">
+    <value>Add Subtopics</value>
+  </data>
+  <data name="Break down topics into specific areas like 'JavaScript Fundamentals', 'System Design', etc." xml:space="preserve">
+    <value>Break down topics into specific areas like 'JavaScript Fundamentals', 'System Design', etc.</value>
+  </data>
+  <data name="Start Interviews" xml:space="preserve">
+    <value>Start Interviews</value>
+  </data>
+  <data name="Begin AI-powered mock interviews to practice and improve your skills." xml:space="preserve">
+    <value>Begin AI-powered mock interviews to practice and improve your skills.</value>
+  </data>
+  <data name="Review Results" xml:space="preserve">
+    <value>Review Results</value>
+  </data>
+  <data name="Get detailed feedback and scores to track your progress." xml:space="preserve">
+    <value>Get detailed feedback and scores to track your progress.</value>
+  </data>
+  <data name="Create Your First Topic" xml:space="preserve">
+    <value>Create Your First Topic</value>
+  </data>
+  <data name="Start Interview" xml:space="preserve">
+    <value>Start Interview</value>
+  </data>
+  <data name="View Results" xml:space="preserve">
+    <value>View Results</value>
+  </data>
+  <data name="Resume Interview" xml:space="preserve">
+    <value>Resume Interview</value>
+  </data>
+</root> 

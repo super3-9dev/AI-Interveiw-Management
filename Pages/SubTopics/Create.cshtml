@@ -1,0 +1,69 @@
+﻿@page
+@model InterviewBot.Pages.SubTopics.CreateModel
+@using Microsoft.AspNetCore.Mvc.Localization
+@inject IViewLocalizer Localizer
+@{
+    ViewData["Title"] = Localizer["Create SubTopic"];
+}
+
+<div class="container mt-4">
+    <div class="card shadow-sm">
+        <div class="card-header bg-primary text-white">
+            <h2 class="mb-0">@Localizer["Create SubTopic"]</h2>
+        </div>
+        <div class="card-body">
+            <form method="post">
+                <div asp-validation-summary="ModelOnly" class="alert alert-danger"></div>
+
+                <div class="mb-3">
+                    <label asp-for="SubTopic.Title" class="form-label">@Localizer["Title"]</label>
+                    <input asp-for="SubTopic.Title" class="form-control" />
+                    <span asp-validation-for="SubTopic.Title" class="text-danger"></span>
+                </div>
+
+                <div class="mb-3">
+                    <label asp-for="SubTopic.Description" class="form-label">@Localizer["Describe the objective and what type of questions the agent should ask."]</label>
+                    <textarea asp-for="SubTopic.Description" class="form-control" rows="3"></textarea>
+                    <span asp-validation-for="SubTopic.Description" class="text-danger"></span>
+                </div>
+
+                <div class="mb-3">
+                    <label asp-for="SubTopic.CandidateEmail" class="form-label">@Localizer["Email"]</label>
+                    <input asp-for="SubTopic.CandidateEmail" class="form-control" type="text" placeholder="email1@example.com; email2@example.com" />
+                    <div class="form-text">You can enter multiple email addresses separated by semicolons (;)</div>
+                    <span asp-validation-for="SubTopic.CandidateEmail" class="text-danger"></span>
+                </div>
+
+                <div class="mb-3">
+                    <label asp-for="SubTopic.TopicId" class="form-label">@Localizer["Topic"]</label>
+                    <select asp-for="SubTopic.TopicId" asp-items="Model.TopicOptions" class="form-select">
+                        <option value="">@Localizer["-- Select Topic --"]</option>
+                    </select>
+                    <span asp-validation-for="SubTopic.TopicId" class="text-danger"></span>
+                </div>
+
+                <div class="d-flex justify-content-between mt-4">
+                    <button type="submit" class="btn btn-primary px-4">
+                        <i class="bi bi-plus-lg"></i> @Localizer["Create"]
+                    </button>
+                    <a asp-page="Index" class="btn btn-outline-secondary">
+                        <i class="bi bi-arrow-left"></i> @Localizer["Back to List"]
+                    </a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+
+    <script>
+        $(document).ready(function() {
+            // Add any custom client-side validation here
+            console.log("Validation scripts loaded");
+        });
+    </script>
+}

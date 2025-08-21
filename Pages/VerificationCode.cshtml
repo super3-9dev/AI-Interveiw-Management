@@ -1,0 +1,67 @@
+@page
+@model InterviewBot.Pages.VerificationCodeModel
+@using Microsoft.AspNetCore.Mvc.Localization
+@inject IViewLocalizer Localizer
+@{
+    ViewData["Title"] = Localizer["Enter Verification Code"];
+}
+
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-6 col-lg-4">
+            <div class="card shadow">
+                <div class="card-body p-4">
+                    <h2 class="text-center mb-4">@Localizer["Enter Verification Code"]</h2>
+                    <p class="text-muted text-center mb-4">
+                        @Localizer["We've sent a verification code to"] <strong>@Model.Email</strong>
+                    </p>
+                    
+                    <form method="post">
+                        <input type="hidden" name="Email" value="@Model.Email" />
+                        
+                        <div class="mb-3">
+                            <label for="verificationCode" class="form-label">@Localizer["Verification Code"]</label>
+                            <input type="text" class="form-control text-center" id="verificationCode" 
+                                   name="VerificationCode" placeholder="123456" maxlength="6" required
+                                   style="font-size: 1.5rem; letter-spacing: 0.5rem;">
+                        </div>
+                        
+                        <button type="submit" class="btn btn-primary w-100">
+                            @Localizer["Verify Code"]
+                        </button>
+                    </form>
+                    
+                    <div class="text-center mt-3">
+                        <a href="#" onclick="sendNewCode()" class="text-decoration-none">@Localizer["Send new code"]</a>
+                    </div>
+                    
+                    @if (!string.IsNullOrEmpty(Model.ErrorMessage))
+                    {
+                        <div class="alert alert-danger mt-3" role="alert">
+                            @Model.ErrorMessage
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.getElementById('verificationCode').addEventListener('input', function(e) {
+    // Only allow numbers
+    this.value = this.value.replace(/[^0-9]/g, '');
+});
+
+function sendNewCode() {
+    // Get current URL and preserve culture parameter
+    const currentUrl = new URL(window.location.href);
+    const currentParams = currentUrl.searchParams;
+    
+    // Navigate to EmailVerification page with culture parameter preserved
+    const emailVerificationUrl = new URL('/EmailVerification', window.location.origin);
+    emailVerificationUrl.searchParams.set('culture', currentParams.get('culture') || 'en');
+    
+    window.location.href = emailVerificationUrl.toString();
+}
+</script> 

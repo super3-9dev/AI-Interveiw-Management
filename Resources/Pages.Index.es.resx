@@ -1,0 +1,60 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <data name="My Interview Topics" xml:space="preserve">
+    <value>Mis Temas de Entrevista</value>
+  </data>
+  <data name="Create New Topic" xml:space="preserve">
+    <value>Crear Nuevo Tema</value>
+  </data>
+  <data name="No subtopics available" xml:space="preserve">
+    <value>No hay subtemas disponibles</value>
+  </data>
+  <data name="Start" xml:space="preserve">
+    <value>Comenzar</value>
+  </data>
+  <data name="Language" xml:space="preserve">
+    <value>Idioma</value>
+  </data>
+  <data name="Welcome to InterviewBot!" xml:space="preserve">
+    <value>¡Bienvenido a InterviewBot!</value>
+  </data>
+  <data name="Get started by creating your first interview topic. You can organize your interview preparation by creating topics and subtopics." xml:space="preserve">
+    <value>Comienza creando tu primer tema de entrevista. Puedes organizar tu preparación para entrevistas creando temas y subtemas.</value>
+  </data>
+  <data name="Create Topics" xml:space="preserve">
+    <value>Crear Temas</value>
+  </data>
+  <data name="Organize your interview preparation by creating main topics like 'Technical Skills', 'Behavioral Questions', etc." xml:space="preserve">
+    <value>Organiza tu preparación para entrevistas creando temas principales como 'Habilidades Técnicas', 'Preguntas de Comportamiento', etc.</value>
+  </data>
+  <data name="Add Subtopics" xml:space="preserve">
+    <value>Agregar Subtemas</value>
+  </data>
+  <data name="Break down topics into specific areas like 'JavaScript Fundamentals', 'System Design', etc." xml:space="preserve">
+    <value>Divide los temas en áreas específicas como 'Fundamentos de JavaScript', 'Diseño de Sistemas', etc.</value>
+  </data>
+  <data name="Start Interviews" xml:space="preserve">
+    <value>Comenzar Entrevistas</value>
+  </data>
+  <data name="Begin AI-powered mock interviews to practice and improve your skills." xml:space="preserve">
+    <value>Comienza entrevistas simuladas con IA para practicar y mejorar tus habilidades.</value>
+  </data>
+  <data name="Review Results" xml:space="preserve">
+    <value>Revisar Resultados</value>
+  </data>
+  <data name="Get detailed feedback and scores to track your progress." xml:space="preserve">
+    <value>Obtén retroalimentación detallada y puntuaciones para rastrear tu progreso.</value>
+  </data>
+  <data name="Create Your First Topic" xml:space="preserve">
+    <value>Crear Tu Primer Tema</value>
+  </data>
+  <data name="Start Interview" xml:space="preserve">
+    <value>Comenzar Entrevista</value>
+  </data>
+  <data name="View Results" xml:space="preserve">
+    <value>Ver Resultados</value>
+  </data>
+  <data name="Resume Interview" xml:space="preserve">
+    <value>Reanudar Entrevista</value>
+  </data>
+</root>

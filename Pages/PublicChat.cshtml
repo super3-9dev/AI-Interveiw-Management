@@ -1,0 +1,206 @@
+@page
+@model InterviewBot.Pages.PublicChatModel
+@{
+    ViewData["Title"] = "Interview Chat";
+}
+
+<div class="container-fluid h-100">
+    <div class="row h-100">
+        <!-- Interview Info Sidebar -->
+        <div class="col-md-3 bg-light border-end">
+            <div class="p-3">
+                <h5 class="mb-3">
+                    <i class="bi bi-info-circle me-2"></i>
+                    Interview Info
+                </h5>
+                
+                <div class="mb-3">
+                    <strong>Topic:</strong>
+                    <p class="mb-1">@Model.SubTopic.Topic?.Title</p>
+                </div>
+                
+                <div class="mb-3">
+                    <strong>Sub-topic:</strong>
+                    <p class="mb-1">@Model.SubTopic.Title</p>
+                </div>
+                
+                @if (!string.IsNullOrEmpty(Model.SubTopic.Description))
+                {
+                    <div class="mb-3">
+                        <strong>Description:</strong>
+                        <p class="mb-1">@Model.SubTopic.Description</p>
+                    </div>
+                }
+                
+                <div class="mb-3">
+                    <strong>Session ID:</strong>
+                    <p class="mb-1">@Model.Session.Id</p>
+                </div>
+                
+                <div class="mb-3">
+                    <strong>Started:</strong>
+                    <p class="mb-1">@Model.Session.StartTime.ToString("g")</p>
+                </div>
+                
+                <div class="alert alert-info">
+                    <small>
+                        <i class="bi bi-lightbulb me-1"></i>
+                        This is a public interview session. Your responses will be saved and you can view results later.
+                    </small>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Chat Area -->
+        <div class="col-md-9 d-flex flex-column h-100">
+            <div class="flex-grow-1 d-flex flex-column">
+                <!-- Chat Header -->
+                <div class="bg-primary text-white p-3">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <h5 class="mb-0">
+                            <i class="bi bi-chat-dots me-2"></i>
+                            Interview Chat
+                        </h5>
+                        <div>
+                            <span class="badge bg-light text-dark">Public Session</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Messages Area -->
+                <div id="messagesList" class="flex-grow-1 p-3" style="height: 400px; overflow-y: auto;">
+                    <div class="text-center text-muted">
+                        <i class="bi bi-chat-dots fs-1"></i>
+                        <p>Interview session ready. The AI interviewer will start asking questions shortly.</p>
+                    </div>
+                </div>
+                
+                <!-- Input Area -->
+                <div class="border-top p-3">
+                    <div class="input-group">
+                        <input type="text" id="messageInput" class="form-control" placeholder="Type your answer here..." />
+                        <button class="btn btn-primary" type="button" id="sendButton">
+                            <i class="bi bi-send"></i> Send
+                        </button>
+                    </div>
+                    <small class="text-muted">
+                        Press Enter to send your message
+                    </small>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="~/lib/microsoft-signalr/signalr.min.js"></script>
+    <script>
+        const connection = new signalR.HubConnectionBuilder()
+            .withUrl("/chatHub")
+            .build();
+        
+        const messagesList = document.getElementById("messagesList");
+        const messageInput = document.getElementById("messageInput");
+        const sendButton = document.getElementById("sendButton");
+        
+        // Disable send button until connection is established
+        sendButton.disabled = true;
+        
+        connection.on("ReceiveMessage", function (user, message) {
+            const li = document.createElement("div");
+            li.className = "mb-3";
+            
+            const isSystem = user === "System";
+            const isAI = user === "AI Interviewer";
+            
+            if (isSystem) {
+                li.innerHTML = `
+                    <div class="alert alert-info">
+                        <i class="bi bi-info-circle me-2"></i>
+                        ${message}
+                    </div>
+                `;
+            } else if (isAI) {
+                li.innerHTML = `
+                    <div class="d-flex">
+                        <div class="flex-shrink-0">
+                            <div class="bg-primary text-white rounded-circle d-flex align-items-center justify-content-center" style="width: 40px; height: 40px;">
+                                <i class="bi bi-robot"></i>
+                            </div>
+                        </div>
+                        <div class="flex-grow-1 ms-3">
+                            <div class="bg-light rounded p-3">
+                                <strong>${user}:</strong> ${message}
+                            </div>
+                        </div>
+                    </div>
+                `;
+            } else {
+                li.innerHTML = `
+                    <div class="d-flex justify-content-end">
+                        <div class="flex-grow-1 me-3">
+                            <div class="bg-primary text-white rounded p-3">
+                                <strong>You:</strong> ${message}
+                            </div>
+                        </div>
+                        <div class="flex-shrink-0">
+                            <div class="bg-secondary text-white rounded-circle d-flex align-items-center justify-content-center" style="width: 40px; height: 40px;">
+                                <i class="bi bi-person"></i>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }
+            
+            messagesList.appendChild(li);
+            messagesList.scrollTop = messagesList.scrollHeight;
+        });
+
+        connection.on("InterviewCompleted", function (score, evaluation) {
+            const li = document.createElement("div");
+            li.className = "mb-3";
+            li.innerHTML = `
+                <div class="alert alert-success">
+                    <i class="bi bi-check-circle me-2"></i>
+                    Interview completed! Your score: ${score}%
+                </div>
+            `;
+            messagesList.appendChild(li);
+            messagesList.scrollTop = messagesList.scrollHeight;
+        });
+
+        connection.on("RedirectToResults", function (sessionId) {
+            window.location.href = `/PublicResults/${sessionId}`;
+        });
+        
+        connection.start().then(function () {
+            sendButton.disabled = false;
+            
+            // Start the interview
+            connection.invoke("StartPublicInterview", @Model.SubTopicId, @Model.SessionId)
+                .catch(function (err) {
+                    return console.error(err.toString());
+                });
+        }).catch(function (err) {
+            return console.error(err.toString());
+        });
+        
+        sendButton.addEventListener("click", function (event) {
+            const message = messageInput.value;
+            if (message.trim() !== "") {
+                connection.invoke("SendPublicMessage", message, @Model.SessionId)
+                    .catch(function (err) {
+                        return console.error(err.toString());
+                    });
+                messageInput.value = "";
+            }
+            event.preventDefault();
+        });
+        
+        messageInput.addEventListener("keypress", function (event) {
+            if (event.key === "Enter") {
+                sendButton.click();
+            }
+        });
+    </script>
+} 

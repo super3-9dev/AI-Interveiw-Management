@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <data name="Create SubTopic" xml:space="preserve">
+    <value>Crear SubTema</value>
+  </data>
+  <data name="Title" xml:space="preserve">
+    <value>Título</value>
+  </data>
+  <data name="Describe the objective and what type of questions the agent should ask." xml:space="preserve">
+    <value>Describe el objetivo y qué tipo de preguntas debe hacer el agente.</value>
+  </data>
+  <data name="Email" xml:space="preserve">
+    <value>Correo Electrónico</value>
+  </data>
+  <data name="Topic" xml:space="preserve">
+    <value>Tema</value>
+  </data>
+  <data name="-- Select Topic --" xml:space="preserve">
+    <value>-- Seleccionar Tema --</value>
+  </data>
+  <data name="Create" xml:space="preserve">
+    <value>Crear</value>
+  </data>
+  <data name="Back to List" xml:space="preserve">
+    <value>Volver a la Lista</value>
+  </data>
+</root> 

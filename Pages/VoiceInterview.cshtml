@@ -1,0 +1,941 @@
+@page
+@model InterviewBot.Pages.VoiceInterviewModel
+@using Microsoft.AspNetCore.Mvc.Localization
+@inject IViewLocalizer Localizer
+@{
+    ViewData["Title"] = Localizer["Voice Interview"];
+}
+
+<div class="container mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2>@Localizer["Voice Interview"]: @Model.SubTopic?.Title</h2>
+        <div id="connectionStatus">
+            <span id="connectionIndicator" class="badge bg-secondary">@Localizer["Connecting..."]</span>
+            <span id="progressIndicator" class="badge bg-info ms-2">@Localizer["Question"] 0</span>
+            <button class="btn btn-outline-danger" id="endEarlyBtn">
+                <i class="bi bi-stop-circle"></i> @Localizer["End Early"]
+            </button>
+        </div>
+    </div>
+
+    <div class="row">
+        <!-- Voice Interview Container -->
+        <div class="col-md-8">
+            <div class="card shadow-sm">
+                <div class="card-body">
+                    <div id="voiceContainer" class="position-relative" style="height: 300px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border-radius: 12px;">
+                        <!-- AI Interviewer Avatar -->
+                        <div id="aiInterviewer" class="d-flex align-items-center justify-content-center h-100">
+                            <div class="text-center text-white">
+                                <i class="bi bi-person-circle" style="font-size: 4rem;"></i>
+                                <p class="mt-2">@Localizer["AI Interviewer"]</p>
+                                <p class="small" id="aiStatus">@Localizer["Voice Interview Ready"]</p>
+                                <div id="speakingIndicator" class="mt-2" style="display: none;">
+                                    <div class="speaking-animation">
+                                        <span></span>
+                                        <span></span>
+                                        <span></span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- User Microphone Speaking Indicator -->
+                        <div id="userMicrophoneIndicator" class="position-absolute bottom-0 start-50 translate-middle-x mb-3" style="display: none;">
+                            <div class="d-flex align-items-center bg-primary bg-opacity-75 text-white px-3 py-2 rounded-pill">
+                                <i class="bi bi-mic-fill me-2"></i>
+                                <span id="userMicrophoneStatus">@Localizer["Speaking..."]</span>
+                                <div class="user-microphone-animation ms-2">
+                                    <span></span>
+                                    <span></span>
+                                    <span></span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                                         <!-- Voice Controls -->
+                     <div class="mt-3">
+                         <div class="row">
+                             <div class="col-md-2">
+                                 <button id="muteBtn" class="btn btn-outline-primary w-100">
+                                     <i class="bi bi-mic"></i> @Localizer["Mute"]
+                                 </button>
+                             </div>
+                             <div class="col-md-2">
+                                 <button id="unmuteBtn" class="btn btn-primary w-100" style="display: none;">
+                                     <i class="bi bi-mic-mute"></i> @Localizer["Unmute"]
+                                 </button>
+                             </div>
+                             <div class="col-md-2">
+                                 <button id="startVoiceBtn" class="btn btn-success w-100">
+                                     <i class="bi bi-play-circle"></i> @Localizer["Start Voice"]
+                                 </button>
+                             </div>
+                             <div class="col-md-3">
+                                 <button id="aiVoiceBtn" class="btn btn-info w-100">
+                                     <i class="bi bi-volume-up"></i> @Localizer["AI Voice: ON"]
+                                 </button>
+                             </div>
+                             <div class="col-md-3">
+                                 <button id="voiceMonitorBtn" class="btn btn-warning w-100">
+                                     <i class="bi bi-headphones"></i> @Localizer["Voice Monitor: OFF"]
+                                 </button>
+                             </div>
+                         </div>
+                     </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Chat Panel -->
+        <div class="col-md-4">
+            <div class="card shadow-sm">
+                <div class="card-header">
+                    <h5 class="mb-0">@Localizer["Interview Chat"]</h5>
+                </div>
+                <div class="card-body">
+                    <div id="chatBox" class="chat-container mb-3 p-3 bg-light rounded" style="height: 300px; overflow-y: auto;">
+                        <!-- Messages will appear here -->
+                    </div>
+
+                    <div class="input-group mb-2">
+                        <input type="text" id="messageInput" class="form-control" placeholder="@Localizer["Type your answer..."]" />
+                        <button class="btn btn-primary" id="sendButton" onclick="sendMessage()">
+                            <i class="bi bi-send"></i> @Localizer["Send"]
+                        </button>
+                    </div>
+                    <div class="text-end">
+                        <small id="typingIndicator" class="text-muted" style="display: none;">
+                            <i class="bi bi-pencil"></i> @Localizer["Interviewer is typing..."]
+                        </small>
+                    </div>
+                    <div id="completeButtonContainer" class="text-end mt-3" style="display: none;">
+                        <button class="btn btn-success" id="completeButton" onclick="completeInterview()">
+                            <i class="bi bi-check-circle"></i> @Localizer["Complete Interview"]
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Styles {
+    <style>
+        .chat-container {
+            border: 1px solid #dee2e6;
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+        }
+
+        .chat-message {
+            margin-bottom: 0.5rem;
+            padding: 0.75rem 1rem;
+            border-radius: 0.5rem;
+            max-width: 100%;
+            word-wrap: break-word;
+        }
+
+        .bot-message {
+            background-color: #f8f9fa;
+            align-self: flex-start;
+            border: 1px solid #dee2e6;
+        }
+
+        .user-message {
+            background-color: #0d6efd;
+            color: white;
+            align-self: flex-end;
+            margin-left: auto;
+        }
+
+        #connectionStatus {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .badge {
+            padding: 0.5em 0.75em;
+            font-size: 0.85em;
+            transition: all 0.3s ease;
+        }
+
+        #voiceContainer {
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        .voice-active {
+            background-color: #28a745 !important;
+            color: white !important;
+        }
+
+        .ai-voice-off {
+            background-color: #6c757d !important;
+            color: white !important;
+        }
+
+        /* Speaking animation */
+        .speaking-animation {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .speaking-animation span {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background-color: white;
+            animation: speaking 1.4s infinite ease-in-out;
+        }
+
+        .speaking-animation span:nth-child(1) {
+            animation-delay: -0.32s;
+        }
+
+        .speaking-animation span:nth-child(2) {
+            animation-delay: -0.16s;
+        }
+
+        @@keyframes speaking {
+            0%, 80%, 100% {
+                transform: scale(0.8);
+                opacity: 0.5;
+            }
+            40% {
+                transform: scale(1);
+                opacity: 1;
+            }
+        }
+
+        /* User microphone animation */
+        .user-microphone-animation {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 2px;
+        }
+
+        .user-microphone-animation span {
+            width: 4px;
+            height: 4px;
+            border-radius: 50%;
+            background-color: #ffffff;
+            animation: user-microphone-pulse 1.2s infinite ease-in-out;
+        }
+
+        .user-microphone-animation span:nth-child(1) {
+            animation-delay: -0.24s;
+        }
+
+        .user-microphone-animation span:nth-child(2) {
+            animation-delay: -0.12s;
+        }
+
+        @@keyframes user-microphone-pulse {
+            0%, 80%, 100% {
+                transform: scale(0.8);
+                opacity: 0.5;
+            }
+            40% {
+                transform: scale(1.2);
+                opacity: 1;
+            }
+        }
+    </style>
+}
+
+@section Scripts {
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/microsoft-signalr/7.0.5/signalr.min.js"></script>
+    <script>
+        // DOM Elements
+        const chatBox = document.getElementById("chatBox");
+        const messageInput = document.getElementById("messageInput");
+        const sendButton = document.getElementById("sendButton");
+        const connectionIndicator = document.getElementById("connectionIndicator");
+        const progressIndicator = document.getElementById("progressIndicator");
+        const typingIndicator = document.getElementById("typingIndicator");
+        const completeButtonContainer = document.getElementById("completeButtonContainer");
+        const completeButton = document.getElementById("completeButton");
+        const endEarlyBtn = document.getElementById("endEarlyBtn");
+        const aiInterviewer = document.getElementById("aiInterviewer");
+        const aiStatus = document.getElementById("aiStatus");
+        const speakingIndicator = document.getElementById("speakingIndicator");
+        const muteBtn = document.getElementById("muteBtn");
+        const unmuteBtn = document.getElementById("unmuteBtn");
+        const startVoiceBtn = document.getElementById("startVoiceBtn");
+        const aiVoiceBtn = document.getElementById("aiVoiceBtn");
+        const voiceMonitorBtn = document.getElementById("voiceMonitorBtn");
+        const userMicrophoneIndicator = document.getElementById("userMicrophoneIndicator");
+        const userMicrophoneStatus = document.getElementById("userMicrophoneStatus");
+
+        // Voice variables
+        let localStream;
+        let isMuted = false;
+        let isVoiceActive = false;
+        let isAIVoiceEnabled = true;
+        let isUserSpeaking = false;
+        let speechSynthesis = window.speechSynthesis;
+        let currentUtterance = null;
+        let audioContext;
+        let analyser;
+        let microphone;
+        let dataArray;
+        let animationId;
+        let speechRecognition;
+        let isListening = false;
+        let isVoiceMonitorEnabled = false;
+        let voiceMonitorDestination;
+
+        // SignalR Connection
+        const connection = new signalR.HubConnectionBuilder()
+            .withUrl("/chatHub", {
+                skipNegotiation: true,
+                transport: signalR.HttpTransportType.WebSockets
+            })
+            .configureLogging(signalR.LogLevel.Information)
+            .withAutomaticReconnect({
+                nextRetryDelayInMilliseconds: retryContext => {
+                    return Math.min(10000, 1000 * Math.pow(2, retryContext.previousRetryCount));
+                }
+            })
+            .build();
+
+        // Voice Functions
+        async function initializeVoice() {
+            try {
+                // Check if getUserMedia is supported
+                if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+                    throw new Error('getUserMedia not supported');
+                }
+
+                // Get user media (microphone only, no video)
+                localStream = await navigator.mediaDevices.getUserMedia({
+                    video: false,
+                    audio: {
+                        echoCancellation: true,
+                        noiseSuppression: true,
+                        autoGainControl: true
+                    }
+                });
+                
+                // Initialize audio context for microphone monitoring
+                await initializeAudioContext();
+                
+                // Initialize speech recognition
+                initializeSpeechRecognition();
+                
+                updateConnectionStatus("@Localizer["Voice Ready"]", "bg-success");
+                addSystemMessage("@Localizer["Voice interview is ready. Click 'Start Voice' to begin."]");
+                
+            } catch (error) {
+                console.error('Voice initialization error:', error);
+                
+                // Check if it's a permission error
+                if (error.name === 'NotAllowedError' || error.name === 'PermissionDeniedError') {
+                    updateConnectionStatus("@Localizer["Microphone Access Denied"]", "bg-warning");
+                    addSystemMessage("@Localizer["Please allow microphone access for voice interview."]");
+                } else if (error.name === 'NotFoundError' || error.name === 'DevicesNotFoundError') {
+                    updateConnectionStatus("@Localizer["No Microphone Found"]", "bg-warning");
+                    addSystemMessage("@Localizer["No microphone detected. Please connect a microphone and refresh the page."]");
+                } else {
+                    updateConnectionStatus("@Localizer["Microphone Error"]", "bg-warning");
+                    addSystemMessage("@Localizer["Error accessing microphone. Please check your microphone settings."]");
+                }
+            }
+        }
+
+        // Initialize audio context for microphone monitoring
+        async function initializeAudioContext() {
+            try {
+                audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                analyser = audioContext.createAnalyser();
+                analyser.fftSize = 256;
+                
+                microphone = audioContext.createMediaStreamSource(localStream);
+                microphone.connect(analyser);
+                
+                // Create voice monitor destination (speakers)
+                voiceMonitorDestination = audioContext.destination;
+                
+                dataArray = new Uint8Array(analyser.frequencyBinCount);
+            } catch (error) {
+                console.error('Audio context initialization error:', error);
+            }
+        }
+
+        // Initialize speech recognition
+        function initializeSpeechRecognition() {
+            try {
+                const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+                if (SpeechRecognition) {
+                    speechRecognition = new SpeechRecognition();
+                    speechRecognition.continuous = true;
+                    speechRecognition.interimResults = true;
+                    speechRecognition.lang = 'en-US'; // Can be made dynamic based on culture
+                    
+                    speechRecognition.onresult = function(event) {
+                        let finalTranscript = '';
+                        let interimTranscript = '';
+                        
+                        for (let i = event.resultIndex; i < event.results.length; i++) {
+                            const transcript = event.results[i][0].transcript;
+                            if (event.results[i].isFinal) {
+                                finalTranscript += transcript;
+                            } else {
+                                interimTranscript += transcript;
+                            }
+                        }
+                        
+                        // If we have a final result, send it to the AI
+                        if (finalTranscript.trim()) {
+                            console.log('Final transcript:', finalTranscript);
+                            // Send the transcribed speech as a message
+                            sendTranscribedMessage(finalTranscript.trim());
+                        }
+                    };
+                    
+                    speechRecognition.onerror = function(event) {
+                        console.error('Speech recognition error:', event.error);
+                        if (event.error === 'no-speech') {
+                            // Restart listening if no speech detected
+                            if (isListening && isVoiceActive) {
+                                setTimeout(() => {
+                                    if (isListening && isVoiceActive) {
+                                        speechRecognition.start();
+                                    }
+                                }, 1000);
+                            }
+                        }
+                    };
+                    
+                    speechRecognition.onend = function() {
+                        // Restart listening if still active
+                        if (isListening && isVoiceActive) {
+                            setTimeout(() => {
+                                if (isListening && isVoiceActive) {
+                                    speechRecognition.start();
+                                }
+                            }, 1000);
+                        }
+                    };
+                }
+            } catch (error) {
+                console.error('Speech recognition initialization error:', error);
+            }
+        }
+
+        // Send transcribed message
+        async function sendTranscribedMessage(message) {
+            if (connection.state !== signalR.HubConnectionState.Connected) {
+                addSystemMessage("@Localizer["Please wait while we reconnect..."]");
+                return;
+            }
+
+            try {
+                // Add user message to chat
+                const messageElement = document.createElement("div");
+                messageElement.className = "chat-message user-message";
+                messageElement.innerHTML = `<strong>You:</strong> ${message}`;
+                chatBox.appendChild(messageElement);
+                chatBox.scrollTop = chatBox.scrollHeight;
+                
+                // Send to AI
+                await connection.invoke("SendAnswer", message);
+                showTypingIndicator(true);
+                
+            } catch (err) {
+                console.error("Error sending transcribed message:", err);
+                addSystemMessage("@Localizer["Failed to send message. Please try again."]");
+            }
+        }
+
+        // Monitor microphone activity
+        function monitorMicrophone() {
+            if (!analyser || !dataArray) return;
+            
+            analyser.getByteFrequencyData(dataArray);
+            
+            // Calculate average volume
+            const average = dataArray.reduce((a, b) => a + b) / dataArray.length;
+            
+            // Show microphone indicator if volume is above threshold
+            if (average > 30 && isVoiceActive) {
+                if (!isUserSpeaking) {
+                    isUserSpeaking = true;
+                    userMicrophoneIndicator.style.display = 'block';
+                    userMicrophoneStatus.textContent = '@Localizer["Speaking..."]';
+                }
+            } else {
+                if (isUserSpeaking) {
+                    isUserSpeaking = false;
+                    userMicrophoneIndicator.style.display = 'none';
+                }
+            }
+            
+            // Continue monitoring
+            animationId = requestAnimationFrame(monitorMicrophone);
+        }
+
+        // Mute/Unmute functions
+        function toggleMute() {
+            if (!localStream) return;
+
+            try {
+                const audioTracks = localStream.getAudioTracks();
+                if (audioTracks.length > 0) {
+                    if (isMuted) {
+                        audioTracks[0].enabled = true;
+                        isMuted = false;
+                        muteBtn.style.display = 'block';
+                        unmuteBtn.style.display = 'none';
+                    } else {
+                        audioTracks[0].enabled = false;
+                        isMuted = true;
+                        muteBtn.style.display = 'none';
+                        unmuteBtn.style.display = 'block';
+                    }
+                }
+            } catch (error) {
+                console.error('Error toggling mute:', error);
+            }
+        }
+
+        // Start Voice Interview
+        function startVoiceInterview() {
+            if (!isVoiceActive) {
+                isVoiceActive = true;
+                startVoiceBtn.innerHTML = '<i class="bi bi-stop-circle"></i> @Localizer["Stop Voice"]';
+                startVoiceBtn.classList.add('voice-active');
+                addSystemMessage("@Localizer["Voice interview started. You can now speak and type simultaneously."]");
+                
+                // Start microphone monitoring
+                if (analyser && dataArray) {
+                    monitorMicrophone();
+                }
+                
+                // Start speech recognition
+                if (speechRecognition) {
+                    try {
+                        isListening = true;
+                        speechRecognition.start();
+                        addSystemMessage("@Localizer["Speech recognition started. You can now speak your answers."]");
+                    } catch (error) {
+                        console.error('Error starting speech recognition:', error);
+                        addSystemMessage("@Localizer["Speech recognition failed to start. You can still type your answers."]");
+                    }
+                }
+            } else {
+                isVoiceActive = false;
+                startVoiceBtn.innerHTML = '<i class="bi bi-play-circle"></i> @Localizer["Start Voice"]';
+                startVoiceBtn.classList.remove('voice-active');
+                addSystemMessage("@Localizer["Voice interview stopped."]");
+                
+                // Stop microphone monitoring
+                if (animationId) {
+                    cancelAnimationFrame(animationId);
+                    animationId = null;
+                }
+                
+                // Stop speech recognition
+                if (speechRecognition && isListening) {
+                    try {
+                        isListening = false;
+                        speechRecognition.stop();
+                    } catch (error) {
+                        console.error('Error stopping speech recognition:', error);
+                    }
+                }
+                
+                // Hide microphone indicator
+                isUserSpeaking = false;
+                userMicrophoneIndicator.style.display = 'none';
+            }
+        }
+
+        // Toggle AI Voice
+        function toggleAIVoice() {
+            isAIVoiceEnabled = !isAIVoiceEnabled;
+            if (isAIVoiceEnabled) {
+                aiVoiceBtn.innerHTML = '<i class="bi bi-volume-up"></i> @Localizer["AI Voice: ON"]';
+                aiVoiceBtn.classList.remove('ai-voice-off');
+                addSystemMessage("@Localizer["AI voice enabled."]");
+            } else {
+                aiVoiceBtn.innerHTML = '<i class="bi bi-volume-mute"></i> @Localizer["AI Voice: OFF"]';
+                aiVoiceBtn.classList.add('ai-voice-off');
+                addSystemMessage("@Localizer["AI voice disabled."]");
+                // Stop any current speech
+                if (currentUtterance) {
+                    speechSynthesis.cancel();
+                    currentUtterance = null;
+                }
+            }
+        }
+
+        // Toggle Voice Monitor (hear your own voice)
+        function toggleVoiceMonitor() {
+            isVoiceMonitorEnabled = !isVoiceMonitorEnabled;
+            if (isVoiceMonitorEnabled) {
+                voiceMonitorBtn.innerHTML = '<i class="bi bi-headphones"></i> @Localizer["Voice Monitor: ON"]';
+                voiceMonitorBtn.classList.remove('btn-warning');
+                voiceMonitorBtn.classList.add('btn-success');
+                addSystemMessage("@Localizer["Voice monitor enabled. You can now hear your own voice."]");
+                
+                // Connect microphone to speakers for voice monitoring
+                if (microphone && voiceMonitorDestination) {
+                    microphone.connect(voiceMonitorDestination);
+                }
+            } else {
+                voiceMonitorBtn.innerHTML = '<i class="bi bi-headphones"></i> @Localizer["Voice Monitor: OFF"]';
+                voiceMonitorBtn.classList.remove('btn-success');
+                voiceMonitorBtn.classList.add('btn-warning');
+                addSystemMessage("@Localizer["Voice monitor disabled."]");
+                
+                // Disconnect microphone from speakers
+                if (microphone && voiceMonitorDestination) {
+                    microphone.disconnect(voiceMonitorDestination);
+                }
+            }
+        }
+
+        // Speak AI message
+        function speakAIMessage(message) {
+            if (!isAIVoiceEnabled || !speechSynthesis) return;
+
+            // Stop any current speech
+            if (currentUtterance) {
+                speechSynthesis.cancel();
+            }
+
+            // Create new utterance
+            currentUtterance = new SpeechSynthesisUtterance(message);
+            currentUtterance.rate = 0.9; // Slightly slower
+            currentUtterance.pitch = 1.0;
+            currentUtterance.volume = 0.8;
+
+            // Try to get a good voice
+            const voices = speechSynthesis.getVoices();
+            const preferredVoice = voices.find(voice => 
+                voice.lang.includes('en') && voice.name.includes('Google')
+            ) || voices.find(voice => 
+                voice.lang.includes('en')
+            ) || voices[0];
+
+            if (preferredVoice) {
+                currentUtterance.voice = preferredVoice;
+            }
+
+            // Show speaking indicator
+            speakingIndicator.style.display = 'block';
+            aiStatus.textContent = '@Localizer["AI is speaking..."]';
+
+            // Handle speech events
+            currentUtterance.onstart = () => {
+                console.log('AI started speaking');
+            };
+
+            currentUtterance.onend = () => {
+                console.log('AI finished speaking');
+                speakingIndicator.style.display = 'none';
+                aiStatus.textContent = '@Localizer["Voice Interview Ready"]';
+                currentUtterance = null;
+            };
+
+            currentUtterance.onerror = (event) => {
+                console.error('Speech synthesis error:', event);
+                speakingIndicator.style.display = 'none';
+                aiStatus.textContent = '@Localizer["Voice Interview Ready"]';
+                currentUtterance = null;
+            };
+
+            // Start speaking
+            speechSynthesis.speak(currentUtterance);
+        }
+
+        // Event listeners
+        muteBtn.addEventListener('click', toggleMute);
+        unmuteBtn.addEventListener('click', toggleMute);
+        startVoiceBtn.addEventListener('click', startVoiceInterview);
+        aiVoiceBtn.addEventListener('click', toggleAIVoice);
+        voiceMonitorBtn.addEventListener('click', toggleVoiceMonitor);
+
+        // Connection Management
+        async function startConnection() {
+            try {
+                updateConnectionStatus("@Localizer["Connecting..."]", "bg-warning");
+                await connection.start();
+                updateConnectionStatus("@Localizer["Connected"]", "bg-success");
+                sendButton.disabled = false;
+
+                const urlParams = new URLSearchParams(window.location.search);
+                const sessionId = urlParams.get('sessionId');
+                const currentCulture = urlParams.get('culture') || 'en';
+
+                // Always use regular interview for authenticated users
+                // The sessionId parameter is only for public interviews, not for determining user type
+                showTypingIndicator(true);
+                await connection.invoke("StartInterview", @Model.SubTopicId, currentCulture);
+            } catch (err) {
+                console.error("Connection error:", err);
+                updateConnectionStatus("@Localizer["Failed to connect"]", "bg-danger");
+                sendButton.disabled = true;
+                addSystemMessage("@Localizer["Failed to connect. Please refresh the page."]");
+            }
+        }
+
+        function updateConnectionStatus(text, badgeClass) {
+            connectionIndicator.textContent = text;
+            connectionIndicator.className = `badge ${badgeClass}`;
+        }
+
+        function updateProgressIndicator(questionNumber) {
+            progressIndicator.textContent = `@Localizer["Question"] ${questionNumber}`;
+        }
+
+        function showTypingIndicator(show) {
+            typingIndicator.style.display = show ? "block" : "none";
+        }
+
+        function addSystemMessage(text) {
+            const messageElement = document.createElement("div");
+            messageElement.className = "chat-message text-center text-muted";
+            messageElement.innerHTML = `<em>${text}</em>`;
+            chatBox.appendChild(messageElement);
+            chatBox.scrollTop = chatBox.scrollHeight;
+        }
+
+        // Message Handling
+        connection.on("ReceiveMessage", (user, message) => {
+            showTypingIndicator(false);
+
+            const messageClass = user === "Interviewer" ? "bot-message" : "user-message";
+            const messageElement = document.createElement("div");
+            messageElement.className = `chat-message ${messageClass}`;
+
+            const formattedMessage = message.replace(/\n/g, '<br>');
+            messageElement.innerHTML = `<strong>${user}:</strong> ${formattedMessage}`;
+
+            chatBox.appendChild(messageElement);
+            chatBox.scrollTop = chatBox.scrollHeight;
+
+            // Speak AI messages
+            if (user === "Interviewer" && isAIVoiceEnabled) {
+                // Extract just the message content (remove "Interviewer:" prefix)
+                const cleanMessage = message.replace(/^Interviewer:\s*/i, '');
+                speakAIMessage(cleanMessage);
+            }
+
+            if (user === "Interviewer" && (message.includes("Question") || message.includes("Pregunta"))) {
+                const match = message.match(/(?:Question|Pregunta) (\d+):/);
+                if (match && match[1]) {
+                    updateProgressIndicator(parseInt(match[1]));
+                }
+            }
+        });
+
+        connection.on("ShowCompleteButton", () => {
+            completeButtonContainer.style.display = "block";
+            messageInput.disabled = true;
+            sendButton.disabled = true;
+        });
+
+        connection.on("InterviewCompleted", (score, evaluation) => {
+            completeButtonContainer.style.display = "none";
+            messageInput.disabled = true;
+            sendButton.disabled = true;
+
+            const resultHtml = `
+                <div class="modal fade" id="resultModal" tabindex="-1" aria-hidden="true">
+                    <div class="modal-dialog modal-lg">
+                        <div class="modal-content">
+                            <div class="modal-header bg-primary text-white">
+                                <h5 class="modal-title">Interview Completed Successfully!</h5>
+                                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                            </div>
+                            <div class="modal-body">
+                                <div class="text-center mb-4">
+                                    <i class="bi bi-check-circle text-success" style="font-size: 3rem;"></i>
+                                    <h4 class="text-success mt-2">Interview Completed!</h4>
+                                    <p class="text-muted">Your interview has been completed and evaluated.</p>
+                                </div>
+                                <div class="alert alert-info">
+                                    <i class="bi bi-info-circle me-2"></i>
+                                    You will be redirected to your detailed results page in a few seconds...
+                                </div>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-primary" onclick="window.location.href='/InterviewSessions'">
+                                    View Results Now
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+
+            document.body.insertAdjacentHTML('beforeend', resultHtml);
+            const modal = new bootstrap.Modal(document.getElementById('resultModal'));
+            modal.show();
+
+            progressIndicator.textContent = "Completed";
+            progressIndicator.className = "badge bg-success";
+
+            // Stop local stream
+            if (localStream) {
+                localStream.getTracks().forEach(track => track.stop());
+            }
+
+            // Stop any current speech
+            if (currentUtterance) {
+                speechSynthesis.cancel();
+            }
+
+            // Redirect to results page after a longer delay to allow user to see the modal
+            setTimeout(() => {
+                window.location.href = '/InterviewSessions';
+            }, 5000);
+        });
+
+                 connection.on("RedirectToResults", (sessionId) => {
+             // Always redirect to the regular results page for authenticated users
+             // The sessionId parameter in URL is just for public interviews, not for determining user type
+             window.location.href = `/InterviewSessions/Results?id=${sessionId}`;
+         });
+
+        connection.onclose(error => {
+            updateConnectionStatus("@Localizer["Disconnected"]", "bg-danger");
+            sendButton.disabled = true;
+            if (error) {
+                addSystemMessage("@Localizer["Connection lost. Reconnecting..."]");
+            }
+        });
+
+        connection.onreconnected(connectionId => {
+            updateConnectionStatus("@Localizer["Connected"]", "bg-success");
+            addSystemMessage("@Localizer["Reconnected. Resuming your interview..."]");
+            sendButton.disabled = false;
+        });
+
+        // Message Sending
+        async function sendMessage() {
+            const message = messageInput.value.trim();
+            if (!message) return;
+
+            if (connection.state !== signalR.HubConnectionState.Connected) {
+                addSystemMessage("@Localizer["Please wait while we reconnect..."]");
+                return;
+            }
+
+            messageInput.disabled = true;
+            sendButton.disabled = true;
+
+            try {
+                // Always use SendAnswer for authenticated users
+                await connection.invoke("SendAnswer", message);
+                
+                messageInput.value = '';
+                showTypingIndicator(true);
+            } catch (err) {
+                console.error("Error sending message:", err);
+                addSystemMessage("@Localizer["Failed to send message. Please try again."]");
+            } finally {
+                messageInput.disabled = false;
+                sendButton.disabled = false;
+                messageInput.focus();
+            }
+        }
+
+        async function completeInterview() {
+            completeButton.disabled = true;
+            try {
+                addSystemMessage("@Localizer["Completing interview and generating evaluation..."]");
+                await connection.invoke("CompleteInterviewManually");
+            } catch (err) {
+                console.error("Error completing interview:", err);
+                addSystemMessage("@Localizer["Failed to complete interview. Please try again."]");
+                completeButton.disabled = false;
+            }
+        }
+
+        // End Early Button
+        endEarlyBtn.addEventListener('click', async function() {
+            try {
+                if (confirm("@Localizer["Are you sure you want to end the interview early? Your progress will be saved."]")) {
+                    addSystemMessage("@Localizer["Ending interview early..."]");
+                    await connection.invoke("EndInterviewEarly");
+
+                    // Disable UI elements
+                    messageInput.disabled = true;
+                    sendButton.disabled = true;
+                    endEarlyBtn.disabled = true;
+
+                    // Stop local stream
+                    if (localStream) {
+                        localStream.getTracks().forEach(track => track.stop());
+                    }
+
+                    // Stop any current speech
+                    if (currentUtterance) {
+                        speechSynthesis.cancel();
+                    }
+                }
+            } catch (err) {
+                console.error("Error ending interview early:", err);
+                addSystemMessage("@Localizer["Failed to end interview early. Please try again."]");
+            }
+        });
+
+        // Event Listeners
+        messageInput.addEventListener("keypress", function(e) {
+            if (e.key === "Enter") {
+                sendMessage();
+            }
+        });
+
+        // Initialize speech synthesis voices
+        function initializeVoices() {
+            if (speechSynthesis.onvoiceschanged !== undefined) {
+                speechSynthesis.onvoiceschanged = () => {
+                    console.log('Voices loaded:', speechSynthesis.getVoices().length);
+                };
+            }
+        }
+
+        // Initialize
+        initializeVoices();
+        initializeVoice(); // Initialize voice immediately
+        startConnection();
+
+        // Cleanup on page unload
+        window.addEventListener('beforeunload', () => {
+            if (localStream) {
+                localStream.getTracks().forEach(track => track.stop());
+            }
+            if (currentUtterance) {
+                speechSynthesis.cancel();
+            }
+            if (animationId) {
+                cancelAnimationFrame(animationId);
+            }
+            if (audioContext) {
+                audioContext.close();
+            }
+            if (speechRecognition && isListening) {
+                try {
+                    speechRecognition.stop();
+                } catch (error) {
+                    console.error('Error stopping speech recognition on cleanup:', error);
+                }
+            }
+            // Disconnect voice monitoring
+            if (microphone && voiceMonitorDestination) {
+                microphone.disconnect(voiceMonitorDestination);
+            }
+        });
+    </script>
+} 
