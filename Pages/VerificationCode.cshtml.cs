@@ -200,7 +200,7 @@ namespace InterviewBot.Pages
                     return RedirectToPage("/InterviewFormat", new { email = Email, subTopicId = subTopicId });
                 }
             }
-            catch (Exception)
+            catch (Exception ex)
             {
                 ErrorMessage = _localizer["An error occurred during verification. Please try again."];
                 return Page();

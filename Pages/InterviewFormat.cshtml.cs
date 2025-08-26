@@ -56,7 +56,7 @@ namespace InterviewBot.Pages
             }
 
             // Check for default password alert
-            if (TempData["ShowDefaultPasswordAlert"] != null && TempData["ShowDefaultPasswordAlert"] is bool showAlert && showAlert)
+            if (TempData["ShowDefaultPasswordAlert"] != null && (bool)TempData["ShowDefaultPasswordAlert"])
             {
                 ShowDefaultPasswordAlert = true;
             }
@@ -153,7 +153,7 @@ namespace InterviewBot.Pages
                     return RedirectToPage("/VoiceInterview", new { subTopicId = SubTopicId, sessionId = session.Id });
                 }
             }
-            catch (Exception)
+            catch (Exception ex)
             {
                 ErrorMessage = _localizer["Failed to start interview. Please try again."];
                 return Page();

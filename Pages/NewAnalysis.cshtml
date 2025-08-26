@@ -1,0 +1,603 @@
+@page
+@model InterviewBot.Pages.NewAnalysisModel
+@using Microsoft.AspNetCore.Mvc.Localization
+@inject IViewLocalizer Localizer
+@{
+    ViewData["Title"] = Localizer["New Analysis"];
+    var currentCulture = HttpContext.Request.Query["culture"].ToString();
+    if (string.IsNullOrEmpty(currentCulture))
+    {
+        currentCulture = HttpContext.Request.Cookies["culture"] ?? "en";
+    }
+}
+
+<!-- Page Content -->
+<div class="page-content">
+    <!-- Centered Content Container -->
+    <div class="centered-container">
+        <!-- Header Section -->
+        <div class="analysis-header">
+            <h1 class="analysis-title">Start Your Resume Analysis</h1>
+            <p class="analysis-subtitle">Upload your resume and get AI-powered insights about your career path and skills.</p>
+        </div>
+
+        @if (!string.IsNullOrEmpty(Model.ErrorMessage))
+        {
+            <div class="alert alert-danger">
+                <i class="bi bi-exclamation-triangle-fill"></i>
+                @Model.ErrorMessage
+            </div>
+        }
+
+        @if (!string.IsNullOrEmpty(Model.SuccessMessage))
+        {
+            <div class="alert alert-success">
+                <i class="bi bi-check-circle-fill"></i>
+                @Model.SuccessMessage
+            </div>
+        }
+
+        <!-- Analysis Form -->
+        <form method="post" enctype="multipart/form-data" class="analysis-form">
+            <!-- Input Method Tabs -->
+            <div class="input-tabs">
+                <button type="button" class="tab-button active" data-tab="upload">
+                    <i class="bi bi-file-earmark-arrow-up"></i>
+                    Upload Resume
+                </button>
+                <button type="button" class="tab-button" data-tab="describe">
+                    <i class="bi bi-pencil-square"></i>
+                    Describe Yourself
+                </button>
+            </div>
+
+            <!-- Tab Content -->
+            <div class="tab-content">
+                <!-- Upload Resume Tab -->
+                <div class="tab-pane active" id="upload-tab">
+                    <div class="upload-area" id="uploadArea">
+                        <div class="upload-content">
+                            <i class="bi bi-file-earmark-pdf upload-icon"></i>
+                            <p class="upload-text">Click to upload or drag and drop</p>
+                            <p class="upload-subtext">PDF files only (MAX. 10MB)</p>
+                            <p class="upload-hint">We'll analyze your resume and provide career insights</p>
+                        </div>
+                        <input type="file" id="resumeFile" name="ResumeFile" accept=".pdf" class="file-input" />
+                    </div>
+                    
+                    <div id="filePreview" class="file-preview" style="display: none;">
+                        <div class="file-info">
+                            <i class="bi bi-file-earmark-pdf file-icon"></i>
+                            <div class="file-details">
+                                <span class="file-name" id="fileName"></span>
+                                <span class="file-size" id="fileSize"></span>
+                            </div>
+                            <button type="button" class="remove-file-btn" onclick="removeFile()">
+                                <i class="bi bi-x-circle"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Describe Yourself Tab -->
+                <div class="tab-pane" id="describe-tab">
+                    <div class="form-fields">
+                        <div class="form-group">
+                            <label for="description" class="form-label">Brief description about yourself</label>
+                            <textarea id="description" name="Description" class="form-control" rows="4" 
+                                placeholder="Tell us about your experience, skills, and career goals..."></textarea>
+                        </div>
+                        
+                        <div class="info-box">
+                            <i class="bi bi-info-circle"></i>
+                            <p>This feature is coming soon! For now, please upload your resume for AI analysis.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Submit Button -->
+            <div class="form-actions">
+                <button type="submit" class="start-analysis-btn" id="submitBtn" disabled>
+                    <i class="bi bi-play-circle"></i>
+                    Start Analysis
+                </button>
+            </div>
+        </form>
+
+        <!-- Features Section -->
+        <div class="features-section">
+            <h3>What You'll Get</h3>
+            <div class="features-grid">
+                <div class="feature-card">
+                    <i class="bi bi-graph-up"></i>
+                    <h4>Career Insights</h4>
+                    <p>AI-powered analysis of your skills and experience</p>
+                </div>
+                <div class="feature-card">
+                    <i class="bi bi-briefcase"></i>
+                    <h4>Job Recommendations</h4>
+                    <p>Suggested career paths based on your profile</p>
+                </div>
+                <div class="feature-card">
+                    <i class="bi bi-lightbulb"></i>
+                    <h4>Skill Development</h4>
+                    <p>Areas to focus on for career growth</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+/* Page Content Styles */
+.page-content {
+    padding: 2rem;
+}
+
+/* Centered Container */
+.centered-container {
+    max-width: 800px;
+    margin: 0 auto;
+}
+
+/* Analysis Header */
+.analysis-header {
+    text-align: center;
+    margin-bottom: 3rem;
+}
+
+.analysis-title {
+    font-size: 2.5rem;
+    font-weight: 700;
+    color: #1f2937;
+    margin-bottom: 1rem;
+}
+
+.analysis-subtitle {
+    font-size: 1.1rem;
+    color: #6b7280;
+    margin: 0;
+}
+
+/* Analysis Form */
+.analysis-form {
+    background-color: white;
+    border-radius: 1rem;
+    padding: 2.5rem;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+}
+
+/* Input Method Tabs */
+.input-tabs {
+    display: flex;
+    margin-bottom: 2rem;
+    border-bottom: 2px solid #e5e7eb;
+}
+
+.tab-button {
+    flex: 1;
+    padding: 1rem 1.5rem;
+    background: none;
+    border: none;
+    font-size: 1rem;
+    font-weight: 500;
+    color: #6b7280;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    border-bottom: 3px solid transparent;
+    margin-bottom: -2px;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.tab-button:hover {
+    color: #374151;
+    background-color: #f9fafb;
+}
+
+.tab-button.active {
+    color: #3b82f6;
+    border-bottom-color: #3b82f6;
+    background-color: white;
+}
+
+/* Tab Content */
+.tab-content {
+    margin-bottom: 2rem;
+}
+
+.tab-pane {
+    display: none;
+}
+
+.tab-pane.active {
+    display: block;
+}
+
+/* Upload Area */
+.upload-area {
+    border: 2px dashed #d1d5db;
+    border-radius: 0.75rem;
+    padding: 3rem 2rem;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    background-color: #f9fafb;
+}
+
+.upload-area:hover {
+    border-color: #3b82f6;
+    background-color: #eff6ff;
+}
+
+.upload-content {
+    pointer-events: none;
+}
+
+.upload-icon {
+    font-size: 3rem;
+    color: #9ca3af;
+    margin-bottom: 1rem;
+}
+
+.upload-text {
+    font-size: 1.1rem;
+    font-weight: 500;
+    color: #374151;
+    margin-bottom: 0.5rem;
+}
+
+.upload-subtext {
+    font-size: 0.9rem;
+    color: #6b7280;
+    margin: 0;
+}
+
+.upload-hint {
+    font-size: 0.8rem;
+    color: #6b7280;
+    margin-top: 0.5rem;
+}
+
+.file-input {
+    display: none;
+}
+
+/* File Preview */
+.file-preview {
+    margin-top: 2rem;
+    padding: 1.5rem;
+    background-color: #f0fdf4;
+    border: 1px solid #10b981;
+    border-radius: 0.75rem;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.file-info {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.file-icon {
+    font-size: 2rem;
+    color: #10b981;
+}
+
+.file-details {
+    display: flex;
+    align-items: baseline;
+    gap: 0.5rem;
+}
+
+.file-name {
+    font-weight: 500;
+    color: #1f2937;
+    font-size: 1rem;
+}
+
+.file-size {
+    font-size: 0.9rem;
+    color: #6b7280;
+}
+
+.remove-file-btn {
+    background: none;
+    border: none;
+    color: #ef4444;
+    cursor: pointer;
+    font-size: 1.25rem;
+    transition: color 0.2s ease;
+}
+
+.remove-file-btn:hover {
+    color: #dc2626;
+}
+
+/* Form Fields */
+.form-fields {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+.form-group {
+    margin-bottom: 0;
+}
+
+.form-label {
+    display: block;
+    font-weight: 500;
+    color: #374151;
+    margin-bottom: 0.5rem;
+    font-size: 0.95rem;
+}
+
+.form-control {
+    width: 100%;
+    padding: 0.75rem 1rem;
+    border: 1px solid #e5e7eb;
+    border-radius: 0.5rem;
+    font-size: 1rem;
+    transition: border-color 0.2s ease;
+    box-sizing: border-box;
+    background-color: #f9fafb;
+    color: #374151;
+}
+
+.form-control:focus {
+    outline: none;
+    border-color: #3b82f6;
+    background-color: white;
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+.form-control::placeholder {
+    color: #9ca3af;
+}
+
+textarea.form-control {
+    resize: vertical;
+    min-height: 80px;
+}
+
+/* Form Actions */
+.form-actions {
+    text-align: center;
+    padding-top: 1rem;
+    border-top: 1px solid #e5e7eb;
+}
+
+.start-analysis-btn {
+    background-color: #3b82f6;
+    color: white;
+    border: none;
+    padding: 1rem 2.5rem;
+    font-size: 1.1rem;
+    font-weight: 600;
+    border-radius: 0.75rem;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    min-width: 200px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+}
+
+.start-analysis-btn:hover {
+    background-color: #2563eb;
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(59, 130, 246, 0.3);
+}
+
+.start-analysis-btn:disabled {
+    background-color: #9ca3af;
+    cursor: not-allowed;
+    transform: none;
+    box-shadow: none;
+}
+
+/* Features Section */
+.features-section {
+    margin-top: 4rem;
+    text-align: center;
+}
+
+.features-section h3 {
+    font-size: 1.8rem;
+    font-weight: 700;
+    color: #1f2937;
+    margin-bottom: 2rem;
+}
+
+.features-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 2rem;
+}
+
+.feature-card {
+    background-color: #f9fafb;
+    border-radius: 0.75rem;
+    padding: 2rem;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+    text-align: center;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.feature-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 15px rgba(0, 0, 0, 0.1);
+}
+
+.feature-card i {
+    font-size: 3rem;
+    color: #3b82f6;
+    margin-bottom: 1rem;
+}
+
+.feature-card h4 {
+    font-size: 1.3rem;
+    font-weight: 600;
+    color: #1f2937;
+    margin-bottom: 0.8rem;
+}
+
+.feature-card p {
+    font-size: 1rem;
+    color: #6b7280;
+    line-height: 1.6;
+}
+
+/* Responsive Design */
+@@media (max-width: 768px) {
+    .page-content {
+        padding: 1rem;
+    }
+    
+    .analysis-form {
+        padding: 1.5rem;
+    }
+    
+    .analysis-title {
+        font-size: 2rem;
+    }
+    
+    .upload-area {
+        padding: 2rem 1rem;
+    }
+    
+    .upload-icon {
+        font-size: 2.5rem;
+    }
+    
+    .input-tabs {
+        flex-direction: column;
+    }
+    
+    .tab-button {
+        border-bottom: none;
+        border-right: 3px solid transparent;
+        margin-bottom: 0;
+        margin-right: -2px;
+    }
+    
+    .tab-button.active {
+        border-right-color: #3b82f6;
+        border-bottom-color: transparent;
+    }
+
+    .features-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+@@media (max-width: 480px) {
+    .analysis-form {
+        padding: 1rem;
+    }
+    
+    .analysis-title {
+        font-size: 1.75rem;
+    }
+    
+    .start-analysis-btn {
+        padding: 0.875rem 2rem;
+        font-size: 1rem;
+        min-width: 180px;
+    }
+}
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const tabButtons = document.querySelectorAll('.tab-button');
+    const tabPanes = document.querySelectorAll('.tab-pane');
+    const uploadArea = document.getElementById('uploadArea');
+    const fileInput = document.getElementById('resumeFile');
+    const filePreview = document.getElementById('filePreview');
+    const fileNameSpan = document.getElementById('fileName');
+    const fileSizeSpan = document.getElementById('fileSize');
+    const submitBtn = document.getElementById('submitBtn');
+    
+    // Handle tab switching
+    tabButtons.forEach(button => {
+        button.addEventListener('click', function() {
+            const targetTab = this.getAttribute('data-tab');
+            
+            // Remove active class from all tabs and panes
+            tabButtons.forEach(btn => btn.classList.remove('active'));
+            tabPanes.forEach(pane => pane.classList.remove('active'));
+            
+            // Add active class to clicked tab and corresponding pane
+            this.classList.add('active');
+            document.getElementById(targetTab + '-tab').classList.add('active');
+        });
+    });
+    
+    // Handle file upload area click
+    uploadArea.addEventListener('click', function() {
+        fileInput.click();
+    });
+    
+    // Handle file selection
+    fileInput.addEventListener('change', function(e) {
+        const file = e.target.files[0];
+        if (file) {
+            // Update upload area to show selected file
+            fileNameSpan.textContent = file.name;
+            fileSizeSpan.textContent = `${(file.size / 1024 / 1024).toFixed(2)} MB`;
+            filePreview.style.display = 'flex';
+            submitBtn.disabled = false;
+        } else {
+            filePreview.style.display = 'none';
+            fileNameSpan.textContent = '';
+            fileSizeSpan.textContent = '';
+            submitBtn.disabled = true;
+        }
+    });
+    
+    // Handle drag and drop
+    uploadArea.addEventListener('dragover', function(e) {
+        e.preventDefault();
+        uploadArea.style.borderColor = '#3b82f6';
+        uploadArea.style.backgroundColor = '#eff6ff';
+    });
+    
+    uploadArea.addEventListener('dragleave', function(e) {
+        e.preventDefault();
+        uploadArea.style.borderColor = '#d1d5db';
+        uploadArea.style.backgroundColor = '#f9fafb';
+    });
+    
+    uploadArea.addEventListener('drop', function(e) {
+        e.preventDefault();
+        const files = e.dataTransfer.files;
+        if (files.length > 0) {
+            fileInput.files = files;
+            fileInput.dispatchEvent(new Event('change'));
+        }
+    });
+
+    // Handle form submission
+    document.querySelector('.analysis-form').addEventListener('submit', function(e) {
+        if (!filePreview.style.display) { // Check if file is selected
+            e.preventDefault();
+            alert('Please upload a resume file to start the analysis.');
+        }
+    });
+});
+
+function removeFile() {
+    fileInput.value = ''; // Clear the file input
+    fileNameSpan.textContent = '';
+    fileSizeSpan.textContent = '';
+    filePreview.style.display = 'none';
+    submitBtn.disabled = true;
+}
+</script>

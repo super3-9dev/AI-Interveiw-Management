@@ -14,6 +14,8 @@ namespace InterviewBot.Data
         public DbSet<InterviewQuestion> InterviewQuestions => Set<InterviewQuestion>();
         public DbSet<ChatMessage> ChatMessages => Set<ChatMessage>();
         public DbSet<User> Users { get; set; }
+        public DbSet<AIAgentRole> AIAgentRoles { get; set; }
+        public DbSet<ResumeAnalysis> ResumeAnalyses { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -58,9 +60,12 @@ namespace InterviewBot.Data
                 entity.Property(u => u.Email).IsRequired().HasMaxLength(100);
                 entity.Property(u => u.PasswordHash).IsRequired();
                 entity.Property(u => u.FullName).HasMaxLength(100);
-                entity.Property(u => u.Education).HasMaxLength(100);
-                entity.Property(u => u.Experience).HasMaxLength(50);
-                entity.Property(u => u.CurrentPosition).HasMaxLength(100);
+                
+                // Configure relationship with AIAgentRole
+                entity.HasOne(u => u.SelectedAIAgentRole)
+                    .WithMany()
+                    .HasForeignKey(u => u.SelectedAIAgentRoleId)
+                    .OnDelete(DeleteBehavior.SetNull);
             });
 
             // Configure string field lengths
@@ -112,6 +117,13 @@ namespace InterviewBot.Data
                 .HasOne(st => st.User)
                 .WithMany()
                 .HasForeignKey(st => st.UserId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            // Configure User-ResumeAnalysis relationship
+            modelBuilder.Entity<ResumeAnalysis>()
+                .HasOne(r => r.User)
+                .WithMany(u => u.ResumeAnalyses)
+                .HasForeignKey(r => r.UserId)
                 .OnDelete(DeleteBehavior.Cascade);
         }
     }

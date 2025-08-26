@@ -18,7 +18,7 @@
                     <a href="/InterviewSessions" class="btn btn-outline-secondary">
                         <i class="bi bi-arrow-left me-1"></i>@Localizer["Back to Sessions"]
                     </a>
-                    <a href="/InterviewSessions/Export?id=@(Model.Session?.Id ?? 0)" class="btn btn-primary">
+                    <a href="/InterviewSessions/Export?id=@Model.Session.Id" class="btn btn-primary">
                         <i class="bi bi-download me-1"></i>@Localizer["Export PDF"]
                     </a>
                 </div>
@@ -34,15 +34,15 @@
                     <div class="row align-items-center">
                         <div class="col-md-4">
                             <div class="score-circle mx-auto mb-3">
-                                                            <div class="score-number">@(Model.Session?.Result?.Score ?? 0)</div>
+                                                            <div class="score-number">@(Model.Session.Result?.Score ?? 0)</div>
                             <div class="score-label">@Localizer["out of 100"]</div>
                             </div>
                         </div>
                         <div class="col-md-8 text-start">
-                            <h3 class="text-primary mb-2">@(Model.Session?.SubTopic?.Title ?? "Unknown Topic")</h3>
+                            <h3 class="text-primary mb-2">@Model.Session.SubTopic.Title</h3>
                             <div class="score-badge mb-3">
                                 @{
-                                    var score = Model.Session?.Result?.Score ?? 0;
+                                    var score = Model.Session.Result?.Score ?? 0;
                                     var badgeClass = score >= 80 ? "bg-success" : score >= 60 ? "bg-warning" : "bg-danger";
                                     var performance = score >= 80 ? "Excellent" : score >= 60 ? "Good" : "Needs Improvement";
                                 }
@@ -52,7 +52,7 @@
                                 <div class="progress-bar @(score >= 80 ? "bg-success" : score >= 60 ? "bg-warning" : "bg-danger")" 
                                      style="width: @score%"></div>
                             </div>
-                            <small class="text-muted">@Localizer["Completion Date"]: @(Model.Session?.EndTime?.ToString("MMMM dd, yyyy 'at' h:mm tt") ?? "Not completed")</small>
+                            <small class="text-muted">@Localizer["Completion Date"]: @Model.Session.EndTime?.ToString("MMMM dd, yyyy 'at' h:mm tt")</small>
                         </div>
                     </div>
                 </div>
@@ -76,10 +76,10 @@
                             <p class="mb-0"><strong>@Localizer["Experience"]:</strong></p>
                         </div>
                         <div class="col-6">
-                            <p class="mb-2 text-muted">@(Model.Session?.CandidateName ?? "N/A")</p>
-                            <p class="mb-2 text-muted">@(Model.Session?.CandidateEmail ?? "N/A")</p>
-                            <p class="mb-2 text-muted">@(Model.Session?.CandidateEducation ?? "N/A")</p>
-                            <p class="mb-0 text-muted">@(Model.Session?.CandidateExperience ?? "0") @Localizer["years"]</p>
+                            <p class="mb-2 text-muted">@Model.Session.CandidateName</p>
+                            <p class="mb-2 text-muted">@Model.Session.CandidateEmail</p>
+                            <p class="mb-2 text-muted">@Model.Session.CandidateEducation</p>
+                            <p class="mb-0 text-muted">@Model.Session.CandidateExperience @Localizer["years"]</p>
                         </div>
                     </div>
                 </div>
@@ -99,9 +99,9 @@
                             <p class="mb-0"><strong>@Localizer["Status"]:</strong></p>
                         </div>
                         <div class="col-6">
-                            <p class="mb-2 text-muted">@(Model.Session?.SubTopic?.Topic?.Title ?? "Unknown Topic")</p>
+                            <p class="mb-2 text-muted">@Model.Session.SubTopic.Topic.Title</p>
                             <p class="mb-2 text-muted">
-                                @if (Model.Session?.EndTime.HasValue == true)
+                                @if (Model.Session.EndTime.HasValue)
                                 {
                                     @((Model.Session.EndTime - Model.Session.StartTime)?.ToString(@"hh\:mm\:ss"))
                                 }
@@ -110,7 +110,7 @@
                                     <text>@Localizer["Not completed"]</text>
                                 }
                             </p>
-                            <p class="mb-2 text-muted">@(Model.Session?.Result?.Questions?.Count ?? 0) @Localizer["answered"]</p>
+                            <p class="mb-2 text-muted">@(Model.Session.Result?.Questions?.Count ?? 0) @Localizer["answered"]</p>
                             <p class="mb-0">
                                 <span class="badge bg-success">@Localizer["Completed"]</span>
                             </p>
@@ -122,7 +122,7 @@
     </div>
 
     <!-- Evaluation Section -->
-    @if (!string.IsNullOrEmpty(Model.Session?.Result?.Evaluation))
+    @if (!string.IsNullOrEmpty(Model.Session.Result?.Evaluation))
     {
         <div class="row mb-4">
             <div class="col-12">
@@ -132,7 +132,7 @@
                     </div>
                     <div class="card-body">
                         <div class="evaluation-content p-3 bg-light rounded">
-                                                            @Html.Raw((Model.Session?.Result?.Evaluation ?? "").Replace("\n", "<br>"))
+                            @Html.Raw(Model.Session.Result.Evaluation.Replace("\n", "<br>"))
                         </div>
                     </div>
                 </div>
@@ -148,7 +148,7 @@
                     <h5 class="mb-0"><i class="bi bi-question-circle me-2"></i>@Localizer["Questions &amp; Answers"]</h5>
                 </div>
                 <div class="card-body">
-                    @if (Model.Session?.Result?.Questions != null && Model.Session.Result.Questions.Any())
+                    @if (Model.Session.Result?.Questions != null && Model.Session.Result.Questions.Any())
                     {
                         <div class="accordion" id="qaAccordion">
                             @foreach (var qa in Model.Session.Result.Questions)
@@ -158,7 +158,7 @@
                                         <button class="accordion-button collapsed bg-light" type="button" 
                                                 data-bs-toggle="collapse" data-bs-target="#collapse-@qa.Id">
                                             <div class="d-flex align-items-center w-100">
-                                                <span class="badge bg-primary me-3">Q@((Model.Session?.Result?.Questions?.IndexOf(qa) ?? -1) + 1)</span>
+                                                <span class="badge bg-primary me-3">Q@(Model.Session.Result.Questions.IndexOf(qa) + 1)</span>
                                                 <span class="question-text">@qa.Question</span>
                                             </div>
                                         </button>

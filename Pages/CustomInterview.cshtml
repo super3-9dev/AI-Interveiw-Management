@@ -1,0 +1,196 @@
+@page
+@using Microsoft.AspNetCore.Mvc.Localization
+@inject IViewLocalizer Localizer
+@{
+    ViewData["Title"] = Localizer["Custom Interview"];
+    var currentCulture = HttpContext.Request.Query["culture"].ToString();
+    if (string.IsNullOrEmpty(currentCulture))
+    {
+        currentCulture = HttpContext.Request.Cookies["culture"] ?? "en";
+    }
+}
+
+<div class="custom-interview-container">
+    <div class="custom-interview-card">
+        <div class="card-header">
+            <h2 class="card-title">Create a Custom Interview</h2>
+            <p class="card-subtitle">This is a mockup. Click the button to start a sample conversational interview.</p>
+        </div>
+        
+        <div class="card-body">
+            <form>
+                <div class="form-group">
+                    <label for="interviewTopic" class="form-label">Interview Topic</label>
+                    <input type="text" class="form-control" id="interviewTopic" value="Custom Mock Interview">
+                </div>
+                
+                <div class="form-group">
+                    <label for="description" class="form-label">Description</label>
+                    <textarea class="form-control" id="description" rows="4">A mock interview to demonstrate the conversational UI.</textarea>
+                </div>
+                
+                <div class="form-actions">
+                    <button type="button" class="btn btn-primary generate-btn" onclick="generateInterview()">
+                        Generate Interview
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<style>
+body {
+    background-color: #f5f5f5;
+    margin: 0;
+    padding: 0;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+}
+
+.custom-interview-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: calc(100vh - 90px);
+    padding: 2rem;
+}
+
+.custom-interview-card {
+    background: white;
+    border-radius: 0.75rem;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+    width: 100%;
+    max-width: 600px;
+    overflow: hidden;
+}
+
+.card-header {
+    padding: 2rem 2rem 1rem 2rem;
+    border-bottom: 1px solid #e5e7eb;
+}
+
+.card-title {
+    font-size: 1.75rem;
+    font-weight: 700;
+    color: #1f2937;
+    margin: 0 0 0.5rem 0;
+}
+
+.card-subtitle {
+    color: #6b7280;
+    font-size: 0.875rem;
+    margin: 0;
+    line-height: 1.5;
+}
+
+.card-body {
+    padding: 2rem;
+}
+
+.form-group {
+    margin-bottom: 1.5rem;
+}
+
+.form-label {
+    display: block;
+    font-weight: 600;
+    color: #374151;
+    margin-bottom: 0.5rem;
+    font-size: 0.875rem;
+}
+
+.form-control {
+    width: 100%;
+    padding: 0.75rem;
+    border: 1px solid #d1d5db;
+    border-radius: 0.375rem;
+    font-size: 0.875rem;
+    line-height: 1.5;
+    color: #374151;
+    background-color: white;
+    transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+}
+
+.form-control:focus {
+    outline: none;
+    border-color: #3b82f6;
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+textarea.form-control {
+    resize: vertical;
+    min-height: 100px;
+}
+
+.form-actions {
+    margin-top: 2rem;
+}
+
+.generate-btn {
+    width: 100%;
+    padding: 0.875rem 1.5rem;
+    font-size: 1rem;
+    font-weight: 500;
+    background-color: #3b82f6;
+    border: 1px solid #3b82f6;
+    color: white;
+    border-radius: 0.375rem;
+    cursor: pointer;
+    transition: background-color 0.15s ease-in-out, border-color 0.15s ease-in-out;
+}
+
+.generate-btn:hover {
+    background-color: #2563eb;
+    border-color: #1d4ed8;
+}
+
+.generate-btn:focus {
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+/* Responsive Design */
+@@media (max-width: 768px) {
+    .custom-interview-container {
+        padding: 1rem;
+    }
+    
+    .card-header,
+    .card-body {
+        padding: 1.5rem;
+    }
+    
+    .card-title {
+        font-size: 1.5rem;
+    }
+}
+
+@@media (max-width: 576px) {
+    .custom-interview-container {
+        padding: 0.5rem;
+    }
+    
+    .card-header,
+    .card-body {
+        padding: 1rem;
+    }
+}
+</style>
+
+<script>
+function generateInterview() {
+    // This is a mockup function - in a real implementation, this would:
+    // 1. Collect the form data
+    // 2. Send it to the server
+    // 3. Redirect to the interview page
+    
+    const topic = document.getElementById('interviewTopic').value;
+    const description = document.getElementById('description').value;
+    
+    // For now, just show an alert and redirect to the main interview format
+    alert(`Generating interview for: ${topic}\n\nDescription: ${description}\n\nRedirecting to interview...`);
+    
+    // Redirect to the interview format page
+    window.location.href = '/InterviewFormat@(!string.IsNullOrEmpty(currentCulture) ? $"?culture={currentCulture}" : "")';
+}
+</script>

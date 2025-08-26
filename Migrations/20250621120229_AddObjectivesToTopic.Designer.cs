@@ -3,6 +3,7 @@ using System;
 using InterviewBot.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,9 +12,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace InterviewBot.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250621120229_AddObjectivesToTopic")]
+    partial class AddObjectivesToTopic
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -21,44 +24,6 @@ namespace InterviewBot.Migrations
                 .HasAnnotation("Relational:MaxIdentifierLength", 63);
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
-
-            modelBuilder.Entity("InterviewBot.Models.AIAgentRole", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
-
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<string>("Description")
-                        .IsRequired()
-                        .HasMaxLength(500)
-                        .HasColumnType("character varying(500)");
-
-                    b.Property<bool>("IsActive")
-                        .HasColumnType("boolean");
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("character varying(100)");
-
-                    b.Property<string>("Purpose")
-                        .HasMaxLength(1000)
-                        .HasColumnType("character varying(1000)");
-
-                    b.Property<string>("RoleType")
-                        .IsRequired()
-                        .HasMaxLength(50)
-                        .HasColumnType("character varying(50)");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("AIAgentRoles");
-                });
 
             modelBuilder.Entity("InterviewBot.Models.ChatMessage", b =>
                 {
@@ -213,80 +178,6 @@ namespace InterviewBot.Migrations
                     b.ToTable("InterviewSessions");
                 });
 
-            modelBuilder.Entity("InterviewBot.Models.ResumeAnalysis", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
-
-                    b.Property<DateTime>("AnalysisDate")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<string>("BriefIntroduction")
-                        .HasMaxLength(1000)
-                        .HasColumnType("character varying(1000)");
-
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<string>("CurrentActivities")
-                        .HasMaxLength(1000)
-                        .HasColumnType("character varying(1000)");
-
-                    b.Property<string>("ErrorMessage")
-                        .HasMaxLength(1000)
-                        .HasColumnType("character varying(1000)");
-
-                    b.Property<string>("FileHash")
-                        .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("character varying(100)");
-
-                    b.Property<string>("FileName")
-                        .IsRequired()
-                        .HasMaxLength(255)
-                        .HasColumnType("character varying(255)");
-
-                    b.Property<string>("FilePath")
-                        .IsRequired()
-                        .HasMaxLength(500)
-                        .HasColumnType("character varying(500)");
-
-                    b.Property<string>("MbaSubjectsToReinforce")
-                        .HasMaxLength(1000)
-                        .HasColumnType("character varying(1000)");
-
-                    b.Property<string>("PossibleJobs")
-                        .HasMaxLength(1000)
-                        .HasColumnType("character varying(1000)");
-
-                    b.Property<TimeSpan?>("ProcessingTime")
-                        .HasColumnType("interval");
-
-                    b.Property<string>("Status")
-                        .IsRequired()
-                        .HasMaxLength(50)
-                        .HasColumnType("character varying(50)");
-
-                    b.Property<string>("TopicsMarkdown")
-                        .HasMaxLength(4000)
-                        .HasColumnType("character varying(4000)");
-
-                    b.Property<DateTime?>("UpdatedAt")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<int>("UserId")
-                        .HasColumnType("integer");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("UserId");
-
-                    b.ToTable("ResumeAnalyses");
-                });
-
             modelBuilder.Entity("InterviewBot.Models.SubTopic", b =>
                 {
                     b.Property<int>("Id")
@@ -294,16 +185,6 @@ namespace InterviewBot.Migrations
                         .HasColumnType("integer");
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
-
-                    b.Property<string>("CandidateEmail")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<string>("Description")
-                        .HasColumnType("text");
-
-                    b.Property<bool>("IsPublished")
-                        .HasColumnType("boolean");
 
                     b.Property<string>("Title")
                         .IsRequired()
@@ -361,10 +242,22 @@ namespace InterviewBot.Migrations
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("timestamp with time zone");
 
+                    b.Property<string>("CurrentPosition")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<string>("Education")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
                     b.Property<string>("Email")
                         .IsRequired()
                         .HasMaxLength(100)
                         .HasColumnType("character varying(100)");
+
+                    b.Property<string>("Experience")
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)");
 
                     b.Property<string>("FullName")
                         .IsRequired()
@@ -381,15 +274,10 @@ namespace InterviewBot.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
-                    b.Property<int?>("SelectedAIAgentRoleId")
-                        .HasColumnType("integer");
-
                     b.HasKey("Id");
 
                     b.HasIndex("Email")
                         .IsUnique();
-
-                    b.HasIndex("SelectedAIAgentRoleId");
 
                     b.ToTable("Users");
                 });
@@ -444,17 +332,6 @@ namespace InterviewBot.Migrations
                     b.Navigation("User");
                 });
 
-            modelBuilder.Entity("InterviewBot.Models.ResumeAnalysis", b =>
-                {
-                    b.HasOne("InterviewBot.Models.User", "User")
-                        .WithMany("ResumeAnalyses")
-                        .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("User");
-                });
-
             modelBuilder.Entity("InterviewBot.Models.SubTopic", b =>
                 {
                     b.HasOne("InterviewBot.Models.Topic", "Topic")
@@ -485,16 +362,6 @@ namespace InterviewBot.Migrations
                     b.Navigation("User");
                 });
 
-            modelBuilder.Entity("InterviewBot.Models.User", b =>
-                {
-                    b.HasOne("InterviewBot.Models.AIAgentRole", "SelectedAIAgentRole")
-                        .WithMany()
-                        .HasForeignKey("SelectedAIAgentRoleId")
-                        .OnDelete(DeleteBehavior.SetNull);
-
-                    b.Navigation("SelectedAIAgentRole");
-                });
-
             modelBuilder.Entity("InterviewBot.Models.InterviewResult", b =>
                 {
                     b.Navigation("Questions");
@@ -515,11 +382,6 @@ namespace InterviewBot.Migrations
             modelBuilder.Entity("InterviewBot.Models.Topic", b =>
                 {
                     b.Navigation("SubTopics");
-                });
-
-            modelBuilder.Entity("InterviewBot.Models.User", b =>
-                {
-                    b.Navigation("ResumeAnalyses");
                 });
 #pragma warning restore 612, 618
         }

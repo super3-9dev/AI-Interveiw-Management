@@ -104,15 +104,10 @@ public class ChatHub : Hub
             {
                 SubTopicId = subTopicId,
                 StartTime = DateTime.UtcNow,
-                Summary = string.Empty,
-                Messages = new List<ChatMessage>(),
-                CurrentQuestionNumber = 0,
                 IsCompleted = false,
                 UserId = userId,
                 CandidateName = user.FullName,
                 CandidateEmail = user.Email,
-                CandidateEducation = user.Education ?? "Not specified",
-                CandidateExperience = user.Experience ?? "0",
                 SubTopic = subTopic,
                 Language = interviewLanguage
             };

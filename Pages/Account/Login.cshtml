@@ -1,228 +1,386 @@
-﻿@page
+@page
 @model InterviewBot.Pages.Account.LoginModel
 @using Microsoft.AspNetCore.Mvc.Localization
 @inject IViewLocalizer Localizer
 @{
     ViewData["Title"] = Localizer["Login"];
     Layout = "_AuthLayout";
-    var currentCulture = HttpContext.Request.Query["culture"].ToString();
-    if (string.IsNullOrEmpty(currentCulture))
-    {
-        currentCulture = HttpContext.Request.Cookies["culture"] ?? "en";
-    }
-    currentCulture = string.IsNullOrEmpty(currentCulture) ? "en" : currentCulture;
 }
 
 <style>
     body, html {
         height: 100%;
-        background: #f5f5f5;
+        background: #f8f9fa;
         margin: 0;
         padding: 0;
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     }
 
-    .login-wrapper {
+    .page-container {
         min-height: 100vh;
         display: flex;
         flex-direction: column;
         align-items: center;
-        justify-content: center;
-        padding: 2rem;
-        background: #f5f5f5;
+        padding: 2rem 1rem;
+        position: relative;
     }
 
-    .brand-header {
-        text-align: center;
+    /* Header Section - Logo and Language Switcher */
+    .header-section {
+        width: 100%;
+        max-width: 450px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
         margin-bottom: 2rem;
         position: relative;
-        z-index: 10;
     }
 
-    .brand-icon {
-        width: 80px;
-        height: 80px;
-        background: linear-gradient(135deg, #4a90e2, #357abd);
-        border-radius: 50%;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        margin: 0 auto 1rem;
-        box-shadow: 0 4px 15px rgba(74, 144, 226, 0.3);
+    .logo-section {
+        text-align: center;
     }
 
-    .brand-icon i {
-        font-size: 2.5rem;
-        color: white;
+    .logo-svg {
+        margin-bottom: 0.5rem;
+        filter: drop-shadow(0 4px 16px rgba(59, 130, 246, 0.3));
     }
 
-    .brand-title {
-        color: #4a90e2;
+    .app-title {
         font-size: 1.5rem;
         font-weight: 700;
-        margin-bottom: 0.5rem;
+        color: #4b85db;
+        margin: 0;
     }
 
-    .language-selector {
+    .language-switcher {
         position: fixed;
-        top: 2rem;
-        right: 2rem;
-        z-index: 1000;
+        right: 30px;
+        top: 30px;
     }
 
     .language-dropdown {
-        background: white;
-        border: 1px solid #dee2e6;
-        border-radius: 0.5rem;
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-        padding: 0.5rem 0;
-        min-width: 120px;
+        position: relative;
+        display: inline-block;
     }
 
-    .language-dropdown a {
-        display: block;
-        padding: 0.5rem 1rem;
-        color: #495057;
-        text-decoration: none;
-        transition: background-color 0.2s;
-    }
-
-    .language-dropdown a:hover {
-        background-color: #f8f9fa;
-        color: #4a90e2;
-    }
-
-    .login-card {
-        max-width: 380px;
-        width: 100%;
-        padding: 2rem;
-        border-radius: 0.75rem;
-        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
-        background: #fff;
+    .language-btn {
+        background: none;
         border: none;
+        font-size: 1.2rem;
+        color: #6c757d;
+        cursor: pointer;
+        padding: 0.5rem;
+        border-radius: 50%;
+        transition: all 0.3s ease;
     }
 
-    .welcome-title {
-        font-size: 1.5rem;
-        font-weight: 700;
-        color: #333;
-        margin-bottom: 0.5rem;
-        text-align: center;
+    .language-btn:hover {
+        background: #f8f9fa;
+        color: #0d6efd;
     }
 
-    .welcome-subtitle {
-        color: #666;
-        text-align: center;
-        margin-bottom: 1.5rem;
-        font-size: 0.9rem;
-        line-height: 1.4;
-    }
-
-    .form-control {
-        border: 1px solid #ddd;
+    .language-dropdown-content {
+        display: none;
+        position: absolute;
+        right: 0;
+        top: 100%;
+        background-color: #fff;
+        min-width: 120px;
+        box-shadow: 0 8px 16px rgba(0,0,0,0.1);
         border-radius: 0.5rem;
-        padding: 0.75rem 1rem;
-        font-size: 0.95rem;
-        transition: all 0.2s;
-        background: #fff;
+        z-index: 1000;
+        overflow: hidden;
+        margin-top: 0.5rem;
     }
 
-    .form-control:focus {
-        border-color: #4a90e2;
-        box-shadow: 0 0 0 0.2rem rgba(74, 144, 226, 0.25);
-        outline: none;
+    .language-dropdown:hover .language-dropdown-content {
+        display: block;
+    }
+
+    .language-option {
+        color: #333;
+        padding: 0.75rem 1rem;
+        text-decoration: none;
+        display: block;
+        transition: background-color 0.3s ease;
+    }
+
+    .language-option:hover {
+        background-color: #f8f9fa;
+        text-decoration: none;
+    }
+
+    .language-option.active {
+        background-color: #e7f3ff;
+        color: #0d6efd;
+        font-weight: 500;
+    }
+
+    /* Login Card */
+    .login-card {
+        max-width: 450px;
+        width: 100%;
+        padding: 2.5rem;
+        border-radius: 1rem;
+        border: 1px solid #e9ecef;
+        box-shadow: 0 8px 15px rgba(0, 0, 0, 0.1);
+        background: #fff;
+        position: relative;
+    }
+
+    .welcome-text {
+        font-size: 2rem;
+        font-weight: bolder;
+        color: #212529;
+        margin-bottom: 0.5rem;
+        text-align: left;
+        font-family: monospace;
+    }
+
+    .subtitle-text {
+        color: #6c757d;
+        font-size: 0.95rem;
+        margin-bottom: 2rem;
+        text-align: left;
+    }
+
+    .form-group {
+        margin-bottom: 1.5rem;
     }
 
     .form-label {
-        font-weight: 600;
-        color: #333;
+        font-weight: 500;
+        color: #212529;
         margin-bottom: 0.5rem;
-        font-size: 0.9rem;
+        display: block;
+        font-size: 0.95rem;
     }
 
-    .btn-primary {
-        background: linear-gradient(135deg, #4a90e2, #357abd);
-        border: none;
-        border-radius: 0.5rem;
-        padding: 0.75rem 2rem;
-        font-weight: 600;
+    .form-control {
+        border: 2px solid #e9ecef;
+        border-radius: 0.75rem;
+        padding: 0.875rem 1rem;
         font-size: 1rem;
-        transition: all 0.2s;
+        transition: all 0.3s ease;
+        background: #fff;
         width: 100%;
+        box-sizing: border-box;
     }
 
-    .btn-primary:hover {
-        transform: translateY(-1px);
-        box-shadow: 0 4px 15px rgba(74, 144, 226, 0.4);
+    .form-control:focus {
+        border-color: #0d6efd;
+        box-shadow: 0 0 0 0.2rem rgba(13, 110, 253, 0.25);
+        outline: none;
+    }
+
+    .form-control::placeholder {
+        color: #adb5bd;
     }
 
     .forgot-password {
         text-align: left;
-        margin: 1rem 0 1.5rem 0;
+        margin-bottom: 1.5rem;
     }
 
     .forgot-password a {
-        color: #4a90e2;
+        color: #0d6efd;
         text-decoration: none;
+        font-size: 1rem;
         font-weight: 500;
-        font-size: 0.9rem;
     }
 
     .forgot-password a:hover {
         text-decoration: underline;
     }
 
+    .btn-primary {
+        background: #4b85db;
+        border: none;
+        border-radius: 0.75rem;
+        padding: 0.875rem 2rem;
+        font-size: 1rem;
+        font-weight: 600;
+        color: #fff;
+        transition: all 0.3s ease;
+        width: 100%;
+        cursor: pointer;
+    }
+
+    .btn-primary:hover {
+        background: #0b5ed7;
+        transform: translateY(-1px);
+        box-shadow: 0 4px 12px rgba(13, 110, 253, 0.3);
+    }
+
     .signup-section {
         text-align: center;
         margin-top: 1.5rem;
-        padding-top: 1.5rem;
-        border-top: 1px solid #eee;
-        color: #666;
-        font-size: 0.9rem;
     }
 
-    .signup-section a {
-        color: #4a90e2;
+    .signup-text {
+        color: #6c757d;
+        font-size: 0.95rem;
+        font-weight: 600;
+    }
+
+    .signup-link {
+        color: #0d6efd;
         text-decoration: none;
         font-weight: 600;
-        margin-left: 0.25rem;
     }
 
-    .signup-section a:hover {
+    .signup-link:hover {
         text-decoration: underline;
     }
 
-    .form-group {
-        margin-bottom: 1.25rem;
+    .validation-error {
+        color: #dc3545;
+        font-size: 0.875rem;
+        margin-top: 0.25rem;
+    }
+
+    .alert-danger {
+        background-color: #f8d7da;
+        border: 1px solid #f5c6cb;
+        color: #721c24;
+        padding: 0.75rem 1rem;
+        border-radius: 0.5rem;
+        margin-bottom: 1.5rem;
+    }
+
+    /* Responsive Design */
+    @@media (max-width: 768px) {
+        .page-container {
+            padding: 1rem 0.5rem;
+        }
+        
+        .header-section {
+            margin-bottom: 1.5rem;
+        }
+        
+        .logo-container {
+            width: 50px;
+            height: 50px;
+        }
+        
+        .logo-icon {
+            width: 25px;
+            height: 25px;
+        }
+        
+        .app-title {
+            font-size: 1.25rem;
+        }
+        
+        .login-card {
+            padding: 2rem 1.5rem;
+        }
+        
+        .welcome-text {
+            font-size: 1.25rem;
+        }
+    }
+
+    @@media (max-width: 480px) {
+        .page-container {
+            padding: 0.5rem;
+        }
+        
+        .header-section {
+            margin-bottom: 1rem;
+        }
+        
+        .logo-container {
+            width: 45px;
+            height: 45px;
+        }
+        
+        .logo-icon {
+            width: 22px;
+            height: 22px;
+        }
+        
+        .app-title {
+            font-size: 1.1rem;
+        }
+        
+        .login-card {
+            padding: 1.5rem 1rem;
+        }
+        
+        .welcome-text {
+            font-size: 1.1rem;
+        }
+        
+        .form-control {
+            padding: 0.75rem 0.875rem;
+        }
+    }
+
+    @@media (min-width: 1200px) {
+        .page-container {
+            padding: 3rem 1rem;
+        }
+        
+        .header-section {
+            max-width: 500px;
+        }
+        
+        .logo-container {
+            width: 70px;
+            height: 70px;
+        }
+        
+        .logo-icon {
+            width: 35px;
+            height: 35px;
+        }
+        
+        .app-title {
+            font-size: 1.75rem;
+        }
+        
+        .login-card {
+            max-width: 500px;
+            padding: 3rem;
+        }
     }
 </style>
 
-<div class="login-wrapper">
-    <!-- Language Selector (Fixed position, top-right of page) -->
-    <div class="language-selector">
-        <div class="dropdown">
-            <button class="btn btn-light" type="button" data-bs-toggle="dropdown" aria-expanded="false">
-                <i class="bi bi-globe"></i>
-            </button>
-            <ul class="language-dropdown dropdown-menu">
-                <li><a href="?culture=en" class="@(currentCulture == "en" ? "active" : "")">English</a></li>
-                <li><a href="?culture=es" class="@(currentCulture == "es" ? "active" : "")">Spanish</a></li>
-            </ul>
+<div class="page-container">
+    <!-- Header Section with Logo and Language Switcher -->
+    <div class="header-section">
+        <div class="logo-section">
+            <svg class="logo-svg" viewBox="0 0 48 48" width="60" height="60">
+                <!-- Blue circular border -->
+                <circle cx="24" cy="24" r="15" fill="none" stroke="#4285f4" stroke-width="2.5"/>
+                <!-- Blue curved line inside circle -->
+                <path d="M16 24 Q20 16 24 20 Q28 24 32 20" fill="none" stroke="#4285f4" stroke-width="2.5" stroke-linecap="round"/>
+            </svg>
+            <h1 class="app-title">Intrevidor Guiado</h1>
         </div>
-    </div>
-
-    <!-- Brand Header (Above the card) -->
-    <div class="brand-header">
-        <div class="brand-icon">
-            <i class="bi bi-eye"></i>
+        
+        <!-- Language Switcher -->
+        <div class="language-switcher">
+            <div class="language-dropdown">
+                <button class="language-btn" type="button">
+                    🌐
+                </button>
+                <div class="language-dropdown-content">
+                    <a href="?culture=en" class="language-option @(string.IsNullOrEmpty(HttpContext.Request.Query["culture"]) || HttpContext.Request.Query["culture"] == "en" ? "active" : "")">English</a>
+                    <a href="?culture=es" class="language-option @(HttpContext.Request.Query["culture"] == "es" ? "active" : "")">Español</a>
+                </div>
+            </div>
         </div>
-        <div class="brand-title">Intrevidor Guiado</div>
     </div>
 
     <!-- Login Card -->
     <div class="login-card">
         <!-- Welcome Section -->
-        <div class="welcome-title">@Localizer["Welcome Back!"]</div>
-        <div class="welcome-subtitle">@Localizer["Enter your credentials to access your dashboard."]</div>
+        <div class="mb-4">
+            <h2 class="welcome-text">Welcome Back!</h2>
+            <p class="subtitle-text">Enter your credentials to access your dashboard.</p>
+        </div>
 
         <!-- Login Form -->
         <form method="post">
@@ -230,30 +388,27 @@
 
             <div class="form-group">
                 <label asp-for="Input.Email" class="form-label">@Localizer["Email"]</label>
-                <input asp-for="Input.Email" class="form-control" placeholder="@Localizer["Enter your email"]" />
-                <span asp-validation-for="Input.Email" class="text-danger"></span>
+                <input asp-for="Input.Email" class="form-control" placeholder="user@example.com" />
+                <span asp-validation-for="Input.Email" class="validation-error"></span>
             </div>
 
             <div class="form-group">
                 <label asp-for="Input.Password" class="form-label">@Localizer["Password"]</label>
-                <input asp-for="Input.Password" type="password" class="form-control" placeholder="@Localizer["Enter your password"]" />
-                <span asp-validation-for="Input.Password" class="text-danger"></span>
+                <input asp-for="Input.Password" type="password" class="form-control" placeholder="Enter your password" />
+                <span asp-validation-for="Input.Password" class="validation-error"></span>
             </div>
 
-            <!-- Forgot Password (Left-aligned, above login button) -->
             <div class="forgot-password">
-                <a href="#">@Localizer["Forgot your password?"]</a>
+                <a href="#" onclick="alert('Password reset functionality coming soon!')">Forgot your password?</a>
             </div>
 
-            <!-- Login Button -->
             <div class="d-grid mb-3">
-                <button type="submit" class="btn btn-primary btn-lg">@Localizer["Sign In"]</button>
+                <button type="submit" class="btn btn-primary">@Localizer["Login"]</button>
             </div>
 
-            <!-- Sign Up Section -->
             <div class="signup-section">
-                <span>@Localizer["Don't have an account?"]</span>
-                <a asp-page="/Account/Register" asp-route-culture="@currentCulture">@Localizer["Sign Up"]</a>
+                <span class="signup-text">Don't have an account? </span>
+                <a asp-page="/Account/Register" class="signup-link">Sign up</a>
             </div>
         </form>
     </div>
@@ -261,4 +416,28 @@
 
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Add smooth transitions and interactions
+            const form = document.querySelector('form');
+            const inputs = form.querySelectorAll('.form-control');
+            
+            inputs.forEach(input => {
+                input.addEventListener('focus', function() {
+                    this.parentElement.classList.add('focused');
+                });
+                
+                input.addEventListener('blur', function() {
+                    this.parentElement.classList.remove('focused');
+                });
+            });
+            
+            // Form submission handling
+            form.addEventListener('submit', function(e) {
+                const submitBtn = form.querySelector('button[type="submit"]');
+                submitBtn.disabled = true;
+                submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Signing in...';
+            });
+        });
+    </script>
 }

@@ -3,6 +3,7 @@ using System;
 using InterviewBot.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,9 +12,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace InterviewBot.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250826032309_RemoveEducationExperienceCurrentPosition")]
+    partial class RemoveEducationExperienceCurrentPosition
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -213,80 +216,6 @@ namespace InterviewBot.Migrations
                     b.ToTable("InterviewSessions");
                 });
 
-            modelBuilder.Entity("InterviewBot.Models.ResumeAnalysis", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
-
-                    b.Property<DateTime>("AnalysisDate")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<string>("BriefIntroduction")
-                        .HasMaxLength(1000)
-                        .HasColumnType("character varying(1000)");
-
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<string>("CurrentActivities")
-                        .HasMaxLength(1000)
-                        .HasColumnType("character varying(1000)");
-
-                    b.Property<string>("ErrorMessage")
-                        .HasMaxLength(1000)
-                        .HasColumnType("character varying(1000)");
-
-                    b.Property<string>("FileHash")
-                        .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("character varying(100)");
-
-                    b.Property<string>("FileName")
-                        .IsRequired()
-                        .HasMaxLength(255)
-                        .HasColumnType("character varying(255)");
-
-                    b.Property<string>("FilePath")
-                        .IsRequired()
-                        .HasMaxLength(500)
-                        .HasColumnType("character varying(500)");
-
-                    b.Property<string>("MbaSubjectsToReinforce")
-                        .HasMaxLength(1000)
-                        .HasColumnType("character varying(1000)");
-
-                    b.Property<string>("PossibleJobs")
-                        .HasMaxLength(1000)
-                        .HasColumnType("character varying(1000)");
-
-                    b.Property<TimeSpan?>("ProcessingTime")
-                        .HasColumnType("interval");
-
-                    b.Property<string>("Status")
-                        .IsRequired()
-                        .HasMaxLength(50)
-                        .HasColumnType("character varying(50)");
-
-                    b.Property<string>("TopicsMarkdown")
-                        .HasMaxLength(4000)
-                        .HasColumnType("character varying(4000)");
-
-                    b.Property<DateTime?>("UpdatedAt")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<int>("UserId")
-                        .HasColumnType("integer");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("UserId");
-
-                    b.ToTable("ResumeAnalyses");
-                });
-
             modelBuilder.Entity("InterviewBot.Models.SubTopic", b =>
                 {
                     b.Property<int>("Id")
@@ -444,17 +373,6 @@ namespace InterviewBot.Migrations
                     b.Navigation("User");
                 });
 
-            modelBuilder.Entity("InterviewBot.Models.ResumeAnalysis", b =>
-                {
-                    b.HasOne("InterviewBot.Models.User", "User")
-                        .WithMany("ResumeAnalyses")
-                        .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("User");
-                });
-
             modelBuilder.Entity("InterviewBot.Models.SubTopic", b =>
                 {
                     b.HasOne("InterviewBot.Models.Topic", "Topic")
@@ -515,11 +433,6 @@ namespace InterviewBot.Migrations
             modelBuilder.Entity("InterviewBot.Models.Topic", b =>
                 {
                     b.Navigation("SubTopics");
-                });
-
-            modelBuilder.Entity("InterviewBot.Models.User", b =>
-                {
-                    b.Navigation("ResumeAnalyses");
                 });
 #pragma warning restore 612, 618
         }

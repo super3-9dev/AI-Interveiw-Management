@@ -56,6 +56,9 @@ builder.Services.AddScoped<IAIAgentService, OpenAIAgentService>();
 // Add Email service
 builder.Services.AddScoped<IEmailService, EmailService>();
 
+// Add Resume Analysis service
+builder.Services.AddScoped<IResumeAnalysisService, ResumeAnalysisService>();
+
 // Database
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection"), 
@@ -70,6 +73,7 @@ builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationSc
     {
         options.LoginPath = "/Account/Login";
         options.AccessDeniedPath = "/Account/AccessDenied";
+        options.ReturnUrlParameter = "returnUrl";
         options.ExpireTimeSpan = TimeSpan.FromDays(30);
         options.SlidingExpiration = true;
         options.Cookie.Name = "InterviewBot.Auth";
@@ -127,6 +131,13 @@ builder.Services.AddCors(options => {
 
 var app = builder.Build();
 
+// Seed the database with AI agent roles
+using (var scope = app.Services.CreateScope())
+{
+    var dbContext = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+    await DatabaseSeeder.SeedAIAgentRolesAsync(dbContext);
+}
+
 var supportedCultures = new[] { "en", "es" };
 
 var localizationOptions = new RequestLocalizationOptions()
@@ -149,7 +160,13 @@ app.UseSession();
 // Map your SignalR hub
 app.MapHub<ChatHub>("/chatHub");
 app.UseWebSockets();
-app.UseHttpsRedirection();
+
+// Only use HTTPS redirection in production
+if (!app.Environment.IsDevelopment())
+{
+    app.UseHttpsRedirection();
+}
+
 app.UseStaticFiles();
 app.UseRouting();
 
@@ -215,6 +232,6 @@ public class MemoryCacheTicketStore : ITicketStore
             AbsoluteExpirationRelativeToNow = TimeSpan.FromDays(30)
         };
         _cache.Set(key, ticket, options);
-        return Task.CompletedTask;
+        return Task.FromResult(key);
     }
 }

@@ -6,7 +6,9 @@
   <data name="List of SUB TOPICS" xml:space="preserve">
     <value>List of SUB TOPICS</value>
   </data>
-
+  <data name="TOPIC" xml:space="preserve">
+    <value>TOPIC</value>
+  </data>
   <data name="Create New" xml:space="preserve">
     <value>Create New</value>
   </data>

@@ -36,14 +36,29 @@ namespace InterviewBot.Pages.Account
                 return Page();
             }
 
+            // Validate objective selection
+            if (string.IsNullOrEmpty(Input.Objective))
+            {
+                ModelState.AddModelError("Input.Objective", "Please select your main objective.");
+                return Page();
+            }
+
+            // Get the AI agent role based on the selected objective
+            var aiAgentRole = await _db.AIAgentRoles
+                .FirstOrDefaultAsync(r => r.RoleType == Input.Objective);
+
+            if (aiAgentRole == null)
+            {
+                ModelState.AddModelError("Input.Objective", "Invalid objective selection.");
+                return Page();
+            }
+
             var user = new User
             {
                 Email = Input.Email,
                 PasswordHash = BCrypt.Net.BCrypt.HashPassword(Input.Password),
                 FullName = Input.FullName,
-                Education = Input.Education,
-                Experience = Input.Experience,
-                CurrentPosition = Input.CurrentPosition,
+                SelectedAIAgentRoleId = aiAgentRole.Id,
                 CreatedAt = DateTime.UtcNow
             };
 
@@ -62,6 +77,7 @@ namespace InterviewBot.Pages.Account
 
         [Required]
         [DataType(DataType.Password)]
+        [MinLength(8, ErrorMessage = "Password must be at least 8 characters long.")]
         public string Password { get; set; } = string.Empty;
 
         [DataType(DataType.Password)]
@@ -69,10 +85,10 @@ namespace InterviewBot.Pages.Account
         public string ConfirmPassword { get; set; } = string.Empty;
 
         [Required]
+        [StringLength(100, ErrorMessage = "Full name cannot exceed 100 characters.")]
         public string FullName { get; set; } = string.Empty;
-
-        public string? Education { get; set; }
-        public string? Experience { get; set; }
-        public string? CurrentPosition { get; set; }
+        
+        [Required(ErrorMessage = "Please select your main objective.")]
+        public string Objective { get; set; } = string.Empty; // "CareerCounselling" or "PurposeDiscovery"
     }
 }

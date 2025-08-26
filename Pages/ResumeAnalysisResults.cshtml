@@ -1,0 +1,526 @@
+@page "{id:int}"
+@model InterviewBot.Pages.ResumeAnalysisResultsModel
+@{
+    ViewData["Title"] = "Resume Analysis Results";
+}
+
+<style>
+    .results-container {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 2rem;
+    }
+
+    .header-section {
+        text-align: center;
+        margin-bottom: 3rem;
+        padding: 2rem;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        border-radius: 15px;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+    }
+
+    .header-title {
+        font-size: 2.5rem;
+        font-weight: 700;
+        margin-bottom: 1rem;
+    }
+
+    .header-subtitle {
+        font-size: 1.2rem;
+        opacity: 0.9;
+    }
+
+    .status-badge {
+        display: inline-block;
+        padding: 0.5rem 1rem;
+        border-radius: 25px;
+        font-weight: 600;
+        font-size: 0.9rem;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+
+    .status-pending {
+        background: #fff3cd;
+        color: #856404;
+        border: 1px solid #ffeaa7;
+    }
+
+    .status-processing {
+        background: #d1ecf1;
+        color: #0c5460;
+        border: 1px solid #bee5eb;
+    }
+
+    .status-completed {
+        background: #d4edda;
+        color: #155724;
+        border: 1px solid #c3e6cb;
+    }
+
+    .status-failed {
+        background: #f8d7da;
+        color: #721c24;
+        border: 1px solid #f5c6cb;
+    }
+
+    .file-info {
+        background: #f8f9fa;
+        padding: 1.5rem;
+        border-radius: 10px;
+        margin-bottom: 2rem;
+        border-left: 4px solid #007bff;
+    }
+
+    .file-name {
+        font-weight: 600;
+        color: #495057;
+        margin-bottom: 0.5rem;
+    }
+
+    .file-details {
+        color: #6c757d;
+        font-size: 0.9rem;
+    }
+
+    .analysis-section {
+        background: white;
+        border-radius: 10px;
+        padding: 2rem;
+        margin-bottom: 2rem;
+        box-shadow: 0 5px 15px rgba(0,0,0,0.08);
+        border: 1px solid #e9ecef;
+    }
+
+    .section-title {
+        font-size: 1.5rem;
+        font-weight: 600;
+        color: #212529;
+        margin-bottom: 1.5rem;
+        padding-bottom: 0.5rem;
+        border-bottom: 2px solid #e9ecef;
+    }
+
+    .content-box {
+        background: #f8f9fa;
+        padding: 1.5rem;
+        border-radius: 8px;
+        border-left: 4px solid #28a745;
+        margin-bottom: 1rem;
+    }
+
+    .loading-spinner {
+        display: inline-block;
+        width: 20px;
+        height: 20px;
+        border: 3px solid #f3f3f3;
+        border-top: 3px solid #3498db;
+        border-radius: 50%;
+        animation: spin 1s linear infinite;
+        margin-right: 0.5rem;
+    }
+
+    @@keyframes spin {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
+    }
+
+    .progress-bar {
+        width: 100%;
+        height: 8px;
+        background-color: #e9ecef;
+        border-radius: 4px;
+        overflow: hidden;
+        margin: 1rem 0;
+    }
+
+    .progress-fill {
+        height: 100%;
+        background: linear-gradient(90deg, #007bff, #28a745);
+        border-radius: 4px;
+        transition: width 0.3s ease;
+    }
+
+    .error-message {
+        background: #f8d7da;
+        color: #721c24;
+        padding: 1rem;
+        border-radius: 8px;
+        border: 1px solid #f5c6cb;
+        margin-bottom: 1rem;
+    }
+
+    .back-button {
+        display: inline-block;
+        padding: 0.75rem 1.5rem;
+        background: #6c757d;
+        color: white;
+        text-decoration: none;
+        border-radius: 8px;
+        transition: all 0.3s ease;
+        margin-bottom: 2rem;
+    }
+
+    .back-button:hover {
+        background: #5a6268;
+        color: white;
+        text-decoration: none;
+        transform: translateY(-2px);
+    }
+
+    .refresh-button {
+        display: inline-block;
+        padding: 0.75rem 1.5rem;
+        background: #007bff;
+        color: white;
+        text-decoration: none;
+        border-radius: 8px;
+        transition: all 0.3s ease;
+        margin-left: 1rem;
+    }
+
+    .refresh-button:hover {
+        background: #0056b3;
+        color: white;
+        text-decoration: none;
+        transform: translateY(-2px);
+    }
+
+    .processing-section {
+        background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+        border: 2px solid #dee2e6;
+        border-radius: 15px;
+        padding: 2.5rem;
+        margin-bottom: 2rem;
+        box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+        position: relative;
+        overflow: hidden;
+    }
+
+    .processing-section::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 4px;
+        background: linear-gradient(90deg, #007bff, #28a745, #ffc107, #dc3545);
+        background-size: 200% 100%;
+        animation: gradient-move 3s ease-in-out infinite;
+    }
+
+    @@keyframes gradient-move {
+        0% { background-position: 0% 50%; }
+        50% { background-position: 100% 50%; }
+        100% { background-position: 0% 50%; }
+    }
+
+    .processing-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 2rem;
+        padding-bottom: 1rem;
+        border-bottom: 2px solid #dee2e6;
+    }
+
+    .processing-status {
+        display: flex;
+        align-items: center;
+        background: #e8f5e8;
+        padding: 0.5rem 1rem;
+        border-radius: 20px;
+        border: 1px solid #c3e6cb;
+    }
+
+    .status-dot {
+        width: 12px;
+        height: 12px;
+        background-color: #28a745;
+        border-radius: 50%;
+        margin-right: 0.5rem;
+        animation: pulse 2s infinite;
+    }
+
+    @@keyframes pulse {
+        0% { opacity: 1; }
+        50% { opacity: 0.5; }
+        100% { opacity: 1; }
+    }
+
+    .status-text {
+        font-weight: 600;
+        color: #155724;
+        font-size: 0.9rem;
+    }
+
+    .processing-content {
+        margin-bottom: 1.5rem;
+    }
+
+    .processing-description {
+        font-size: 1.1rem;
+        color: #495057;
+        margin-bottom: 1.5rem;
+        text-align: center;
+        line-height: 1.6;
+    }
+
+    .progress-container {
+        position: relative;
+        margin-bottom: 2rem;
+        background: white;
+        border-radius: 10px;
+        padding: 1rem;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    }
+
+    .progress-text {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        font-size: 0.9rem;
+        color: #495057;
+        font-weight: 600;
+        text-shadow: 0 1px 2px rgba(255,255,255,0.8);
+    }
+
+    .processing-steps {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 1.5rem;
+        margin: 2rem 0;
+    }
+
+    .step-item {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+        background: white;
+        padding: 1.5rem;
+        border-radius: 10px;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+
+    .step-item:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 5px 15px rgba(0,0,0,0.15);
+    }
+
+    .step-icon {
+        font-size: 2.5rem;
+        margin-bottom: 1rem;
+        filter: drop-shadow(0 2px 4px rgba(0,0,0,0.1));
+    }
+
+    .step-text {
+        font-size: 0.9rem;
+        color: #495057;
+        line-height: 1.4;
+    }
+
+    .step-text strong {
+        display: block;
+        margin-bottom: 0.5rem;
+        color: #212529;
+        font-size: 1rem;
+    }
+
+    .processing-actions {
+        text-align: center;
+        margin-top: 2rem;
+        padding-top: 1.5rem;
+        border-top: 1px solid #dee2e6;
+    }
+
+    .auto-refresh-note {
+        font-size: 0.85rem;
+        color: #6c757d;
+        margin-top: 0.75rem;
+        font-style: italic;
+    }
+</style>
+
+<div class="results-container">
+    @if (Model.ResumeAnalysis == null)
+    {
+        <div class="error-message">
+            <h3>Analysis Not Found</h3>
+            <p>The requested resume analysis could not be found or you don't have permission to view it.</p>
+            <a href="/NewAnalysis" class="back-button">Start New Analysis</a>
+        </div>
+        return;
+    }
+
+    <div class="header-section">
+        <h1 class="header-title">Resume Analysis Results</h1>
+        <p class="header-subtitle">AI-powered insights from your resume</p>
+        <div class="status-badge status-@Model.ResumeAnalysis.Status.ToLower()">
+            @Model.ResumeAnalysis.Status
+        </div>
+    </div>
+
+    <div class="file-info">
+        <div class="file-name">📄 @Model.ResumeAnalysis.FileName</div>
+        <div class="file-details">
+            Uploaded: @Model.ResumeAnalysis.CreatedAt.ToString("MMM dd, yyyy 'at' HH:mm") |
+            File Hash: @Model.ResumeAnalysis.FileHash.Substring(0, 8)...
+        </div>
+    </div>
+
+    @if (Model.ResumeAnalysis.Status == "Processing")
+    {
+        <div class="analysis-section processing-section">
+            <div class="processing-header">
+                <h2 class="section-title">
+                    <span class="loading-spinner"></span>
+                    AI Analysis in Progress
+                </h2>
+                <div class="processing-status">
+                    <span class="status-dot"></span>
+                    <span class="status-text">Processing</span>
+                </div>
+            </div>
+            
+            <div class="processing-content">
+                <p class="processing-description">Our AI is currently analyzing your resume. This may take a few minutes.</p>
+                
+                <div class="progress-container">
+                    <div class="progress-bar">
+                        <div class="progress-fill" style="width: 60%;"></div>
+                    </div>
+                    <div class="progress-text">60% Complete</div>
+                </div>
+                
+                <div class="processing-steps">
+                    <div class="step-item">
+                        <div class="step-icon">📄</div>
+                        <div class="step-text">
+                            <strong>Document Processing</strong>
+                            <span>Extracting text and structure</span>
+                        </div>
+                    </div>
+                    <div class="step-item">
+                        <div class="step-icon">🤖</div>
+                        <div class="step-text">
+                            <strong>AI Analysis</strong>
+                            <span>Analyzing skills and experience</span>
+                        </div>
+                    </div>
+                    <div class="step-item">
+                        <div class="step-icon">💡</div>
+                        <div class="step-text">
+                            <strong>Insights Generation</strong>
+                            <span>Creating career recommendations</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="processing-actions">
+                    <button onclick="location.reload()" class="refresh-button">
+                        <i class="bi bi-arrow-clockwise"></i>
+                        Refresh Results
+                    </button>
+                    <p class="auto-refresh-note">Page will auto-refresh every 10 seconds</p>
+                </div>
+            </div>
+        </div>
+    }
+    else if (Model.ResumeAnalysis.Status == "Completed")
+    {
+        @if (!string.IsNullOrEmpty(Model.ResumeAnalysis.TopicsMarkdown))
+        {
+            <div class="analysis-section">
+                <h2 class="section-title">📊 Professional Profile</h2>
+                <div class="content-box">
+                    @Html.Raw(Model.ResumeAnalysis.TopicsMarkdown)
+                </div>
+            </div>
+        }
+
+        @if (!string.IsNullOrEmpty(Model.ResumeAnalysis.PossibleJobs))
+        {
+            <div class="analysis-section">
+                <h2 class="section-title">💼 Recommended Career Paths</h2>
+                <div class="content-box">
+                    <p><strong>Suggested Roles:</strong></p>
+                    <p>@Model.ResumeAnalysis.PossibleJobs</p>
+                </div>
+            </div>
+        }
+
+        @if (!string.IsNullOrEmpty(Model.ResumeAnalysis.MbaSubjectsToReinforce))
+        {
+            <div class="analysis-section">
+                <h2 class="section-title">🎓 Skills to Reinforce</h2>
+                <div class="content-box">
+                    <p><strong>Recommended Focus Areas:</strong></p>
+                    <p>@Model.ResumeAnalysis.MbaSubjectsToReinforce</p>
+                </div>
+            </div>
+        }
+
+        @if (!string.IsNullOrEmpty(Model.ResumeAnalysis.BriefIntroduction))
+        {
+            <div class="analysis-section">
+                <h2 class="section-title">👤 Professional Summary</h2>
+                <div class="content-box">
+                    <p>@Model.ResumeAnalysis.BriefIntroduction</p>
+                </div>
+            </div>
+        }
+
+        @if (!string.IsNullOrEmpty(Model.ResumeAnalysis.CurrentActivities))
+        {
+            <div class="analysis-section">
+                <h2 class="section-title">🚀 Current Focus Areas</h2>
+                <div class="content-box">
+                    <p>@Model.ResumeAnalysis.CurrentActivities</p>
+                </div>
+            </div>
+        }
+
+        <div class="analysis-section">
+            <h2 class="section-title">📈 Analysis Details</h2>
+            <div class="content-box">
+                <p><strong>Analysis Date:</strong> @Model.ResumeAnalysis.AnalysisDate.ToString("MMM dd, yyyy 'at' HH:mm")</p>
+                @if (Model.ResumeAnalysis.ProcessingTime.HasValue)
+                {
+                    <p><strong>Processing Time:</strong> @Model.ResumeAnalysis.ProcessingTime.Value.TotalSeconds.ToString("F1") seconds</p>
+                }
+            </div>
+        </div>
+    }
+    else if (Model.ResumeAnalysis.Status == "Failed")
+    {
+        <div class="analysis-section">
+            <h2 class="section-title">❌ Analysis Failed</h2>
+            <div class="error-message">
+                <p><strong>Error:</strong> @Model.ResumeAnalysis.ErrorMessage</p>
+            </div>
+            <p>Please try uploading your resume again or contact support if the problem persists.</p>
+        </div>
+    }
+
+    <div class="text-center">
+        <a href="/NewAnalysis" class="back-button">Start New Analysis</a>
+        <a href="/Dashboard" class="refresh-button">Go to Dashboard</a>
+    </div>
+</div>
+
+<script>
+    // Auto-refresh if status is processing
+    @if (Model.ResumeAnalysis?.Status == "Processing")
+    {
+        <text>
+        setTimeout(function() {
+            location.reload();
+        }, 10000); // Refresh every 10 seconds
+        </text>
+    }
+</script>

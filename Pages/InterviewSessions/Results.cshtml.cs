@@ -18,7 +18,7 @@ namespace InterviewBot.Pages.InterviewSessions
         private readonly IStringLocalizer<ResultsModel> _localizer;
 
         [BindProperty]
-        public InterviewSession? Session { get; set; }
+        public InterviewSession Session { get; set; } = null!;
 
         public ResultsModel(AppDbContext db, IStringLocalizer<ResultsModel> localizer)
         {

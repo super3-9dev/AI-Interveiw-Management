@@ -15,10 +15,14 @@ namespace InterviewBot.Models
 
         [Required]
         public string FullName { get; set; } = string.Empty;
-
-        public string? Education { get; set; }  // Nullable
-        public string? Experience { get; set; }
-        public string? CurrentPosition { get; set; }
+        
+        // AI Agent Role selection
+        public int? SelectedAIAgentRoleId { get; set; }
+        public AIAgentRole? SelectedAIAgentRole { get; set; }
+        
+        // Navigation properties
+        public ICollection<ResumeAnalysis> ResumeAnalyses { get; set; } = new List<ResumeAnalysis>();
+        
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
         public DateTime? LastLogin { get; set; }
         public bool IsGuest { get; set; } = false;

@@ -8,110 +8,557 @@
 }
 
 <style>
-    .register-container {
+    body, html {
+        height: 100%;
+        background: #f8f9fa;
+        margin: 0;
+        padding: 0;
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+
+    .page-container {
+        min-height: 100vh;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        padding: 2rem 1rem;
+        position: relative;
+    }
+
+    /* Header Section - Logo and Language Switcher */
+    .header-section {
+        width: 100%;
+        max-width: 450px;
         display: flex;
         justify-content: center;
         align-items: center;
-        padding: 40px 20px;
-        min-height: 100vh;
-        background-color: #f8f9fa;
+        margin-bottom: 2rem;
+        position: relative;
     }
 
-    .register-card {
-        width: 100%;
-        max-width: 900px;
-        border-radius: 10px;
+    .logo-section {
+        text-align: center;
+    }
+
+    .logo-svg {
+        margin-bottom: 0.5rem;
+        filter: drop-shadow(0 4px 16px rgba(59, 130, 246, 0.3));
+    }
+
+    .app-title {
+        font-size: 1.5rem;
+        font-weight: 700;
+        color: #4b85db;
+        margin: 0;
+    }
+
+    .language-switcher {
+        position: fixed;
+        right: 30px;
+        top: 30px;
+    }
+
+    .language-dropdown {
+        position: relative;
+        display: inline-block;
+    }
+
+    .language-btn {
+        background: none;
+        border: none;
+        font-size: 1.2rem;
+        color: #6c757d;
+        cursor: pointer;
+        padding: 0.5rem;
+        border-radius: 50%;
+        transition: all 0.3s ease;
+    }
+
+    .language-btn:hover {
+        background: #f8f9fa;
+        color: #0d6efd;
+    }
+
+    .language-dropdown-content {
+        display: none;
+        position: absolute;
+        right: 0;
+        top: 100%;
+        background-color: #fff;
+        min-width: 120px;
+        box-shadow: 0 8px 16px rgba(0,0,0,0.1);
+        border-radius: 0.5rem;
+        z-index: 1000;
         overflow: hidden;
+        margin-top: 0.5rem;
     }
 
-        .register-card .card-header {
-            padding: 1.5rem;
-        }
-
-        .register-card .card-body {
-            padding: 2rem;
-        }
-
-    @@media (max-width: 576px) {
-        .register-card .card-body
-
-    {
-        padding: 1rem;
+    .language-dropdown:hover .language-dropdown-content {
+        display: block;
     }
 
+    .language-option {
+        color: #333;
+        padding: 0.75rem 1rem;
+        text-decoration: none;
+        display: block;
+        transition: background-color 0.3s ease;
+    }
+
+    .language-option:hover {
+        background-color: #f8f9fa;
+        text-decoration: none;
+    }
+
+    .language-option.active {
+        background-color: #e7f3ff;
+        color: #0d6efd;
+        font-weight: 500;
+    }
+
+    /* Register Card */
+    .register-card {
+        max-width: 450px;
+        width: 100%;
+        padding: 1.7rem;
+        border-radius: 1rem;
+        border: 1px solid #e9ecef;
+        box-shadow: 0 8px 15px rgba(0, 0, 0, 0.1);
+        background: #fff;
+        position: relative;
+    }
+
+    .welcome-text {
+        font-size: 2rem;
+        font-weight: bolder;
+        color: #212529;
+        margin-bottom: 0.5rem;
+        text-align: left;
+        font-family: monospace;
+    }
+
+    .subtitle-text {
+        color: #6c757d;
+        font-size: 0.95rem;
+        margin-bottom: 2rem;
+        text-align: left;
+    }
+
+    /* Objective Selection Section */
+    .objective-section {
+        margin: 2rem 0;
+    }
+
+    .objective-title {
+        font-size: 1.1rem;
+        font-weight: 600;
+        color: #212529;
+        margin-bottom: 1rem;
+    }
+
+    .objective-card {
+        border: 2px solid #e9ecef;
+        border-radius: 12px;
+        padding: 1.25rem;
+        margin-bottom: 1rem;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+    }
+
+    .objective-card:hover {
+        border-color: #4b85db;
+        background-color: #f8f9ff;
+    }
+
+    .objective-card.selected {
+        border-color: #4b85db;
+        background-color: #f8f9ff;
+    }
+
+    .objective-content {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        flex: 1;
+    }
+
+    .objective-icon {
+        width: 40px;
+        height: 40px;
+        background: #e9ecef;
+        border-radius: 8px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #6c757d;
+        font-size: 1.2rem;
+    }
+
+    .objective-text h5 {
+        margin: 0;
+        font-weight: 600;
+        color: #212529;
+        font-size: 1rem;
+    }
+
+    .objective-text p {
+        margin: 0;
+        color: #6c757d;
+        font-size: 0.9rem;
+    }
+
+    .radio-button {
+        width: 20px;
+        height: 20px;
+        border: 2px solid #dee2e6;
+        border-radius: 50%;
+        position: relative;
+    }
+
+    .radio-button.selected::after {
+        content: '';
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        width: 10px;
+        height: 10px;
+        background: #4b85db;
+        border-radius: 50%;
+    }
+
+    .form-group {
+        margin-bottom: 1.5rem;
+    }
+
+    .form-label {
+        font-weight: 500;
+        color: #212529;
+        margin-bottom: 0.5rem;
+        display: block;
+        font-size: 0.95rem;
+    }
+
+    .form-control {
+        border: 2px solid #e9ecef;
+        border-radius: 0.45rem;
+        padding: 0.5rem 1rem;
+        font-size: 1rem;
+        transition: all 0.3s ease;
+        background: #fff;
+        width: 100%;
+        box-sizing: border-box;
+    }
+
+    .form-control:focus {
+        border-color: #0d6efd;
+        box-shadow: 0 0 0 0.2rem rgba(13, 110, 253, 0.25);
+        outline: none;
+    }
+
+    .form-control::placeholder {
+        color: #adb5bd;
+    }
+
+    .password-validation {
+        font-size: 0.85rem;
+        color: #6c757d;
+        margin-top: 0.25rem;
+    }
+
+    .btn-primary {
+        background: #4b85db;
+        border: none;
+        border-radius: 0.45rem;
+        padding: 0.6rem 2rem;
+        font-size: 1rem;
+        font-weight: 600;
+        color: #fff;
+        transition: all 0.3s ease;
+        width: 100%;
+        cursor: pointer;
+    }
+
+    .btn-primary:hover {
+        background: #0b5ed7;
+        transform: translateY(-1px);
+        box-shadow: 0 4px 12px rgba(13, 110, 253, 0.3);
+    }
+
+    .login-section {
+        text-align: center;
+        margin-top: 1.5rem;
+    }
+
+    .login-text {
+        color: #6c757d;
+        font-size: 0.95rem;
+        font-weight: 600;
+    }
+
+    .login-link {
+        color: #0d6efd;
+        text-decoration: none;
+        font-weight: 600;
+    }
+
+    .login-link:hover {
+        text-decoration: underline;
+    }
+
+    .validation-error {
+        color: #dc3545;
+        font-size: 0.875rem;
+        margin-top: 0.25rem;
+    }
+
+    .alert-danger {
+        background-color: #f8d7da;
+        border: 1px solid #f5c6cb;
+        color: #721c24;
+        padding: 0.75rem 1rem;
+        border-radius: 0.5rem;
+        margin-bottom: 1.5rem;
+    }
+
+    /* Responsive Design */
+    @@media (max-width: 768px) {
+        .page-container {
+            padding: 1rem 0.5rem;
+        }
+        
+        .header-section {
+            margin-bottom: 1.5rem;
+        }
+        
+        .logo-container {
+            width: 50px;
+            height: 50px;
+        }
+        
+        .logo-icon {
+            width: 25px;
+            height: 25px;
+        }
+        
+        .app-title {
+            font-size: 1.25rem;
+        }
+        
+        .register-card {
+            padding: 1.7rem 1.5rem;
+        }
+        
+        .welcome-text {
+            font-size: 1.25rem;
+        }
+    }
+
+    @@media (max-width: 480px) {
+        .page-container {
+            padding: 0.5rem;
+        }
+        
+        .header-section {
+            margin-bottom: 1rem;
+        }
+        
+        .logo-container {
+            width: 45px;
+            height: 45px;
+        }
+        
+        .logo-icon {
+            width: 22px;
+            height: 22px;
+        }
+        
+        .app-title {
+            font-size: 1.1rem;
+        }
+        
+        .register-card {
+            padding: 1.5rem 1rem;
+        }
+        
+        .welcome-text {
+            font-size: 1.1rem;
+        }
+        
+        .form-control {
+            padding: 0.75rem 0.875rem;
+        }
+    }
+
+    @@media (min-width: 1200px) {
+        .page-container {
+            padding: 3rem 1rem;
+        }
+        
+        .header-section {
+            max-width: 500px;
+        }
+        
+        .logo-container {
+            width: 70px;
+            height: 70px;
+        }
+        
+        .logo-icon {
+            width: 35px;
+            height: 35px;
+        }
+        
+        .app-title {
+            font-size: 1.75rem;
+        }
+        
+        .register-card {
+            max-width: 500px;
+            padding: 1.7rem;
+        }
     }
 </style>
 
-<div class="container-fluid register-container">
-    <div class="card shadow-lg register-card border-0">
-        <div class="card-header bg-primary text-white text-center">
-            <h2 class="mb-0">@Localizer["Create Account"]</h2>
-            
-            <!-- Language Switcher -->
-            <div class="mt-3">
-                <div class="btn-group" role="group">
-                    <a href="?culture=en" class="btn btn-outline-light btn-sm @(string.IsNullOrEmpty(HttpContext.Request.Query["culture"]) || HttpContext.Request.Query["culture"] == "en" ? "active" : "")">English</a>
-                    <a href="?culture=es" class="btn btn-outline-light btn-sm @(HttpContext.Request.Query["culture"] == "es" ? "active" : "")">Español</a>
+<div class="page-container">
+    <!-- Header Section with Logo and Language Switcher -->
+    <div class="header-section">
+        <div class="logo-section">
+            <svg class="logo-svg" viewBox="0 0 48 48" width="60" height="60">
+                <!-- Blue circular border -->
+                <circle cx="24" cy="24" r="15" fill="none" stroke="#4285f4" stroke-width="2.5"/>
+                <!-- Blue curved line inside circle -->
+                <path d="M16 24 Q20 16 24 20 Q28 24 32 20" fill="none" stroke="#4285f4" stroke-width="2.5" stroke-linecap="round"/>
+            </svg>
+            <h1 class="app-title">Intrevidor Guiado</h1>
+        </div>
+        
+        <!-- Language Switcher -->
+        <div class="language-switcher">
+            <div class="language-dropdown">
+                <button class="language-btn" type="button">
+                    🌐
+                </button>
+                <div class="language-dropdown-content">
+                    <a href="?culture=en" class="language-option @(string.IsNullOrEmpty(HttpContext.Request.Query["culture"]) || HttpContext.Request.Query["culture"] == "en" ? "active" : "")">English</a>
+                    <a href="?culture=es" class="language-option @(HttpContext.Request.Query["culture"] == "es" ? "active" : "")">Español</a>
                 </div>
             </div>
         </div>
-        <div class="card-body">
-            <form method="post">
-                <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+    </div>
 
-                <div class="row g-3">
-                    <div class="col-md-6">
-                        <label asp-for="Input.FullName" class="form-label">@Localizer["FullName"]</label>
-                        <input asp-for="Input.FullName" class="form-control" />
-                        <span asp-validation-for="Input.FullName" class="text-danger"></span>
-                    </div>
-                    <div class="col-md-6">
-                        <label asp-for="Input.Email" class="form-label">@Localizer["Email"]</label>
-                        <input asp-for="Input.Email" class="form-control" />
-                        <span asp-validation-for="Input.Email" class="text-danger"></span>
-                    </div>
+    <!-- Register Card -->
+    <div class="register-card">
+        <!-- Welcome Section -->
+        <div class="mb-4">
+            <h2 class="welcome-text">Create an Account</h2>
+            <p class="subtitle-text">Comienza tu viaje con Intrevidor Guiado hoy.</p>
+        </div>
 
-                    <div class="col-md-6">
-                        <label asp-for="Input.Password" class="form-label">@Localizer["Password"]</label>
-                        <input asp-for="Input.Password" type="password" class="form-control" />
-                        <span asp-validation-for="Input.Password" class="text-danger"></span>
-                    </div>
-                    <div class="col-md-6">
-                        <label asp-for="Input.ConfirmPassword" class="form-label">@Localizer["ConfirmPassword"]</label>
-                        <input asp-for="Input.ConfirmPassword" type="password" class="form-control" />
-                        <span asp-validation-for="Input.ConfirmPassword" class="text-danger"></span>
-                    </div>
+        <!-- Register Form -->
+        <form method="post">
+            <div asp-validation-summary="ModelOnly" class="alert alert-danger"></div>
 
-                    <div class="col-md-6">
-                        <label asp-for="Input.Education" class="form-label">@Localizer["Education"]</label>
-                        <input asp-for="Input.Education" class="form-control" />
-                        <span asp-validation-for="Input.Education" class="text-danger"></span>
+            <!-- Objective Selection Section -->
+            <div class="objective-section">
+                <h3 class="objective-title">What is your main objective?</h3>
+                
+                <div class="objective-card" onclick="selectObjective('CareerCounselling')">
+                    <div class="objective-content">
+                        <div class="objective-icon">
+                            🏛️
+                        </div>
+                        <div class="objective-text">
+                            <h5>Career Counseling</h5>
+                            <p>Get expert advice and guidance for your professional path.</p>
+                        </div>
                     </div>
-                    <div class="col-md-6">
-                        <label asp-for="Input.Experience" class="form-label">@Localizer["Experience"]</label>
-                        <input asp-for="Input.Experience" class="form-control" />
-                        <span asp-validation-for="Input.Experience" class="text-danger"></span>
-                    </div>
-
-                    <div class="col-12">
-                        <label asp-for="Input.CurrentPosition" class="form-label">@Localizer["CurrentPosition"]</label>
-                        <input asp-for="Input.CurrentPosition" class="form-control" />
-                        <span asp-validation-for="Input.CurrentPosition" class="text-danger"></span>
-                    </div>
+                    <div class="radio-button" id="career-radio"></div>
                 </div>
-
-                <div class="d-grid gap-2 mt-4">
-                    <button type="submit" class="btn btn-primary btn-lg">@Localizer["Register"]</button>
-                    <a asp-page="/Account/Login" class="btn btn-outline-secondary">@Localizer["Already have an account? Login"]</a>
+                
+                <div class="objective-card" onclick="selectObjective('PurposeDiscovery')">
+                    <div class="objective-content">
+                        <div class="objective-icon">
+                            🎯
+                        </div>
+                        <div class="objective-text">
+                            <h5>Discovering My Purpose</h5>
+                            <p>Explore your passions and find a career with meaning.</p>
+                        </div>
+                    </div>
+                    <div class="radio-button" id="purpose-radio"></div>
                 </div>
-            </form>
+            </div>
+
+            <!-- Hidden input for objective -->
+            <input type="hidden" asp-for="Input.Objective" id="objective-input" />
+
+            <div class="form-group">
+                <label asp-for="Input.FullName" class="form-label">Full Name</label>
+                <input asp-for="Input.FullName" class="form-control" placeholder="Enter your full name" />
+                <span asp-validation-for="Input.FullName" class="validation-error"></span>
+            </div>
+
+            <div class="form-group">
+                <label asp-for="Input.Email" class="form-label">Email</label>
+                <input asp-for="Input.Email" class="form-control" placeholder="you@example.com" />
+                <span asp-validation-for="Input.Email" class="validation-error"></span>
+            </div>
+
+            <div class="form-group">
+                <label asp-for="Input.Password" class="form-label">Password</label>
+                <input asp-for="Input.Password" type="password" class="form-control" placeholder="********" />
+                <div class="password-validation">Must be at least 8 characters long.</div>
+                <span asp-validation-for="Input.Password" class="validation-error"></span>
+            </div>
+
+            <div class="form-group">
+                <label asp-for="Input.ConfirmPassword" class="form-label">Confirm Password</label>
+                <input asp-for="Input.ConfirmPassword" type="password" class="form-control" placeholder="********" />
+                <span asp-validation-for="Input.ConfirmPassword" class="validation-error"></span>
+            </div>
+
+            <div class="d-grid mb-3">
+                <button type="submit" class="btn btn-primary">Create Account</button>
+            </div>
+        </form>
+        
+        <div class="login-section">
+            <span class="login-text">Already have an account? </span>
+            <a asp-page="/Account/Login" class="login-link">Login</a>
         </div>
     </div>
 </div>
 
-@section Scripts {
-    <!-- Correct use: This just executes the partial view -->
-    @{
-        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+<script>
+    function selectObjective(type) {
+        // Remove selected class from all cards
+        document.querySelectorAll('.objective-card').forEach(card => {
+            card.classList.remove('selected');
+        });
+        
+        // Remove selected class from all radio buttons
+        document.querySelectorAll('.radio-button').forEach(radio => {
+            radio.classList.remove('selected');
+        });
+        
+        // Set the hidden input value
+        document.getElementById('objective-input').value = type;
+        
+        // Add selected class to clicked card and radio
+        if (type === 'CareerCounselling') {
+            document.querySelector('.objective-card:first-of-type').classList.add('selected');
+            document.getElementById('career-radio').classList.add('selected');
+        } else if (type === 'PurposeDiscovery') {
+            document.querySelector('.objective-card:last-of-type').classList.add('selected');
+            document.getElementById('purpose-radio').classList.add('selected');
+        }
     }
+</script>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
 }

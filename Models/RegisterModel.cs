@@ -19,9 +19,8 @@ namespace InterviewBot.Models
 
         [Required]
         public string FullName { get; set; } = string.Empty;
-
-        public string? Education { get; set; }
-        public string? Experience { get; set; }
-        public string? CurrentPosition { get; set; }
+        
+        [Required(ErrorMessage = "Please select your main objective.")]
+        public string Objective { get; set; } = string.Empty; // "CareerCounselling" or "PurposeDiscovery"
     }
 }

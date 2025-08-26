@@ -1,165 +1,264 @@
-﻿@page
+@page
 @using Microsoft.AspNetCore.Mvc.Localization
 @inject IViewLocalizer Localizer
-@model InterviewBot.Pages.IndexModel
 @{
-    ViewData["Title"] = Localizer["My Interview Topics"];
+    ViewData["Title"] = Localizer["Home"];
     var currentCulture = HttpContext.Request.Query["culture"].ToString();
     if (string.IsNullOrEmpty(currentCulture))
     {
         currentCulture = HttpContext.Request.Cookies["culture"] ?? "en";
     }
-    currentCulture = string.IsNullOrEmpty(currentCulture) ? "en" : currentCulture;
 }
-<div class="container mt-4">
-    <div class="d-flex justify-content-between align-items-center mb-4">
-        <h2>@Localizer["My Interview Topics"]</h2>
-        <a asp-page="/Topics/Create" asp-route-culture="@currentCulture" class="btn btn-primary">
-            <i class="bi bi-plus-lg"></i> @Localizer["Create New Topic"]
-        </a>
+
+<!-- Page Content -->
+<div class="page-content">
+    <!-- Welcome Section -->
+    <div class="welcome-section">
+        <h1 class="welcome-title">BIENVENIDO a Intrevidor Guiado</h1>
+        <p class="welcome-subtitle">Tu guía de carrera personal impulsada por IA. Comienza analizando tu perfil o revisa los resultados de tu última entrevista.</p>
     </div>
 
-    @if (!Model.Topics?.Any() ?? true)
-    {
-        <!-- Welcome message for new users -->
-        <div class="row justify-content-center">
-            <div class="col-md-8">
-                <div class="card border-0 shadow-lg">
-                    <div class="card-body text-center py-5">
-                        <div class="mb-4">
-                            <i class="bi bi-emoji-smile text-primary" style="font-size: 4rem;"></i>
-                        </div>
-                        <h3 class="text-primary mb-3">@Localizer["Welcome to InterviewBot!"]</h3>
-                        <p class="lead text-muted mb-4">@Localizer["Get started by creating your first interview topic. You can organize your interview preparation by creating topics and subtopics."]</p>
-                        <div class="row text-start">
-                            <div class="col-md-6 mb-3">
-                                <div class="d-flex align-items-start">
-                                    <i class="bi bi-1-circle-fill text-primary me-3 mt-1"></i>
-                                    <div>
-                                        <h6 class="mb-1">@Localizer["Create Topics"]</h6>
-                                        <small class="text-muted">@Localizer["Organize your interview preparation by creating main topics like 'Technical Skills', 'Behavioral Questions', etc."]</small>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="col-md-6 mb-3">
-                                <div class="d-flex align-items-start">
-                                    <i class="bi bi-2-circle-fill text-primary me-3 mt-1"></i>
-                                    <div>
-                                        <h6 class="mb-1">@Localizer["Add Subtopics"]</h6>
-                                        <small class="text-muted">@Localizer["Break down topics into specific areas like 'JavaScript Fundamentals', 'System Design', etc."]</small>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="col-md-6 mb-3">
-                                <div class="d-flex align-items-start">
-                                    <i class="bi bi-3-circle-fill text-primary me-3 mt-1"></i>
-                                    <div>
-                                        <h6 class="mb-1">@Localizer["Start Interviews"]</h6>
-                                        <small class="text-muted">@Localizer["Begin AI-powered mock interviews to practice and improve your skills."]</small>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="col-md-6 mb-3">
-                                <div class="d-flex align-items-start">
-                                    <i class="bi bi-4-circle-fill text-primary me-3 mt-1"></i>
-                                    <div>
-                                        <h6 class="mb-1">@Localizer["Review Results"]</h6>
-                                        <small class="text-muted">@Localizer["Get detailed feedback and scores to track your progress."]</small>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="mt-4">
-                            <a asp-page="/Topics/Create" asp-route-culture="@(currentCulture!)" class="btn btn-primary btn-lg px-4">
-                                <i class="bi bi-plus-lg me-2"></i>@Localizer["Create Your First Topic"]
-                            </a>
-                        </div>
-                    </div>
-                </div>
+    <!-- Action Cards -->
+    <div class="action-cards">
+        <!-- Start New Analysis Card -->
+        <div class="action-card">
+            <div class="card-icon">
+                <i class="bi bi-file-earmark-text"></i>
             </div>
+            <h3 class="card-title">Start a New Analysis</h3>
+            <p class="card-description">Let our AI analyze your profile to create personalized interview questions. Upload your resume or provide a description of your skills and experience to generate a new career analysis and a tailored interview catalog.</p>
+            <a href="/NewAnalysis@(!string.IsNullOrEmpty(currentCulture) ? $"?culture={currentCulture}" : "")" class="card-button primary">
+                Get Started →
+            </a>
         </div>
-    }
-    else
-    {
-        <div class="row">
-            @foreach (var topic in Model.Topics)
-            {
-                <div class="col-md-6 mb-4">
-                    <div class="card shadow-sm">
-                        <div class="card-header bg-light">
-                            <h5 class="mb-0">@topic.Title</h5>
-                        </div>
-                        <div class="card-body">
-                            @if (topic.SubTopics?.Any() ?? false)
-                            {
-                                <ul class="list-group list-group-flush">
-                                    @foreach (var sub in topic.SubTopics)
-                                    {
-                                        <li class="list-group-item d-flex justify-content-between align-items-center">
-                                            @sub.Title
-                                            @{
-                                                var latestSession = sub.InterviewSessions?.OrderByDescending(s => s.StartTime).FirstOrDefault();
-                                                var buttonText = "Start Interview";
-                                                var buttonClass = "btn-outline-primary";
-                                                var buttonIcon = "bi-play-circle";
-                                                var buttonUrl = $"/Chat?subTopicId={sub.Id}";
-                                                
-                                                if (latestSession != null)
-                                                {
-                                                    if (latestSession.IsCompleted)
-                                                    {
-                                                        buttonText = "View Results";
-                                                        buttonClass = "btn-outline-success";
-                                                        buttonIcon = "bi-eye";
-                                                        buttonUrl = $"/InterviewSessions/Results?id={latestSession.Id}";
-                                                    }
-                                                    else if (latestSession.EndTime.HasValue || latestSession.CurrentQuestionNumber > 0)
-                                                    {
-                                                        buttonText = "Resume Interview";
-                                                        buttonClass = "btn-outline-warning";
-                                                        buttonIcon = "bi-arrow-clockwise";
-                                                        buttonUrl = $"/Chat?subTopicId={sub.Id}&resume={latestSession.Id}";
-                                                    }
-                                                }
-                                                
-                                                if (!string.IsNullOrEmpty(currentCulture))
-                                                {
-                                                    buttonUrl += $"&culture={currentCulture!}";
-                                                }
-                                            }
-                                            <a class="btn btn-sm @buttonClass" href="@buttonUrl">
-                                                <i class="@buttonIcon"></i> @Localizer[buttonText]
-                                            </a>
-                                        </li>
-                                    }
-                                </ul>
-                            }
-                            else
-                            {
-                                <p class="text-muted">@Localizer["No subtopics available"]</p>
-                            }
-                        </div>
-                    </div>
-                </div>
-            }
+
+        <!-- Review Results Card -->
+        <div class="action-card">
+            <div class="card-icon results">
+                <i class="bi bi-chat-dots"></i>
+            </div>
+            <h3 class="card-title">Review Your Results</h3>
+            <p class="card-description">Check your latest interview summary and career roadmap. You have no interview results yet. Complete an interview to see your results here.</p>
+            <a href="/CustomInterview@(!string.IsNullOrEmpty(currentCulture) ? $"?culture={currentCulture}" : "")" class="card-button secondary">
+                Go to Interview Catalog
+            </a>
         </div>
-    }
+    </div>
 </div>
 
 <style>
-    .topic-card {
-        border: 1px solid #ddd;
-        padding: 15px;
-        margin-bottom: 20px;
-        border-radius: 5px;
-    }
+/* Page Content Styles */
+.page-content {
+    padding: 2rem;
+    max-width: none;
+    margin: 0;
+    width: 100%;
+}
 
-    .subtopic-list {
-        list-style-type: none;
-        padding-left: 0;
-    }
+/* Welcome Section */
+.welcome-section {
+    text-align: center;
+    margin-bottom: 4rem;
+    max-width: 800px;
+    margin-left: auto;
+    margin-right: auto;
+}
 
-        .subtopic-list li {
-            margin: 5px 0;
-        }
+.welcome-title {
+    font-size: 3rem;
+    font-weight: 700;
+    color: #3b82f6;
+    margin-bottom: 1.5rem;
+}
+
+.welcome-subtitle {
+    font-size: 1.25rem;
+    color: #6b7280;
+    max-width: 700px;
+    margin: 0 auto;
+    line-height: 1.6;
+}
+
+/* Action Cards */
+.action-cards {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 2rem;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+/* Action Card Styles */
+.action-card {
+    background-color: white;
+    border: 1px solid #e9ecef;
+    border-radius: 0.75rem;
+    padding: 2.5rem;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    text-align: center;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    min-height: 400px;
+    display: flex;
+    flex-direction: column;
+}
+
+.action-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.card-icon {
+    width: 80px;
+    height: 80px;
+    background: #3b82f6;
+    border-radius: 0.75rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 2rem;
+    font-size: 2rem;
+    color: white;
+    box-shadow: 0 4px 12px rgba(59, 130, 246, 0.2);
+}
+
+.card-icon.results {
+    background: #10b981;
+    box-shadow: 0 4px 12px rgba(16, 185, 129, 0.2);
+}
+
+.card-title {
+    font-size: 1.75rem;
+    font-weight: 700;
+    color: #1f2937;
+    margin-bottom: 1.5rem;
+    line-height: 1.2;
+}
+
+.card-description {
+    color: #6b7280;
+    line-height: 1.7;
+    margin-bottom: 2.5rem;
+    font-size: 1.05rem;
+    flex: 1;
+}
+
+.card-button {
+    display: inline-block;
+    padding: 1rem 2rem;
+    border-radius: 0.75rem;
+    font-weight: 600;
+    text-decoration: none;
+    transition: all 0.2s ease;
+    border: none;
+    cursor: pointer;
+    font-size: 1.1rem;
+    text-align: center;
+    min-width: 200px;
+}
+
+.card-button.primary {
+    background: #3b82f6;
+    color: white;
+    box-shadow: 0 4px 12px rgba(59, 130, 246, 0.2);
+}
+
+.card-button.primary:hover {
+    background: #2563eb;
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(59, 130, 246, 0.3);
+}
+
+.card-button.secondary {
+    background: #f3f4f6;
+    color: #6b7280;
+    border: 2px solid #e5e7eb;
+}
+
+.card-button.secondary:hover {
+    background: #e5e7eb;
+    color: #374151;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+/* Responsive Design for Action Cards */
+@@media (max-width: 768px) {
+    .action-cards {
+        grid-template-columns: 1fr;
+        gap: 1.5rem;
+        padding: 0 1rem;
+    }
+    
+    .welcome-title {
+        font-size: 2.5rem;
+    }
+    
+    .action-card {
+        padding: 2rem 1.5rem;
+        min-height: 350px;
+    }
+    
+    .card-icon {
+        width: 70px;
+        height: 70px;
+        font-size: 1.75rem;
+        margin-bottom: 1.5rem;
+    }
+    
+    .card-title {
+        font-size: 1.5rem;
+        margin-bottom: 1rem;
+    }
+    
+    .card-description {
+        font-size: 1rem;
+        margin-bottom: 2rem;
+    }
+    
+    .card-button {
+        padding: 0.875rem 1.5rem;
+        font-size: 1rem;
+        min-width: 180px;
+    }
+}
+
+@@media (max-width: 480px) {
+    .page-content {
+        padding: 1rem;
+    }
+    
+    .welcome-title {
+        font-size: 2rem;
+    }
+    
+    .welcome-subtitle {
+        font-size: 1.1rem;
+    }
+    
+    .action-card {
+        padding: 1.5rem 1rem;
+        min-height: 320px;
+    }
+    
+    .card-icon {
+        width: 60px;
+        height: 60px;
+        font-size: 1.5rem;
+        margin-bottom: 1rem;
+    }
+    
+    .card-title {
+        font-size: 1.25rem;
+    }
+    
+    .card-description {
+        font-size: 0.95rem;
+    }
+    
+    .card-button {
+        padding: 0.75rem 1.25rem;
+        font-size: 0.95rem;
+        min-width: 160px;
+    }
+}
 </style>
