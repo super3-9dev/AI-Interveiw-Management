@@ -8,11 +8,13 @@
 }
 
 <style>
-    body, html {
+    body,
+    html {
         height: 100%;
         background: #f8f9fa;
         margin: 0;
         padding: 0;
+        display: unset !important;
         font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     }
 
@@ -21,7 +23,7 @@
         display: flex;
         flex-direction: column;
         align-items: center;
-        padding: 2rem 1rem;
+        padding: 0 1rem;
         position: relative;
     }
 
@@ -86,7 +88,7 @@
         top: 100%;
         background-color: #fff;
         min-width: 120px;
-        box-shadow: 0 8px 16px rgba(0,0,0,0.1);
+        box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
         border-radius: 0.5rem;
         z-index: 1000;
         overflow: hidden;
@@ -326,96 +328,86 @@
 
     /* Responsive Design */
     @@media (max-width: 768px) {
-        .page-container {
-            padding: 1rem 0.5rem;
-        }
-        
         .header-section {
             margin-bottom: 1.5rem;
         }
-        
+
         .logo-container {
             width: 50px;
             height: 50px;
         }
-        
+
         .logo-icon {
             width: 25px;
             height: 25px;
         }
-        
+
         .app-title {
             font-size: 1.25rem;
         }
-        
+
         .register-card {
             padding: 1.7rem 1.5rem;
         }
-        
+
         .welcome-text {
             font-size: 1.25rem;
         }
     }
 
     @@media (max-width: 480px) {
-        .page-container {
-            padding: 0.5rem;
-        }
-        
+
+
         .header-section {
             margin-bottom: 1rem;
         }
-        
+
         .logo-container {
             width: 45px;
             height: 45px;
         }
-        
+
         .logo-icon {
             width: 22px;
             height: 22px;
         }
-        
+
         .app-title {
             font-size: 1.1rem;
         }
-        
+
         .register-card {
             padding: 1.5rem 1rem;
         }
-        
+
         .welcome-text {
             font-size: 1.1rem;
         }
-        
+
         .form-control {
             padding: 0.75rem 0.875rem;
         }
     }
 
     @@media (min-width: 1200px) {
-        .page-container {
-            padding: 3rem 1rem;
-        }
-        
         .header-section {
             max-width: 500px;
         }
-        
+
         .logo-container {
             width: 70px;
             height: 70px;
         }
-        
+
         .logo-icon {
             width: 35px;
             height: 35px;
         }
-        
+
         .app-title {
             font-size: 1.75rem;
         }
-        
+
         .register-card {
             max-width: 500px;
             padding: 1.7rem;
@@ -429,13 +421,14 @@
         <div class="logo-section">
             <svg class="logo-svg" viewBox="0 0 48 48" width="60" height="60">
                 <!-- Blue circular border -->
-                <circle cx="24" cy="24" r="15" fill="none" stroke="#4285f4" stroke-width="2.5"/>
+                <circle cx="24" cy="24" r="15" fill="none" stroke="#4285f4" stroke-width="2.5" />
                 <!-- Blue curved line inside circle -->
-                <path d="M16 24 Q20 16 24 20 Q28 24 32 20" fill="none" stroke="#4285f4" stroke-width="2.5" stroke-linecap="round"/>
+                <path d="M16 24 Q20 16 24 20 Q28 24 32 20" fill="none" stroke="#4285f4" stroke-width="2.5"
+                    stroke-linecap="round" />
             </svg>
             <h1 class="app-title">Intrevidor Guiado</h1>
         </div>
-        
+
         <!-- Language Switcher -->
         <div class="language-switcher">
             <div class="language-dropdown">
@@ -443,8 +436,10 @@
                     🌐
                 </button>
                 <div class="language-dropdown-content">
-                    <a href="?culture=en" class="language-option @(string.IsNullOrEmpty(HttpContext.Request.Query["culture"]) || HttpContext.Request.Query["culture"] == "en" ? "active" : "")">English</a>
-                    <a href="?culture=es" class="language-option @(HttpContext.Request.Query["culture"] == "es" ? "active" : "")">Español</a>
+                    <a href="?culture=en"
+                        class="language-option @(string.IsNullOrEmpty(HttpContext.Request.Query["culture"]) || HttpContext.Request.Query["culture"] == "en" ? "active" : "")">English</a>
+                    <a href="?culture=es"
+                        class="language-option @(HttpContext.Request.Query["culture"] == "es" ? "active" : "")">Español</a>
                 </div>
             </div>
         </div>
@@ -465,7 +460,7 @@
             <!-- Objective Selection Section -->
             <div class="objective-section">
                 <h3 class="objective-title">What is your main objective?</h3>
-                
+
                 <div class="objective-card" onclick="selectObjective('CareerCounselling')">
                     <div class="objective-content">
                         <div class="objective-icon">
@@ -478,7 +473,7 @@
                     </div>
                     <div class="radio-button" id="career-radio"></div>
                 </div>
-                
+
                 <div class="objective-card" onclick="selectObjective('PurposeDiscovery')">
                     <div class="objective-content">
                         <div class="objective-icon">
@@ -515,17 +510,13 @@
                 <span asp-validation-for="Input.Password" class="validation-error"></span>
             </div>
 
-            <div class="form-group">
-                <label asp-for="Input.ConfirmPassword" class="form-label">Confirm Password</label>
-                <input asp-for="Input.ConfirmPassword" type="password" class="form-control" placeholder="********" />
-                <span asp-validation-for="Input.ConfirmPassword" class="validation-error"></span>
-            </div>
+
 
             <div class="d-grid mb-3">
                 <button type="submit" class="btn btn-primary">Create Account</button>
             </div>
         </form>
-        
+
         <div class="login-section">
             <span class="login-text">Already have an account? </span>
             <a asp-page="/Account/Login" class="login-link">Login</a>
@@ -539,15 +530,15 @@
         document.querySelectorAll('.objective-card').forEach(card => {
             card.classList.remove('selected');
         });
-        
+
         // Remove selected class from all radio buttons
         document.querySelectorAll('.radio-button').forEach(radio => {
             radio.classList.remove('selected');
         });
-        
+
         // Set the hidden input value
         document.getElementById('objective-input').value = type;
-        
+
         // Add selected class to clicked card and radio
         if (type === 'CareerCounselling') {
             document.querySelector('.objective-card:first-of-type').classList.add('selected');

@@ -13,7 +13,7 @@ namespace InterviewBot.Pages
     {
         private readonly AppDbContext _db;
 
-        public List<ResumeAnalysis> ResumeAnalyses { get; set; } = new();
+        public List<Profile> Profiles { get; set; } = new();
         public List<InterviewSession> InterviewSessions { get; set; } = new();
 
         public ResultsModel(AppDbContext db)
@@ -26,7 +26,7 @@ namespace InterviewBot.Pages
             var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier);
             if (userIdClaim != null && int.TryParse(userIdClaim.Value, out int userId))
             {
-                ResumeAnalyses = await _db.ResumeAnalyses
+                Profiles = await _db.Profiles
                     .Where(r => r.UserId == userId)
                     .OrderByDescending(r => r.CreatedAt)
                     .Take(10)

@@ -80,14 +80,12 @@ namespace InterviewBot.Pages.Account
         [MinLength(8, ErrorMessage = "Password must be at least 8 characters long.")]
         public string Password { get; set; } = string.Empty;
 
-        [DataType(DataType.Password)]
-        [Compare("Password", ErrorMessage = "Passwords don't match.")]
-        public string ConfirmPassword { get; set; } = string.Empty;
+
 
         [Required]
         [StringLength(100, ErrorMessage = "Full name cannot exceed 100 characters.")]
         public string FullName { get; set; } = string.Empty;
-        
+
         [Required(ErrorMessage = "Please select your main objective.")]
         public string Objective { get; set; } = string.Empty; // "CareerCounselling" or "PurposeDiscovery"
     }

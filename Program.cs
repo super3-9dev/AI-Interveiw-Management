@@ -23,7 +23,8 @@ builder.Services.AddSingleton<IConverter, SynchronizedConverter>(s =>
 
 builder.Services.AddLocalization(options => options.ResourcesPath = "Resources");
 
-builder.Services.Configure<RequestLocalizationOptions>(options => {
+builder.Services.Configure<RequestLocalizationOptions>(options =>
+{
     var supportedCultures = new[] { "en", "es" };
     options.SetDefaultCulture("en")
         .AddSupportedCultures(supportedCultures)
@@ -51,15 +52,15 @@ builder.Services.AddSession(options =>
 
 
 
-// Add Resume Analysis service
-builder.Services.AddScoped<IResumeAnalysisService, ResumeAnalysisService>();
+// Add Profile service
+builder.Services.AddScoped<IProfileService, ProfileService>();
 
 // Add Interview Catalog service
 builder.Services.AddScoped<IInterviewCatalogService, InterviewCatalogService>();
 
 // Database
 builder.Services.AddDbContext<AppDbContext>(options =>
-    options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection"), 
+    options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection"),
         npgsqlOptions => npgsqlOptions.EnableRetryOnFailure(
             maxRetryCount: 3,
             maxRetryDelay: TimeSpan.FromSeconds(30),
@@ -104,13 +105,16 @@ builder.Services.AddRazorPages(options =>
 });
 
 // Add SignalR service
-builder.Services.AddSignalR(options => {
+builder.Services.AddSignalR(options =>
+{
     options.EnableDetailedErrors = true;
 });
 
 // Add CORS policy (adjust for production)
-builder.Services.AddCors(options => {
-    options.AddPolicy("SignalRCors", policy => {
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("SignalRCors", policy =>
+    {
         policy.AllowAnyHeader()
               .AllowAnyMethod()
               .SetIsOriginAllowed(_ => true)

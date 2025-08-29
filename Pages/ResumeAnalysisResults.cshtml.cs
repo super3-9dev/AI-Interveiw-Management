@@ -10,16 +10,16 @@ namespace InterviewBot.Pages
     [Authorize]
     public class ResumeAnalysisResultsModel : PageModel
     {
-        private readonly IResumeAnalysisService _resumeAnalysisService;
+        private readonly IProfileService _profileService;
 
         [BindProperty(SupportsGet = true)]
         public int Id { get; set; }
 
-        public ResumeAnalysis? ResumeAnalysis { get; private set; }
+        public Profile? Profile { get; private set; }
 
-        public ResumeAnalysisResultsModel(IResumeAnalysisService resumeAnalysisService)
+        public ResumeAnalysisResultsModel(IProfileService profileService)
         {
-            _resumeAnalysisService = resumeAnalysisService;
+            _profileService = profileService;
         }
 
         public async Task<IActionResult> OnGetAsync()
@@ -32,9 +32,9 @@ namespace InterviewBot.Pages
                     return RedirectToPage("/Account/Login");
                 }
 
-                ResumeAnalysis = await _resumeAnalysisService.GetResumeAnalysisAsync(Id, userId.Value);
-                
-                if (ResumeAnalysis == null)
+                Profile = await _profileService.GetProfileAsync(Id, userId.Value);
+
+                if (Profile == null)
                 {
                     return NotFound();
                 }
@@ -59,12 +59,12 @@ namespace InterviewBot.Pages
                 }
 
                 var action = Request.Form["action"].ToString();
-                
+
                 if (action == "retry")
                 {
                     var analysisId = int.Parse(Request.Form["analysisId"].ToString());
-                    var success = await _resumeAnalysisService.RetryAnalysisAsync(analysisId, userId.Value);
-                    
+                    var success = await _profileService.RetryAnalysisAsync(analysisId, userId.Value);
+
                     if (success)
                     {
                         // Redirect back to the same page to show the updated status
@@ -94,16 +94,16 @@ namespace InterviewBot.Pages
                     return Unauthorized();
                 }
 
-                var analysis = await _resumeAnalysisService.GetResumeAnalysisAsync(Id, userId.Value);
-                if (analysis == null)
+                var profile = await _profileService.GetProfileAsync(Id, userId.Value);
+                if (profile == null)
                 {
                     return NotFound();
                 }
 
                 return new JsonResult(new
                 {
-                    status = analysis.Status,
-                    progress = analysis.Progress
+                    status = profile.Status,
+                    progress = profile.Progress
                 });
             }
             catch (Exception ex)

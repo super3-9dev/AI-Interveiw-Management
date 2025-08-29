@@ -12,20 +12,29 @@ namespace InterviewBot.Pages
     [Authorize]
     public class NewAnalysisModel : PageModel
     {
-        private readonly IResumeAnalysisService _resumeAnalysisService;
+        private readonly IProfileService _profileService;
 
         [BindProperty]
         public IFormFile? ResumeFile { get; set; }
 
         [BindProperty]
-        public string? Description { get; set; }
+        public string? BriefIntroduction { get; set; }
+
+        [BindProperty]
+        public string? CareerGoals { get; set; }
+
+        [BindProperty]
+        public string? CurrentActivity { get; set; }
+
+        [BindProperty]
+        public string? Motivations { get; set; }
 
         public string? ErrorMessage { get; set; }
         public string? SuccessMessage { get; set; }
 
-        public NewAnalysisModel(IResumeAnalysisService resumeAnalysisService)
+        public NewAnalysisModel(IProfileService profileService)
         {
-            _resumeAnalysisService = resumeAnalysisService;
+            _profileService = profileService;
         }
 
         public void OnGet()
@@ -66,7 +75,7 @@ namespace InterviewBot.Pages
                     // Check file type - only PDF for now
                     var allowedExtensions = new[] { ".pdf" };
                     var fileExtension = Path.GetExtension(ResumeFile.FileName).ToLowerInvariant();
-                    
+
                     if (!allowedExtensions.Contains(fileExtension))
                     {
                         if (Request.Headers["X-Requested-With"] == "XMLHttpRequest")
@@ -80,21 +89,22 @@ namespace InterviewBot.Pages
                     // Upload and analyze resume
                     try
                     {
-                        var resumeAnalysis = await _resumeAnalysisService.UploadAndAnalyzeResumeAsync(ResumeFile, userId.Value);
-                        
+                        var profile = await _profileService.UploadAndAnalyzeResumeAsync(ResumeFile, userId.Value);
+
                         if (Request.Headers["X-Requested-With"] == "XMLHttpRequest")
                         {
-                            return new JsonResult(new { 
-                                success = true, 
+                            return new JsonResult(new
+                            {
+                                success = true,
                                 message = $"Resume '{ResumeFile.FileName}' uploaded successfully! AI analysis is in progress.",
-                                redirectUrl = $"/ResumeAnalysisResults/{resumeAnalysis.Id}"
+                                redirectUrl = $"/ResumeAnalysisResults/{profile.Id}"
                             });
                         }
-                        
+
                         SuccessMessage = $"Resume '{ResumeFile.FileName}' uploaded successfully! AI analysis is in progress.";
-                        
+
                         // Redirect to a results page or dashboard
-                        return RedirectToPage("/ResumeAnalysisResults", new { id = resumeAnalysis.Id });
+                        return RedirectToPage("/ResumeAnalysisResults", new { id = profile.Id });
                     }
                     catch (Exception ex)
                     {
@@ -108,7 +118,7 @@ namespace InterviewBot.Pages
                 }
 
                 // Validate that at least one input method is provided
-                if (ResumeFile == null && string.IsNullOrWhiteSpace(Description))
+                if (ResumeFile == null && string.IsNullOrWhiteSpace(BriefIntroduction))
                 {
                     if (Request.Headers["X-Requested-With"] == "XMLHttpRequest")
                     {
@@ -118,16 +128,42 @@ namespace InterviewBot.Pages
                     return Page();
                 }
 
-                // Handle text-based analysis (if needed in the future)
-                if (!string.IsNullOrWhiteSpace(Description))
+                // Handle text-based analysis
+                if (!string.IsNullOrWhiteSpace(BriefIntroduction))
                 {
-                    // TODO: Implement text-based analysis
-                    if (Request.Headers["X-Requested-With"] == "XMLHttpRequest")
+                    try
                     {
-                        return new JsonResult(new { success = true, message = "Text analysis feature coming soon!" });
+                        var profile = await _profileService.CreateProfileFromDescriptionAsync(
+                            BriefIntroduction,
+                            CareerGoals ?? "",
+                            CurrentActivity ?? "",
+                            Motivations ?? "",
+                            userId.Value);
+
+                        if (Request.Headers["X-Requested-With"] == "XMLHttpRequest")
+                        {
+                            return new JsonResult(new
+                            {
+                                success = true,
+                                message = "Profile created successfully! AI analysis is in progress.",
+                                redirectUrl = $"/ResumeAnalysisResults/{profile.Id}"
+                            });
+                        }
+
+                        SuccessMessage = "Profile created successfully! AI analysis is in progress.";
+
+                        // Redirect to results page
+                        return RedirectToPage("/ResumeAnalysisResults", new { id = profile.Id });
                     }
-                    SuccessMessage = "Text analysis feature coming soon!";
-                    return Page();
+                    catch (Exception ex)
+                    {
+                        if (Request.Headers["X-Requested-With"] == "XMLHttpRequest")
+                        {
+                            return new JsonResult(new { success = false, message = $"Error creating profile: {ex.Message}" });
+                        }
+                        ErrorMessage = $"Error creating profile: {ex.Message}";
+                        return Page();
+                    }
                 }
 
                 return Page();

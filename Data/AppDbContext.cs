@@ -14,7 +14,7 @@ namespace InterviewBot.Data
         public DbSet<ChatMessage> ChatMessages => Set<ChatMessage>();
         public DbSet<User> Users { get; set; }
         public DbSet<AIAgentRole> AIAgentRoles { get; set; }
-        public DbSet<ResumeAnalysis> ResumeAnalyses { get; set; }
+        public DbSet<Profile> Profiles { get; set; }
         public DbSet<InterviewCatalog> InterviewCatalogs { get; set; }
         public DbSet<CustomInterview> CustomInterviews { get; set; }
 
@@ -49,7 +49,7 @@ namespace InterviewBot.Data
                 entity.Property(u => u.Email).IsRequired().HasMaxLength(100);
                 entity.Property(u => u.PasswordHash).IsRequired();
                 entity.Property(u => u.FullName).HasMaxLength(100);
-                
+
                 // Configure relationship with AIAgentRole
                 entity.HasOne(u => u.SelectedAIAgentRole)
                     .WithMany()
@@ -96,10 +96,10 @@ namespace InterviewBot.Data
 
 
 
-            // Configure User-ResumeAnalysis relationship
-            modelBuilder.Entity<ResumeAnalysis>()
+            // Configure User-Profile relationship
+            modelBuilder.Entity<Profile>()
                 .HasOne(r => r.User)
-                .WithMany(u => u.ResumeAnalyses)
+                .WithMany(u => u.Profiles)
                 .HasForeignKey(r => r.UserId)
                 .OnDelete(DeleteBehavior.Cascade);
 

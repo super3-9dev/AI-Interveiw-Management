@@ -13,7 +13,7 @@ namespace InterviewBot.Services
             _context = context;
         }
 
-        public async Task<List<InterviewCatalog>> GenerateInterviewCatalogsAsync(int userId, int resumeAnalysisId)
+        public async Task<List<InterviewCatalog>> GenerateInterviewCatalogsAsync(int userId, int profileId)
         {
             var user = await _context.Users
                 .Include(u => u.SelectedAIAgentRole)
@@ -22,11 +22,11 @@ namespace InterviewBot.Services
             if (user?.SelectedAIAgentRole == null)
                 throw new InvalidOperationException("User or AI agent role not found");
 
-            var resumeAnalysis = await _context.ResumeAnalyses
-                .FirstOrDefaultAsync(r => r.Id == resumeAnalysisId && r.UserId == userId);
+            var profile = await _context.Profiles
+                .FirstOrDefaultAsync(r => r.Id == profileId && r.UserId == userId);
 
-            if (resumeAnalysis == null)
-                throw new InvalidOperationException("Resume analysis not found");
+            if (profile == null)
+                throw new InvalidOperationException("Profile not found");
 
             var catalogs = new List<InterviewCatalog>();
 
@@ -40,7 +40,7 @@ namespace InterviewBot.Services
                     Description = "Professional career guidance interview based on your resume analysis",
                     InterviewType = "Career Counselling",
                     AIAgentRoleId = user.SelectedAIAgentRoleId.Value,
-                    InterviewStructure = GenerateCareerInterviewStructure(resumeAnalysis),
+                    InterviewStructure = GenerateCareerInterviewStructure(profile),
                     KeyQuestions = "What are your career goals? What skills do you want to develop? What industries interest you?",
                     TargetSkills = "Career planning, skill assessment, industry knowledge, goal setting"
                 };
@@ -57,7 +57,7 @@ namespace InterviewBot.Services
                     Description = "Deep exploration of your values, motivations, and life direction",
                     InterviewType = "Purpose Discovery",
                     AIAgentRoleId = user.SelectedAIAgentRoleId.Value,
-                    InterviewStructure = GeneratePurposeInterviewStructure(resumeAnalysis),
+                    InterviewStructure = GeneratePurposeInterviewStructure(profile),
                     KeyQuestions = "What motivates you? What values do you hold? What impact do you want to create?",
                     TargetSkills = "Self-reflection, value clarification, purpose identification, motivation analysis"
                 };
@@ -72,7 +72,7 @@ namespace InterviewBot.Services
                 Description = "Comprehensive evaluation of your technical and soft skills",
                 InterviewType = "Skills Assessment",
                 AIAgentRoleId = user.SelectedAIAgentRoleId.Value,
-                InterviewStructure = GenerateSkillsInterviewStructure(resumeAnalysis),
+                InterviewStructure = GenerateSkillsInterviewStructure(profile),
                 KeyQuestions = "What are your strongest technical skills? How do you handle challenges? What are your learning goals?",
                 TargetSkills = "Technical skills, problem-solving, communication, leadership, adaptability"
             };
@@ -191,7 +191,7 @@ namespace InterviewBot.Services
             return analysis;
         }
 
-        private string GenerateCareerInterviewStructure(ResumeAnalysis resumeAnalysis)
+        private string GenerateCareerInterviewStructure(Profile profile)
         {
             // Generate JSON structure for career counselling interview
             return @"{
@@ -224,7 +224,7 @@ namespace InterviewBot.Services
             }";
         }
 
-        private string GeneratePurposeInterviewStructure(ResumeAnalysis resumeAnalysis)
+        private string GeneratePurposeInterviewStructure(Profile profile)
         {
             // Generate JSON structure for purpose discovery interview
             return @"{
@@ -257,7 +257,7 @@ namespace InterviewBot.Services
             }";
         }
 
-        private string GenerateSkillsInterviewStructure(ResumeAnalysis resumeAnalysis)
+        private string GenerateSkillsInterviewStructure(Profile profile)
         {
             // Generate JSON structure for skills assessment interview
             return @"{
@@ -310,17 +310,17 @@ namespace InterviewBot.Services
             // Mock scoring logic
             var messageCount = session.Messages.Count;
             var duration = session.Duration?.TotalMinutes ?? 0;
-            
+
             var baseScore = Math.Min(100, messageCount * 10);
             var timeBonus = Math.Min(20, (int)(duration * 2));
-            
+
             return Math.Min(100, baseScore + timeBonus);
         }
 
         private string GenerateMockEvaluation(InterviewSession session)
         {
             var score = CalculateMockScore(session);
-            
+
             if (score >= 90)
                 return "Excellent performance! You demonstrated strong communication skills and deep understanding of the topics discussed.";
             else if (score >= 80)
@@ -335,10 +335,10 @@ namespace InterviewBot.Services
         {
             // Generate mock questions and answers based on the session
             var questions = new List<InterviewQuestion>();
-            
+
             // This would be populated with actual questions from the interview
             // For now, creating placeholder questions
-            
+
             return questions;
         }
     }

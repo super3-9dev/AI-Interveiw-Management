@@ -400,7 +400,7 @@
 </style>
 
 <div class="results-container">
-    @if (Model.ResumeAnalysis == null)
+    @if (Model.Profile == null)
     {
         <div class="error-message">
             <h3>Analysis Not Found</h3>
@@ -413,20 +413,18 @@
     <div class="header-section">
         <h1 class="header-title">Resume Analysis Results</h1>
         <p class="header-subtitle">AI-powered insights from your resume</p>
-        <div class="status-badge status-@Model.ResumeAnalysis.Status.ToLower()">
-            @Model.ResumeAnalysis.Status
+        <div class="status-badge status-@Model.Profile.Status.ToLower()">
+            @Model.Profile.Status
         </div>
     </div>
 
     <div class="file-info">
-        <div class="file-name">📄 @Model.ResumeAnalysis.FileName</div>
         <div class="file-details">
-            Uploaded: @Model.ResumeAnalysis.CreatedAt.ToString("MMM dd, yyyy 'at' HH:mm") |
-            File Hash: @Model.ResumeAnalysis.FileHash.Substring(0, 8)...
+            Uploaded: @Model.Profile.CreatedAt.ToString("MMM dd, yyyy 'at' HH:mm")
         </div>
     </div>
 
-    @if (Model.ResumeAnalysis.Status == "Processing")
+    @if (Model.Profile.Status == "Processing")
     {
         <div class="analysis-section processing-section">
             <div class="processing-header">
@@ -445,89 +443,72 @@
                 
                 <div class="progress-container">
                     <div class="progress-bar">
-                        <div class="progress-fill" style="width: @(Model.ResumeAnalysis.Progress)%;"></div>
+                        <div class="progress-fill" style="width: @(Model.Profile.Progress)%;"></div>
                     </div>
-                    <div class="progress-text">@(Model.ResumeAnalysis.Progress)% Complete</div>
+                    <div class="progress-text">@(Model.Profile.Progress)% Complete</div>
                 </div>
             </div>
         </div>
     }
-    else if (Model.ResumeAnalysis.Status == "Completed")
+    else if (Model.Profile.Status == "Completed")
     {
-        @if (!string.IsNullOrEmpty(Model.ResumeAnalysis.TopicsMarkdown))
-        {
-            <div class="analysis-section">
-                <h2 class="section-title">📊 Professional Profile</h2>
-                <div class="content-box">
-                    @Html.Raw(Model.ResumeAnalysis.TopicsMarkdown)
-                </div>
-            </div>
-        }
 
-        @if (!string.IsNullOrEmpty(Model.ResumeAnalysis.PossibleJobs))
+
+        @if (!string.IsNullOrEmpty(Model.Profile.PossibleJobs))
         {
             <div class="analysis-section">
                 <h2 class="section-title">💼 Recommended Career Paths</h2>
                 <div class="content-box">
                     <p><strong>Suggested Roles:</strong></p>
-                    <p>@Model.ResumeAnalysis.PossibleJobs</p>
+                    <p>@Model.Profile.PossibleJobs</p>
                 </div>
             </div>
         }
 
-        @if (!string.IsNullOrEmpty(Model.ResumeAnalysis.MbaSubjectsToReinforce))
+        @if (!string.IsNullOrEmpty(Model.Profile.MbaSubjectsToReinforce))
         {
             <div class="analysis-section">
                 <h2 class="section-title">🎓 Skills to Reinforce</h2>
                 <div class="content-box">
                     <p><strong>Recommended Focus Areas:</strong></p>
-                    <p>@Model.ResumeAnalysis.MbaSubjectsToReinforce</p>
+                    <p>@Model.Profile.MbaSubjectsToReinforce</p>
                 </div>
             </div>
         }
 
-        @if (!string.IsNullOrEmpty(Model.ResumeAnalysis.BriefIntroduction))
+        @if (!string.IsNullOrEmpty(Model.Profile.BriefIntroduction))
         {
             <div class="analysis-section">
                 <h2 class="section-title">👤 Professional Summary</h2>
                 <div class="content-box">
-                    <p>@Model.ResumeAnalysis.BriefIntroduction</p>
+                    <p>@Model.Profile.BriefIntroduction</p>
                 </div>
             </div>
         }
 
-        @if (!string.IsNullOrEmpty(Model.ResumeAnalysis.CurrentActivities))
+        @if (!string.IsNullOrEmpty(Model.Profile.CurrentActivities))
         {
             <div class="analysis-section">
                 <h2 class="section-title">🚀 Current Focus Areas</h2>
                 <div class="content-box">
-                    <p>@Model.ResumeAnalysis.CurrentActivities</p>
+                    <p>@Model.Profile.CurrentActivities</p>
                 </div>
             </div>
         }
 
-        <div class="analysis-section">
-            <h2 class="section-title">📈 Analysis Details</h2>
-            <div class="content-box">
-                <p><strong>Analysis Date:</strong> @Model.ResumeAnalysis.AnalysisDate.ToString("MMM dd, yyyy 'at' HH:mm")</p>
-                @if (Model.ResumeAnalysis.ProcessingTime.HasValue)
-                {
-                    <p><strong>Processing Time:</strong> @Model.ResumeAnalysis.ProcessingTime.Value.TotalSeconds.ToString("F1") seconds</p>
-                }
-            </div>
-        </div>
+
     }
-    else if (Model.ResumeAnalysis.Status == "Failed")
+    else if (Model.Profile.Status == "Failed")
     {
         <div class="analysis-section">
             <h2 class="section-title">❌ Analysis Failed</h2>
             <div class="error-message">
-                <p><strong>Error:</strong> @Model.ResumeAnalysis.ErrorMessage</p>
+                <p><strong>Error:</strong> Analysis failed. Please try again.</p>
             </div>
             <p>Please try uploading your resume again or contact support if the problem persists.</p>
             <div class="error-actions">
                 <form method="post" style="display: inline;">
-                    <input type="hidden" name="analysisId" value="@Model.ResumeAnalysis.Id" />
+                                            <input type="hidden" name="analysisId" value="@Model.Profile.Id" />
                     <button type="submit" class="retry-button" name="action" value="retry">
                         <i class="bi bi-arrow-clockwise"></i>
                         Retry Analysis
@@ -549,7 +530,7 @@
 
 <script>
     // Auto-refresh if status is processing
-    @if (Model.ResumeAnalysis?.Status == "Processing")
+    @if (Model.Profile?.Status == "Processing")
     {
         <text>
         // Auto-refresh every 2 seconds for real-time progress updates
@@ -561,7 +542,7 @@
     
     // Function to check status without full page reload
     function checkStatus() {
-        fetch('/ResumeAnalysisResults/@Model.ResumeAnalysis?.Id?handler=Status')
+        fetch('/ResumeAnalysisResults/@Model.Profile?.Id?handler=Status')
             .then(response => response.json())
             .then(data => {
                 if (data.status === 'Completed') {

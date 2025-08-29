@@ -17,7 +17,7 @@ t@page
         <p class="page-subtitle">Review your interview sessions and resume analyses</p>
     </div>
 
-    @if (Model.ResumeAnalyses.Any() || Model.InterviewSessions.Any())
+    @if (Model.Profiles.Any() || Model.InterviewSessions.Any())
     {
         <div class="results-grid">
             <!-- Resume Analysis Results -->
@@ -26,28 +26,29 @@ t@page
                     <div class="section-icon">📊</div>
                     <h2 class="section-title">Resume Analyses</h2>
                 </div>
-                
-                @if (Model.ResumeAnalyses.Any())
+
+                @if (Model.Profiles.Any())
                 {
                     <ul class="results-list">
-                        @foreach (var analysis in Model.ResumeAnalyses)
+                        @foreach (var profile in Model.Profiles)
                         {
                             <li class="result-item">
-                                <div class="result-title">@analysis.FileName</div>
+                                <div class="result-title">Profile #@profile.Id</div>
                                 <div class="result-meta">
-                                    <span>@analysis.CreatedAt.ToString("MMM dd, yyyy")</span>
-                                    <span class="result-status @(analysis.Status == "Completed" ? "status-completed" : analysis.Status == "Processing" ? "status-in-progress" : "status-failed")">
-                                        @analysis.Status
+                                    <span>@profile.CreatedAt.ToString("MMM dd, yyyy")</span>
+                                    <span
+                                        class="result-status @(profile.Status == "Completed" ? "status-completed" : profile.Status == "Processing" ? "status-in-progress" : "status-failed")">
+                                        @profile.Status
                                     </span>
                                 </div>
                                 <div class="result-description">
-                                    @if (analysis.Status == "Completed")
+                                    @if (profile.Status == "Completed")
                                     {
                                         <span>Analysis completed successfully</span>
                                     }
-                                    else if (analysis.Status == "Processing")
+                                    else if (profile.Status == "Processing")
                                     {
-                                        <span>Analysis in progress... @analysis.Progress% complete</span>
+                                        <span>Analysis in progress... @profile.Progress% complete</span>
                                     }
                                     else
                                     {
@@ -55,13 +56,13 @@ t@page
                                     }
                                 </div>
                                 <div class="result-actions">
-                                    @if (analysis.Status == "Completed")
+                                    @if (profile.Status == "Completed")
                                     {
-                                        <a href="/ResumeAnalysisResults?id=@analysis.Id" class="btn btn-primary">View Results</a>
+                                        <a href="/ResumeAnalysisResults?id=@profile.Id" class="btn btn-primary">View Results</a>
                                     }
-                                    else if (analysis.Status == "Failed")
+                                    else if (profile.Status == "Failed")
                                     {
-                                        <a href="/ResumeAnalysisResults?id=@analysis.Id" class="btn btn-secondary">Retry</a>
+                                        <a href="/ResumeAnalysisResults?id=@profile.Id" class="btn btn-secondary">Retry</a>
                                     }
                                 </div>
                             </li>
@@ -85,7 +86,7 @@ t@page
                     <div class="section-icon">🎯</div>
                     <h2 class="section-title">Interview Sessions</h2>
                 </div>
-                
+
                 @if (Model.InterviewSessions.Any())
                 {
                     <ul class="results-list">
@@ -97,7 +98,8 @@ t@page
                                 </div>
                                 <div class="result-meta">
                                     <span>@session.StartTime.ToString("MMM dd, yyyy")</span>
-                                    <span class="result-status @(session.Status == InterviewStatus.Completed ? "status-completed" : session.Status == InterviewStatus.InProgress ? "status-in-progress" : "status-failed")">
+                                    <span
+                                        class="result-status @(session.Status == InterviewStatus.Completed ? "status-completed" : session.Status == InterviewStatus.InProgress ? "status-in-progress" : "status-failed")">
                                         @session.Status
                                     </span>
                                 </div>
@@ -155,4 +157,3 @@ t@page
         </div>
     }
 </div>
-

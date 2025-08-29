@@ -4,7 +4,7 @@ namespace InterviewBot.Services
 {
     public interface IInterviewCatalogService
     {
-        Task<List<InterviewCatalog>> GenerateInterviewCatalogsAsync(int userId, int resumeAnalysisId);
+        Task<List<InterviewCatalog>> GenerateInterviewCatalogsAsync(int userId, int profileId);
         Task<CustomInterview> CreateCustomInterviewAsync(CustomInterview customInterview);
         Task<List<InterviewCatalog>> GetUserInterviewCatalogsAsync(int userId);
         Task<List<CustomInterview>> GetUserCustomInterviewsAsync(int userId);
