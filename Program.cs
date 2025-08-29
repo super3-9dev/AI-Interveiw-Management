@@ -62,7 +62,7 @@ builder.Services.AddScoped<IInterviewService, InterviewService>();
 builder.Services.AddScoped<IInterviewCatalogService, InterviewCatalogService>();
 
 // Add OpenAI service
-builder.Services.AddHttpClient<IOpenAIService, OpenAIService>();
+builder.Services.AddScoped<IOpenAIService, OpenAIService>();
 
 // Database
 builder.Services.AddDbContext<AppDbContext>(options =>

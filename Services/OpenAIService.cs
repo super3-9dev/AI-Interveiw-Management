@@ -1,5 +1,6 @@
-using OpenAI;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Logging;
+using System.Text;
 using System.Text.Json;
 
 namespace InterviewBot.Services
@@ -12,81 +13,180 @@ namespace InterviewBot.Services
         Task<string> GenerateFollowUpQuestionAsync(string userResponse, string currentQuestion, string interviewType);
     }
 
+    public class OpenAIConfig
+    {
+        public string ApiKey { get; set; } = string.Empty;
+        public string Model { get; set; } = "gpt-4";
+        public int MaxTokens { get; set; } = 2000;
+        public double Temperature { get; set; } = 0.7;
+    }
+
     public class OpenAIService : IOpenAIService
     {
         private readonly HttpClient _httpClient;
-        private readonly IConfiguration _configuration;
-        private readonly string _model;
-        private readonly int _maxTokens;
-        private readonly float _temperature;
+        private readonly OpenAIConfig _config;
+        private readonly ILogger<OpenAIService> _logger;
+        private readonly string _baseUrl = "https://api.openai.com/v1/chat/completions";
 
-        public OpenAIService(IConfiguration configuration, HttpClient httpClient)
+        public OpenAIService(IConfiguration config, ILogger<OpenAIService> logger)
         {
-            _configuration = configuration;
-            _httpClient = httpClient;
-            var apiKey = _configuration["OpenAI:ApiKey"];
-            _model = _configuration["OpenAI:Model"] ?? "gpt-3.5-turbo";
-            _maxTokens = int.Parse(_configuration["OpenAI:MaxTokens"] ?? "2000");
-            _temperature = float.Parse(_configuration["OpenAI:Temperature"] ?? "0.7");
+            _httpClient = new HttpClient();
+            _logger = logger;
 
-            if (string.IsNullOrEmpty(apiKey))
+            // Load configuration
+            _config = new OpenAIConfig
             {
-                throw new ArgumentException("OpenAI API key is not configured");
+                ApiKey = config["OpenAI:ApiKey"] ?? string.Empty,
+                Model = config["OpenAI:Model"] ?? "gpt-4",
+                MaxTokens = int.TryParse(config["OpenAI:MaxTokens"], out var maxTokens) ? maxTokens : 2000,
+                Temperature = double.TryParse(config["OpenAI:Temperature"], out var temp) ? temp : 0.7
+            };
+
+            if (string.IsNullOrEmpty(_config.ApiKey))
+            {
+                _logger.LogError("OpenAI API key is not configured");
+                throw new InvalidOperationException("OpenAI API key is not configured");
             }
 
-            // Configure HttpClient for OpenAI API
-            _httpClient.BaseAddress = new Uri("https://api.openai.com");
-            _httpClient.DefaultRequestHeaders.Add("Authorization", $"Bearer {apiKey}");
+            _httpClient.DefaultRequestHeaders.Add("Authorization", $"Bearer {_config.ApiKey}");
+            _logger.LogInformation("OpenAI service initialized with model: {Model}", _config.Model);
         }
 
         public async Task<string> GenerateInterviewResponseAsync(string userMessage, string interviewContext)
         {
-            try
+            const int maxRetries = 3;
+
+            for (int attempt = 1; attempt <= maxRetries; attempt++)
             {
-                var messages = new List<object>
+                try
                 {
-                    new { role = "system", content = GetInterviewSystemPrompt(interviewContext) },
-                    new { role = "user", content = userMessage }
-                };
+                    _logger.LogInformation("Generating interview response (attempt {Attempt}/{MaxRetries})", attempt, maxRetries);
 
-                var requestBody = new
-                {
-                    model = _model,
-                    messages = messages,
-                    max_tokens = _maxTokens,
-                    temperature = _temperature
-                };
+                    var systemPrompt = GetInterviewSystemPrompt(interviewContext);
+                    var requestBody = new
+                    {
+                        model = _config.Model,
+                        messages = new[]
+                        {
+                            new { role = "system", content = systemPrompt },
+                            new { role = "user", content = userMessage }
+                        },
+                        max_tokens = _config.MaxTokens,
+                        temperature = _config.Temperature
+                    };
 
-                var jsonContent = JsonSerializer.Serialize(requestBody);
-                var httpContent = new StringContent(jsonContent, System.Text.Encoding.UTF8, "application/json");
-                var response = await _httpClient.PostAsync("/v1/chat/completions", httpContent);
-                var responseContent = await response.Content.ReadAsStringAsync();
+                    var json = JsonSerializer.Serialize(requestBody);
+                    var content = new StringContent(json, Encoding.UTF8, "application/json");
 
-                // Parse the response to extract the AI message
-                var responseData = JsonSerializer.Deserialize<JsonElement>(responseContent);
-                var choices = responseData.GetProperty("choices");
-                if (choices.GetArrayLength() > 0)
-                {
-                    var firstChoice = choices[0];
-                    var message = firstChoice.GetProperty("message");
-                    var content = message.GetProperty("content").GetString();
-                    return content?.Trim() ?? "I apologize, but I couldn't generate a response at this time.";
+                    var response = await _httpClient.PostAsync(_baseUrl, content);
+                    var responseContent = await response.Content.ReadAsStringAsync();
+
+                    if (!response.IsSuccessStatusCode)
+                    {
+                        _logger.LogError("OpenAI API returned error: {StatusCode} - {ErrorContent}", response.StatusCode, responseContent);
+
+                        if (attempt < maxRetries)
+                        {
+                            _logger.LogInformation("Retrying in 2 seconds...");
+                            await Task.Delay(2000);
+                            continue;
+                        }
+
+                        return "I apologize, but I'm experiencing technical difficulties. Please try again.";
+                    }
+
+                    var jsonOptions = new JsonSerializerOptions
+                    {
+                        PropertyNameCaseInsensitive = true,
+                        PropertyNamingPolicy = JsonNamingPolicy.CamelCase
+                    };
+
+                    var responseObject = JsonSerializer.Deserialize<OpenAIResponse>(responseContent, jsonOptions);
+
+                    if (responseObject?.Choices == null || responseObject.Choices.Count == 0)
+                    {
+                        _logger.LogError("OpenAI API returned no choices in response");
+
+                        if (attempt < maxRetries)
+                        {
+                            _logger.LogInformation("Retrying in 2 seconds...");
+                            await Task.Delay(2000);
+                            continue;
+                        }
+
+                        return "I apologize, but I couldn't generate a response at this time.";
+                    }
+
+                    var firstChoice = responseObject.Choices.First();
+                    if (firstChoice?.Message?.Content == null)
+                    {
+                        _logger.LogError("OpenAI API choice has no message content");
+
+                        if (attempt < maxRetries)
+                        {
+                            _logger.LogInformation("Retrying in 2 seconds...");
+                            await Task.Delay(2000);
+                            continue;
+                        }
+
+                        return "I apologize, but I couldn't generate a response at this time.";
+                    }
+
+                    var result = firstChoice.Message.Content.Trim();
+                    _logger.LogInformation("Interview response generated successfully");
+
+                    return result;
                 }
+                catch (HttpRequestException ex)
+                {
+                    _logger.LogError(ex, "HTTP request error when calling OpenAI API (attempt {Attempt})", attempt);
 
-                return "I apologize, but I couldn't generate a response at this time.";
+                    if (attempt < maxRetries)
+                    {
+                        _logger.LogInformation("Retrying in 2 seconds...");
+                        await Task.Delay(2000);
+                        continue;
+                    }
+
+                    return "I apologize, but I'm having trouble connecting to the AI service. Please check your internet connection and try again.";
+                }
+                catch (JsonException ex)
+                {
+                    _logger.LogError(ex, "JSON parsing error when processing OpenAI response (attempt {Attempt})", attempt);
+
+                    if (attempt < maxRetries)
+                    {
+                        _logger.LogInformation("Retrying in 2 seconds...");
+                        await Task.Delay(2000);
+                        continue;
+                    }
+
+                    return "I apologize, but I received an invalid response from the AI service. Please try again.";
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogError(ex, "Unexpected error in OpenAI service (attempt {Attempt})", attempt);
+
+                    if (attempt < maxRetries)
+                    {
+                        _logger.LogInformation("Retrying in 2 seconds...");
+                        await Task.Delay(2000);
+                        continue;
+                    }
+
+                    return "I apologize, but I'm experiencing an unexpected error. Please try again later.";
+                }
             }
-            catch (Exception ex)
-            {
-                // Log the error in production
-                Console.WriteLine($"Error generating interview response: {ex.Message}");
-                return "I apologize, but I'm experiencing technical difficulties. Please try again.";
-            }
+
+            return "Failed to get response from OpenAI API after multiple attempts.";
         }
 
         public async Task<string> TranscribeAudioAsync(byte[] audioData, string fileName)
         {
             try
             {
+                _logger.LogInformation("Transcribing audio file: {FileName}", fileName);
+
                 // Create multipart form data for audio transcription
                 using var content = new MultipartFormDataContent();
                 using var audioStream = new MemoryStream(audioData);
@@ -97,17 +197,25 @@ namespace InterviewBot.Services
                 var modelContent = new StringContent("whisper-1");
                 content.Add(modelContent, "model");
 
-                var response = await _httpClient.PostAsync("/v1/audio/transcriptions", content);
+                var response = await _httpClient.PostAsync("https://api.openai.com/v1/audio/transcriptions", content);
                 var responseContent = await response.Content.ReadAsStringAsync();
+
+                if (!response.IsSuccessStatusCode)
+                {
+                    _logger.LogError("OpenAI Whisper API returned error: {StatusCode} - {ErrorContent}", response.StatusCode, responseContent);
+                    return "Error transcribing audio. Please try again.";
+                }
 
                 // Parse the response to extract the transcription
                 var responseData = JsonSerializer.Deserialize<JsonElement>(responseContent);
                 var text = responseData.GetProperty("text").GetString();
+
+                _logger.LogInformation("Audio transcription completed successfully");
                 return text?.Trim() ?? "Could not transcribe audio.";
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"Error transcribing audio: {ex.Message}");
+                _logger.LogError(ex, "Error transcribing audio");
                 return "Error transcribing audio. Please try again.";
             }
         }
@@ -116,6 +224,8 @@ namespace InterviewBot.Services
         {
             try
             {
+                _logger.LogInformation("Generating speech for text length: {TextLength}", text.Length);
+
                 var requestBody = new
                 {
                     input = text,
@@ -126,13 +236,23 @@ namespace InterviewBot.Services
                 };
 
                 var jsonContent = JsonSerializer.Serialize(requestBody);
-                var httpContent = new StringContent(jsonContent, System.Text.Encoding.UTF8, "application/json");
-                var response = await _httpClient.PostAsync("/v1/audio/speech", httpContent);
-                return await response.Content.ReadAsByteArrayAsync();
+                var httpContent = new StringContent(jsonContent, Encoding.UTF8, "application/json");
+                var response = await _httpClient.PostAsync("https://api.openai.com/v1/audio/speech", httpContent);
+
+                if (!response.IsSuccessStatusCode)
+                {
+                    _logger.LogError("OpenAI TTS API returned error: {StatusCode}", response.StatusCode);
+                    return new byte[0];
+                }
+
+                var audioData = await response.Content.ReadAsByteArrayAsync();
+                _logger.LogInformation("Speech generation completed successfully. Audio size: {AudioSize} bytes", audioData.Length);
+
+                return audioData;
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"Error generating speech: {ex.Message}");
+                _logger.LogError(ex, "Error generating speech");
                 return new byte[0];
             }
         }
@@ -141,6 +261,8 @@ namespace InterviewBot.Services
         {
             try
             {
+                _logger.LogInformation("Generating follow-up question for interview type: {InterviewType}", interviewType);
+
                 var prompt = $@"Based on the user's response: ""{userResponse}""
                 To the previous question: ""{currentQuestion}""
                 In the context of a {interviewType} interview,
@@ -152,41 +274,58 @@ namespace InterviewBot.Services
 
                 Return only the question, no additional text.";
 
-                var messages = new List<object>
-                {
-                    new { role = "system", content = "You are an expert career interviewer. Generate relevant follow-up questions based on user responses." },
-                    new { role = "user", content = prompt }
-                };
-
                 var requestBody = new
                 {
-                    model = _model,
-                    messages = messages,
+                    model = _config.Model,
+                    messages = new[]
+                    {
+                        new { role = "system", content = "You are an expert career interviewer. Generate relevant follow-up questions based on user responses." },
+                        new { role = "user", content = prompt }
+                    },
                     max_tokens = 150,
                     temperature = 0.7f
                 };
 
                 var jsonContent = JsonSerializer.Serialize(requestBody);
-                var httpContent = new StringContent(jsonContent, System.Text.Encoding.UTF8, "application/json");
-                var response = await _httpClient.PostAsync("/v1/chat/completions", httpContent);
+                var httpContent = new StringContent(jsonContent, Encoding.UTF8, "application/json");
+                var response = await _httpClient.PostAsync(_baseUrl, httpContent);
                 var responseContent = await response.Content.ReadAsStringAsync();
 
-                // Parse the response to extract the AI message
-                var responseData = JsonSerializer.Deserialize<JsonElement>(responseContent);
-                var choices = responseData.GetProperty("choices");
-                if (choices.GetArrayLength() > 0)
+                if (!response.IsSuccessStatusCode)
                 {
-                    var firstChoice = choices[0];
-                    var message = firstChoice.GetProperty("message");
-                    var content = message.GetProperty("content").GetString();
-                    return content?.Trim() ?? "Can you tell me more about that?";
+                    _logger.LogError("OpenAI API returned error for follow-up question: {StatusCode}", response.StatusCode);
+                    return "Can you tell me more about that?";
                 }
 
-                return "Can you tell me more about that?";
+                var jsonOptions = new JsonSerializerOptions
+                {
+                    PropertyNameCaseInsensitive = true,
+                    PropertyNamingPolicy = JsonNamingPolicy.CamelCase
+                };
+
+                var responseObject = JsonSerializer.Deserialize<OpenAIResponse>(responseContent, jsonOptions);
+
+                if (responseObject?.Choices == null || responseObject.Choices.Count == 0)
+                {
+                    _logger.LogError("OpenAI API returned no choices for follow-up question");
+                    return "Can you tell me more about that?";
+                }
+
+                var firstChoice = responseObject.Choices.First();
+                if (firstChoice?.Message?.Content == null)
+                {
+                    _logger.LogError("OpenAI API choice has no message content for follow-up question");
+                    return "Can you tell me more about that?";
+                }
+
+                var result = firstChoice.Message.Content.Trim();
+                _logger.LogInformation("Follow-up question generated successfully");
+
+                return result;
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"Error generating follow-up question: {ex.Message}");
+                _logger.LogError(ex, "Error generating follow-up question");
                 return "Can you tell me more about that?";
             }
         }
@@ -205,6 +344,42 @@ namespace InterviewBot.Services
 Current interview context: {interviewContext}
 
 Keep your responses concise (1-2 sentences) and focused on asking the next question or providing brief feedback. Always end with a question to continue the conversation.";
+        }
+
+        // Response classes for OpenAI API
+        private class OpenAIResponse
+        {
+            public string? Id { get; set; }
+            public string? Object { get; set; }
+            public long Created { get; set; }
+            public string? Model { get; set; }
+            public List<Choice>? Choices { get; set; }
+            public Usage? Usage { get; set; }
+        }
+
+        private class Choice
+        {
+            public int Index { get; set; }
+            public Message? Message { get; set; }
+            public string? FinishReason { get; set; }
+            public object? Logprobs { get; set; }
+        }
+
+        private class Message
+        {
+            public string? Role { get; set; }
+            public string? Content { get; set; }
+            public object? Refusal { get; set; }
+            public object? Annotations { get; set; }
+        }
+
+        private class Usage
+        {
+            public int PromptTokens { get; set; }
+            public int CompletionTokens { get; set; }
+            public int TotalTokens { get; set; }
+            public object? PromptTokensDetails { get; set; }
+            public object? CompletionTokensDetails { get; set; }
         }
     }
 }
