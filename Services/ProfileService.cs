@@ -281,6 +281,20 @@ namespace InterviewBot.Services
 
                     await dbContext.SaveChangesAsync();
                     _logger.LogInformation("Profile {ProfileId} completed successfully", analysisId);
+
+                    // Generate interview catalogs for the completed profile
+                    try
+                    {
+                        using var interviewScope = _serviceScopeFactory.CreateScope();
+                        var interviewService = interviewScope.ServiceProvider.GetRequiredService<IInterviewService>();
+                        var catalogs = await interviewService.GenerateInterviewCatalogsAsync(profile.Id, profile.UserId);
+                        _logger.LogInformation("Generated {Count} interview catalogs for profile {ProfileId}", catalogs.Count(), profile.Id);
+                    }
+                    catch (Exception ex)
+                    {
+                        _logger.LogError(ex, "Error generating interview catalogs for profile {ProfileId}", profile.Id);
+                        // Don't fail the profile completion if interview catalog generation fails
+                    }
                 }
             }
             catch (Exception ex)

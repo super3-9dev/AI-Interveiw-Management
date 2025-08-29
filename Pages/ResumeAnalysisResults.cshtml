@@ -18,7 +18,7 @@
         background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
         color: white;
         border-radius: 15px;
-        box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
     }
 
     .header-title {
@@ -90,7 +90,7 @@
         border-radius: 10px;
         padding: 2rem;
         margin-bottom: 2rem;
-        box-shadow: 0 5px 15px rgba(0,0,0,0.08);
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
         border: 1px solid #e9ecef;
     }
 
@@ -123,8 +123,13 @@
     }
 
     @@keyframes spin {
-        0% { transform: rotate(0deg); }
-        100% { transform: rotate(360deg); }
+        0% {
+            transform: rotate(0deg);
+        }
+
+        100% {
+            transform: rotate(360deg);
+        }
     }
 
     .progress-bar {
@@ -194,7 +199,7 @@
         border-radius: 15px;
         padding: 2.5rem;
         margin-bottom: 2rem;
-        box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
         position: relative;
         overflow: hidden;
     }
@@ -212,9 +217,17 @@
     }
 
     @@keyframes gradient-move {
-        0% { background-position: 0% 50%; }
-        50% { background-position: 100% 50%; }
-        100% { background-position: 0% 50%; }
+        0% {
+            background-position: 0% 50%;
+        }
+
+        50% {
+            background-position: 100% 50%;
+        }
+
+        100% {
+            background-position: 0% 50%;
+        }
     }
 
     .processing-header {
@@ -245,9 +258,17 @@
     }
 
     @@keyframes pulse {
-        0% { opacity: 1; }
-        50% { opacity: 0.5; }
-        100% { opacity: 1; }
+        0% {
+            opacity: 1;
+        }
+
+        50% {
+            opacity: 0.5;
+        }
+
+        100% {
+            opacity: 1;
+        }
     }
 
     .status-text {
@@ -274,7 +295,7 @@
         background: white;
         border-radius: 10px;
         padding: 1rem;
-        box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
     }
 
     .progress-text {
@@ -285,7 +306,7 @@
         font-size: 0.9rem;
         color: #495057;
         font-weight: 600;
-        text-shadow: 0 1px 2px rgba(255,255,255,0.8);
+        text-shadow: 0 1px 2px rgba(255, 255, 255, 0.8);
     }
 
     .processing-steps {
@@ -303,19 +324,19 @@
         background: white;
         padding: 1.5rem;
         border-radius: 10px;
-        box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
         transition: transform 0.3s ease, box-shadow 0.3s ease;
     }
 
     .step-item:hover {
         transform: translateY(-5px);
-        box-shadow: 0 5px 15px rgba(0,0,0,0.15);
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.15);
     }
 
     .step-icon {
         font-size: 2.5rem;
         margin-bottom: 1rem;
-        filter: drop-shadow(0 2px 4px rgba(0,0,0,0.1));
+        filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.1));
     }
 
     .step-text {
@@ -437,10 +458,11 @@
                     <span class="status-text">Processing</span>
                 </div>
             </div>
-            
+
             <div class="processing-content">
-                <p class="processing-description">Our AI is currently analyzing your resume. This may take a few minutes.</p>
-                
+                <p class="processing-description">Our AI is currently analyzing your resume. This may take a few minutes.
+                </p>
+
                 <div class="progress-container">
                     <div class="progress-bar">
                         <div class="progress-fill" style="width: @(Model.Profile.Progress)%;"></div>
@@ -497,6 +519,7 @@
         }
 
 
+
     }
     else if (Model.Profile.Status == "Failed")
     {
@@ -508,7 +531,7 @@
             <p>Please try uploading your resume again or contact support if the problem persists.</p>
             <div class="error-actions">
                 <form method="post" style="display: inline;">
-                                            <input type="hidden" name="analysisId" value="@Model.Profile.Id" />
+                    <input type="hidden" name="analysisId" value="@Model.Profile.Id" />
                     <button type="submit" class="retry-button" name="action" value="retry">
                         <i class="bi bi-arrow-clockwise"></i>
                         Retry Analysis
@@ -531,34 +554,34 @@
 <script>
     // Auto-refresh if status is processing
     @if (Model.Profile?.Status == "Processing")
-    {
-        <text>
-        // Auto-refresh every 2 seconds for real-time progress updates
-        setInterval(function() {
-            checkStatus();
-        }, 2000);
-        </text>
+        {
+            <text>
+                // Auto-refresh every 2 seconds for real-time progress updates
+                setInterval(function() {
+                    checkStatus();
+                }, 2000);
+            </text>
     }
-    
-    // Function to check status without full page reload
-    function checkStatus() {
-        fetch('/ResumeAnalysisResults/@Model.Profile?.Id?handler=Status')
-            .then(response => response.json())
-            .then(data => {
-                if (data.status === 'Completed') {
-                    location.reload(); // Reload to show results
-                } else if (data.status === 'Failed') {
-                    location.reload(); // Reload to show error
-                } else if (data.status === 'Processing') {
-                    // Update progress bar
-                    updateProgress(data.progress);
-                }
-            })
-            .catch(error => {
-                console.error('Error checking status:', error);
-            });
-    }
-    
+
+        // Function to check status without full page reload
+        function checkStatus() {
+            fetch('/ResumeAnalysisResults/@Model.Profile?.Id?handler=Status')
+                .then(response => response.json())
+                .then(data => {
+                    if (data.status === 'Completed') {
+                        location.reload(); // Reload to show results
+                    } else if (data.status === 'Failed') {
+                        location.reload(); // Reload to show error
+                    } else if (data.status === 'Processing') {
+                        // Update progress bar
+                        updateProgress(data.progress);
+                    }
+                })
+                .catch(error => {
+                    console.error('Error checking status:', error);
+                });
+        }
+
     function updateProgress(progress) {
         const progressFill = document.querySelector('.progress-fill');
         const progressText = document.querySelector('.progress-text');
@@ -567,9 +590,11 @@
             progressText.textContent = progress + '% Complete';
         }
     }
-    
+
     // Manual refresh function
     function refreshResults() {
         location.reload();
     }
+
+
 </script>

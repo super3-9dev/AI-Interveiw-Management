@@ -1,0 +1,549 @@
+@page
+@model InterviewBot.Pages.TextInterviewModel
+@using Microsoft.AspNetCore.Mvc.Localization
+@inject IViewLocalizer Localizer
+@{
+    ViewData["Title"] = Localizer["Text Interview"];
+    var currentCulture = HttpContext.Request.Query["culture"].ToString();
+    if (string.IsNullOrEmpty(currentCulture))
+    {
+        currentCulture = HttpContext.Request.Cookies["culture"] ?? "en";
+    }
+}
+
+<div class="text-interview-container">
+    <!-- Interview Header -->
+    <div class="interview-header">
+        <div class="header-content">
+            <div class="interview-info">
+                <h1 class="interview-title">
+                    <i class="bi bi-briefcase"></i>
+                    Professional Career Interview
+                </h1>
+                <p class="interview-subtitle">AI-powered interview with real-time feedback</p>
+            </div>
+            <div class="interview-status">
+                <span class="status-badge status-active">In Progress</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Chat Area -->
+    <div class="chat-container">
+        <div class="chat-messages" id="chatMessages">
+            <!-- AI Welcome Message -->
+            <div class="message ai-message">
+                <div class="message-avatar">
+                    <i class="bi bi-robot"></i>
+                </div>
+                <div class="message-content">
+                    <div class="message-header">
+                        <span class="message-sender">AI</span>
+                        <span class="message-time" id="currentTime"></span>
+                    </div>
+                    <div class="message-text">
+                        Hello! I'm your AI career coach. We're going to have a practice interview. Let's start with the
+                        first question: Can you tell me about a challenging project you've worked on?
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- User Input Area -->
+    <div class="input-container">
+        <div class="input-wrapper">
+            <input type="text" id="userInput" class="user-input" placeholder="Type your answer..." maxlength="1000">
+            <button class="send-button" id="sendButton" onclick="sendMessage()">
+                <i class="bi bi-send"></i>
+            </button>
+        </div>
+    </div>
+
+    <!-- Action Buttons -->
+    <div class="action-buttons">
+        <a href="/Dashboard@(!string.IsNullOrEmpty(currentCulture) ? $"?culture={currentCulture}" : "")"
+            class="btn btn-outline-secondary action-btn">
+            <i class="bi bi-arrow-left"></i>
+            Back to Dashboard
+        </a>
+        <button class="btn btn-success action-btn" onclick="saveInterview()">
+            <i class="bi bi-save"></i>
+            Save Interview
+        </button>
+        <button class="btn btn-danger action-btn" onclick="finishInterview()">
+            <i class="bi bi-arrow-left"></i>
+            Finish Interview
+        </button>
+    </div>
+</div>
+
+<style>
+    .text-interview-container {
+        display: flex;
+        flex-direction: column;
+        height: 100vh;
+        background-color: #f8f9fa;
+    }
+
+    /* Interview Header */
+    .interview-header {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        padding: 1.5rem 2rem;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    }
+
+    .header-content {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        max-width: 1200px;
+        margin: 0 auto;
+    }
+
+    .interview-info h1 {
+        margin: 0;
+        font-size: 1.75rem;
+        font-weight: 600;
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+    }
+
+    .interview-subtitle {
+        margin: 0.5rem 0 0 0;
+        opacity: 0.9;
+        font-size: 1rem;
+    }
+
+    .status-badge {
+        padding: 0.5rem 1rem;
+        border-radius: 2rem;
+        font-size: 0.875rem;
+        font-weight: 500;
+    }
+
+    .status-active {
+        background-color: rgba(34, 197, 94, 0.2);
+        color: #22c55e;
+        border: 1px solid rgba(34, 197, 94, 0.3);
+    }
+
+    /* Chat Container */
+    .chat-container {
+        flex: 1;
+        overflow-y: auto;
+        padding: 2rem;
+        max-width: 1200px;
+        margin: 0 auto;
+        width: 100%;
+    }
+
+    .chat-messages {
+        display: flex;
+        flex-direction: column;
+        gap: 1.5rem;
+    }
+
+    /* Message Styles */
+    .message {
+        display: flex;
+        gap: 1rem;
+        max-width: 80%;
+    }
+
+    .ai-message {
+        align-self: flex-start;
+    }
+
+    .user-message {
+        align-self: flex-end;
+        flex-direction: row-reverse;
+    }
+
+    .message-avatar {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+    }
+
+    .ai-message .message-avatar {
+        background-color: #3b82f6;
+        color: white;
+    }
+
+    .user-message .message-avatar {
+        background-color: #10b981;
+        color: white;
+    }
+
+    .message-avatar i {
+        font-size: 1.2rem;
+    }
+
+    .message-content {
+        background-color: white;
+        padding: 1rem 1.5rem;
+        border-radius: 1rem;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        position: relative;
+    }
+
+    .ai-message .message-content {
+        border-bottom-left-radius: 0.25rem;
+    }
+
+    .user-message .message-content {
+        border-bottom-right-radius: 0.25rem;
+        background-color: #3b82f6;
+        color: white;
+    }
+
+    .message-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 0.5rem;
+        font-size: 0.875rem;
+        opacity: 0.8;
+    }
+
+    .message-sender {
+        font-weight: 600;
+    }
+
+    .message-time {
+        font-size: 0.75rem;
+    }
+
+    .message-text {
+        line-height: 1.6;
+        margin: 0;
+    }
+
+    /* Input Container */
+    .input-container {
+        padding: 1.5rem 2rem;
+        background-color: white;
+        border-top: 1px solid #e9ecef;
+    }
+
+    .input-wrapper {
+        max-width: 1200px;
+        margin: 0 auto;
+        display: flex;
+        gap: 1rem;
+        align-items: center;
+    }
+
+    .user-input {
+        flex: 1;
+        padding: 1rem 1.5rem;
+        border: 2px solid #e9ecef;
+        border-radius: 2rem;
+        font-size: 1rem;
+        transition: border-color 0.2s ease;
+        outline: none;
+    }
+
+    .user-input:focus {
+        border-color: #3b82f6;
+    }
+
+    .send-button {
+        width: 50px;
+        height: 50px;
+        border-radius: 50%;
+        background-color: #3b82f6;
+        color: white;
+        border: none;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        flex-shrink: 0;
+    }
+
+    .send-button:hover {
+        background-color: #2563eb;
+        transform: scale(1.05);
+    }
+
+    .send-button:disabled {
+        background-color: #9ca3af;
+        cursor: not-allowed;
+        transform: none;
+    }
+
+    /* Action Buttons */
+    .action-buttons {
+        padding: 1.5rem 2rem;
+        background-color: white;
+        border-top: 1px solid #e9ecef;
+        display: flex;
+        justify-content: center;
+        gap: 1rem;
+        flex-wrap: wrap;
+    }
+
+    .action-btn {
+        padding: 0.75rem 1.5rem;
+        border-radius: 0.5rem;
+        font-weight: 500;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        transition: all 0.2s ease;
+    }
+
+    .action-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    }
+
+    /* Loading Spinner */
+    .spin {
+        animation: spin 1s linear infinite;
+    }
+
+    @@keyframes spin {
+        from {
+            transform: rotate(0deg);
+        }
+
+        to {
+            transform: rotate(360deg);
+        }
+    }
+
+    /* Responsive Design */
+    @@media (max-width: 768px) {
+        .header-content {
+            flex-direction: column;
+            gap: 1rem;
+            text-align: center;
+        }
+
+        .chat-container {
+            padding: 1rem;
+        }
+
+        .message {
+            max-width: 95%;
+        }
+
+        .input-wrapper {
+            flex-direction: column;
+        }
+
+        .user-input {
+            width: 100%;
+        }
+
+        .action-buttons {
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .action-btn {
+            width: 100%;
+            max-width: 300px;
+            justify-content: center;
+        }
+    }
+
+    @@media (max-width: 480px) {
+        .interview-header {
+            padding: 1rem;
+        }
+
+        .interview-info h1 {
+            font-size: 1.5rem;
+        }
+
+        .chat-container {
+            padding: 0.5rem;
+        }
+
+        .input-container {
+            padding: 1rem;
+        }
+
+        .action-buttons {
+            padding: 1rem;
+        }
+    }
+</style>
+
+<script>
+    // Initialize current time
+    document.addEventListener('DOMContentLoaded', function () {
+        updateCurrentTime();
+        setInterval(updateCurrentTime, 1000);
+
+        // Focus on input
+        document.getElementById('userInput').focus();
+
+        // Enter key to send message
+        document.getElementById('userInput').addEventListener('keypress', function (e) {
+            if (e.key === 'Enter' && !e.shiftKey) {
+                e.preventDefault();
+                sendMessage();
+            }
+        });
+    });
+
+    function updateCurrentTime() {
+        const now = new Date();
+        const timeString = now.toLocaleTimeString();
+        document.getElementById('currentTime').textContent = timeString;
+    }
+
+    function sendMessage() {
+        const input = document.getElementById('userInput');
+        const message = input.value.trim();
+
+        if (!message) return;
+
+        // Add user message to chat
+        addUserMessage(message);
+
+        // Clear input
+        input.value = '';
+
+        // Simulate AI response (in real implementation, this would call OpenAI API)
+        setTimeout(() => {
+            generateAIResponse(message);
+        }, 1000);
+    }
+
+    function addUserMessage(text) {
+        const chatMessages = document.getElementById('chatMessages');
+        const messageDiv = document.createElement('div');
+        messageDiv.className = 'message user-message';
+
+        const now = new Date();
+        const timeString = now.toLocaleTimeString();
+
+        messageDiv.innerHTML = `
+            <div class="message-avatar">
+                <i class="bi bi-person"></i>
+            </div>
+            <div class="message-content">
+                <div class="message-header">
+                    <span class="message-sender">You</span>
+                    <span class="message-time">${timeString}</span>
+                </div>
+                <div class="message-text">${text}</div>
+            </div>
+        `;
+
+        chatMessages.appendChild(messageDiv);
+        scrollToBottom();
+    }
+
+    async function generateAIResponse(userMessage) {
+        const chatMessages = document.getElementById('chatMessages');
+        const messageDiv = document.createElement('div');
+        messageDiv.className = 'message ai-message';
+
+        const now = new Date();
+        const timeString = now.toLocaleTimeString();
+
+        // Show loading state
+        messageDiv.innerHTML = `
+            <div class="message-avatar">
+                <i class="bi bi-robot"></i>
+            </div>
+            <div class="message-content">
+                <div class="message-header">
+                    <span class="message-sender">AI</span>
+                    <span class="message-time">${timeString}</span>
+                </div>
+                <div class="message-text">
+                    <i class="bi bi-arrow-clockwise spin"></i> Thinking...
+                </div>
+            </div>
+        `;
+
+        chatMessages.appendChild(messageDiv);
+        scrollToBottom();
+
+        try {
+            // Call OpenAI API
+            const response = await fetch('/api/Interview/generate-response', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    userMessage: userMessage,
+                    interviewContext: 'Professional Career Interview'
+                })
+            });
+
+            if (!response.ok) {
+                throw new Error('Failed to get AI response');
+            }
+
+            const data = await response.json();
+            const aiResponse = data.response;
+
+            // Update the message with the real response
+            messageDiv.innerHTML = `
+                <div class="message-avatar">
+                    <i class="bi bi-robot"></i>
+                </div>
+                <div class="message-content">
+                    <div class="message-header">
+                        <span class="message-sender">AI</span>
+                        <span class="message-time">${timeString}</span>
+                    </div>
+                    <div class="message-text">${aiResponse}</div>
+                </div>
+            `;
+
+        } catch (error) {
+            console.error('Error getting AI response:', error);
+            // Show error message
+            messageDiv.innerHTML = `
+                <div class="message-avatar">
+                    <i class="bi bi-robot"></i>
+                </div>
+                <div class="message-content">
+                    <div class="message-header">
+                        <span class="message-sender">AI</span>
+                        <span class="message-time">${timeString}</span>
+                    </div>
+                    <div class="message-text">I apologize, but I'm experiencing technical difficulties. Please try again.</div>
+                </div>
+            `;
+        }
+    }
+
+
+
+    function scrollToBottom() {
+        const chatContainer = document.querySelector('.chat-container');
+        chatContainer.scrollTop = chatContainer.scrollHeight;
+    }
+
+    function saveInterview() {
+        // In real implementation, this would save the interview progress to database
+        alert('Interview progress saved! You can continue later.');
+    }
+
+    function finishInterview() {
+        if (confirm('Are you sure you want to finish this interview? This action cannot be undone.')) {
+            // In real implementation, this would mark the interview as finished in database
+            alert('Interview finished! Redirecting to dashboard...');
+            window.location.href = '/Dashboard';
+        }
+    }
+</script>

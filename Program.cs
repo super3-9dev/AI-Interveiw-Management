@@ -55,8 +55,14 @@ builder.Services.AddSession(options =>
 // Add Profile service
 builder.Services.AddScoped<IProfileService, ProfileService>();
 
+// Add Interview service
+builder.Services.AddScoped<IInterviewService, InterviewService>();
+
 // Add Interview Catalog service
 builder.Services.AddScoped<IInterviewCatalogService, InterviewCatalogService>();
+
+// Add OpenAI service
+builder.Services.AddHttpClient<IOpenAIService, OpenAIService>();
 
 // Database
 builder.Services.AddDbContext<AppDbContext>(options =>

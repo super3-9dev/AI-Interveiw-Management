@@ -1,0 +1,303 @@
+@page
+@using Microsoft.AspNetCore.Mvc.Localization
+@inject IViewLocalizer Localizer
+@{
+    ViewData["Title"] = Localizer["Interview Format"];
+    var currentCulture = HttpContext.Request.Query["culture"].ToString();
+    if (string.IsNullOrEmpty(currentCulture))
+    {
+        currentCulture = HttpContext.Request.Cookies["culture"] ?? "en";
+    }
+}
+
+<div class="page-content">
+    <div class="centered-container">
+        <!-- Header Section -->
+        <div class="interview-format-header">
+            <h1 class="interview-format-title">Choose Your Interview Format</h1>
+            <p class="interview-format-subtitle">Select how you'd like to conduct your interview</p>
+        </div>
+
+        <!-- Interview Format Options -->
+        <div class="format-options">
+            <!-- Text Interview Option -->
+            <div class="format-option text-interview-option">
+                <div class="format-icon">
+                    <i class="bi bi-chat-text"></i>
+                </div>
+                <div class="format-content">
+                    <h3 class="format-title">Text Interview</h3>
+                    <p class="format-description">
+                        Conduct your interview through text-based questions and answers.
+                        Perfect for detailed responses and easy review.
+                    </p>
+                    <div class="format-features">
+                        <div class="feature-item">
+                            <i class="bi bi-check-circle"></i>
+                            <span>Written questions and responses</span>
+                        </div>
+                        <div class="feature-item">
+                            <i class="bi bi-check-circle"></i>
+                            <span>Easy to review and analyze</span>
+                        </div>
+                        <div class="feature-item">
+                            <i class="bi bi-check-circle"></i>
+                            <span>No audio equipment needed</span>
+                        </div>
+                    </div>
+                    <a href="/TextInterview@(!string.IsNullOrEmpty(currentCulture) ? $"?culture={currentCulture}" : "")"
+                        class="btn btn-primary format-btn">
+                        <i class="bi bi-chat-text"></i>
+                        Start Text Interview
+                    </a>
+                </div>
+            </div>
+
+            <!-- Voice Interview Option -->
+            <div class="format-option voice-interview-option">
+                <div class="format-icon">
+                    <i class="bi bi-mic"></i>
+                </div>
+                <div class="format-content">
+                    <h3 class="format-title">Voice Interview</h3>
+                    <p class="format-description">
+                        Conduct your interview through voice interaction.
+                        More natural conversation flow and real-time responses.
+                    </p>
+                    <div class="format-features">
+                        <div class="feature-item">
+                            <i class="bi bi-check-circle"></i>
+                            <span>Voice-based questions and answers</span>
+                        </div>
+                        <div class="feature-item">
+                            <i class="bi bi-check-circle"></i>
+                            <span>Natural conversation flow</span>
+                        </div>
+                        <div class="feature-item">
+                            <i class="bi bi-check-circle"></i>
+                            <span>Real-time interaction</span>
+                        </div>
+                    </div>
+                    <a href="/VoiceInterview@(!string.IsNullOrEmpty(currentCulture) ? $"?culture={currentCulture}" : "")"
+                        class="btn btn-success format-btn">
+                        <i class="bi bi-mic"></i>
+                        Start Voice Interview
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Back to Dashboard -->
+        <div class="back-to-dashboard">
+            <a href="/Dashboard@(!string.IsNullOrEmpty(currentCulture) ? $"?culture={currentCulture}" : "")"
+                class="btn btn-outline-secondary">
+                <i class="bi bi-arrow-left"></i>
+                Back to Dashboard
+            </a>
+        </div>
+    </div>
+</div>
+
+<style>
+    .page-content {
+        padding: 2rem;
+        min-height: 100vh;
+    }
+
+    .centered-container {
+        max-width: 1000px;
+        margin: 0 auto;
+        padding: 2rem;
+    }
+
+    .interview-format-header {
+        text-align: center;
+        margin-bottom: 3rem;
+        color: white;
+    }
+
+    .interview-format-title {
+        font-size: 3rem;
+        font-weight: 700;
+        margin-bottom: 1rem;
+        color: #1f2937;
+    }
+
+    .interview-format-subtitle {
+        font-size: 1.25rem;
+        opacity: 0.9;
+        margin: 0;
+        color: #6b7280;
+    }
+
+    .format-options {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 2rem;
+        margin-bottom: 3rem;
+    }
+
+    .format-option {
+        background: white;
+        border-radius: 1.5rem;
+        padding: 2.5rem;
+        text-align: center;
+        box-shadow: 0 5px 6px rgba(0, 0, 0, 0.1);
+        transition: all 0.3s ease;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .format-option::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 4px;
+        background: linear-gradient(90deg, #3b82f6, #10b981);
+    }
+
+    .format-option:hover {
+        transform: translateY(-10px);
+        box-shadow: 0 30px 60px rgba(0, 0, 0, 0.15);
+    }
+
+    .text-interview-option::before {
+        background: linear-gradient(90deg, #3b82f6, #1d4ed8);
+    }
+
+    .voice-interview-option::before {
+        background: linear-gradient(90deg, #10b981, #059669);
+    }
+
+    .format-icon {
+        margin-bottom: 1.5rem;
+    }
+
+    .format-icon i {
+        font-size: 4rem;
+        color: #3b82f6;
+    }
+
+    .voice-interview-option .format-icon i {
+        color: #10b981;
+    }
+
+    .format-content {
+        text-align: center;
+    }
+
+    .format-title {
+        font-size: 1.75rem;
+        font-weight: 600;
+        color: #1f2937;
+        margin-bottom: 1rem;
+    }
+
+    .format-description {
+        color: #6b7280;
+        margin-bottom: 1.5rem;
+        line-height: 1.6;
+        font-size: 1.1rem;
+    }
+
+    .format-features {
+        margin-bottom: 2rem;
+        text-align: left;
+    }
+
+    .feature-item {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        margin-bottom: 0.75rem;
+        padding: 0.5rem;
+        background-color: #f8f9fa;
+        border-radius: 0.5rem;
+    }
+
+    .feature-item i {
+        color: #10b981;
+        font-size: 1.1rem;
+        flex-shrink: 0;
+    }
+
+    .feature-item span {
+        color: #374151;
+        font-size: 0.95rem;
+    }
+
+    .format-btn {
+        padding: 1rem 2rem;
+        font-size: 1.1rem;
+        font-weight: 600;
+        border-radius: 0.75rem;
+        transition: all 0.3s ease;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        min-width: 200px;
+        justify-content: center;
+    }
+
+    .format-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+    }
+
+    .back-to-dashboard {
+        text-align: center;
+    }
+
+    .back-to-dashboard .btn {
+        padding: 0.75rem 1.5rem;
+        font-size: 1rem;
+        border-radius: 0.5rem;
+        color: #212529;
+        border-color: rgba(255, 255, 255, 0.3);
+        background-color: #a794941a;
+        backdrop-filter: blur(10px);
+        transition: all 0.3s ease;
+    }
+
+    .back-to-dashboard .btn:hover {
+        background-color: #b8a4a41a;
+        border-color: rgba(255, 255, 255, 0.5);
+        transform: translateY(-2px);
+    }
+
+    /* Responsive Design */
+    @@media (max-width: 768px) {
+        .format-options {
+            grid-template-columns: 1fr;
+            gap: 1.5rem;
+        }
+
+        .interview-format-title {
+            font-size: 2.5rem;
+        }
+
+        .centered-container {
+            padding: 1rem;
+        }
+
+        .format-option {
+            padding: 2rem;
+        }
+    }
+
+    @@media (max-width: 480px) {
+        .interview-format-title {
+            font-size: 2rem;
+        }
+
+        .format-option {
+            padding: 1.5rem;
+        }
+
+        .format-btn {
+            min-width: 100%;
+        }
+    }
+</style>

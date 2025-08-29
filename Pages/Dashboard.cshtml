@@ -1,4 +1,5 @@
 @page
+@model InterviewBot.Pages.DashboardModel
 @using Microsoft.AspNetCore.Mvc.Localization
 @inject IViewLocalizer Localizer
 @{
@@ -20,13 +21,16 @@
                 <p class="subtitle">Track your progress, continue interviews, or start a new one.</p>
             </div>
             <div class="header-actions">
-                <a href="/NewAnalysis@(!string.IsNullOrEmpty(currentCulture) ? $"?culture={currentCulture}" : "")" class="btn btn-primary start-analysis-btn">
+                <a href="/NewAnalysis@(!string.IsNullOrEmpty(currentCulture) ? $"?culture={currentCulture}" : "")"
+                    class="btn btn-primary start-analysis-btn">
                     <i class="bi bi-arrow-clockwise"></i>
                     Start New Analysis
                 </a>
             </div>
         </div>
     </div>
+
+
 
     <!-- Main Content -->
     <div class="row">
@@ -40,24 +44,25 @@
                     <p class="profile-description">
                         This information is used to generate your personalized interviews.
                     </p>
-                    
+
                     <div class="profile-section">
                         <div class="profile-item">
                             <h6 class="profile-label">Strengths</h6>
-                            <p class="profile-text">Strong background in full-stack development, leadership potential.</p>
+                            <p class="profile-text">Strong background in full-stack development, leadership potential.
+                            </p>
                         </div>
-                        
+
                         <div class="profile-item">
                             <h6 class="profile-label">Weaknesses</h6>
                             <p class="profile-text">Limited experience with cloud-native technologies.</p>
                         </div>
-                        
+
                         <div class="profile-item">
                             <h6 class="profile-label">Potential Career Paths</h6>
                             <p class="profile-text">Software Architect, Engineering Manager, DevOps Specialist.</p>
                         </div>
                     </div>
-                    
+
                     <div class="profile-actions">
                         <button class="btn btn-outline-secondary update-profile-btn">
                             <i class="bi bi-pencil"></i>
@@ -66,57 +71,94 @@
                     </div>
                 </div>
             </div>
+
+
         </div>
 
-        <!-- Right Column - Interview Catalog -->
+        <!-- Right Column - Interview Catalog or Profile Creation Prompt -->
         <div class="col-md-6 mb-4">
-            <div class="interview-catalog">
-                <div class="catalog-header">
-                    <h5 class="catalog-title">
-                        <i class="bi bi-list-ul"></i>
-                        Interview Catalog
-                    </h5>
-                    <p class="catalog-subtitle">Choose from your personalized list of interviews or create a new one.</p>
+            @if (Model.HasProfiles)
+            {
+                <div class="interview-catalog">
+                    <div class="catalog-header">
+                        <h5 class="catalog-title">
+                            <i class="bi bi-list-ul"></i>
+                            Interview Catalog
+                        </h5>
+                        <p class="catalog-subtitle">Choose from your personalized list of interviews or create a new one.
+                        </p>
+                    </div>
+
+                    <div class="interview-cards">
+                        <div class="interview-card">
+                            <div class="card-body">
+                                <h6 class="interview-title">Vocational Orientation Interview</h6>
+                                <p class="interview-description">
+                                    Explore your interests and values to find a career that aligns with your personality.
+                                </p>
+                                <a href="/InterviewFormat@(!string.IsNullOrEmpty(currentCulture) ? $"?culture={currentCulture}" : "")"
+                                    class="btn btn-primary interview-btn">
+                                    Start Interview
+                                </a>
+                            </div>
+                        </div>
+
+                        <div class="interview-card">
+                            <div class="card-body">
+                                <h6 class="interview-title">Professional Career Interview</h6>
+                                <p class="interview-description">
+                                    Discuss specific roles and industries based on your resume.
+                                </p>
+                                <a href="/InterviewFormat@(!string.IsNullOrEmpty(currentCulture) ? $"?culture={currentCulture}" : "")"
+                                    class="btn btn-primary interview-btn">
+                                    Start Interview
+                                </a>
+                            </div>
+                        </div>
+
+                        <div class="interview-card">
+                            <div class="card-body">
+                                <h6 class="interview-title">Soft Skills Interview</h6>
+                                <p class="interview-description">
+                                    Assess your communication, leadership, and teamwork skills.
+                                </p>
+                                <a href="/InterviewFormat@(!string.IsNullOrEmpty(currentCulture) ? $"?culture={currentCulture}" : "")"
+                                    class="btn btn-primary interview-btn">
+                                    Start Interview
+                                </a>
+                            </div>
+                        </div>
+
+                        <!-- Create Custom Interview Card -->
+                        <div class="interview-card custom-interview-card">
+                            <div class="card-body">
+                                <div class="custom-interview-icon">
+                                    <i class="bi bi-plus-circle"></i>
+                                </div>
+                                <h6 class="interview-title">Create Custom Interview</h6>
+                                <p class="interview-description">
+                                    Can't find what you're looking for? Generate your own interview.
+                                </p>
+                                <a href="/CustomInterview@(!string.IsNullOrEmpty(currentCulture) ? $"?culture={currentCulture}" : "")"
+                                    class="btn btn-outline-secondary custom-interview-btn">
+                                    Create Your Own
+                                </a>
+                            </div>
+                        </div>
+                    </div>
                 </div>
-                
-                <div class="interview-cards">
-                    <div class="interview-card">
-                        <div class="card-body">
-                            <h6 class="interview-title">Vocational Orientation Interview</h6>
-                            <p class="interview-description">
-                                Explore your interests and values to find a career that aligns with your personality.
-                            </p>
-                            <a href="/InterviewFormat@(!string.IsNullOrEmpty(currentCulture) ? $"?culture={currentCulture}" : "")" class="btn btn-primary interview-btn">
-                                Start Interview
-                            </a>
-                        </div>
+            }
+            else
+            {
+                <div class="profile-creation-prompt">
+                    <div class="prompt-header">
+                        <h5 class="prompt-title">
+                            <i class="bi bi-person-plus"></i>
+                            Interview Catalog
+                        </h5>
+                        <p class="prompt-subtitle">Choose from your personalized list of interviews or create a new one.</p>
                     </div>
-                    
-                    <div class="interview-card">
-                        <div class="card-body">
-                            <h6 class="interview-title">Professional Career Interview</h6>
-                            <p class="interview-description">
-                                Discuss specific roles and industries based on your resume.
-                            </p>
-                            <a href="/InterviewFormat@(!string.IsNullOrEmpty(currentCulture) ? $"?culture={currentCulture}" : "")" class="btn btn-primary interview-btn">
-                                Start Interview
-                            </a>
-                        </div>
-                    </div>
-                    
-                    <div class="interview-card">
-                        <div class="card-body">
-                            <h6 class="interview-title">Soft Skills Interview</h6>
-                            <p class="interview-description">
-                                Assess your communication, leadership, and teamwork skills.
-                            </p>
-                            <a href="/InterviewFormat@(!string.IsNullOrEmpty(currentCulture) ? $"?culture={currentCulture}" : "")" class="btn btn-primary interview-btn">
-                                Start Interview
-                            </a>
-                        </div>
-                    </div>
-                    
-                    <!-- Create Custom Interview Card -->
+
                     <div class="interview-card custom-interview-card">
                         <div class="card-body">
                             <div class="custom-interview-icon">
@@ -126,280 +168,363 @@
                             <p class="interview-description">
                                 Can't find what you're looking for? Generate your own interview.
                             </p>
-                            <a href="/CustomInterview@(!string.IsNullOrEmpty(currentCulture) ? $"?culture={currentCulture}" : "")" class="btn btn-outline-secondary custom-interview-btn">
+                            <a href="/CustomInterview@(!string.IsNullOrEmpty(currentCulture) ? $"?culture={currentCulture}" : "")"
+                                class="btn btn-outline-secondary custom-interview-btn">
                                 Create Your Own
                             </a>
                         </div>
                     </div>
+
                 </div>
-            </div>
+            }
         </div>
     </div>
 </div>
 
 <style>
-/* Page Content Styles */
-.page-content {
-    padding: 2rem;
-}
+    /* Page Content Styles */
+    .page-content {
+        padding: 2rem;
+    }
 
-/* Dashboard Header */
-.dashboard-header {
-    margin-bottom: 2rem;
-}
+    /* Dashboard Header */
+    .dashboard-header {
+        margin-bottom: 2rem;
+    }
 
-.header-content {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    flex-wrap: wrap;
-    gap: 1rem;
-}
-
-.title-section {
-    flex: 1;
-}
-
-.main-title {
-    font-size: 2.5rem;
-    font-weight: 700;
-    color: #1f2937;
-    margin-bottom: 0.5rem;
-}
-
-.subtitle {
-    font-size: 1.1rem;
-    color: #6b7280;
-    margin: 0;
-}
-
-.header-actions {
-    display: flex;
-    align-items: center;
-    gap: 1rem;
-}
-
-.start-analysis-btn {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    padding: 0.75rem 1.5rem;
-    font-weight: 600;
-    border-radius: 0.5rem;
-    transition: all 0.2s ease;
-}
-
-.start-analysis-btn:hover {
-    transform: translateY(-1px);
-    box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
-}
-
-/* Profile Card */
-.profile-card {
-    border: none;
-    border-radius: 0.75rem;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-    transition: transform 0.2s ease, box-shadow 0.2s ease;
-}
-
-.profile-card:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-}
-
-.profile-card .card-header {
-    background-color: #f8f9fa;
-    border-bottom: 1px solid #e9ecef;
-    border-radius: 0.75rem 0.75rem 0 0;
-    padding: 1rem 1.5rem;
-}
-
-.profile-description {
-    color: #6b7280;
-    margin-bottom: 1.5rem;
-}
-
-.profile-section {
-    margin-bottom: 1.5rem;
-}
-
-.profile-item {
-    margin-bottom: 1rem;
-    padding: 1rem;
-    background-color: #f8f9fa;
-    border-radius: 0.5rem;
-}
-
-.profile-label {
-    font-weight: 600;
-    color: #1f2937;
-    margin-bottom: 0.5rem;
-}
-
-.profile-text {
-    color: #6b7280;
-    margin: 0;
-}
-
-.profile-actions {
-    text-align: center;
-}
-
-.update-profile-btn {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    margin: 0 auto;
-    background-color: #6b7280;
-    border-color: #6b7280;
-    color: white;
-}
-
-.update-profile-btn:hover {
-    background-color: #4b5563;
-    border-color: #4b5563;
-    color: white;
-}
-
-/* Interview Catalog */
-.interview-catalog {
-    background-color: #f8f9fa;
-    border-radius: 0.75rem;
-    padding: 1.5rem;
-    height: 100%;
-}
-
-.catalog-header {
-    text-align: center;
-    margin-bottom: 2rem;
-}
-
-.catalog-title {
-    font-size: 1.5rem;
-    font-weight: 600;
-    color: #1f2937;
-    margin-bottom: 0.5rem;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 0.5rem;
-}
-
-.catalog-subtitle {
-    color: #6b7280;
-    margin: 0;
-}
-
-.interview-cards {
-    display: flex;
-    flex-direction: column;
-    gap: 1rem;
-}
-
-.interview-card {
-    background-color: white;
-    border: 1px solid #e9ecef;
-    border-radius: 0.5rem;
-    transition: all 0.2s ease;
-}
-
-.interview-card:hover {
-    border-color: #3b82f6;
-    box-shadow: 0 2px 8px rgba(59, 130, 246, 0.15);
-}
-
-.interview-card .card-body {
-    padding: 1.5rem;
-}
-
-.interview-title {
-    font-weight: 600;
-    color: #1f2937;
-    margin-bottom: 0.75rem;
-}
-
-.interview-description {
-    color: #6b7280;
-    margin-bottom: 1rem;
-    line-height: 1.5;
-}
-
-.interview-btn {
-    width: 100%;
-    border-radius: 0.5rem;
-    font-weight: 500;
-}
-
-/* Custom Interview Card */
-.custom-interview-card {
-    border: 2px dashed #d1d5db;
-    background-color: #f9fafb;
-}
-
-.custom-interview-card:hover {
-    border-color: #3b82f6;
-    background-color: #eff6ff;
-}
-
-.custom-interview-icon {
-    text-align: center;
-    margin-bottom: 1rem;
-}
-
-.custom-interview-icon i {
-    font-size: 2.5rem;
-    color: #3b82f6;
-}
-
-.custom-interview-btn {
-    width: 100%;
-    border-radius: 0.5rem;
-    font-weight: 500;
-    background-color: #6b7280;
-    border-color: #6b7280;
-    color: white;
-}
-
-.custom-interview-btn:hover {
-    background-color: #4b5563;
-    border-color: #4b5563;
-    color: white;
-}
-
-/* Responsive Design */
-@@media (max-width: 768px) {
     .header-content {
-        flex-direction: column;
-        align-items: stretch;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 1rem;
+    }
+
+    .title-section {
+        flex: 1;
+    }
+
+    .main-title {
+        font-size: 2.5rem;
+        font-weight: 700;
+        color: #1f2937;
+        margin-bottom: 0.5rem;
+    }
+
+    .subtitle {
+        font-size: 1.1rem;
+        color: #6b7280;
+        margin: 0;
+    }
+
+    .header-actions {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+    }
+
+    .start-analysis-btn {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 0.75rem 1.5rem;
+        font-weight: 600;
+        border-radius: 0.5rem;
+        transition: all 0.2s ease;
+    }
+
+    .start-analysis-btn:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+    }
+
+    /* Profile Card */
+    .profile-card {
+        border: none;
+        border-radius: 0.75rem;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    .profile-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    }
+
+    .profile-card .card-header {
+        background-color: #f8f9fa;
+        border-bottom: 1px solid #e9ecef;
+        border-radius: 0.75rem 0.75rem 0 0;
+        padding: 1rem 1.5rem;
+    }
+
+    .profile-description {
+        color: #6b7280;
+        margin-bottom: 1.5rem;
+    }
+
+    .profile-section {
+        margin-bottom: 1.5rem;
+    }
+
+    .profile-item {
+        margin-bottom: 1rem;
+        padding: 1rem;
+        background-color: #f8f9fa;
+        border-radius: 0.5rem;
+    }
+
+    .profile-label {
+        font-weight: 600;
+        color: #1f2937;
+        margin-bottom: 0.5rem;
+    }
+
+    .profile-text {
+        color: #6b7280;
+        margin: 0;
+    }
+
+    .profile-actions {
         text-align: center;
     }
-    
-    .main-title {
-        font-size: 2rem;
+
+    .update-profile-btn {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        margin: 0 auto;
+        background-color: #6b7280;
+        border-color: #6b7280;
+        color: white;
     }
-    
-    .page-content {
-        padding: 1rem;
+
+    .update-profile-btn:hover {
+        background-color: #4b5563;
+        border-color: #4b5563;
+        color: white;
     }
-    
-    .profile-card,
+
+    /* Interview Catalog */
     .interview-catalog {
-        height: auto;
+        background-color: #f8f9fa;
+        border-radius: 0.75rem;
+        padding: 1.5rem;
+        height: 100%;
+    }
+
+    .catalog-header {
+        text-align: center;
+        margin-bottom: 2rem;
+    }
+
+    .catalog-title {
+        font-size: 1.5rem;
+        font-weight: 600;
+        color: #1f2937;
+        margin-bottom: 0.5rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.5rem;
+    }
+
+    .catalog-subtitle {
+        color: #6b7280;
+        margin: 0;
+    }
+
+    .interview-cards {
+        display: flex;
+        flex-direction: column;
+        gap: 1rem;
+    }
+
+    .interview-card {
+        background-color: white;
+        border: 1px solid #e9ecef;
+        border-radius: 0.5rem;
+        transition: all 0.2s ease;
+    }
+
+    .interview-card:hover {
+        border-color: #3b82f6;
+        box-shadow: 0 2px 8px rgba(59, 130, 246, 0.15);
+    }
+
+    .interview-card .card-body {
+        padding: 1.5rem;
+    }
+
+    .interview-title {
+        font-weight: 600;
+        color: #1f2937;
+        margin-bottom: 0.75rem;
+    }
+
+    .interview-description {
+        color: #6b7280;
+        margin-bottom: 1rem;
+        line-height: 1.5;
+    }
+
+    .interview-btn {
+        width: 100%;
+        border-radius: 0.5rem;
+        font-weight: 500;
+    }
+
+    /* Custom Interview Card */
+    .custom-interview-card {
+        border: 2px dashed #d1d5db;
+        background-color: #f9fafb;
+    }
+
+    .custom-interview-card:hover {
+        border-color: #3b82f6;
+        background-color: #eff6ff;
+    }
+
+    .custom-interview-icon {
+        text-align: center;
         margin-bottom: 1rem;
     }
-}
 
-@@media (max-width: 480px) {
-    .main-title {
-        font-size: 1.75rem;
+    .custom-interview-icon i {
+        font-size: 2.5rem;
+        color: #3b82f6;
     }
-    
-    .interview-catalog {
-        padding: 1rem;
+
+    .custom-interview-btn {
+        width: 100%;
+        border-radius: 0.5rem;
+        font-weight: 500;
+        background-color: #6b7280;
+        border-color: #6b7280;
+        color: white;
     }
-    
-    .interview-card .card-body {
-        padding: 1rem;
+
+    .custom-interview-btn:hover {
+        background-color: #4b5563;
+        border-color: #4b5563;
+        color: white;
     }
-}
+
+    /* Profile Creation Prompt */
+    .profile-creation-prompt {
+        background-color: #f8f9fa;
+        border-radius: 0.75rem;
+        padding: 1.5rem;
+        height: 100%;
+        text-align: center;
+    }
+
+    .prompt-header {
+        margin-bottom: 2rem;
+    }
+
+    .prompt-title {
+        font-size: 1.5rem;
+        font-weight: 600;
+        color: #1f2937;
+        margin-bottom: 0.5rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.5rem;
+    }
+
+    .prompt-subtitle {
+        color: #6b7280;
+        margin: 0;
+        font-size: 1.1rem;
+    }
+
+    .prompt-options {
+        display: flex;
+        flex-direction: column;
+        gap: 1.5rem;
+    }
+
+    .prompt-option {
+        background-color: white;
+        border: 1px solid #e9ecef;
+        border-radius: 0.75rem;
+        padding: 1.5rem;
+        text-align: center;
+        transition: all 0.2s ease;
+    }
+
+    .prompt-option:hover {
+        border-color: #3b82f6;
+        box-shadow: 0 4px 12px rgba(59, 130, 246, 0.15);
+        transform: translateY(-2px);
+    }
+
+    .option-icon {
+        margin-bottom: 1rem;
+    }
+
+    .option-icon i {
+        font-size: 3rem;
+        color: #3b82f6;
+    }
+
+    .option-title {
+        font-weight: 600;
+        color: #1f2937;
+        margin-bottom: 0.75rem;
+        font-size: 1.1rem;
+    }
+
+    .option-description {
+        color: #6b7280;
+        margin-bottom: 1.5rem;
+        line-height: 1.5;
+        font-size: 0.95rem;
+    }
+
+    .option-btn {
+        width: 100%;
+        border-radius: 0.5rem;
+        font-weight: 500;
+        padding: 0.75rem 1rem;
+    }
+
+    /* Responsive Design */
+    @@media (max-width: 768px) {
+        .header-content {
+            flex-direction: column;
+            align-items: stretch;
+            text-align: center;
+        }
+
+        .main-title {
+            font-size: 2rem;
+        }
+
+        .page-content {
+            padding: 1rem;
+        }
+
+        .profile-card,
+        .interview-catalog {
+            height: auto;
+            margin-bottom: 1rem;
+        }
+    }
+
+    @@media (max-width: 480px) {
+        .main-title {
+            font-size: 1.75rem;
+        }
+
+        .interview-catalog {
+            padding: 1rem;
+        }
+
+        .interview-card .card-body {
+            padding: 1rem;
+        }
+    }
 </style>
