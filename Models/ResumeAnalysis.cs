@@ -46,6 +46,8 @@ namespace InterviewBot.Models
         [StringLength(1000)]
         public string? ErrorMessage { get; set; }
 
+        public int Progress { get; set; } = 0; // Progress percentage (0-100)
+
         public TimeSpan? ProcessingTime { get; set; }
         
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;

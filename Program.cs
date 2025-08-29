@@ -19,8 +19,7 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddSingleton<IConverter, SynchronizedConverter>(s =>
     new SynchronizedConverter(new PdfTools()));
 
-// Register your custom PdfService
-builder.Services.AddScoped<PdfService>();
+
 
 builder.Services.AddLocalization(options => options.ResourcesPath = "Resources");
 
@@ -50,14 +49,13 @@ builder.Services.AddSession(options =>
     options.Cookie.IsEssential = true;
 });
 
-// Add OpenAI service only
-builder.Services.AddScoped<IAIAgentService, OpenAIAgentService>();
 
-// Add Email service
-builder.Services.AddScoped<IEmailService, EmailService>();
 
 // Add Resume Analysis service
 builder.Services.AddScoped<IResumeAnalysisService, ResumeAnalysisService>();
+
+// Add Interview Catalog service
+builder.Services.AddScoped<IInterviewCatalogService, InterviewCatalogService>();
 
 // Database
 builder.Services.AddDbContext<AppDbContext>(options =>
@@ -102,16 +100,7 @@ builder.Services.AddRazorPages(options =>
     options.Conventions.AllowAnonymousToPage("/Account/GuestLogin");
     options.Conventions.AllowAnonymousToPage("/Account/AccessDenied");
     options.Conventions.AllowAnonymousToPage("/Error");
-    options.Conventions.AllowAnonymousToPage("/PublicInterview");
-    options.Conventions.AllowAnonymousToPage("/PublicChat");
-    options.Conventions.AllowAnonymousToPage("/PublicResults");
-    options.Conventions.AllowAnonymousToPage("/EmailVerification");
-    options.Conventions.AllowAnonymousToPage("/VerificationCode");
-    options.Conventions.AllowAnonymousToPage("/Chat");
-    options.Conventions.AllowAnonymousToPage("/VoiceInterview");
-    options.Conventions.AllowAnonymousToPage("/InterviewFormat");
-    options.Conventions.AllowAnonymousToPage("/InterviewSessions/Results");
-    options.Conventions.AllowAnonymousToPage("/InterviewSessions/Index");
+
 });
 
 // Add SignalR service
@@ -157,8 +146,7 @@ app.UseCors("SignalRCors");
 app.UseRequestLocalization();
 app.UseSession();
 
-// Map your SignalR hub
-app.MapHub<ChatHub>("/chatHub");
+
 app.UseWebSockets();
 
 // Only use HTTPS redirection in production

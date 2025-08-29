@@ -11,18 +11,30 @@ namespace InterviewBot.Models
         Spanish
     }
 
+    public enum InterviewType
+    {
+        Text,
+        Voice
+    }
+
+    public enum InterviewStatus
+    {
+        InProgress,
+        Paused,
+        Completed,
+        Cancelled
+    }
+
     public class InterviewSession
     {
         public int Id { get; set; }
 
-        [Required]
-        public int SubTopicId { get; set; }
 
-        [ForeignKey("SubTopicId")]
-        public SubTopic SubTopic { get; set; } = null!;
 
         public DateTime StartTime { get; set; } = DateTime.UtcNow;
         public DateTime? EndTime { get; set; }
+        public DateTime? PausedAt { get; set; }
+        public DateTime? ResumedAt { get; set; }
 
         [MaxLength(2000)]
         public string? Summary { get; set; }
@@ -42,9 +54,34 @@ namespace InterviewBot.Models
         [MaxLength(50)]
         public string? CandidateExperience { get; set; }
 
-        // Interview progress
+        // Interview progress and settings
         public int CurrentQuestionNumber { get; set; } = 0;
         public bool IsCompleted { get; set; } = false;
+        
+        [Required]
+        public InterviewType Type { get; set; } = InterviewType.Text;
+        
+        [Required]
+        public InterviewStatus Status { get; set; } = InterviewStatus.InProgress;
+        
+        [MaxLength(1000)]
+        public string? PauseReason { get; set; }
+        
+        [MaxLength(2000)]
+        public string? ResumeNotes { get; set; }
+
+        // AI Agent and Catalog information
+        public int? InterviewCatalogId { get; set; }
+        [ForeignKey("InterviewCatalogId")]
+        public InterviewCatalog? InterviewCatalog { get; set; }
+        
+        public int? CustomInterviewId { get; set; }
+        [ForeignKey("CustomInterviewId")]
+        public CustomInterview? CustomInterview { get; set; }
+        
+        public int? AIAgentRoleId { get; set; }
+        [ForeignKey("AIAgentRoleId")]
+        public AIAgentRole? AIAgentRole { get; set; }
 
         // Navigation property for results (one-to-one)
         public InterviewResult? Result { get; set; }

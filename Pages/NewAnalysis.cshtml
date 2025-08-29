@@ -15,11 +15,11 @@
 <div class="page-content">
     <!-- Centered Content Container -->
     <div class="centered-container">
-        <!-- Header Section -->
-        <div class="analysis-header">
-            <h1 class="analysis-title">Start Your Resume Analysis</h1>
-            <p class="analysis-subtitle">Upload your resume and get AI-powered insights about your career path and skills.</p>
-        </div>
+                  <!-- Header Section -->
+          <div class="analysis-header">
+              <h1 class="analysis-title">Start Your Analysis</h1>
+              <p class="analysis-subtitle">This is a mockup. Click "Start Analysis" to generate a sample report and navigate the app.</p>
+          </div>
 
         @if (!string.IsNullOrEmpty(Model.ErrorMessage))
         {
@@ -77,55 +77,57 @@
                             </button>
                         </div>
                     </div>
+
+                    <!-- Submit Button -->
+                    <div class="form-actions">
+                        <button type="submit" class="start-analysis-btn" id="submitBtn" disabled>
+                            <i class="bi bi-play-circle"></i>
+                            File Analysis
+                        </button>
+                    </div>
                 </div>
 
                 <!-- Describe Yourself Tab -->
                 <div class="tab-pane" id="describe-tab">
                     <div class="form-fields">
                         <div class="form-group">
-                            <label for="description" class="form-label">Brief description about yourself</label>
+                            <label for="description" class="form-label">Brief introduction about yourself</label>
                             <textarea id="description" name="Description" class="form-control" rows="4" 
                                 placeholder="Tell us about your experience, skills, and career goals..."></textarea>
                         </div>
                         
-                        <div class="info-box">
-                            <i class="bi bi-info-circle"></i>
-                            <p>This feature is coming soon! For now, please upload your resume for AI analysis.</p>
+                        <div class="form-group">
+                            <label for="careerGoals" class="form-label">What are your future career goals?</label>
+                            <input type="text" id="careerGoals" name="CareerGoals" class="form-control" 
+                                placeholder="e.g., Lead a team of developers and contribute to open-source projects">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="currentActivity" class="form-label">What are you currently doing (studies, work, projects)?</label>
+                            <input type="text" id="currentActivity" name="CurrentActivity" class="form-control" 
+                                placeholder="e.g., Working as a full-stack developer and mentoring junior engineers" 
+                                >
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="motivations" class="form-label">What are your main motivations?</label>
+                            <input type="text" id="motivations" name="Motivations" class="form-control" 
+                                placeholder="e.g., Solving complex problems and learning new technologies">
+                        </div>
+
+                        <!-- Submit Button -->
+                        <div class="form-actions">
+                            <button type="submit" class="start-analysis-btn" id="description-submit-btn">
+                                <i class="bi bi-play-circle"></i>
+                                Description Analysis
+                            </button>
                         </div>
                     </div>
                 </div>
             </div>
 
-            <!-- Submit Button -->
-            <div class="form-actions">
-                <button type="submit" class="start-analysis-btn" id="submitBtn" disabled>
-                    <i class="bi bi-play-circle"></i>
-                    Start Analysis
-                </button>
-            </div>
+            
         </form>
-
-        <!-- Features Section -->
-        <div class="features-section">
-            <h3>What You'll Get</h3>
-            <div class="features-grid">
-                <div class="feature-card">
-                    <i class="bi bi-graph-up"></i>
-                    <h4>Career Insights</h4>
-                    <p>AI-powered analysis of your skills and experience</p>
-                </div>
-                <div class="feature-card">
-                    <i class="bi bi-briefcase"></i>
-                    <h4>Job Recommendations</h4>
-                    <p>Suggested career paths based on your profile</p>
-                </div>
-                <div class="feature-card">
-                    <i class="bi bi-lightbulb"></i>
-                    <h4>Skill Development</h4>
-                    <p>Areas to focus on for career growth</p>
-                </div>
-            </div>
-        </div>
     </div>
 </div>
 
@@ -318,6 +320,59 @@
     color: #dc2626;
 }
 
+/* Upload Progress Bar */
+.upload-progress {
+    margin-top: 1.5rem;
+    padding: 1rem;
+    background-color: #f0fdf4;
+    border: 1px solid #10b981;
+    border-radius: 0.75rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.progress-header {
+    display: flex;
+    justify-content: space-between;
+    width: 100%;
+    font-weight: 500;
+    color: #1f2937;
+}
+
+.progress-text {
+    font-size: 1rem;
+}
+
+.progress-percentage {
+    font-size: 1rem;
+    font-weight: 600;
+    color: #10b981;
+}
+
+.progress-bar {
+    width: 100%;
+    height: 17px;
+    background-color: #e5e7eb;
+    border-radius: 10px;
+    overflow: hidden;
+}
+
+.progress-fill {
+    height: 100%;
+    background-color: #10b981;
+    width: 0%;
+    border-radius: 4px;
+    transition: width 0.3s ease-in-out;
+}
+
+.upload-status {
+    font-size: 0.9rem;
+    color: #6b7280;
+    text-align: center;
+}
+
 /* Form Fields */
 .form-fields {
     display: flex;
@@ -374,6 +429,7 @@ textarea.form-control {
 
 .start-analysis-btn {
     background-color: #3b82f6;
+    margin: auto;
     color: white;
     border: none;
     padding: 1rem 2.5rem;
@@ -601,3 +657,4 @@ function removeFile() {
     submitBtn.disabled = true;
 }
 </script>
+

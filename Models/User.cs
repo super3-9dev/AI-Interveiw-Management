@@ -22,6 +22,9 @@ namespace InterviewBot.Models
         
         // Navigation properties
         public ICollection<ResumeAnalysis> ResumeAnalyses { get; set; } = new List<ResumeAnalysis>();
+        public ICollection<InterviewSession> InterviewSessions { get; set; } = new List<InterviewSession>();
+        public ICollection<InterviewCatalog> InterviewCatalogs { get; set; } = new List<InterviewCatalog>();
+        public ICollection<CustomInterview> CustomInterviews { get; set; } = new List<CustomInterview>();
         
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
         public DateTime? LastLogin { get; set; }

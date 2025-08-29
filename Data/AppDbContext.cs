@@ -7,8 +7,7 @@ namespace InterviewBot.Data
     {
         public AppDbContext(DbContextOptions<AppDbContext> options) : base(options) { }
 
-        public DbSet<Topic> Topics => Set<Topic>();
-        public DbSet<SubTopic> SubTopics => Set<SubTopic>();
+
         public DbSet<InterviewSession> InterviewSessions => Set<InterviewSession>();
         public DbSet<InterviewResult> InterviewResults => Set<InterviewResult>();
         public DbSet<InterviewQuestion> InterviewQuestions => Set<InterviewQuestion>();
@@ -16,22 +15,12 @@ namespace InterviewBot.Data
         public DbSet<User> Users { get; set; }
         public DbSet<AIAgentRole> AIAgentRoles { get; set; }
         public DbSet<ResumeAnalysis> ResumeAnalyses { get; set; }
+        public DbSet<InterviewCatalog> InterviewCatalogs { get; set; }
+        public DbSet<CustomInterview> CustomInterviews { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            // Configure Topic-SubTopic relationship
-            modelBuilder.Entity<Topic>()
-                .HasMany(t => t.SubTopics)
-                .WithOne(st => st.Topic)
-                .HasForeignKey(st => st.TopicId)
-                .OnDelete(DeleteBehavior.Cascade);
 
-            // Configure SubTopic-InterviewSession relationship
-            modelBuilder.Entity<SubTopic>()
-                .HasMany(st => st.InterviewSessions)
-                .WithOne(s => s.SubTopic)
-                .HasForeignKey(s => s.SubTopicId)
-                .OnDelete(DeleteBehavior.Cascade);
 
             // Configure InterviewSession-InterviewResult relationship (one-to-one)
             modelBuilder.Entity<InterviewSession>()
@@ -105,19 +94,7 @@ namespace InterviewBot.Data
                 .Property(m => m.Content)
                 .HasMaxLength(2000);
 
-            // Configure Topic-User relationship
-            modelBuilder.Entity<Topic>()
-                .HasOne(t => t.User)
-                .WithMany()
-                .HasForeignKey(t => t.UserId)
-                .OnDelete(DeleteBehavior.Cascade);
 
-            // Configure SubTopic-User relationship
-            modelBuilder.Entity<SubTopic>()
-                .HasOne(st => st.User)
-                .WithMany()
-                .HasForeignKey(st => st.UserId)
-                .OnDelete(DeleteBehavior.Cascade);
 
             // Configure User-ResumeAnalysis relationship
             modelBuilder.Entity<ResumeAnalysis>()
@@ -125,6 +102,46 @@ namespace InterviewBot.Data
                 .WithMany(u => u.ResumeAnalyses)
                 .HasForeignKey(r => r.UserId)
                 .OnDelete(DeleteBehavior.Cascade);
+
+            // Configure User-InterviewCatalog relationship
+            modelBuilder.Entity<InterviewCatalog>()
+                .HasOne(ic => ic.User)
+                .WithMany(u => u.InterviewCatalogs)
+                .HasForeignKey(ic => ic.UserId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            // Configure User-CustomInterview relationship
+            modelBuilder.Entity<CustomInterview>()
+                .HasOne(ci => ci.User)
+                .WithMany(u => u.CustomInterviews)
+                .HasForeignKey(ci => ci.UserId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            // Configure InterviewCatalog-AIAgentRole relationship
+            modelBuilder.Entity<InterviewCatalog>()
+                .HasOne(ic => ic.AIAgentRole)
+                .WithMany()
+                .HasForeignKey(ic => ic.AIAgentRoleId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            // Configure InterviewSession relationships
+            modelBuilder.Entity<InterviewSession>()
+                .HasOne(s => s.InterviewCatalog)
+                .WithMany(ic => ic.InterviewSessions)
+                .HasForeignKey(s => s.InterviewCatalogId)
+                .OnDelete(DeleteBehavior.SetNull);
+
+            modelBuilder.Entity<InterviewSession>()
+                .HasOne(s => s.CustomInterview)
+                .WithMany(ci => ci.InterviewSessions)
+                .HasForeignKey(s => s.CustomInterviewId)
+                .OnDelete(DeleteBehavior.SetNull);
+
+            modelBuilder.Entity<InterviewSession>()
+                .HasOne(s => s.AIAgentRole)
+                .WithMany()
+                .HasForeignKey(s => s.AIAgentRoleId)
+                .OnDelete(DeleteBehavior.SetNull);
         }
     }
 }

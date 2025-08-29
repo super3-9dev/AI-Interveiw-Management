@@ -41,7 +41,11 @@ namespace InterviewBot.Pages
                 var userId = GetCurrentUserId();
                 if (userId == null)
                 {
-                    ErrorMessage = "User not authenticated.";
+                    if (Request.Headers["X-Requested-With"] == "XMLHttpRequest")
+                    {
+                        return new JsonResult(new { success = false, message = "User not authenticated" });
+                    }
+                    ErrorMessage = "User not authenticated. Please log in again.";
                     return Page();
                 }
 
@@ -51,6 +55,10 @@ namespace InterviewBot.Pages
                     // Check file size (10MB limit)
                     if (ResumeFile.Length > 10 * 1024 * 1024)
                     {
+                        if (Request.Headers["X-Requested-With"] == "XMLHttpRequest")
+                        {
+                            return new JsonResult(new { success = false, message = "File size must be less than 10MB." });
+                        }
                         ErrorMessage = "File size must be less than 10MB.";
                         return Page();
                     }
@@ -61,6 +69,10 @@ namespace InterviewBot.Pages
                     
                     if (!allowedExtensions.Contains(fileExtension))
                     {
+                        if (Request.Headers["X-Requested-With"] == "XMLHttpRequest")
+                        {
+                            return new JsonResult(new { success = false, message = "Only PDF files are allowed." });
+                        }
                         ErrorMessage = "Only PDF files are allowed.";
                         return Page();
                     }
@@ -70,6 +82,15 @@ namespace InterviewBot.Pages
                     {
                         var resumeAnalysis = await _resumeAnalysisService.UploadAndAnalyzeResumeAsync(ResumeFile, userId.Value);
                         
+                        if (Request.Headers["X-Requested-With"] == "XMLHttpRequest")
+                        {
+                            return new JsonResult(new { 
+                                success = true, 
+                                message = $"Resume '{ResumeFile.FileName}' uploaded successfully! AI analysis is in progress.",
+                                redirectUrl = $"/ResumeAnalysisResults/{resumeAnalysis.Id}"
+                            });
+                        }
+                        
                         SuccessMessage = $"Resume '{ResumeFile.FileName}' uploaded successfully! AI analysis is in progress.";
                         
                         // Redirect to a results page or dashboard
@@ -77,6 +98,10 @@ namespace InterviewBot.Pages
                     }
                     catch (Exception ex)
                     {
+                        if (Request.Headers["X-Requested-With"] == "XMLHttpRequest")
+                        {
+                            return new JsonResult(new { success = false, message = $"Error uploading resume: {ex.Message}" });
+                        }
                         ErrorMessage = $"Error uploading resume: {ex.Message}";
                         return Page();
                     }
@@ -85,6 +110,10 @@ namespace InterviewBot.Pages
                 // Validate that at least one input method is provided
                 if (ResumeFile == null && string.IsNullOrWhiteSpace(Description))
                 {
+                    if (Request.Headers["X-Requested-With"] == "XMLHttpRequest")
+                    {
+                        return new JsonResult(new { success = false, message = "Please either upload a resume or provide a description of yourself." });
+                    }
                     ErrorMessage = "Please either upload a resume or provide a description of yourself.";
                     return Page();
                 }
@@ -93,6 +122,10 @@ namespace InterviewBot.Pages
                 if (!string.IsNullOrWhiteSpace(Description))
                 {
                     // TODO: Implement text-based analysis
+                    if (Request.Headers["X-Requested-With"] == "XMLHttpRequest")
+                    {
+                        return new JsonResult(new { success = true, message = "Text analysis feature coming soon!" });
+                    }
                     SuccessMessage = "Text analysis feature coming soon!";
                     return Page();
                 }
@@ -101,6 +134,10 @@ namespace InterviewBot.Pages
             }
             catch (Exception ex)
             {
+                if (Request.Headers["X-Requested-With"] == "XMLHttpRequest")
+                {
+                    return new JsonResult(new { success = false, message = $"An error occurred: {ex.Message}" });
+                }
                 ErrorMessage = $"An error occurred: {ex.Message}";
                 return Page();
             }

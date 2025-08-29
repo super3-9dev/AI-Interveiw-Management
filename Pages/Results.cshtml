@@ -1,356 +1,158 @@
-@page
+t@page
+@model InterviewBot.Pages.ResultsModel
 @using Microsoft.AspNetCore.Mvc.Localization
+@using InterviewBot.Models
 @inject IViewLocalizer Localizer
 @{
-    ViewData["Title"] = Localizer["Results"];
-    var currentCulture = HttpContext.Request.Query["culture"].ToString();
-    if (string.IsNullOrEmpty(currentCulture))
-    {
-        currentCulture = HttpContext.Request.Cookies["culture"] ?? "en";
-    }
+    ViewData["Title"] = "Results";
 }
 
-<!-- Page Content -->
-<div class="page-content">
-            <div class="content-header">
-                <h1 class="main-title">Your Personalized Career Guidance</h1>
-                <p class="subtitle">Based on your profile and interview, here are your tailored insights and potential career roadmaps.</p>
+@section Styles {
+    <link rel="stylesheet" href="~/css/results.css" />
+}
+
+<div class="results-container">
+    <div class="page-header">
+        <h1 class="page-title">Your Results</h1>
+        <p class="page-subtitle">Review your interview sessions and resume analyses</p>
+    </div>
+
+    @if (Model.ResumeAnalyses.Any() || Model.InterviewSessions.Any())
+    {
+        <div class="results-grid">
+            <!-- Resume Analysis Results -->
+            <div class="results-section">
+                <div class="section-header">
+                    <div class="section-icon">📊</div>
+                    <h2 class="section-title">Resume Analyses</h2>
+                </div>
+                
+                @if (Model.ResumeAnalyses.Any())
+                {
+                    <ul class="results-list">
+                        @foreach (var analysis in Model.ResumeAnalyses)
+                        {
+                            <li class="result-item">
+                                <div class="result-title">@analysis.FileName</div>
+                                <div class="result-meta">
+                                    <span>@analysis.CreatedAt.ToString("MMM dd, yyyy")</span>
+                                    <span class="result-status @(analysis.Status == "Completed" ? "status-completed" : analysis.Status == "Processing" ? "status-in-progress" : "status-failed")">
+                                        @analysis.Status
+                                    </span>
+                                </div>
+                                <div class="result-description">
+                                    @if (analysis.Status == "Completed")
+                                    {
+                                        <span>Analysis completed successfully</span>
+                                    }
+                                    else if (analysis.Status == "Processing")
+                                    {
+                                        <span>Analysis in progress... @analysis.Progress% complete</span>
+                                    }
+                                    else
+                                    {
+                                        <span>Analysis failed. Please try again.</span>
+                                    }
+                                </div>
+                                <div class="result-actions">
+                                    @if (analysis.Status == "Completed")
+                                    {
+                                        <a href="/ResumeAnalysisResults?id=@analysis.Id" class="btn btn-primary">View Results</a>
+                                    }
+                                    else if (analysis.Status == "Failed")
+                                    {
+                                        <a href="/ResumeAnalysisResults?id=@analysis.Id" class="btn btn-secondary">Retry</a>
+                                    }
+                                </div>
+                            </li>
+                        }
+                    </ul>
+                }
+                else
+                {
+                    <div class="empty-state">
+                        <div class="empty-icon">📄</div>
+                        <div class="empty-title">No Resume Analyses Yet</div>
+                        <div class="empty-description">Start by uploading your resume for AI analysis</div>
+                        <a href="/NewAnalysis" class="create-first-btn">Start New Analysis</a>
+                    </div>
+                }
             </div>
 
-            <div class="content-grid">
-                <!-- Left Column -->
-                <div class="left-column">
-                    <!-- Interview Summary Card -->
-                    <div class="content-card">
-                        <h3 class="card-title">Interview Summary</h3>
-                        <div class="card-section">
-                            <h4 class="section-title">Summary</h4>
-                            <p class="section-content">This is a mock summary of the interview. You demonstrated strong problem-solving skills and a clear passion for technology. Your answers were well-articulated and thoughtful.</p>
-                        </div>
-                        <div class="card-section">
-                            <h4 class="section-title">Recommendations</h4>
-                            <p class="section-content">To further improve, consider gaining more hands-on experience with cloud technologies like AWS or Google Cloud. Participating in a team-based project could also enhance your collaboration skills.</p>
-                        </div>
-                    </div>
-
-                    <!-- MBA Focus Area Card -->
-                    <div class="content-card">
-                        <div class="card-header-with-icon">
-                            <i class="bi bi-book-open"></i>
-                            <h3 class="card-title">MBA Focus Area</h3>
-                        </div>
-                        <p class="card-content">Given your analytical skills and interest in business, focusing on 'Business Analytics' or 'Technology Management' would be a great fit.</p>
-                    </div>
-
-                    <!-- Additional Tips Card -->
-                    <div class="content-card">
-                        <div class="card-header-with-icon">
-                            <i class="bi bi-lightbulb"></i>
-                            <h3 class="card-title">Additional Tips</h3>
-                        </div>
-                        <p class="card-content">Practice your public speaking by joining a club like Toastmasters. Seek informational interviews with professionals in roles you admire to gain more industry insight.</p>
-                    </div>
+            <!-- Interview Results -->
+            <div class="results-section">
+                <div class="section-header">
+                    <div class="section-icon">🎯</div>
+                    <h2 class="section-title">Interview Sessions</h2>
                 </div>
-
-                <!-- Right Column -->
-                <div class="right-column">
-                    <!-- Career Roadmaps Card -->
-                    <div class="content-card">
-                        <h3 class="card-title">Your Career Roadmaps</h3>
-                        <p class="card-subtitle">Actionable next steps for your professional journey.</p>
-                        
-                        <div class="roadmap-accordion">
-                            <div class="roadmap-item expanded">
-                                <div class="roadmap-header">
-                                    <span>Short-Term Roadmap (1-2 years)</span>
-                                    <i class="bi bi-chevron-up"></i>
+                
+                @if (Model.InterviewSessions.Any())
+                {
+                    <ul class="results-list">
+                        @foreach (var session in Model.InterviewSessions)
+                        {
+                            <li class="result-item">
+                                <div class="result-title">
+                                    @(session.InterviewCatalog?.Title ?? session.CustomInterview?.Title ?? "Interview Session")
                                 </div>
-                                <div class="roadmap-content">
-                                    <ol class="roadmap-list">
-                                        <li>Complete a certification in a relevant technology (e.g., AWS Certified Cloud Practitioner).</li>
-                                        <li>Contribute to an open-source project to build your portfolio.</li>
-                                        <li>Network with at least 5 professionals in your target industry.</li>
-                                    </ol>
+                                <div class="result-meta">
+                                    <span>@session.StartTime.ToString("MMM dd, yyyy")</span>
+                                    <span class="result-status @(session.Status == InterviewStatus.Completed ? "status-completed" : session.Status == InterviewStatus.InProgress ? "status-in-progress" : "status-failed")">
+                                        @session.Status
+                                    </span>
                                 </div>
-                            </div>
-
-                            <div class="roadmap-item">
-                                <div class="roadmap-header">
-                                    <span>Medium-Term Roadmap (3-5 years)</span>
-                                    <i class="bi bi-chevron-down"></i>
+                                <div class="result-description">
+                                    @if (session.Status == InterviewStatus.Completed)
+                                    {
+                                        <span>Interview completed. Score: @(session.Score?.ToString() ?? "N/A")/100</span>
+                                    }
+                                    else if (session.Status == InterviewStatus.InProgress)
+                                    {
+                                        <span>Interview in progress. Question @session.CurrentQuestionNumber</span>
+                                    }
+                                    else
+                                    {
+                                        <span>Interview @session.Status.ToString().ToLower()</span>
+                                    }
                                 </div>
-                                <div class="roadmap-content collapsed">
-                                    <ol class="roadmap-list">
-                                        <li>Lead a major project or initiative.</li>
-                                        <li>Develop expertise in emerging technologies.</li>
-                                        <li>Build a strong professional network.</li>
-                                    </ol>
+                                <div class="result-actions">
+                                    @if (session.Status == InterviewStatus.Completed)
+                                    {
+                                        <a href="/InterviewResults?id=@session.Id" class="btn btn-primary">View Results</a>
+                                    }
+                                    else if (session.Status == InterviewStatus.InProgress)
+                                    {
+                                        <a href="/InterviewSession?id=@session.Id" class="btn btn-secondary">Continue</a>
+                                    }
                                 </div>
-                            </div>
-
-                            <div class="roadmap-item">
-                                <div class="roadmap-header">
-                                    <span>Long-Term Roadmap (5+ years)</span>
-                                    <i class="bi bi-chevron-down"></i>
-                                </div>
-                                <div class="roadmap-content collapsed">
-                                    <ol class="roadmap-list">
-                                        <li>Achieve senior leadership position.</li>
-                                        <li>Mentor others in your field.</li>
-                                        <li>Contribute to industry innovation.</li>
-                                    </ol>
-                                </div>
-                            </div>
-                        </div>
+                            </li>
+                        }
+                    </ul>
+                }
+                else
+                {
+                    <div class="empty-state">
+                        <div class="empty-icon">🎤</div>
+                        <div class="empty-title">No Interview Sessions Yet</div>
+                        <div class="empty-description">Start your first interview to see results here</div>
+                        <a href="/CustomInterview" class="create-first-btn">Start Interview</a>
                     </div>
-                </div>
-            </div>
-
-            <!-- Bottom Action Buttons -->
-            <div class="bottom-actions">
-                <a href="/Dashboard@(!string.IsNullOrEmpty(currentCulture) ? $"?culture={currentCulture}" : "")" class="btn btn-secondary">
-                    Back to Dashboard
-                </a>
-                <a href="/InterviewFormat@(!string.IsNullOrEmpty(currentCulture) ? $"?culture={currentCulture}" : "")" class="btn btn-primary">
-                    <i class="bi bi-arrow-clockwise"></i>
-                    Start New Analysis
-                </a>
+                }
             </div>
         </div>
-    </div>
+    }
+    else
+    {
+        <!-- Complete Empty State -->
+        <div class="empty-state">
+            <div class="empty-icon">📋</div>
+            <div class="empty-title">No Results Yet</div>
+            <div class="empty-description">Get started by analyzing your resume or taking an interview</div>
+            <div style="display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap;">
+                <a href="/NewAnalysis" class="create-first-btn">Analyze Resume</a>
+                <a href="/CustomInterview" class="create-first-btn">Start Interview</a>
+            </div>
+        </div>
+    }
 </div>
 
-<style>
-/* Page Content Styles */
-.page-content {
-    padding: 2rem;
-    max-width: none;
-    margin: 0;
-    width: 100%;
-}
-
-.content-header {
-    text-align: center;
-    margin-bottom: 4rem;
-    max-width: 800px;
-    margin-left: auto;
-    margin-right: auto;
-}
-
-.main-title {
-    font-size: 3rem;
-    font-weight: 700;
-    color: #1e293b;
-    margin-bottom: 1.5rem;
-}
-
-.subtitle {
-    font-size: 1.25rem;
-    color: #64748b;
-    max-width: 700px;
-    margin: 0 auto;
-    line-height: 1.6;
-}
-
-.content-grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 3rem;
-    margin-bottom: 3rem;
-    max-width: 1400px;
-    margin-left: auto;
-    margin-right: auto;
-}
-
-/* Content Card Styles */
-.content-card {
-    background-color: white;
-    border-radius: 1rem;
-    padding: 2.5rem;
-    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
-    margin-bottom: 2rem;
-    min-height: 200px;
-}
-
-.card-title {
-    font-size: 1.75rem;
-    font-weight: 600;
-    color: #1e293b;
-    margin-bottom: 2rem;
-}
-
-.card-subtitle {
-    color: #64748b;
-    margin-bottom: 1.5rem;
-}
-
-.card-header-with-icon {
-    display: flex;
-    align-items: center;
-    gap: 1rem;
-    margin-bottom: 1.5rem;
-}
-
-.card-header-with-icon i {
-    font-size: 1.5rem;
-    color: #3b82f6;
-}
-
-.card-content {
-    color: #64748b;
-    line-height: 1.7;
-    font-size: 1.05rem;
-}
-
-/* Card Section Styles */
-.card-section {
-    margin-bottom: 1.5rem;
-}
-
-.card-section:last-child {
-    margin-bottom: 0;
-}
-
-.section-title {
-    font-size: 1.25rem;
-    font-weight: 600;
-    color: #1e293b;
-    margin-bottom: 1rem;
-}
-
-.section-content {
-    color: #64748b;
-    line-height: 1.7;
-    font-size: 1.05rem;
-}
-
-/* Roadmap Accordion Styles */
-.roadmap-accordion {
-    display: flex;
-    flex-direction: column;
-    gap: 1rem;
-}
-
-.roadmap-item {
-    border: 1px solid #e2e8f0;
-    border-radius: 0.75rem;
-    overflow: hidden;
-}
-
-.roadmap-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 1rem 1.5rem;
-    background-color: #f8fafc;
-    cursor: pointer;
-    transition: background-color 0.2s ease;
-}
-
-.roadmap-header:hover {
-    background-color: #f1f5f9;
-}
-
-.roadmap-header span {
-    font-weight: 500;
-    color: #1e293b;
-}
-
-.roadmap-content {
-    padding: 1rem 1.5rem;
-    background-color: white;
-    transition: all 0.3s ease;
-}
-
-.roadmap-content.collapsed {
-    display: none;
-}
-
-.roadmap-list {
-    margin: 0;
-    padding-left: 1.5rem;
-    color: #64748b;
-}
-
-.roadmap-list li {
-    margin-bottom: 0.75rem;
-    line-height: 1.6;
-    font-size: 1.05rem;
-}
-
-.roadmap-list li:last-child {
-    margin-bottom: 0;
-}
-
-/* Bottom Actions Styles */
-.bottom-actions {
-    display: flex;
-    justify-content: center;
-    gap: 1rem;
-    padding-top: 2rem;
-    border-top: 1px solid #e2e8f0;
-}
-
-.btn {
-    padding: 0.75rem 1.5rem;
-    border-radius: 0.5rem;
-    font-weight: 500;
-    text-decoration: none;
-    display: inline-flex;
-    align-items: center;
-    gap: 0.5rem;
-    transition: all 0.2s ease;
-    border: none;
-    cursor: pointer;
-}
-
-.btn-primary {
-    background-color: #3b82f6;
-    color: white;
-}
-
-.btn-primary:hover {
-    background-color: #2563eb;
-}
-
-.btn-secondary {
-    background-color: #f1f5f9;
-    color: #64748b;
-}
-
-.btn-secondary:hover {
-    background-color: #e2e8f0;
-}
-
-
-
-
-</style>
-
-<script>
-document.addEventListener('DOMContentLoaded', function() {
-    // Roadmap accordion functionality
-    const roadmapHeaders = document.querySelectorAll('.roadmap-header');
-    
-    roadmapHeaders.forEach(header => {
-        header.addEventListener('click', function() {
-            const roadmapItem = this.parentElement;
-            const content = roadmapItem.querySelector('.roadmap-content');
-            const icon = this.querySelector('i');
-            
-            // Toggle collapsed state
-            if (content.classList.contains('collapsed')) {
-                content.classList.remove('collapsed');
-                icon.classList.remove('bi-chevron-down');
-                icon.classList.add('bi-chevron-up');
-            } else {
-                content.classList.add('collapsed');
-                icon.classList.remove('bi-chevron-up');
-                icon.classList.add('bi-chevron-down');
-            }
-        });
-    });
-});
-
-
-</script>

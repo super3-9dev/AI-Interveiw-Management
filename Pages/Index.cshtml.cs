@@ -4,7 +4,6 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Mvc;
-using InterviewBot.Services;
 using System.Security.Claims;
 
 namespace InterviewBot.Pages
@@ -13,15 +12,13 @@ namespace InterviewBot.Pages
     public class IndexModel : PageModel
     {
         private readonly AppDbContext _db;
-        private readonly IAIAgentService _aiService;
 
-        public List<Topic>? Topics { get; set; }
+        public List<ResumeAnalysis> RecentAnalyses { get; set; } = new();
         public List<InterviewSession> RecentSessions { get; set; } = new();
 
-        public IndexModel(AppDbContext db, IAIAgentService aiService)
+        public IndexModel(AppDbContext db)
         {
             _db = db;
-            _aiService = aiService;
         }
 
         public async Task<IActionResult> OnGetAsync()
@@ -29,38 +26,20 @@ namespace InterviewBot.Pages
             var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier);
             if (userIdClaim != null && int.TryParse(userIdClaim.Value, out int userId))
             {
-                Topics = await _db.Topics
-                    .Include(t => t.SubTopics)
-                    .Where(t => t.UserId == userId)
+                RecentAnalyses = await _db.ResumeAnalyses
+                    .Where(r => r.UserId == userId)
+                    .OrderByDescending(r => r.CreatedAt)
+                    .Take(3)
                     .ToListAsync();
 
                 RecentSessions = await _db.InterviewSessions
-                    .Include(s => s.SubTopic)
                     .Where(s => s.UserId == userId)
                     .OrderByDescending(s => s.StartTime)
                     .Take(5)
                     .ToListAsync();
             }
-            else
-            {
-                Topics = new List<Topic>();
-                RecentSessions = new List<InterviewSession>();
-            }
 
             return Page();
-        }
-
-        public async Task<IActionResult> OnPostTestOpenAIAsync()
-        {
-            try
-            {
-                var result = await _aiService.TestOpenAIAsync();
-                return new JsonResult(new { success = true, result = result });
-            }
-            catch (Exception ex)
-            {
-                return new JsonResult(new { success = false, error = ex.Message });
-            }
         }
     }
 }
