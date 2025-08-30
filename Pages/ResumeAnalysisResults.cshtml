@@ -1,0 +1,603 @@
+@page "{id:int}"
+@model InterviewBot.Pages.ResumeAnalysisResultsModel
+@using Microsoft.AspNetCore.Mvc.Localization
+@using InterviewBot.Models
+@inject IViewLocalizer Localizer
+@{
+    ViewData["Title"] = "Analysis Progress";
+}
+
+@section Styles {
+    <style>
+        .results-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+            background: #f8fafc;
+            min-height: 100vh;
+        }
+
+        .page-header {
+            text-align: center;
+            margin-bottom: 3rem;
+        }
+
+        .page-title {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: #1f2937;
+            margin-bottom: 0.5rem;
+        }
+
+        .page-subtitle {
+            font-size: 1.125rem;
+            color: #6b7280;
+            margin-bottom: 1rem;
+        }
+
+        .profile-info {
+            background: white;
+            border: 1px solid #e2e8f0;
+            border-radius: 1rem;
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+            text-align: center;
+            box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1);
+        }
+
+        .profile-id {
+            font-size: 0.875rem;
+            color: #64748b;
+            font-family: 'Courier New', monospace;
+        }
+
+        .progress-section {
+            background: white;
+            border: 1px solid #e5e7eb;
+            border-radius: 1rem;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1);
+        }
+
+        .progress-header {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 2rem;
+            padding-bottom: 1rem;
+            border-bottom: 2px solid #f3f4f6;
+        }
+
+        .progress-icon {
+            font-size: 2rem;
+            width: 3rem;
+            height: 3rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            color: white;
+            border-radius: 50%;
+            animation: pulse 2s infinite;
+        }
+
+        @@keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+
+        .progress-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: #1f2937;
+            margin: 0;
+        }
+
+        .progress-bar-container {
+            margin-bottom: 1.5rem;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 1.5rem;
+            background-color: #e5e7eb;
+            border-radius: 0.75rem;
+            overflow: hidden;
+            margin-bottom: 1rem;
+            position: relative;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #10b981 0%, #3b82f6 50%, #8b5cf6 100%);
+            border-radius: 0.75rem;
+            transition: width 0.5s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .progress-fill::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+            animation: shimmer 2s infinite;
+        }
+
+        @@keyframes shimmer {
+            0% { left: -100%; }
+            100% { left: 100%; }
+        }
+
+        .progress-text {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+
+        .progress-percentage {
+            font-weight: 700;
+            color: #059669;
+            font-size: 1.25rem;
+        }
+
+        .progress-status {
+            color: #6b7280;
+            font-weight: 500;
+        }
+
+        .step-description {
+            background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
+            border-left: 4px solid #0ea5e9;
+            padding: 1rem;
+            border-radius: 0.5rem;
+            margin-top: 1rem;
+            font-style: italic;
+            color: #0c4a6e;
+            font-weight: 500;
+        }
+
+        .workflow-steps {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 2rem;
+            padding: 1.5rem;
+            background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+            border-radius: 0.75rem;
+            border: 1px solid #e2e8f0;
+        }
+
+        .workflow-step {
+            text-align: center;
+            flex: 1;
+            padding: 1rem;
+            position: relative;
+            transition: all 0.3s ease;
+        }
+
+        .workflow-step.active {
+            transform: scale(1.05);
+        }
+
+        .workflow-step.completed {
+            opacity: 0.7;
+        }
+
+        .workflow-step:not(:last-child)::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            right: -1rem;
+            width: 2rem;
+            height: 2px;
+            background: #cbd5e1;
+            transform: translateY(-50%);
+        }
+
+        .workflow-step.completed:not(:last-child)::after {
+            background: #10b981;
+        }
+
+        .step-number {
+            width: 3rem;
+            height: 3rem;
+            background: #3b82f6;
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            margin: 0 auto 0.5rem;
+            transition: all 0.3s ease;
+        }
+
+        .workflow-step.active .step-number {
+            background: #10b981;
+            transform: scale(1.1);
+        }
+
+        .workflow-step.completed .step-number {
+            background: #10b981;
+        }
+
+        .step-title {
+            font-weight: 600;
+            color: #1f2937;
+            margin-bottom: 0.25rem;
+        }
+
+        .step-description-small {
+            font-size: 0.875rem;
+            color: #6b7280;
+        }
+
+        .loading-spinner {
+            display: none;
+            text-align: center;
+            padding: 2rem;
+        }
+
+        .spinner {
+            width: 3rem;
+            height: 3rem;
+            border: 4px solid #f3f4f6;
+            border-top: 4px solid #10b981;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 1rem;
+        }
+
+        @@keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .completion-message {
+            display: none;
+            text-align: center;
+            padding: 2rem;
+            background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%);
+            border: 1px solid #bbf7d0;
+            border-radius: 1rem;
+            margin: 2rem 0;
+        }
+
+        .completion-icon {
+            font-size: 4rem;
+            margin-bottom: 1rem;
+        }
+
+        .redirect-notice {
+            background: #fef3c7;
+            border: 1px solid #f59e0b;
+            border-radius: 0.5rem;
+            padding: 1rem;
+            margin: 1rem 0;
+            text-align: center;
+            color: #92400e;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+            margin-top: 2rem;
+        }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.75rem 1.5rem;
+            border-radius: 0.5rem;
+            font-weight: 600;
+            text-decoration: none;
+            transition: all 0.2s ease;
+            border: none;
+            cursor: pointer;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: linear-gradient(135deg, #2563eb 0%, #1e40af 100%);
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+        }
+
+        .btn-secondary {
+            background: linear-gradient(135deg, #6b7280 0%, #4b5563 100%);
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            background: linear-gradient(135deg, #4b5563 0%, #374151 100%);
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(107, 114, 128, 0.3);
+        }
+
+        @@media (max-width: 768px) {
+            .results-container {
+                padding: 1rem;
+            }
+
+            .page-title {
+                font-size: 2rem;
+            }
+
+            .progress-section {
+                padding: 1.5rem;
+            }
+
+            .workflow-steps {
+                flex-direction: column;
+                gap: 1rem;
+            }
+
+            .workflow-step:not(:last-child)::after {
+                display: none;
+            }
+
+            .action-buttons {
+                flex-direction: column;
+                align-items: center;
+            }
+
+            .btn {
+                width: 100%;
+                max-width: 300px;
+                justify-content: center;
+            }
+        }
+    </style>
+}
+
+@section Scripts {
+    <script>
+        let currentProgress = @(Model.Profile?.Progress ?? 0);
+        let isCompleted = @(Model.Profile?.Status == "Completed" ? "true" : "false");
+        let profileId = @(Model.Profile?.Id ?? 0);
+        let redirectTimer = null;
+
+        // Initialize progress bar
+        function initializeProgress() {
+            updateProgressBar(currentProgress);
+            updateWorkflowSteps(currentProgress);
+            
+            if (isCompleted) {
+                showCompletionMessage();
+            } else {
+                startProgressUpdates();
+            }
+        }
+
+        // Update progress bar with animation
+        function updateProgressBar(progress) {
+            const progressFill = document.querySelector('.progress-fill');
+            const progressPercentage = document.querySelector('.progress-percentage');
+            const progressStatus = document.querySelector('.progress-status');
+            
+            if (progressFill && progressPercentage && progressStatus) {
+                progressFill.style.width = progress + '%';
+                progressPercentage.textContent = progress + '%';
+                progressStatus.textContent = getStatusText(progress);
+            }
+        }
+
+        // Update workflow steps based on progress
+        function updateWorkflowSteps(progress) {
+            const steps = document.querySelectorAll('.workflow-step');
+            
+            steps.forEach((step, index) => {
+                step.classList.remove('active', 'completed');
+                
+                if (progress >= (index + 1) * 33.33) {
+                    step.classList.add('completed');
+                } else if (progress >= index * 33.33 && progress < (index + 1) * 33.33) {
+                    step.classList.add('active');
+                }
+            });
+        }
+
+        // Get status text based on progress
+        function getStatusText(progress) {
+            if (progress < 25) return "Initializing...";
+            if (progress < 50) return "Analyzing...";
+            if (progress < 75) return "Processing...";
+            if (progress < 100) return "Finalizing...";
+            return "Completed!";
+        }
+
+        // Start real-time progress updates
+        function startProgressUpdates() {
+            console.log('Starting progress updates for profile:', profileId);
+            const updateInterval = setInterval(async () => {
+                try {
+                    console.log('Fetching progress from:', `/api/progress/${profileId}`);
+                    const response = await fetch(`/api/progress/${profileId}`);
+                    console.log('Response status:', response.status);
+                    
+                    if (response.ok) {
+                        const data = await response.json();
+                        console.log('Progress data received:', data);
+                        
+                        const newProgress = data.progress;
+                        const newStatus = data.status;
+                        
+                        if (newProgress !== currentProgress) {
+                            console.log('Progress updated from', currentProgress, 'to', newProgress);
+                            currentProgress = newProgress;
+                            updateProgressBar(currentProgress);
+                            updateWorkflowSteps(currentProgress);
+                            
+                            // Update step description if available
+                            if (data.currentStepDescription) {
+                                updateStepDescription(data.currentStepDescription);
+                            }
+                        }
+                        
+                        if (newStatus === "Completed") {
+                            console.log('Analysis completed, showing completion message');
+                            isCompleted = true;
+                            clearInterval(updateInterval);
+                            showCompletionMessage();
+                        }
+                    } else {
+                        console.error('API response not OK:', response.status, response.statusText);
+                        const errorText = await response.text();
+                        console.error('Error response:', errorText);
+                    }
+                } catch (error) {
+                    console.error('Error updating progress:', error);
+                }
+            }, 1000); // Update every second
+        }
+
+        // Update step description
+        function updateStepDescription(description) {
+            const stepDescElement = document.querySelector('.step-description');
+            if (stepDescElement) {
+                stepDescElement.innerHTML = `<strong>Current Step:</strong> ${description}`;
+            }
+        }
+
+        // Show completion message and redirect
+        function showCompletionMessage() {
+            const progressSection = document.querySelector('.progress-section');
+            const completionMessage = document.querySelector('.completion-message');
+            
+            if (progressSection && completionMessage) {
+                progressSection.style.display = 'none';
+                completionMessage.style.display = 'block';
+                
+                // Redirect to results page after 3 seconds
+                redirectTimer = setTimeout(() => {
+                    window.location.href = `/Results`;
+                }, 3000);
+            }
+        }
+
+        // Manual redirect to results
+        function goToResults() {
+            if (redirectTimer) {
+                clearTimeout(redirectTimer);
+            }
+            window.location.href = `/Results`;
+        }
+
+        // Test function to manually test the progress API
+        function testProgressAPI() {
+            console.log('Testing Progress API...');
+            fetch(`/api/progress/${profileId}`)
+                .then(response => {
+                    console.log('Test response status:', response.status);
+                    return response.json();
+                })
+                .then(data => {
+                    console.log('Test data received:', data);
+                    alert(`API Test Successful!\nProgress: ${data.progress}%\nStatus: ${data.status}`);
+                })
+                .catch(error => {
+                    console.error('Test API error:', error);
+                    alert('API Test Failed! Check console for details.');
+                });
+        }
+
+        // Initialize when page loads
+        document.addEventListener('DOMContentLoaded', initializeProgress);
+    </script>
+}
+
+<div class="results-container">
+    <!-- Page Header -->
+    <div class="page-header">
+        <h1 class="page-title">Analysis Progress</h1>
+        <p class="page-subtitle">Your resume analysis is being processed. Please wait while we analyze your profile and call external APIs.</p>
+    </div>
+
+    <!-- Profile Information -->
+    <div class="profile-info">
+        <div class="profile-id">Profile ID: @Model.Profile?.Id</div>
+    </div>
+
+    <!-- Progress Section -->
+    <div class="progress-section">
+        <div class="progress-header">
+            <div class="progress-icon">🔄</div>
+            <h2 class="progress-title">Analysis Workflow Progress</h2>
+        </div>
+        
+        <div class="progress-bar-container">
+            <div class="progress-bar">
+                <div class="progress-fill" style="width: @(Model.Profile?.Progress ?? 0)%"></div>
+            </div>
+            
+            <div class="progress-text">
+                <span class="progress-percentage">@(Model.Profile?.Progress ?? 0)%</span>
+                <span class="progress-status">@(Model.Profile?.Status ?? "Pending")</span>
+            </div>
+        </div>
+
+        @if (!string.IsNullOrEmpty(Model.Profile?.CurrentStepDescription))
+        {
+            <div class="step-description">
+                <strong>Current Step:</strong> @Model.Profile.CurrentStepDescription
+            </div>
+        }
+
+        <div class="workflow-steps">
+            <div class="workflow-step">
+                <div class="step-number">1</div>
+                <div class="step-title">File Analysis</div>
+                <div class="step-description-small">Analyze uploaded file and input data</div>
+            </div>
+            <div class="workflow-step">
+                <div class="step-number">2</div>
+                <div class="step-title">External API</div>
+                <div class="step-description-small">Call external API with results</div>
+            </div>
+            <div class="workflow-step">
+                <div class="step-number">3</div>
+                <div class="step-title">Results Ready</div>
+                <div class="step-description-small">Display external API response</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Completion Message -->
+    <div class="completion-message">
+        <div class="completion-icon">✅</div>
+        <h3>Analysis Complete!</h3>
+        <p>Your resume analysis has been completed successfully. You will be redirected to the results page in a few seconds.</p>
+        <div class="redirect-notice">
+            <strong>Redirecting to Results...</strong>
+        </div>
+        <div class="action-buttons">
+            <button class="btn btn-primary" onclick="goToResults()">
+                Go to Results Now
+            </button>
+        </div>
+    </div>
+
+    <!-- Action Buttons -->
+    <div class="action-buttons">
+        <button class="btn btn-secondary" onclick="testProgressAPI()">
+            🧪 Test Progress API
+        </button>
+        <a href="/Dashboard" class="btn btn-secondary">
+            🏠 Dashboard
+        </a>
+        <a href="/NewAnalysis" class="btn btn-primary">
+            ➕ New Analysis
+        </a>
+    </div>
+</div>

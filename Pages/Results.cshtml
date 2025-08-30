@@ -1,35 +1,345 @@
-t@page
+@page
 @model InterviewBot.Pages.ResultsModel
 @using Microsoft.AspNetCore.Mvc.Localization
 @using InterviewBot.Models
 @inject IViewLocalizer Localizer
 @{
-    ViewData["Title"] = "Results";
+    ViewData["Title"] = "Your Personalized Career Guidance";
 }
 
 @section Styles {
     <style>
+        .results-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+            background: #f8fafc;
+            min-height: 100vh;
+        }
+
+        .page-header {
+            text-align: center;
+            margin-bottom: 3rem;
+            background: white;
+            padding: 2rem;
+            border-radius: 1rem;
+            box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1);
+        }
+
+        .page-title {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: #1e40af;
+            margin-bottom: 0.5rem;
+        }
+
+        .page-subtitle {
+            font-size: 1.125rem;
+            color: #6b7280;
+            margin-bottom: 1rem;
+        }
+
+        .results-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+            gap: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        .results-section {
+            background: white;
+            border: 1px solid #e5e7eb;
+            border-radius: 1rem;
+            padding: 2rem;
+            box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1);
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        .results-section:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        }
+
+        .section-header {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+            padding-bottom: 1rem;
+            border-bottom: 2px solid #f3f4f6;
+        }
+
+        .section-icon {
+            font-size: 2rem;
+            width: 3rem;
+            height: 3rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+            color: white;
+            border-radius: 50%;
+        }
+
+        .section-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: #1f2937;
+            margin: 0;
+        }
+
+        .results-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .result-item {
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 0.75rem;
+            padding: 1.5rem;
+            margin-bottom: 1rem;
+            transition: all 0.2s ease;
+        }
+
+        .result-item:hover {
+            background: #f1f5f9;
+            border-color: #cbd5e1;
+            transform: translateX(4px);
+        }
+
+        .result-title {
+            font-size: 1.125rem;
+            font-weight: 600;
+            color: #1f2937;
+            margin-bottom: 0.5rem;
+        }
+
+        .result-meta {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 0.75rem;
+            font-size: 0.875rem;
+            color: #6b7280;
+        }
+
+        .result-status {
+            padding: 0.25rem 0.75rem;
+            border-radius: 1rem;
+            font-size: 0.75rem;
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .status-completed {
+            background: #dcfce7;
+            color: #166534;
+        }
+
+        .status-in-progress {
+            background: #fef3c7;
+            color: #92400e;
+        }
+
+        .status-failed {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+
+        .result-description {
+            color: #4b5563;
+            margin-bottom: 1rem;
+            line-height: 1.5;
+        }
+
+        .result-actions {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.5rem 1rem;
+            border-radius: 0.5rem;
+            font-weight: 500;
+            text-decoration: none;
+            transition: all 0.2s ease;
+            border: none;
+            cursor: pointer;
+            font-size: 0.875rem;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: linear-gradient(135deg, #2563eb 0%, #1e40af 100%);
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+        }
+
+        .btn-secondary {
+            background: linear-gradient(135deg, #6b7280 0%, #4b5563 100%);
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            background: linear-gradient(135deg, #4b5563 0%, #374151 100%);
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(107, 114, 128, 0.3);
+        }
+
+        .btn-success {
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            color: white;
+        }
+
+        .btn-success:hover {
+            background: linear-gradient(135deg, #059669 0%, #047857 100%);
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+        }
+
         .external-api-badge {
             display: inline-block;
-            background: #10b981;
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
             color: white;
-            padding: 0.25rem 0.5rem;
-            border-radius: 0.25rem;
+            padding: 0.25rem 0.75rem;
+            border-radius: 1rem;
             font-size: 0.75rem;
             font-weight: 500;
             margin-left: 0.5rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
         }
 
         .external-api-result {
             border-left: 4px solid #10b981;
+            background: linear-gradient(135deg, #f0fdf4 0%, #f8fafc 100%);
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 4rem 2rem;
+            background: white;
+            border-radius: 1rem;
+            box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1);
+        }
+
+        .empty-icon {
+            font-size: 4rem;
+            margin-bottom: 1rem;
+        }
+
+        .empty-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: #1f2937;
+            margin-bottom: 0.5rem;
+        }
+
+        .empty-description {
+            color: #6b7280;
+            margin-bottom: 2rem;
+            font-size: 1.125rem;
+        }
+
+        .create-first-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.75rem 1.5rem;
+            background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+            color: white;
+            text-decoration: none;
+            border-radius: 0.75rem;
+            font-weight: 600;
+            transition: all 0.2s ease;
+        }
+
+        .create-first-btn:hover {
+            background: linear-gradient(135deg, #2563eb 0%, #1e40af 100%);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(59, 130, 246, 0.3);
+        }
+
+        .bottom-actions {
+            text-align: center;
+            margin-top: 3rem;
+            padding: 2rem;
+            background: white;
+            border-radius: 1rem;
+            box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1);
+        }
+
+        .bottom-actions h3 {
+            color: #1f2937;
+            margin-bottom: 1rem;
+        }
+
+        .bottom-buttons {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .btn-outline {
+            background: transparent;
+            color: #3b82f6;
+            border: 2px solid #3b82f6;
+            padding: 0.75rem 1.5rem;
+        }
+
+        .btn-outline:hover {
+            background: #3b82f6;
+            color: white;
+            transform: translateY(-1px);
+        }
+
+        @@media (max-width: 768px) {
+            .results-container {
+                padding: 1rem;
+            }
+
+            .page-title {
+                font-size: 2rem;
+            }
+
+            .results-grid {
+                grid-template-columns: 1fr;
+                gap: 1rem;
+            }
+
+            .results-section {
+                padding: 1.5rem;
+            }
+
+            .bottom-buttons {
+                flex-direction: column;
+                align-items: center;
+            }
+
+            .btn {
+                width: 100%;
+                max-width: 300px;
+                justify-content: center;
+            }
         }
     </style>
 }
 
 <div class="results-container">
     <div class="page-header">
-        <h1 class="page-title">Your Results</h1>
-        <p class="page-subtitle">Review your interview sessions and resume analyses</p>
+        <h1 class="page-title">Your Personalized Career Guidance</h1>
+        <p class="page-subtitle">Based on your profile and interview, here are your tailored insights and potential career roadmaps.</p>
     </div>
 
     @if (Model.Profiles.Any() || Model.InterviewSessions.Any())
@@ -47,10 +357,22 @@ t@page
                     <ul class="results-list">
                         @foreach (var profile in Model.Profiles)
                         {
-                            <li class="result-item">
+                            <li class="result-item @(profile.Status == "Completed" && !string.IsNullOrEmpty(profile.ExternalAPIResponse) ? "external-api-result" : "")">
                                 <div class="result-title">Profile #@profile.Id</div>
                                 <div class="result-meta">
                                     <span>@profile.CreatedAt.ToString("MMM dd, yyyy")</span>
+                                    @if (profile.Status == "Completed")
+                                    {
+                                        <span class="result-status status-completed">Completed</span>
+                                    }
+                                    else if (profile.Status == "Processing")
+                                    {
+                                        <span class="result-status status-in-progress">Processing</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="result-status status-failed">Failed</span>
+                                    }
                                 </div>
                                 <div class="result-description">
                                     @if (profile.Status == "Completed")
@@ -73,11 +395,11 @@ t@page
                                 <div class="result-actions">
                                     @if (profile.Status == "Completed")
                                     {
-                                        <a href="/ResumeAnalysisResults?id=@profile.Id" class="btn btn-primary">View Results</a>
+                                        <a href="/ResumeAnalysisResults/@profile.Id" class="btn btn-primary">View Results</a>
                                     }
                                     else if (profile.Status == "Failed")
                                     {
-                                        <a href="/ResumeAnalysisResults?id=@profile.Id" class="btn btn-secondary">Retry</a>
+                                        <a href="/ResumeAnalysisResults/@profile.Id" class="btn btn-secondary">Retry</a>
                                     }
                                 </div>
                             </li>
@@ -200,4 +522,13 @@ t@page
             </div>
         </div>
     }
+
+    <!-- Bottom Action Buttons -->
+    <div class="bottom-actions">
+        <h3>Ready for More?</h3>
+        <div class="bottom-buttons">
+            <a href="/Dashboard" class="btn btn-outline">Back to Dashboard</a>
+            <a href="/NewAnalysis" class="btn btn-primary">Start New Analysis</a>
+        </div>
+    </div>
 </div>

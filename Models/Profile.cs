@@ -33,6 +33,9 @@ namespace InterviewBot.Models
 
         public int Progress { get; set; } = 0; // Progress percentage (0-100)
 
+        [StringLength(200)]
+        public string? CurrentStepDescription { get; set; } // Description of current processing step
+
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
         public DateTime? UpdatedAt { get; set; }
     }

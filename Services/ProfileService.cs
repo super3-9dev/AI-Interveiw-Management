@@ -245,20 +245,18 @@ namespace InterviewBot.Services
                 using var scope = _serviceScopeFactory.CreateScope();
                 var dbContext = scope.ServiceProvider.GetRequiredService<AppDbContext>();
 
-                // Update status to processing
-                await UpdateAnalysisStatusAsync(dbContext, analysisId, "Processing", null, 15);
+                // Update status to processing - Start of unified workflow
+                await UpdateAnalysisStatusAsync(dbContext, analysisId, "Processing", null, 10);
 
-                // Step 1: AI Analysis (40%)
+                // Step 1: AI Analysis (40% of total progress)
+                await UpdateAnalysisStatusAsync(dbContext, analysisId, "Processing", "Analyzing uploaded file and input data...", 25);
                 await Task.Delay(1000); // Simulate AI analysis
-                await UpdateAnalysisStatusAsync(dbContext, analysisId, "Processing", null, 45);
+                await UpdateAnalysisStatusAsync(dbContext, analysisId, "Processing", "AI analysis completed, preparing external API call...", 40);
 
-                // Step 2: External API Call (70%)
+                // Step 2: External API Call (80% of total progress)
+                await UpdateAnalysisStatusAsync(dbContext, analysisId, "Processing", "Calling external API with analysis results...", 60);
                 await Task.Delay(1000); // Simulate external API call
-                await UpdateAnalysisStatusAsync(dbContext, analysisId, "Processing", null, 70);
-
-                // Step 3: Results Compilation (90%)
-                await Task.Delay(1000); // Simulate results compilation
-                await UpdateAnalysisStatusAsync(dbContext, analysisId, "Processing", null, 90);
+                await UpdateAnalysisStatusAsync(dbContext, analysisId, "Processing", "External API call completed, finalizing results...", 80);
 
                 // Get the profile from database
                 var profile = await dbContext.Profiles.FindAsync(analysisId);
@@ -300,6 +298,9 @@ namespace InterviewBot.Services
                         _logger.LogInformation($"External API call failed for profile {analysisId}: {externalAPIResponse.ErrorMessage}");
                     }
 
+                    // Final step: Results ready (100% of total progress)
+                    await UpdateAnalysisStatusAsync(dbContext, analysisId, "Processing", "External API results received, analysis complete!", 95);
+                    
                     profile.Status = "Completed";
                     profile.Progress = 100;
                     profile.UpdatedAt = DateTime.UtcNow;
@@ -340,6 +341,10 @@ namespace InterviewBot.Services
                 {
                     profile.Status = status;
                     profile.Progress = progress;
+                    if (!string.IsNullOrEmpty(errorMessage))
+                    {
+                        profile.CurrentStepDescription = errorMessage; // Use errorMessage parameter for step description
+                    }
                     profile.UpdatedAt = DateTime.UtcNow;
                     await dbContext.SaveChangesAsync();
                 }
