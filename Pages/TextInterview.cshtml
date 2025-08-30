@@ -67,11 +67,7 @@
             <i class="bi bi-arrow-left"></i>
             Back to Dashboard
         </a>
-        <button class="btn btn-success action-btn" onclick="saveInterview()">
-            <i class="bi bi-save"></i>
-            Save Interview
-        </button>
-        <button class="btn btn-danger action-btn" onclick="finishInterview()">
+        <button class="btn btn-danger action-btn">
             <i class="bi bi-arrow-left"></i>
             Finish Interview
         </button>
@@ -532,11 +528,6 @@
     function scrollToBottom() {
         const chatContainer = document.querySelector('.chat-container');
         chatContainer.scrollTop = chatContainer.scrollHeight;
-    }
-
-    function saveInterview() {
-        // In real implementation, this would save the interview progress to database
-        alert('Interview progress saved! You can continue later.');
     }
 
     function finishInterview() {
