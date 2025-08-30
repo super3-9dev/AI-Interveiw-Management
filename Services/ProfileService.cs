@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Http;
 using System.Security.Cryptography;
 using System.Text;
 using Microsoft.Extensions.DependencyInjection;
+using System.Text.Json;
 
 namespace InterviewBot.Services
 {
@@ -25,15 +26,19 @@ namespace InterviewBot.Services
         private readonly AppDbContext _dbContext;
         private readonly ILogger<ProfileService> _logger;
         private readonly IServiceScopeFactory _serviceScopeFactory;
+        private readonly IOpenAIService _openAIService;
+        private readonly IExternalAPIService _externalAPIService;
         private static readonly Queue<int> _analysisQueue = new Queue<int>();
         private static readonly object _queueLock = new object();
         private static bool _isProcessing = false;
 
-        public ProfileService(AppDbContext dbContext, ILogger<ProfileService> logger, IServiceScopeFactory serviceScopeFactory)
+        public ProfileService(AppDbContext dbContext, ILogger<ProfileService> logger, IServiceScopeFactory serviceScopeFactory, IOpenAIService openAIService, IExternalAPIService externalAPIService)
         {
             _dbContext = dbContext;
             _logger = logger;
             _serviceScopeFactory = serviceScopeFactory;
+            _openAIService = openAIService;
+            _externalAPIService = externalAPIService;
         }
 
         public async Task<Profile> UploadAndAnalyzeResumeAsync(IFormFile file, int userId)
@@ -241,26 +246,33 @@ namespace InterviewBot.Services
                 var dbContext = scope.ServiceProvider.GetRequiredService<AppDbContext>();
 
                 // Update status to processing
-                await UpdateAnalysisStatusAsync(dbContext, analysisId, "Processing", null, 10);
+                await UpdateAnalysisStatusAsync(dbContext, analysisId, "Processing", null, 15);
 
-                // Step 1: Document Processing (20%)
-                await Task.Delay(1000); // Simulate document processing
-                await UpdateAnalysisStatusAsync(dbContext, analysisId, "Processing", null, 30);
-
-                // Step 2: Text Extraction (40%)
-                await Task.Delay(1000); // Simulate text extraction
-                await UpdateAnalysisStatusAsync(dbContext, analysisId, "Processing", null, 60);
-
-                // Step 3: AI Analysis (60%)
+                // Step 1: AI Analysis (40%)
                 await Task.Delay(1000); // Simulate AI analysis
+                await UpdateAnalysisStatusAsync(dbContext, analysisId, "Processing", null, 45);
+
+                // Step 2: External API Call (70%)
+                await Task.Delay(1000); // Simulate external API call
+                await UpdateAnalysisStatusAsync(dbContext, analysisId, "Processing", null, 70);
+
+                // Step 3: Results Compilation (90%)
+                await Task.Delay(1000); // Simulate results compilation
                 await UpdateAnalysisStatusAsync(dbContext, analysisId, "Processing", null, 90);
 
-                // Simulate AI analysis
-                var analysisResult = await SimulateAIAnalysisAsync();
-
-                // Update the profile with results
+                // Get the profile from database
                 var profile = await dbContext.Profiles.FindAsync(analysisId);
-                if (profile != null)
+                if (profile == null)
+                {
+                    _logger.LogError("Profile {ProfileId} not found in database", analysisId);
+                    await UpdateAnalysisStatusAsync(dbContext, analysisId, "Failed", "Profile not found", 0);
+                    return;
+                }
+
+                // Perform real AI analysis using OpenAI
+                var analysisResult = await PerformRealAIAnalysisAsync(profile);
+
+                // Update the profile with AI analysis results
                 {
                     // Only update fields that are empty (preserve user input for text-based profiles)
                     if (string.IsNullOrEmpty(profile.PossibleJobs))
@@ -275,12 +287,25 @@ namespace InterviewBot.Services
                     if (string.IsNullOrEmpty(profile.CurrentActivities))
                         profile.CurrentActivities = analysisResult.CurrentActivities;
 
+                    // Call external API with the analysis data
+                    _logger.LogInformation("About to call external API for profile {ProfileId}", analysisId);
+                    var externalAPIResponse = await CallExternalAPIAsync(analysisResult);
+                    if (externalAPIResponse.Success)
+                    {
+                        profile.ExternalAPIResponse = JsonSerializer.Serialize(externalAPIResponse.Data);
+                        _logger.LogInformation($"External API call successful for profile {analysisId}, response stored");
+                    }
+                    else
+                    {
+                        _logger.LogInformation($"External API call failed for profile {analysisId}: {externalAPIResponse.ErrorMessage}");
+                    }
+
                     profile.Status = "Completed";
                     profile.Progress = 100;
                     profile.UpdatedAt = DateTime.UtcNow;
 
                     await dbContext.SaveChangesAsync();
-                    _logger.LogInformation("Profile {ProfileId} completed successfully", analysisId);
+                    _logger.LogInformation($"Profile {analysisId} completed successfully");
 
                     // Generate interview catalogs for the completed profile
                     try
@@ -288,18 +313,18 @@ namespace InterviewBot.Services
                         using var interviewScope = _serviceScopeFactory.CreateScope();
                         var interviewService = interviewScope.ServiceProvider.GetRequiredService<IInterviewService>();
                         var catalogs = await interviewService.GenerateInterviewCatalogsAsync(profile.Id, profile.UserId);
-                        _logger.LogInformation("Generated {Count} interview catalogs for profile {ProfileId}", catalogs.Count(), profile.Id);
+                        _logger.LogInformation($"Generated {catalogs.Count()} interview catalogs for profile {profile.Id}");
                     }
                     catch (Exception ex)
                     {
-                        _logger.LogError(ex, "Error generating interview catalogs for profile {ProfileId}", profile.Id);
+                        _logger.LogError(ex, $"Error generating interview catalogs for profile {profile.Id}");
                         // Don't fail the profile completion if interview catalog generation fails
                     }
                 }
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error performing AI analysis for analysis {AnalysisId}", analysisId);
+                _logger.LogError(ex, $"Error performing AI analysis for analysis {analysisId}");
                 using var scope = _serviceScopeFactory.CreateScope();
                 var dbContext = scope.ServiceProvider.GetRequiredService<AppDbContext>();
                 await UpdateAnalysisStatusAsync(dbContext, analysisId, "Failed", null, 0);
@@ -321,7 +346,7 @@ namespace InterviewBot.Services
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error updating profile status for {ProfileId}", analysisId);
+                _logger.LogError(ex, $"Error updating profile status for {analysisId}");
             }
         }
 
@@ -350,6 +375,135 @@ namespace InterviewBot.Services
 
                 CurrentActivities = "Currently focused on developing scalable software solutions and mentoring junior developers. Actively involved in technology evaluation and architectural decision-making processes."
             };
+        }
+
+        private async Task<dynamic> PerformRealAIAnalysisAsync(Profile profile)
+        {
+            try
+            {
+                _logger.LogInformation($"Performing real AI analysis for profile {profile.Id}");
+
+                // Build context for AI analysis
+                var context = BuildAnalysisContext(profile);
+
+                // Generate analysis using OpenAI
+                var analysisPrompt = $@"Based on the following information, provide a comprehensive career analysis:
+
+Context: {context}
+
+Please provide analysis in the following format:
+1. Brief Introduction: A professional summary
+2. Possible Jobs: Relevant job titles and career paths
+3. MBA Subjects to Reinforce: Key business areas to focus on
+4. Current Activities: Analysis of current work/studies
+
+Format the response as JSON with these exact keys: briefIntroduction, possibleJobs, mbaSubjectsToReinforce, currentActivities";
+
+                var aiResponse = await _openAIService.GenerateInterviewResponseAsync(analysisPrompt, "Career Analysis");
+
+                // Try to parse the AI response as JSON
+                try
+                {
+                    var analysisData = JsonSerializer.Deserialize<Dictionary<string, string>>(aiResponse);
+
+                    return new
+                    {
+                        BriefIntroduction = analysisData?.GetValueOrDefault("briefIntroduction", "Analysis in progress..."),
+                        PossibleJobs = analysisData?.GetValueOrDefault("possibleJobs", "Analysis in progress..."),
+                        MbaSubjectsToReinforce = analysisData?.GetValueOrDefault("mbaSubjectsToReinforce", "Analysis in progress..."),
+                        CurrentActivities = analysisData?.GetValueOrDefault("currentActivities", "Analysis in progress...")
+                    };
+                }
+                catch (JsonException ex)
+                {
+                    _logger.LogWarning(ex, "Could not parse AI response as JSON, using fallback analysis");
+
+                    // Fallback to structured analysis
+                    return new
+                    {
+                        BriefIntroduction = aiResponse.Length > 200 ? aiResponse.Substring(0, 200) + "..." : aiResponse,
+                        PossibleJobs = "Software Developer, Technical Lead, Project Manager",
+                        MbaSubjectsToReinforce = "Strategic Management, Business Analytics, Digital Transformation",
+                        CurrentActivities = "Currently focused on software development and technical leadership"
+                    };
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error performing real AI analysis, falling back to simulation");
+                return await SimulateAIAnalysisAsync();
+            }
+        }
+
+        private string BuildAnalysisContext(Profile profile)
+        {
+            var contextParts = new List<string>();
+
+            if (!string.IsNullOrEmpty(profile.BriefIntroduction))
+                contextParts.Add($"Brief Introduction: {profile.BriefIntroduction}");
+
+            if (!string.IsNullOrEmpty(profile.CurrentActivities))
+                contextParts.Add($"Current Activities: {profile.CurrentActivities}");
+
+            if (!string.IsNullOrEmpty(profile.PossibleJobs))
+                contextParts.Add($"Career Goals: {profile.PossibleJobs}");
+
+            if (!string.IsNullOrEmpty(profile.MbaSubjectsToReinforce))
+                contextParts.Add($"Areas of Interest: {profile.MbaSubjectsToReinforce}");
+
+            return string.Join("\n", contextParts);
+        }
+
+        private async Task<ExternalAPIResponse> CallExternalAPIAsync(dynamic analysisResult)
+        {
+            try
+            {
+                _logger.LogInformation("Preparing to call external API with analysis result");
+
+                // Safely extract values from dynamic object
+                string briefIntroduction = "";
+                string futureCareerGoals = "";
+                string currentActivities = "";
+                string motivations = "";
+
+                try
+                {
+                    briefIntroduction = analysisResult.BriefIntroduction?.ToString() ?? "";
+                    futureCareerGoals = analysisResult.PossibleJobs?.ToString() ?? "";
+                    currentActivities = analysisResult.CurrentActivities?.ToString() ?? "";
+                    motivations = analysisResult.MbaSubjectsToReinforce?.ToString() ?? "";
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogWarning(ex, "Error extracting values from dynamic analysis result, using empty strings");
+                }
+
+                _logger.LogInformation($"Extracted values - BriefIntro: {briefIntroduction.Length}, CareerGoals: {futureCareerGoals.Length}, CurrentActivities: {currentActivities.Length}, Motivations: {motivations.Length}");
+
+                var analysisData = new AnalysisData
+                {
+                    BriefIntroduction = briefIntroduction,
+                    FutureCareerGoals = futureCareerGoals,
+                    CurrentActivities = currentActivities,
+                    Motivations = motivations
+                };
+
+                _logger.LogInformation("Calling external API service");
+                var result = await _externalAPIService.SendAnalysisResultAsync(analysisData);
+                _logger.LogInformation($"External API service returned: Success={result.Success}, ErrorMessage={result.ErrorMessage}");
+
+                return result;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error calling external API");
+                return new ExternalAPIResponse
+                {
+                    Success = false,
+                    ErrorMessage = ex.Message,
+                    Data = null
+                };
+            }
         }
     }
 }

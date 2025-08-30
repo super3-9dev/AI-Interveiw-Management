@@ -64,6 +64,9 @@ builder.Services.AddScoped<IInterviewCatalogService, InterviewCatalogService>();
 // Add OpenAI service
 builder.Services.AddScoped<IOpenAIService, OpenAIService>();
 
+// Add External API service
+builder.Services.AddHttpClient<IExternalAPIService, ExternalAPIService>();
+
 // Database
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection"),

@@ -23,6 +23,10 @@ namespace InterviewBot.Models
         [StringLength(1000)]
         public string? CurrentActivities { get; set; }
 
+        // External API Response
+        [StringLength(5000)]
+        public string? ExternalAPIResponse { get; set; }
+
         // Analysis Metadata
         [StringLength(50)]
         public string Status { get; set; } = "Pending"; // Pending, Processing, Completed, Failed

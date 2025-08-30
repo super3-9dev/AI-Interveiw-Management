@@ -1,0 +1,382 @@
+@page
+@model InterviewBot.Pages.ExternalAPIResultsModel
+@{
+    ViewData["Title"] = "External API Analysis Results";
+}
+
+<style>
+    .results-container {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 2rem;
+    }
+
+    .header-section {
+        text-align: center;
+        margin-bottom: 3rem;
+        padding: 2rem;
+        background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+        color: white;
+        border-radius: 15px;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+    }
+
+    .header-title {
+        font-size: 2.5rem;
+        font-weight: 700;
+        margin-bottom: 1rem;
+    }
+
+    .header-subtitle {
+        font-size: 1.2rem;
+        opacity: 0.9;
+    }
+
+    .analysis-section {
+        background: white;
+        border-radius: 10px;
+        padding: 2rem;
+        margin-bottom: 2rem;
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
+        border: 1px solid #e9ecef;
+    }
+
+    .section-title {
+        font-size: 1.5rem;
+        font-weight: 600;
+        color: #212529;
+        margin-bottom: 1.5rem;
+        padding-bottom: 0.5rem;
+        border-bottom: 2px solid #e9ecef;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .content-box {
+        background: #f8f9fa;
+        padding: 1.5rem;
+        border-radius: 8px;
+        border-left: 4px solid #10b981;
+        margin-bottom: 1rem;
+    }
+
+    .content-box h4 {
+        color: #065f46;
+        margin-bottom: 0.75rem;
+        font-size: 1.1rem;
+    }
+
+    .content-box p {
+        color: #374151;
+        line-height: 1.6;
+        margin-bottom: 0.5rem;
+    }
+
+    .career-roadmap {
+        background: #f0f9ff;
+        border: 1px solid #0ea5e9;
+        border-radius: 8px;
+        padding: 1.5rem;
+        margin-bottom: 1rem;
+    }
+
+    .roadmap-title {
+        color: #0c4a6e;
+        font-weight: 600;
+        margin-bottom: 1rem;
+        font-size: 1.1rem;
+    }
+
+    .roadmap-steps {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+    }
+
+    .roadmap-steps li {
+        background: white;
+        padding: 0.75rem 1rem;
+        margin-bottom: 0.5rem;
+        border-radius: 6px;
+        border-left: 3px solid #0ea5e9;
+        color: #1e293b;
+    }
+
+    .tips-list {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+    }
+
+    .tips-list li {
+        background: #fef3c7;
+        padding: 0.75rem 1rem;
+        margin-bottom: 0.5rem;
+        border-radius: 6px;
+        border-left: 3px solid #f59e0b;
+        color: #92400e;
+        position: relative;
+        padding-left: 2.5rem;
+    }
+
+    .tips-list li::before {
+        content: "💡";
+        position: absolute;
+        left: 0.75rem;
+        top: 0.75rem;
+    }
+
+    .score-section {
+        background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%);
+        color: white;
+        padding: 2rem;
+        border-radius: 10px;
+        text-align: center;
+        margin-bottom: 2rem;
+    }
+
+    .score-value {
+        font-size: 3rem;
+        font-weight: 700;
+        margin-bottom: 0.5rem;
+    }
+
+    .score-label {
+        font-size: 1.2rem;
+        opacity: 0.9;
+    }
+
+    .back-button {
+        display: inline-block;
+        padding: 0.75rem 1.5rem;
+        background: #6c757d;
+        color: white;
+        text-decoration: none;
+        border-radius: 8px;
+        transition: all 0.3s ease;
+        margin-right: 1rem;
+    }
+
+    .back-button:hover {
+        background: #5a6268;
+        color: white;
+        text-decoration: none;
+        transform: translateY(-2px);
+    }
+
+    .dashboard-button {
+        display: inline-block;
+        padding: 0.75rem 1.5rem;
+        background: #10b981;
+        color: white;
+        text-decoration: none;
+        border-radius: 8px;
+        transition: all 0.3s ease;
+    }
+
+    .dashboard-button:hover {
+        background: #059669;
+        color: white;
+        text-decoration: none;
+        transform: translateY(-2px);
+    }
+
+    .raw-data-section {
+        background: #f8f9fa;
+        border: 1px solid #dee2e6;
+        border-radius: 8px;
+        padding: 1.5rem;
+        margin-top: 2rem;
+    }
+
+    .raw-data-title {
+        font-size: 1.1rem;
+        font-weight: 600;
+        color: #495057;
+        margin-bottom: 1rem;
+    }
+
+    .raw-data-content {
+        background: white;
+        border: 1px solid #dee2e6;
+        border-radius: 6px;
+        padding: 1rem;
+        font-family: 'Courier New', monospace;
+        font-size: 0.9rem;
+        color: #495057;
+        overflow-x: auto;
+        white-space: pre-wrap;
+    }
+</style>
+
+<div class="results-container">
+    @if (Model.Profile == null)
+    {
+        <div class="analysis-section">
+            <h2 class="section-title">❌ Profile Not Found</h2>
+            <p>The requested profile could not be found or you don't have permission to view it.</p>
+            <a href="/Results" class="back-button">Back to Results</a>
+        </div>
+        return;
+    }
+
+    <div class="header-section">
+        <h1 class="header-title">🌐 External Platform Analysis</h1>
+        <p class="header-subtitle">Comprehensive career insights from our external analysis platform</p>
+    </div>
+
+    @if (!string.IsNullOrEmpty(Model.Profile.ExternalAPIResponse))
+    {
+        try
+        {
+            var externalData = System.Text.Json.JsonSerializer.Deserialize<Dictionary<string,
+            object>>(Model.Profile.ExternalAPIResponse);
+
+            @if (externalData != null && externalData.ContainsKey("response") && externalData["response"] is
+                System.Text.Json.JsonElement responseElement)
+            {
+                var responseData = System.Text.Json.JsonSerializer.Deserialize<Dictionary<string,
+                object>>(responseElement.GetRawText());
+
+                @if (responseData != null && responseData.ContainsKey("catalog") && responseData["catalog"] is
+                    System.Text.Json.JsonElement catalogElement)
+                {
+                    var catalogData = System.Text.Json.JsonSerializer.Deserialize<Dictionary<string,
+                    object>>(catalogElement.GetRawText());
+
+                    @if (catalogData != null)
+                    {
+                        <!-- Interview Summary -->
+                        @if (catalogData.ContainsKey("InterviewSummary") && catalogData["InterviewSummary"] is System.Text.Json.JsonElement
+                            summaryElement)
+                        {
+                            var summaryData = System.Text.Json.JsonSerializer.Deserialize<Dictionary<string,
+                            object>>(summaryElement.GetRawText());
+
+                            <div class="analysis-section">
+                                <h2 class="section-title">📋 Interview Summary</h2>
+                                @if (summaryData != null && summaryData.ContainsKey("Summary"))
+                                {
+                                    <div class="content-box">
+                                        <h4>Summary</h4>
+                                        <p>@summaryData["Summary"]</p>
+                                    </div>
+                                }
+                                @if (summaryData != null && summaryData.ContainsKey("Recommendations"))
+                                {
+                                    <div class="content-box">
+                                        <h4>Recommendations</h4>
+                                        <p>@summaryData["Recommendations"]</p>
+                                    </div>
+                                }
+                            </div>
+                        }
+
+                        <!-- MBA Focus Area -->
+                        @if (catalogData.ContainsKey("MBAFocusArea"))
+                        {
+                            <div class="analysis-section">
+                                <h2 class="section-title">🎓 MBA Focus Area</h2>
+                                <div class="content-box">
+                                    <p><strong>Recommended Focus:</strong> @catalogData["MBAFocusArea"]</p>
+                                </div>
+                            </div>
+                        }
+
+                        <!-- Career Roadmaps -->
+                        @if (catalogData.ContainsKey("YourCareerRoadmaps") && catalogData["YourCareerRoadmaps"] is
+                            System.Text.Json.JsonElement roadmapsElement)
+                        {
+                            var roadmaps = System.Text.Json.JsonSerializer.Deserialize<List<Dictionary<string,
+                            object>>>(roadmapsElement.GetRawText());
+
+                            @if (roadmaps != null && roadmaps.Any())
+                            {
+                                <div class="analysis-section">
+                                    <h2 class="section-title">🗺️ Career Roadmap</h2>
+                                    @foreach (var roadmap in roadmaps)
+                                    {
+                                        @if (roadmap.ContainsKey("title") && roadmap.ContainsKey("steps") && roadmap["steps"] is
+                                                System.Text.Json.JsonElement stepsElement)
+                                        {
+                                            var steps = System.Text.Json.JsonSerializer.Deserialize<List<string>>(stepsElement.GetRawText());
+
+                                            <div class="career-roadmap">
+                                                <div class="roadmap-title">@roadmap["title"]</div>
+                                                @if (steps != null)
+                                                {
+                                                    <ul class="roadmap-steps">
+                                                        @foreach (var step in steps)
+                                                        {
+                                                            <li>@step</li>
+                                                        }
+                                                    </ul>
+                                                }
+                                            </div>
+                                        }
+                                    }
+                                </div>
+                            }
+                        }
+
+                        <!-- Additional Tips -->
+                        @if (catalogData.ContainsKey("AdditionalTips") && catalogData["AdditionalTips"] is System.Text.Json.JsonElement
+                            tipsElement)
+                        {
+                            var tips = System.Text.Json.JsonSerializer.Deserialize<List<string>>(tipsElement.GetRawText());
+
+                            @if (tips != null && tips.Any())
+                            {
+                                <div class="analysis-section">
+                                    <h2 class="section-title">💡 Additional Tips</h2>
+                                    <ul class="tips-list">
+                                        @foreach (var tip in tips)
+                                        {
+                                            <li>@tip</li>
+                                        }
+                                    </ul>
+                                </div>
+                            }
+                        }
+
+                        <!-- Clarity Score -->
+                        @if (catalogData.ContainsKey("clarityScore"))
+                        {
+                            <div class="score-section">
+                                <div class="score-value">@catalogData["clarityScore"]%</div>
+                                <div class="score-label">Career Clarity Score</div>
+                            </div>
+                        }
+                    }
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+            <div class="analysis-section">
+                <h2 class="section-title">⚠️ Data Parsing Error</h2>
+                <p>There was an error parsing the external API response. Please contact support.</p>
+                <p><strong>Error:</strong> @ex.Message</p>
+            </div>
+        }
+
+        <!-- Raw Data Section for Debugging -->
+        <div class="raw-data-section">
+            <div class="raw-data-title">🔍 Raw Response Data</div>
+            <div class="raw-data-content">@Model.Profile.ExternalAPIResponse</div>
+        </div>
+    }
+    else
+    {
+        <div class="analysis-section">
+            <h2 class="section-title">❌ No External API Data</h2>
+            <p>This profile does not have external API analysis data yet. Please ensure the analysis has been completed.</p>
+        </div>
+    }
+
+    <div class="text-center">
+        <a href="/Results" class="back-button">← Back to Results</a>
+        <a href="/Dashboard" class="dashboard-button">Go to Dashboard</a>
+    </div>
+</div>

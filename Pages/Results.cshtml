@@ -8,7 +8,22 @@ t@page
 }
 
 @section Styles {
-    <link rel="stylesheet" href="~/css/results.css" />
+    <style>
+        .external-api-badge {
+            display: inline-block;
+            background: #10b981;
+            color: white;
+            padding: 0.25rem 0.5rem;
+            border-radius: 0.25rem;
+            font-size: 0.75rem;
+            font-weight: 500;
+            margin-left: 0.5rem;
+        }
+
+        .external-api-result {
+            border-left: 4px solid #10b981;
+        }
+    </style>
 }
 
 <div class="results-container">
@@ -36,15 +51,15 @@ t@page
                                 <div class="result-title">Profile #@profile.Id</div>
                                 <div class="result-meta">
                                     <span>@profile.CreatedAt.ToString("MMM dd, yyyy")</span>
-                                    <span
-                                        class="result-status @(profile.Status == "Completed" ? "status-completed" : profile.Status == "Processing" ? "status-in-progress" : "status-failed")">
-                                        @profile.Status
-                                    </span>
                                 </div>
                                 <div class="result-description">
                                     @if (profile.Status == "Completed")
                                     {
                                         <span>Analysis completed successfully</span>
+                                        @if (!string.IsNullOrEmpty(profile.ExternalAPIResponse))
+                                        {
+                                            <span class="external-api-badge">External API Data Available</span>
+                                        }
                                     }
                                     else if (profile.Status == "Processing")
                                     {
@@ -79,6 +94,35 @@ t@page
                     </div>
                 }
             </div>
+
+            <!-- External API Results -->
+            @if (Model.Profiles.Any(p => !string.IsNullOrEmpty(p.ExternalAPIResponse)))
+            {
+                <div class="results-section">
+                    <div class="section-header">
+                        <div class="section-icon">🌐</div>
+                        <h2 class="section-title">External API Analysis</h2>
+                    </div>
+                    <ul class="results-list">
+                        @foreach (var profile in Model.Profiles.Where(p => !string.IsNullOrEmpty(p.ExternalAPIResponse)))
+                        {
+                            <li class="result-item external-api-result">
+                                <div class="result-title">External Analysis #@profile.Id</div>
+                                <div class="result-meta">
+                                    <span>@profile.UpdatedAt?.ToString("MMM dd, yyyy")</span>
+                                    <span class="result-status status-completed">API Response Received</span>
+                                </div>
+                                <div class="result-description">
+                                    <span>External platform analysis completed</span>
+                                </div>
+                                <div class="result-actions">
+                                    <a href="/ExternalAPIResults?id=@profile.Id" class="btn btn-success">View API Results</a>
+                                </div>
+                            </li>
+                        }
+                    </ul>
+                </div>
+            }
 
             <!-- Interview Results -->
             <div class="results-section">
