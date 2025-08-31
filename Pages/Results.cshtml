@@ -225,6 +225,60 @@
             background: linear-gradient(135deg, #f0fdf4 0%, #f8fafc 100%);
         }
 
+        .external-api-preview {
+            background: #f0fdf4;
+            border: 1px solid #bbf7d0;
+            border-radius: 0.5rem;
+            padding: 1rem;
+            margin: 1rem 0;
+        }
+
+        .preview-header {
+            color: #065f46;
+            font-size: 0.875rem;
+            margin-bottom: 0.75rem;
+        }
+
+        .preview-content {
+            font-size: 0.875rem;
+        }
+
+        .preview-item {
+            margin-bottom: 0.5rem;
+            padding: 0.5rem;
+            background: white;
+            border-radius: 0.25rem;
+            border: 1px solid #d1fae5;
+        }
+
+        .preview-item strong {
+            color: #065f46;
+            display: inline-block;
+            min-width: 120px;
+        }
+
+        .preview-more {
+            color: #6b7280;
+            font-style: italic;
+            text-align: center;
+            padding: 0.5rem;
+            background: #f9fafb;
+            border-radius: 0.25rem;
+            margin-top: 0.5rem;
+        }
+
+        .preview-raw {
+            background: white;
+            padding: 0.75rem;
+            border-radius: 0.25rem;
+            border: 1px solid #d1fae5;
+            font-family: monospace;
+            font-size: 0.75rem;
+            color: #374151;
+            max-height: 150px;
+            overflow-y: auto;
+        }
+
         .empty-state {
             text-align: center;
             padding: 4rem 2rem;
@@ -392,6 +446,41 @@
                                         <span>Analysis failed. Please try again.</span>
                                     }
                                 </div>
+                                
+                                @if (profile.Status == "Completed" && !string.IsNullOrEmpty(profile.ExternalAPIResponse))
+                                {
+                                    <div class="external-api-preview">
+                                        <div class="preview-header">
+                                            <strong>External API Response Preview:</strong>
+                                        </div>
+                                        <div class="preview-content">
+                                            @{
+                                                try
+                                                {
+                                                                                                    var externalData = System.Text.Json.JsonSerializer.Deserialize<Dictionary<string, object>>(profile.ExternalAPIResponse ?? "");
+                                                if (externalData != null)
+                                                {
+                                                    foreach (var item in externalData.Take(3))
+                                                    {
+                                                        <div class="preview-item">
+                                                            <strong>@item.Key:</strong> 
+                                                            <span>@(item.Value?.ToString()?.Length > 100 ? item.Value.ToString().Substring(0, 100) + "..." : item.Value?.ToString())</span>
+                                                        </div>
+                                                    }
+                                                    if (externalData.Count > 3)
+                                                    {
+                                                        <div class="preview-more">... and @(externalData.Count - 3) more fields</div>
+                                                    }
+                                                }
+                                                }
+                                                catch
+                                                {
+                                                    <div class="preview-raw">@(profile.ExternalAPIResponse.Length > 200 ? profile.ExternalAPIResponse.Substring(0, 200) + "..." : profile.ExternalAPIResponse)</div>
+                                                }
+                                            }
+                                        </div>
+                                    </div>
+                                }
                                 <div class="result-actions">
                                     @if (profile.Status == "Completed")
                                     {
@@ -437,6 +526,40 @@
                                 <div class="result-description">
                                     <span>External platform analysis completed</span>
                                 </div>
+                                
+                                <!-- External API Response Preview -->
+                                <div class="external-api-preview">
+                                    <div class="preview-header">
+                                        <strong>External API Response Preview:</strong>
+                                    </div>
+                                    <div class="preview-content">
+                                        @{
+                                            try
+                                            {
+                                                var externalData = System.Text.Json.JsonSerializer.Deserialize<Dictionary<string, object>>(profile.ExternalAPIResponse ?? "");
+                                                if (externalData != null)
+                                                {
+                                                    foreach (var item in externalData.Take(3))
+                                                    {
+                                                        <div class="preview-item">
+                                                            <strong>@item.Key:</strong> 
+                                                            <span>@(item.Value?.ToString()?.Length > 100 ? item.Value.ToString().Substring(0, 100) + "..." : item.Value?.ToString())</span>
+                                                        </div>
+                                                    }
+                                                    if (externalData.Count > 3)
+                                                    {
+                                                        <div class="preview-more">... and @(externalData.Count - 3) more fields</div>
+                                                    }
+                                                }
+                                            }
+                                            catch
+                                            {
+                                                <div class="preview-raw">@(profile.ExternalAPIResponse.Length > 200 ? profile.ExternalAPIResponse.Substring(0, 200) + "..." : profile.ExternalAPIResponse)</div>
+                                            }
+                                        }
+                                    </div>
+                                </div>
+                                
                                 <div class="result-actions">
                                     <a href="/ExternalAPIResults?id=@profile.Id" class="btn btn-success">View API Results</a>
                                 </div>

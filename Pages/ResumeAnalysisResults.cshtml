@@ -14,7 +14,6 @@
             margin: 0 auto;
             padding: 2rem;
             background: #f8fafc;
-            min-height: 100vh;
         }
 
         .page-header {
@@ -36,6 +35,7 @@
         }
 
         .profile-info {
+            display: none;
             background: white;
             border: 1px solid #e2e8f0;
             border-radius: 1rem;
@@ -366,7 +366,6 @@
         let currentProgress = @(Model.Profile?.Progress ?? 0);
         let isCompleted = @(Model.Profile?.Status == "Completed" ? "true" : "false");
         let profileId = @(Model.Profile?.Id ?? 0);
-        let redirectTimer = null;
 
         // Initialize progress bar
         function initializeProgress() {
@@ -472,25 +471,11 @@
 
         // Show completion message and redirect
         function showCompletionMessage() {
-            const progressSection = document.querySelector('.progress-section');
-            const completionMessage = document.querySelector('.completion-message');
-            
-            if (progressSection && completionMessage) {
-                progressSection.style.display = 'none';
-                completionMessage.style.display = 'block';
-                
-                // Redirect to results page after 3 seconds
-                redirectTimer = setTimeout(() => {
-                    window.location.href = `/Results`;
-                }, 3000);
-            }
+            window.location.href = `/Results`;
         }
 
         // Manual redirect to results
         function goToResults() {
-            if (redirectTimer) {
-                clearTimeout(redirectTimer);
-            }
             window.location.href = `/Results`;
         }
 
@@ -574,7 +559,7 @@
     </div>
 
     <!-- Completion Message -->
-    <div class="completion-message">
+    <!-- <div class="completion-message">
         <div class="completion-icon">✅</div>
         <h3>Analysis Complete!</h3>
         <p>Your resume analysis has been completed successfully. You will be redirected to the results page in a few seconds.</p>
@@ -586,7 +571,7 @@
                 Go to Results Now
             </button>
         </div>
-    </div>
+    </div> -->
 
     <!-- Action Buttons -->
     <div class="action-buttons">
