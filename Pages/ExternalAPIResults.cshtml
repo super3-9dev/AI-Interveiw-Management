@@ -1,57 +1,83 @@
 @page
 @model InterviewBot.Pages.ExternalAPIResultsModel
 @{
-    ViewData["Title"] = "External API Analysis Results";
+    ViewData["Title"] = "Your Personalized Career Guidance";
 }
 
 <style>
-    .results-container {
-        max-width: 1200px;
-        margin: 0 auto;
-        padding: 2rem;
-    }
 
-    .header-section {
-        text-align: center;
-        margin-bottom: 3rem;
-        padding: 2rem;
-        background: linear-gradient(135deg, #10b981 0%, #059669 100%);
-        color: white;
-        border-radius: 15px;
-        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
-    }
+        .results-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+            min-height: 100vh;
+            background-color: #f9fafb;
+        }
 
-    .header-title {
-        font-size: 2.5rem;
-        font-weight: 700;
-        margin-bottom: 1rem;
-    }
+    
 
-    .header-subtitle {
-        font-size: 1.2rem;
-        opacity: 0.9;
-    }
+        .page-header {
+            text-align: center;
+            margin-bottom: 3rem;
+            background: white;
+            padding: 2rem;
+            border-radius: 1rem;
+            box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1);
+            border: 1px solid #e5e7eb;
+        }
 
-    .analysis-section {
-        background: white;
-        border-radius: 10px;
-        padding: 2rem;
-        margin-bottom: 2rem;
-        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
-        border: 1px solid #e9ecef;
-    }
+            .page-title {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: #1e40af;
+            margin-bottom: 0.5rem;
+            line-height: 1.2;
+        }
 
-    .section-title {
-        font-size: 1.5rem;
-        font-weight: 600;
-        color: #212529;
-        margin-bottom: 1.5rem;
-        padding-bottom: 0.5rem;
-        border-bottom: 2px solid #e9ecef;
-        display: flex;
-        align-items: center;
-        gap: 0.5rem;
-    }
+        .page-subtitle {
+            font-size: 1.125rem;
+            color: #6b7280;
+            margin-bottom: 1rem;
+        }
+
+            .results-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        .analysis-section {
+            background: white;
+            border: 1px solid #e5e7eb;
+            border-radius: 1rem;
+            padding: 2rem;
+            box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1);
+            transition: all 0.2s ease;
+            height: fit-content;
+        }
+
+        .analysis-section:hover {
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        }
+
+            .section-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: #1f2937;
+            margin-bottom: 1.5rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 2px solid #f3f4f6;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            line-height: 1.3;
+        }
+
+        .section-title i {
+            font-size: 1.3rem;
+            color: #6b7280;
+        }
 
     .content-box {
         background: #f8f9fa;
@@ -73,26 +99,70 @@
         margin-bottom: 0.5rem;
     }
 
-    .career-roadmap {
-        background: #f0f9ff;
-        border: 1px solid #0ea5e9;
-        border-radius: 8px;
-        padding: 1.5rem;
-        margin-bottom: 1rem;
-    }
+            .career-roadmap {
+            background: white;
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin-bottom: 1rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
 
-    .roadmap-title {
-        color: #0c4a6e;
-        font-weight: 600;
-        margin-bottom: 1rem;
-        font-size: 1.1rem;
-    }
+        .career-roadmap.expanded {
+            background: #f0f9ff;
+            border: 1px solid #0ea5e9;
+        }
 
-    .roadmap-steps {
-        list-style: none;
-        padding: 0;
-        margin: 0;
-    }
+        .career-roadmap:hover {
+            background: #e0f2fe;
+        }
+
+            .roadmap-title {
+            color: #0c4a6e;
+            font-weight: 600;
+            margin-bottom: 1rem;
+            font-size: 1.1rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            cursor: pointer;
+        }
+
+        .roadmap-toggle {
+            background: none;
+            border: none;
+            color: #0c4a6e;
+            cursor: pointer;
+            font-size: 1.2rem;
+            transition: transform 0.2s ease;
+            padding: 0;
+            width: 24px;
+            height: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .roadmap-toggle.expanded {
+            transform: rotate(180deg);
+        }
+
+        .roadmap-toggle i {
+            font-size: 1.5rem;
+        }
+
+            .roadmap-steps {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+            display: none;
+            counter-reset: roadmap-step;
+        }
+
+        .roadmap-steps.expanded {
+            display: block;
+        }
 
     .roadmap-steps li {
         background: white;
@@ -101,6 +171,27 @@
         border-radius: 6px;
         border-left: 3px solid #0ea5e9;
         color: #1e293b;
+        counter-increment: roadmap-step;
+        position: relative;
+        padding-left: 2.5rem;
+        line-height: 1.4;
+    }
+
+    .roadmap-steps li::before {
+        content: counter(roadmap-step);
+        position: absolute;
+        left: 0.75rem;
+        top: 0.75rem;
+        background: #0ea5e9;
+        color: white;
+        width: 1.5rem;
+        height: 1.5rem;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 0.8rem;
+        font-weight: 600;
     }
 
     .tips-list {
@@ -118,6 +209,7 @@
         color: #92400e;
         position: relative;
         padding-left: 2.5rem;
+        line-height: 1.4;
     }
 
     .tips-list li::before {
@@ -131,9 +223,10 @@
         background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%);
         color: white;
         padding: 2rem;
-        border-radius: 10px;
+        border-radius: 1rem;
         text-align: center;
         margin-bottom: 2rem;
+        box-shadow: 0 4px 12px rgba(139, 92, 246, 0.3);
     }
 
     .score-value {
@@ -147,15 +240,64 @@
         opacity: 0.9;
     }
 
-    .back-button {
-        display: inline-block;
+    .bottom-actions {
+        text-align: center;
+        margin-top: 3rem;
+        padding: 2rem;
+        background: white;
+        border-radius: 1rem;
+        box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1);
+        border: 1px solid #e5e7eb;
+    }
+
+    .bottom-actions h3 {
+        color: #1f2937;
+        margin-bottom: 1rem;
+    }
+
+    .bottom-buttons {
+        display: flex;
+        gap: 1rem;
+        justify-content: center;
+        flex-wrap: wrap;
+    }
+
+    .btn-outline {
+        background: transparent;
+        color: #6c757d;
+        border: 2px solid #6c757d;
         padding: 0.75rem 1.5rem;
+        border-radius: 0.5rem;
+        text-decoration: none;
+        transition: all 0.2s ease;
+        font-weight: 500;
+        min-width: 160px;
+    }
+
+    .btn-outline:hover {
         background: #6c757d;
         color: white;
+        transform: translateY(-1px);
+    }
+
+    .btn-primary {
+        background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+        color: white;
+        padding: 0.75rem 1.5rem;
+        border-radius: 0.5rem;
         text-decoration: none;
-        border-radius: 8px;
-        transition: all 0.3s ease;
-        margin-right: 1rem;
+        transition: all 0.2s ease;
+        font-weight: 500;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        min-width: 160px;
+    }
+
+    .btn-primary:hover {
+        background: linear-gradient(135deg, #2563eb 0%, #1e40af 100%);
+        transform: translateY(-1px);
+        box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
     }
 
     .back-button:hover {
@@ -165,21 +307,69 @@
         transform: translateY(-2px);
     }
 
-    .dashboard-button {
-        display: inline-block;
-        padding: 0.75rem 1.5rem;
-        background: #10b981;
-        color: white;
-        text-decoration: none;
+    .raw-data-section {
+        background: #f8f9fa;
+        border: 1px solid #dee2e6;
         border-radius: 8px;
-        transition: all 0.3s ease;
+        padding: 1.5rem;
+        margin-top: 2rem;
     }
 
-    .dashboard-button:hover {
-        background: #059669;
-        color: white;
-        text-decoration: none;
-        transform: translateY(-2px);
+    .raw-data-title {
+        font-size: 1.1rem;
+        font-weight: 600;
+        color: #495057;
+        margin-bottom: 1rem;
+    }
+
+    .raw-data-content {
+        background: white;
+        border: 1px solid #dee2e6;
+        border-radius: 6px;
+        padding: 1rem;
+        font-family: 'Courier New', monospace;
+        font-size: 0.9rem;
+        color: #495057;
+        overflow-x: auto;
+        white-space: pre-wrap;
+    }
+
+    @@media (max-width: 768px) {
+        .results-container {
+            padding: 1rem;
+        }
+
+        .page-title {
+            font-size: 2rem;
+        }
+
+        .results-grid {
+            grid-template-columns: 1fr;
+            gap: 1rem;
+        }
+
+        .analysis-section {
+            padding: 1.5rem;
+        }
+
+        .bottom-buttons {
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .btn-outline,
+        .btn-primary {
+            width: 100%;
+            max-width: 300px;
+            justify-content: center;
+        }
+    }
+
+    @@media (max-width: 1024px) {
+        .results-grid {
+            grid-template-columns: 1fr;
+            gap: 1.5rem;
+        }
     }
 
     .raw-data-section {
@@ -221,10 +411,10 @@
         return;
     }
 
-    <div class="header-section">
-        <h1 class="header-title">🌐 External Platform Analysis</h1>
-        <p class="header-subtitle">Comprehensive career insights from our external analysis platform</p>
-    </div>
+         <div class="page-header">
+         <h1 class="page-title">Your Personalized Career Guidance</h1>
+         <p class="page-subtitle">Based on your profile and interview, here are your tailored insights and potential career roadmaps.</p>
+     </div>
 
     @if (!string.IsNullOrEmpty(Model.Profile.ExternalAPIResponse))
     {
@@ -245,100 +435,112 @@
                     var catalogData = System.Text.Json.JsonSerializer.Deserialize<Dictionary<string,
                     object>>(catalogElement.GetRawText());
 
-                    @if (catalogData != null)
-                    {
-                        <!-- Interview Summary -->
-                        @if (catalogData.ContainsKey("InterviewSummary") && catalogData["InterviewSummary"] is System.Text.Json.JsonElement
-                            summaryElement)
-                        {
-                            var summaryData = System.Text.Json.JsonSerializer.Deserialize<Dictionary<string,
-                            object>>(summaryElement.GetRawText());
+                                         @if (catalogData != null)
+                     {
+                         <div class="results-grid">
+                             <!-- Left Column -->
+                             <div>
+                                 <!-- Interview Summary -->
+                                 @if (catalogData.ContainsKey("InterviewSummary") && catalogData["InterviewSummary"] is System.Text.Json.JsonElement
+                                     summaryElement)
+                                 {
+                                     var summaryData = System.Text.Json.JsonSerializer.Deserialize<Dictionary<string,
+                                     object>>(summaryElement.GetRawText());
 
-                            <div class="analysis-section">
-                                <h2 class="section-title">📋 Interview Summary</h2>
-                                @if (summaryData != null && summaryData.ContainsKey("Summary"))
-                                {
-                                    <div class="content-box">
-                                        <h4>Summary</h4>
-                                        <p>@summaryData["Summary"]</p>
-                                    </div>
-                                }
-                                @if (summaryData != null && summaryData.ContainsKey("Recommendations"))
-                                {
-                                    <div class="content-box">
-                                        <h4>Recommendations</h4>
-                                        <p>@summaryData["Recommendations"]</p>
-                                    </div>
-                                }
-                            </div>
-                        }
+                                     <div class="analysis-section">
+                                         <h2 class="section-title"><i class="bi bi-file-earmark-text"></i> Interview Summary</h2>
+                                         @if (summaryData != null && summaryData.ContainsKey("Summary"))
+                                         {
+                                             <div class="content-box">
+                                                 <h4>Summary</h4>
+                                                 <p>@summaryData["Summary"]</p>
+                                             </div>
+                                         }
+                                         @if (summaryData != null && summaryData.ContainsKey("Recommendations"))
+                                         {
+                                             <div class="content-box">
+                                                 <h4>Recommendations</h4>
+                                                 <p>@summaryData["Recommendations"]</p>
+                                             </div>
+                                         }
+                                     </div>
+                                 }
 
-                        <!-- MBA Focus Area -->
-                        @if (catalogData.ContainsKey("MBAFocusArea"))
-                        {
-                            <div class="analysis-section">
-                                <h2 class="section-title">🎓 MBA Focus Area</h2>
-                                <div class="content-box">
-                                    <p><strong>Recommended Focus:</strong> @catalogData["MBAFocusArea"]</p>
-                                </div>
-                            </div>
-                        }
+                                 <!-- MBA Focus Area -->
+                                 @if (catalogData.ContainsKey("MBAFocusArea"))
+                                 {
+                                     <div class="analysis-section">
+                                         <h2 class="section-title"><i class="bi bi-book"></i> MBA Focus Area</h2>
+                                         <div class="content-box">
+                                             <p><strong>Recommended Focus:</strong> @catalogData["MBAFocusArea"]</p>
+                                         </div>
+                                     </div>
+                                 }
 
-                        <!-- Career Roadmaps -->
-                        @if (catalogData.ContainsKey("YourCareerRoadmaps") && catalogData["YourCareerRoadmaps"] is
-                            System.Text.Json.JsonElement roadmapsElement)
-                        {
-                            var roadmaps = System.Text.Json.JsonSerializer.Deserialize<List<Dictionary<string,
-                            object>>>(roadmapsElement.GetRawText());
+                                 <!-- Additional Tips -->
+                                 @if (catalogData.ContainsKey("AdditionalTips") && catalogData["AdditionalTips"] is System.Text.Json.JsonElement
+                                     tipsElement)
+                                 {
+                                     var tips = System.Text.Json.JsonSerializer.Deserialize<List<string>>(tipsElement.GetRawText());
 
-                            @if (roadmaps != null && roadmaps.Any())
-                            {
-                                <div class="analysis-section">
-                                    <h2 class="section-title">🗺️ Career Roadmap</h2>
-                                    @foreach (var roadmap in roadmaps)
-                                    {
-                                        @if (roadmap.ContainsKey("title") && roadmap.ContainsKey("steps") && roadmap["steps"] is
-                                                System.Text.Json.JsonElement stepsElement)
-                                        {
-                                            var steps = System.Text.Json.JsonSerializer.Deserialize<List<string>>(stepsElement.GetRawText());
+                                     @if (tips != null && tips.Any())
+                                     {
+                                         <div class="analysis-section">
+                                             <h2 class="section-title"><i class="bi bi-lightbulb"></i> Additional Tips</h2>
+                                             <ul class="tips-list">
+                                                 @foreach (var tip in tips)
+                                                 {
+                                                     <li>@tip</li>
+                                                 }
+                                             </ul>
+                                         </div>
+                                     }
+                                 }
+                             </div>
 
-                                            <div class="career-roadmap">
-                                                <div class="roadmap-title">@roadmap["title"]</div>
-                                                @if (steps != null)
-                                                {
-                                                    <ul class="roadmap-steps">
-                                                        @foreach (var step in steps)
-                                                        {
-                                                            <li>@step</li>
-                                                        }
-                                                    </ul>
-                                                }
-                                            </div>
-                                        }
-                                    }
-                                </div>
-                            }
-                        }
+                             <!-- Right Column -->
+                             <div>
+                                 <!-- Career Roadmaps -->
+                                 @if (catalogData.ContainsKey("YourCareerRoadmaps") && catalogData["YourCareerRoadmaps"] is
+                                     System.Text.Json.JsonElement roadmapsElement)
+                                 {
+                                     var roadmaps = System.Text.Json.JsonSerializer.Deserialize<List<Dictionary<string,
+                                     object>>>(roadmapsElement.GetRawText());
 
-                        <!-- Additional Tips -->
-                        @if (catalogData.ContainsKey("AdditionalTips") && catalogData["AdditionalTips"] is System.Text.Json.JsonElement
-                            tipsElement)
-                        {
-                            var tips = System.Text.Json.JsonSerializer.Deserialize<List<string>>(tipsElement.GetRawText());
+                                     @if (roadmaps != null && roadmaps.Any())
+                                     {
+                                         <div class="analysis-section">
+                                             <h2 class="section-title"><i class="bi bi-compass"></i> Your Career Roadmaps</h2>
+                                             <p style="color: #6b7280; margin-bottom: 1.5rem;">Actionable next steps for your professional journey.</p>
+                                             @foreach (var roadmap in roadmaps)
+                                             {
+                                                 @if (roadmap.ContainsKey("title") && roadmap.ContainsKey("steps") && roadmap["steps"] is
+                                                         System.Text.Json.JsonElement stepsElement)
+                                                 {
+                                                     var steps = System.Text.Json.JsonSerializer.Deserialize<List<string>>(stepsElement.GetRawText());
 
-                            @if (tips != null && tips.Any())
-                            {
-                                <div class="analysis-section">
-                                    <h2 class="section-title">💡 Additional Tips</h2>
-                                    <ul class="tips-list">
-                                        @foreach (var tip in tips)
-                                        {
-                                            <li>@tip</li>
-                                        }
-                                    </ul>
-                                </div>
-                            }
-                        }
+                                                     <div class="career-roadmap" onclick="toggleRoadmap(this)">
+                                                         <div class="roadmap-title">
+                                                             @roadmap["title"]
+                                                             <button class="roadmap-toggle"><i class="bi bi-arrow-down-short"></i></button>
+                                                         </div>
+                                                         @if (steps != null)
+                                                         {
+                                                             <ul class="roadmap-steps">
+                                                                 @foreach (var step in steps)
+                                                                 {
+                                                                     <li>@step</li>
+                                                                 }
+                                                             </ul>
+                                                         }
+                                                     </div>
+                                                 }
+                                             }
+                                         </div>
+                                     }
+                                 }
+                             </div>
+                         </div>
 
                         <!-- Clarity Score -->
                         @if (catalogData.ContainsKey("clarityScore"))
@@ -375,8 +577,36 @@
         </div>
     }
 
-    <div class="text-center">
-        <a href="/Results" class="back-button">← Back to Results</a>
-        <a href="/Dashboard" class="dashboard-button">Go to Dashboard</a>
-    </div>
-</div>
+         <!-- Bottom Action Buttons -->
+     <div class="bottom-actions">
+         <h3>Ready for More?</h3>
+         <div class="bottom-buttons">
+             <a href="/Dashboard" class="btn-outline">Back to Dashboard</a>
+             <a href="/NewAnalysis" class="btn-primary"><i class="bi bi-arrow-clockwise"></i> Start New Analysis</a>
+         </div>
+     </div>
+
+<script>
+    function toggleRoadmap(roadmapElement) {
+        const stepsList = roadmapElement.querySelector('.roadmap-steps');
+        const toggleButton = roadmapElement.querySelector('.roadmap-toggle');
+        
+        if (stepsList.classList.contains('expanded')) {
+            stepsList.classList.remove('expanded');
+            toggleButton.classList.remove('expanded');
+            roadmapElement.classList.add('expanded');
+        } else {
+            stepsList.classList.add('expanded');
+            toggleButton.classList.add('expanded');
+            roadmapElement.classList.remove('expanded');
+        }
+    }
+
+    // Auto-expand the first roadmap by default
+    document.addEventListener('DOMContentLoaded', function() {
+        const firstRoadmap = document.querySelector('.career-roadmap');
+        if (firstRoadmap) {
+            toggleRoadmap(firstRoadmap);
+        }
+    });
+</script>
