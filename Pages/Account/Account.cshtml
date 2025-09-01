@@ -1,4 +1,5 @@
-@page
+@page "/Account"
+@model InterviewBot.Pages.Account.AccountModel
 @using Microsoft.AspNetCore.Mvc.Localization
 @inject IViewLocalizer Localizer
 @{
@@ -10,20 +11,358 @@
     }
 }
 
-<div class="container">
-    <div class="row justify-content-center">
-        <div class="col-md-8">
-            <div class="card">
-                <div class="card-header">
-                    <h3 class="mb-0">@Localizer["Account"]</h3>
+<div class="update-profile-container">
+    <div class="update-profile-card">
+        <div class="card-header">
+            <h2 class="card-title">Account & Profile Management</h2>
+            <p class="card-subtitle">Manage your account information and profile details.</p>
+        </div>
+
+        <div class="card-body">
+            @if (!string.IsNullOrEmpty(Model.SuccessMessage))
+            {
+                <div class="alert alert-success alert-dismissible fade show" role="alert">
+                    <i class="bi bi-check-circle"></i>
+                    @Model.SuccessMessage
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
                 </div>
-                <div class="card-body">
-                    <p class="text-muted">@Localizer["Account management page is coming soon."]</p>
-                    <a href="/@(!string.IsNullOrEmpty(currentCulture) ? $"?culture={currentCulture}" : "")" class="btn btn-primary">
-                        <i class="bi bi-arrow-left"></i> @Localizer["Back to Home"]
+            }
+
+            @if (!string.IsNullOrEmpty(Model.ErrorMessage))
+            {
+                <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                    <i class="bi bi-exclamation-triangle"></i>
+                    @Model.ErrorMessage
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            }
+
+            <form method="post" class="update-profile-form">
+                <div class="form-row">
+                    <!-- Account Information Section -->
+                    <div class="form-section" style="width: 50%;">
+                        <h4 class="section-title">
+                            <i class="bi bi-person-circle"></i>
+                            Account Information
+                        </h4>
+
+                        <div class="form-group">
+                            <label asp-for="Email" class="form-label">Email</label>
+                            <input asp-for="Email" class="form-control" placeholder="Enter your email" />
+                            <span asp-validation-for="Email" class="text-danger"></span>
+                        </div>
+
+                        <div class="form-group">
+                            <label asp-for="FullName" class="form-label">Full Name</label>
+                            <input asp-for="FullName" class="form-control" placeholder="Enter your full name" />
+                            <span asp-validation-for="FullName" class="text-danger"></span>
+                        </div>
+
+                        <div class="form-group">
+                            <label asp-for="CurrentPassword" class="form-label">Current Password</label>
+                            <input asp-for="CurrentPassword" type="password" class="form-control"
+                                placeholder="Enter current password" />
+                            <small class="form-text text-muted">Required only if changing password</small>
+                            <span asp-validation-for="CurrentPassword" class="text-danger"></span>
+                        </div>
+
+                        <div class="form-group">
+                            <label asp-for="NewPassword" class="form-label">New Password</label>
+                            <input asp-for="NewPassword" type="password" class="form-control"
+                                placeholder="Enter new password" />
+                            <small class="form-text text-muted">Leave blank to keep current password</small>
+                            <span asp-validation-for="NewPassword" class="text-danger"></span>
+                        </div>
+
+                        <div class="form-group">
+                            <label asp-for="ConfirmPassword" class="form-label">Confirm New Password</label>
+                            <input asp-for="ConfirmPassword" type="password" class="form-control"
+                                placeholder="Confirm new password" />
+                            <small class="form-text text-muted">Must match new password</small>
+                            <span asp-validation-for="ConfirmPassword" class="text-danger"></span>
+                        </div>
+                    </div>
+
+                    <!-- Profile Information Section -->
+                    <div class="form-section" style="width: 50%;">
+                        <h4 class="section-title">
+                            <i class="bi bi-file-person"></i>
+                            Profile Information
+                        </h4>
+
+                        <div class="form-group">
+                            <label asp-for="Strengths" class="form-label">Strengths</label>
+                            <textarea asp-for="Strengths" class="form-control" rows="3"
+                                placeholder="Describe your key strengths and skills"></textarea>
+                            <span asp-validation-for="Strengths" class="text-danger"></span>
+                        </div>
+
+                        <div class="form-group">
+                            <label asp-for="Weaknesses" class="form-label">Areas for Improvement</label>
+                            <textarea asp-for="Weaknesses" class="form-control" rows="3"
+                                placeholder="Describe areas you'd like to improve"></textarea>
+                            <span asp-validation-for="Weaknesses" class="text-danger"></span>
+                        </div>
+
+                        <div class="form-group">
+                            <label asp-for="CareerGoals" class="form-label">Career Goals</label>
+                            <textarea asp-for="CareerGoals" class="form-control" rows="3"
+                                placeholder="Describe your career aspirations and goals"></textarea>
+                            <span asp-validation-for="CareerGoals" class="text-danger"></span>
+                        </div>
+
+                        <div class="form-group">
+                            <label asp-for="Interests" class="form-label">Professional Interests</label>
+                            <textarea asp-for="Interests" class="form-control" rows="3"
+                                placeholder="Describe your professional interests and passions"></textarea>
+                            <span asp-validation-for="Interests" class="text-danger"></span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Form Actions -->
+                <div class="form-actions">
+                    <a href="/Dashboard@(!string.IsNullOrEmpty(currentCulture) ? $"?culture={currentCulture}" : "")"
+                        class="btn btn-outline-secondary">
+                        <i class="bi bi-arrow-left"></i>
+                        Back to Dashboard
                     </a>
+                    <button type="submit" class="btn btn-primary">
+                        <i class="bi bi-check-lg"></i>
+                        Update Account & Profile
+                    </button>
                 </div>
-            </div>
+            </form>
         </div>
     </div>
 </div>
+
+<style>
+    .update-profile-container {
+        padding: 2rem;
+    }
+
+    .update-profile-card {
+        background: white;
+        border-radius: 1rem;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        overflow: hidden;
+    }
+
+    .form-row {
+        display: flex;
+        flex-direction: row;
+        gap: 1rem;
+    }
+
+    .card-header {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        padding: 2rem;
+        text-align: center;
+    }
+
+    .card-title {
+        font-size: 2rem;
+        font-weight: 700;
+        margin-bottom: 0.5rem;
+    }
+
+    .card-subtitle {
+        font-size: 1.1rem;
+        opacity: 0.9;
+        margin: 0;
+    }
+
+    .card-body {
+        padding: 2rem;
+    }
+
+    .form-section {
+        margin-bottom: 2.5rem;
+        padding: 1.5rem;
+        background-color: #f8f9fa;
+        border-radius: 0.75rem;
+        border-left: 4px solid #667eea;
+    }
+
+    .section-title {
+        color: #495057;
+        font-size: 1.25rem;
+        font-weight: 600;
+        margin-bottom: 1.5rem;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .section-title i {
+        color: #667eea;
+    }
+
+    .form-group {
+        margin-bottom: 1.5rem;
+    }
+
+    .form-label {
+        font-weight: 600;
+        color: #495057;
+        margin-bottom: 0.5rem;
+        display: block;
+    }
+
+    .form-control {
+        border: 2px solid #e9ecef;
+        border-radius: 0.5rem;
+        padding: 0.75rem;
+        font-size: 1rem;
+        transition: all 0.2s ease;
+    }
+
+    .form-control:focus {
+        border-color: #667eea;
+        box-shadow: 0 0 0 0.2rem rgba(102, 126, 234, 0.25);
+        outline: none;
+    }
+
+    .form-text {
+        font-size: 0.875rem;
+        color: #6c757d;
+        margin-top: 0.25rem;
+    }
+
+    .text-danger {
+        color: #dc3545;
+        font-size: 0.875rem;
+        margin-top: 0.25rem;
+        display: block;
+    }
+
+    .form-actions {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 1rem;
+        margin-top: 2rem;
+        padding-top: 1.5rem;
+        border-top: 1px solid #e9ecef;
+    }
+
+    .btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 0.75rem 1.5rem;
+        font-weight: 600;
+        border-radius: 0.5rem;
+        text-decoration: none;
+        transition: all 0.2s ease;
+        border: none;
+        cursor: pointer;
+    }
+
+    .btn-outline-secondary {
+        background-color: transparent;
+        border: 2px solid #6c757d;
+        color: #6c757d;
+    }
+
+    .btn-outline-secondary:hover {
+        background-color: #6c757d;
+        color: white;
+        transform: translateY(-1px);
+    }
+
+    .btn-primary {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        border: none;
+    }
+
+    .btn-primary:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+    }
+
+    .alert {
+        margin-bottom: 1.5rem;
+        border: none;
+        border-radius: 0.5rem;
+        padding: 1rem 1.25rem;
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+    }
+
+    .alert-success {
+        background-color: #d1fae5;
+        color: #065f46;
+        border-left: 4px solid #10b981;
+    }
+
+    .alert-danger {
+        background-color: #fee2e2;
+        color: #991b1b;
+        border-left: 4px solid #ef4444;
+    }
+
+    .alert i {
+        font-size: 1.25rem;
+    }
+
+    .btn-close {
+        margin-left: auto;
+        background: none;
+        border: none;
+        font-size: 1.25rem;
+        color: inherit;
+        opacity: 0.7;
+        cursor: pointer;
+        padding: 0;
+        width: auto;
+        height: auto;
+    }
+
+    .btn-close:hover {
+        opacity: 1;
+    }
+
+    /* Responsive Design */
+    @@media (max-width: 768px) {
+        .update-profile-container {
+            padding: 1rem;
+        }
+
+        .card-header {
+            padding: 1.5rem;
+        }
+
+        .card-title {
+            font-size: 1.75rem;
+        }
+
+        .card-body {
+            padding: 1.5rem;
+        }
+
+        .form-actions {
+            flex-direction: column;
+            align-items: stretch;
+        }
+
+        .btn {
+            width: 100%;
+            justify-content: center;
+        }
+    }
+
+    @@media (max-width: 480px) {
+        .card-title {
+            font-size: 1.5rem;
+        }
+
+        .form-section {
+            padding: 1rem;
+        }
+    }
+</style>
