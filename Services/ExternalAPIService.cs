@@ -1,5 +1,6 @@
 using System.Text;
 using System.Text.Json;
+using System.Text.Json.Serialization;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 
@@ -8,6 +9,7 @@ namespace InterviewBot.Services
     public interface IExternalAPIService
     {
         Task<ExternalAPIResponse> SendAnalysisResultAsync(AnalysisData analysisData);
+        Task<ExternalAPIResponse> SendInterviewCatalogRequestAsync(object interviewCatalogRequest);
     }
 
     public class ExternalAPIService : IExternalAPIService
@@ -106,6 +108,108 @@ namespace InterviewBot.Services
                 };
             }
         }
+
+        public async Task<ExternalAPIResponse> SendInterviewCatalogRequestAsync(object interviewCatalogRequest)
+        {
+            try
+            {
+                var webhookUrl = "https://plataform.arandutechia.com/webhook/getInterviewCatalog";
+                _logger.LogInformation("Sending interview catalog request to external API: {WebhookUrl}", webhookUrl);
+
+                var json = JsonSerializer.Serialize(interviewCatalogRequest);
+                var content = new StringContent(json, Encoding.UTF8, "application/json");
+
+                _logger.LogInformation("Request payload: {Payload}", json);
+                _logger.LogInformation($"Request content length: {content.Headers.ContentLength}");
+
+                var response = await _httpClient.PostAsync(webhookUrl, content);
+                var responseContent = await response.Content.ReadAsStringAsync();
+
+                _logger.LogInformation($"External API response status: {response.StatusCode}, content length: {responseContent.Length}");
+                _logger.LogInformation("External API response content: {Content}", responseContent);
+
+                if (!response.IsSuccessStatusCode)
+                {
+                    _logger.LogError("External API returned error: {StatusCode} - {Content}",
+                        response.StatusCode, responseContent);
+
+                    return new ExternalAPIResponse
+                    {
+                        Success = false,
+                        ErrorMessage = $"External API error: {response.StatusCode} - {responseContent}",
+                        Data = null
+                    };
+                }
+
+                // Try to parse the response using specific models
+                try
+                {
+                    // First try to parse with the specific model
+                    var specificResponse = JsonSerializer.Deserialize<InterviewCatalogResponse>(responseContent);
+                    if (specificResponse != null && specificResponse.Response?.Catalog != null)
+                    {
+                        _logger.LogInformation("Successfully parsed specific model with {Count} catalog items", specificResponse.Response.Catalog.Length);
+
+                        // Return the parsed data directly for better compatibility
+                        var responseData = new Dictionary<string, object>
+                        {
+                            { "parsedCatalogs", specificResponse.Response.Catalog.Select(item => new Dictionary<string, object>
+                                {
+                                    { "topic", item.Topic },
+                                    { "instruction", item.Instruction }
+                                }).ToArray()
+                            }
+                        };
+
+                        _logger.LogInformation("Successfully parsed and prepared {Count} catalog items for InterviewService", specificResponse.Response.Catalog.Length);
+
+                        return new ExternalAPIResponse
+                        {
+                            Success = true,
+                            ErrorMessage = null,
+                            Data = responseData
+                        };
+                    }
+
+                    // Fallback to generic parsing
+                    var fallbackResponseData = JsonSerializer.Deserialize<Dictionary<string, object>>(responseContent);
+                    _logger.LogInformation("Using fallback parsing, data keys: {Keys}",
+                        fallbackResponseData != null ? string.Join(", ", fallbackResponseData.Keys) : "null");
+
+                    return new ExternalAPIResponse
+                    {
+                        Success = true,
+                        ErrorMessage = null,
+                        Data = fallbackResponseData
+                    };
+                }
+                catch (JsonException ex)
+                {
+                    _logger.LogWarning(ex, "Could not parse external API response as JSON, treating as plain text");
+
+                    return new ExternalAPIResponse
+                    {
+                        Success = true,
+                        ErrorMessage = null,
+                        Data = new Dictionary<string, object>
+                        {
+                            { "rawResponse", responseContent }
+                        }
+                    };
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error calling external Interview Catalog API");
+
+                return new ExternalAPIResponse
+                {
+                    Success = false,
+                    ErrorMessage = $"Error calling external Interview Catalog API: {ex.Message}",
+                    Data = null
+                };
+            }
+        }
     }
 
     public class AnalysisData
@@ -121,5 +225,27 @@ namespace InterviewBot.Services
         public bool Success { get; set; }
         public string? ErrorMessage { get; set; }
         public Dictionary<string, object>? Data { get; set; }
+    }
+
+    // Models for the specific API response structure
+    public class InterviewCatalogResponse
+    {
+        [JsonPropertyName("response")]
+        public InterviewCatalogResponseData Response { get; set; } = new();
+    }
+
+    public class InterviewCatalogResponseData
+    {
+        [JsonPropertyName("catalog")]
+        public InterviewCatalogApiItem[] Catalog { get; set; } = Array.Empty<InterviewCatalogApiItem>();
+    }
+
+    public class InterviewCatalogApiItem
+    {
+        [JsonPropertyName("topic")]
+        public string Topic { get; set; } = string.Empty;
+
+        [JsonPropertyName("instruction")]
+        public string Instruction { get; set; } = string.Empty;
     }
 }

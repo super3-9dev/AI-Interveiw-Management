@@ -24,11 +24,13 @@ namespace InterviewBot.Services
     {
         private readonly AppDbContext _dbContext;
         private readonly ILogger<InterviewService> _logger;
+        private readonly IExternalAPIService _externalAPIService;
 
-        public InterviewService(AppDbContext dbContext, ILogger<InterviewService> logger)
+        public InterviewService(AppDbContext dbContext, ILogger<InterviewService> logger, IExternalAPIService externalAPIService)
         {
             _dbContext = dbContext;
             _logger = logger;
+            _externalAPIService = externalAPIService;
         }
 
         // Implementation methods will be added here
@@ -41,7 +43,6 @@ namespace InterviewBot.Services
                 // Get the profile to understand the user's background
                 var profile = await _dbContext.Profiles
                     .Include(p => p.User)
-                    .ThenInclude(u => u.SelectedAIAgentRole)
                     .FirstOrDefaultAsync(p => p.Id == profileId && p.UserId == userId);
 
                 if (profile == null)
@@ -49,59 +50,16 @@ namespace InterviewBot.Services
                     throw new ArgumentException("Profile not found");
                 }
 
-                var catalogs = new List<InterviewCatalog>();
+                // Call the external API to get interview catalog
+                var catalogs = await CallExternalInterviewCatalogAPIAsync(userId);
 
-                // Generate 3 different interview catalogs based on the profile
-                var catalog1 = new InterviewCatalog
+                if (catalogs.Any())
                 {
-                    UserId = userId,
-                    Title = "Career Path Exploration",
-                    Description = "Deep dive into your career aspirations and professional development",
-                    InterviewType = "Career Counselling",
-                    AIAgentRoleId = profile.User.SelectedAIAgentRole.Id,
-                    InterviewStructure = GenerateInterviewStructure("career_exploration"),
-                    KeyQuestions = "What are your long-term career goals? How do you see yourself growing professionally?",
-                    TargetSkills = "Career Planning, Goal Setting, Professional Development",
-                    IsActive = true,
-                    CreatedAt = DateTime.UtcNow
-                };
+                    _dbContext.InterviewCatalogs.AddRange(catalogs);
+                    await _dbContext.SaveChangesAsync();
+                    _logger.LogInformation("Successfully stored {Count} interview catalogs from external API", catalogs.Count());
+                }
 
-                var catalog2 = new InterviewCatalog
-                {
-                    UserId = userId,
-                    Title = "Skills Assessment & Gap Analysis",
-                    Description = "Evaluate your current skills and identify areas for improvement",
-                    InterviewType = "Career Counselling",
-                    AIAgentRoleId = profile.User.SelectedAIAgentRole.Id,
-                    InterviewStructure = GenerateInterviewStructure("skills_assessment"),
-                    KeyQuestions = "What are your strongest technical skills? Where do you see room for improvement?",
-                    TargetSkills = "Skills Assessment, Gap Analysis, Learning Planning",
-                    IsActive = true,
-                    CreatedAt = DateTime.UtcNow
-                };
-
-                var catalog3 = new InterviewCatalog
-                {
-                    UserId = userId,
-                    Title = "Industry & Market Positioning",
-                    Description = "Understand your position in the market and industry opportunities",
-                    InterviewType = "Career Counselling",
-                    AIAgentRoleId = profile.User.SelectedAIAgentRole.Id,
-                    InterviewStructure = GenerateInterviewStructure("market_positioning"),
-                    KeyQuestions = "What industry trends interest you most? How do you differentiate yourself?",
-                    TargetSkills = "Market Analysis, Industry Knowledge, Personal Branding",
-                    IsActive = true,
-                    CreatedAt = DateTime.UtcNow
-                };
-
-                catalogs.Add(catalog1);
-                catalogs.Add(catalog2);
-                catalogs.Add(catalog3);
-
-                _dbContext.InterviewCatalogs.AddRange(catalogs);
-                await _dbContext.SaveChangesAsync();
-
-                _logger.LogInformation("Successfully generated {Count} interview catalogs", catalogs.Count);
                 return catalogs;
             }
             catch (Exception ex)
@@ -110,6 +68,253 @@ namespace InterviewBot.Services
                 throw;
             }
         }
+
+        private async Task<IEnumerable<InterviewCatalog>> CallExternalInterviewCatalogAPIAsync(int userId)
+        {
+            try
+            {
+                _logger.LogInformation("Calling external Interview Catalog API for user {UserId}", userId);
+
+                // Create a simple request payload like in the image
+                var interviewCatalogRequest = new
+                {
+                    // Simple request - the API will generate catalog based on this
+                    // Based on the image, the API expects a simple request
+                    request = "generate_interview_catalog"
+                };
+
+                // Call the external API service
+                var result = await _externalAPIService.SendInterviewCatalogRequestAsync(interviewCatalogRequest);
+
+                if (result.Success && result.Data != null)
+                {
+                    // Parse the API response and create InterviewCatalog objects
+                    var catalogs = new List<InterviewCatalog>();
+
+                    try
+                    {
+                        var catalogData = result.Data;
+
+                        // Debug logging to see the actual response structure
+                        _logger.LogInformation("API Response Data Keys: {Keys}", string.Join(", ", catalogData.Keys));
+
+                        // First, try to use the pre-parsed catalogs from ExternalAPIService
+                        if (catalogData.ContainsKey("parsedCatalogs") && catalogData["parsedCatalogs"] is object[] parsedCatalogs)
+                        {
+                            _logger.LogInformation("Found pre-parsed catalogs with {Count} items", parsedCatalogs.Length);
+
+                            foreach (var item in parsedCatalogs)
+                            {
+                                if (item is Dictionary<string, object> itemData)
+                                {
+                                    _logger.LogInformation("Processing pre-parsed catalog item with keys: {Keys}", string.Join(", ", itemData.Keys));
+
+                                    var catalog = new InterviewCatalog
+                                    {
+                                        UserId = userId,
+                                        Topic = itemData.ContainsKey("topic") ? itemData["topic"]?.ToString() ?? "General Topic" : "General Topic",
+                                        Description = itemData.ContainsKey("instruction") ? itemData["instruction"]?.ToString() ?? "General instruction" : "General instruction",
+                                        InterviewType = "AI-Generated",
+                                        AIAgentRoleId = 1, // Default AI agent role
+                                        KeyQuestions = itemData.ContainsKey("instruction") ? itemData["instruction"]?.ToString() ?? "General instruction" : "General instruction",
+                                        TargetSkills = "AI-Generated Skills",
+                                        IsActive = true,
+                                        CreatedAt = DateTime.UtcNow
+                                    };
+                                    catalogs.Add(catalog);
+                                    _logger.LogInformation("Added catalog: {Topic}", catalog.Topic);
+                                }
+                            }
+
+                            if (catalogs.Any())
+                            {
+                                _logger.LogInformation("Successfully processed {Count} pre-parsed catalogs", catalogs.Count);
+                                return catalogs;
+                            }
+                        }
+
+                        // Fallback to original parsing logic
+                        if (catalogData.ContainsKey("response"))
+                        {
+                            _logger.LogInformation("Response key found, type: {Type}", catalogData["response"]?.GetType().Name);
+                        }
+
+                        // Handle the new API response format from the image
+                        if (catalogData.ContainsKey("response") && catalogData["response"] is Dictionary<string, object> responseData)
+                        {
+                            _logger.LogInformation("Response data keys: {Keys}", string.Join(", ", responseData.Keys));
+
+                            // Check if catalog exists and handle different array types
+                            if (responseData.ContainsKey("catalog"))
+                            {
+                                var catalogValue = responseData["catalog"];
+                                _logger.LogInformation("Catalog value type: {Type}", catalogValue?.GetType().Name);
+
+                                // Handle different array types that might be returned
+                                object[]? catalogArray = null;
+
+                                if (catalogValue is object[] array)
+                                {
+                                    catalogArray = array;
+                                    _logger.LogInformation("Direct array cast successful with {Count} items", array.Length);
+                                }
+                                else if (catalogValue is System.Collections.IEnumerable enumerable)
+                                {
+                                    try
+                                    {
+                                        // Convert IEnumerable to array with better error handling
+                                        var tempList = new List<object>();
+                                        foreach (var item in enumerable)
+                                        {
+                                            tempList.Add(item);
+                                        }
+                                        catalogArray = tempList.ToArray();
+                                        _logger.LogInformation("Successfully converted IEnumerable to array with {Count} items", catalogArray.Length);
+                                    }
+                                    catch (Exception ex)
+                                    {
+                                        _logger.LogError(ex, "Error converting IEnumerable to array");
+                                    }
+                                }
+                                else
+                                {
+                                    // Try to use reflection to get the array
+                                    try
+                                    {
+                                        var type = catalogValue?.GetType();
+                                        _logger.LogInformation("Attempting reflection-based conversion for type: {Type}", type?.Name);
+
+                                        if (type != null && type.IsArray && catalogValue != null)
+                                        {
+                                            var length = ((Array)catalogValue).Length;
+                                            _logger.LogInformation("Array length via reflection: {Length}", length);
+
+                                            var tempList = new List<object>();
+                                            for (int i = 0; i < length; i++)
+                                            {
+                                                var item = ((Array)catalogValue).GetValue(i);
+                                                if (item != null)
+                                                {
+                                                    tempList.Add(item);
+                                                }
+                                            }
+                                            catalogArray = tempList.ToArray();
+                                            _logger.LogInformation("Successfully converted array via reflection with {Count} items", catalogArray.Length);
+                                        }
+                                    }
+                                    catch (Exception ex)
+                                    {
+                                        _logger.LogError(ex, "Error in reflection-based array conversion");
+                                    }
+                                }
+
+                                // Additional debug logging
+                                if (catalogArray != null)
+                                {
+                                    _logger.LogInformation("Final catalog array type: {Type}, Length: {Length}",
+                                        catalogArray.GetType().Name, catalogArray.Length);
+
+                                    if (catalogArray.Length > 0)
+                                    {
+                                        _logger.LogInformation("First item type: {Type}", catalogArray[0]?.GetType().Name);
+                                    }
+                                }
+
+                                if (catalogArray != null && catalogArray.Length > 0)
+                                {
+                                    _logger.LogInformation("Found catalog array with {Count} items", catalogArray.Length);
+
+                                    foreach (var item in catalogArray)
+                                    {
+                                        _logger.LogInformation("Processing catalog item: {Item}", item);
+
+                                        if (item is Dictionary<string, object> itemData)
+                                        {
+                                            _logger.LogInformation("Item data keys: {Keys}", string.Join(", ", itemData.Keys));
+
+                                            var catalog = new InterviewCatalog
+                                            {
+                                                UserId = userId,
+                                                Topic = itemData.ContainsKey("topic") ? itemData["topic"]?.ToString() ?? "General Topic" : "General Topic",
+                                                Description = itemData.ContainsKey("instruction") ? itemData["instruction"]?.ToString() ?? "General instruction" : "General instruction",
+                                                InterviewType = "AI-Generated",
+                                                AIAgentRoleId = 1, // Default AI agent role
+                                                KeyQuestions = itemData.ContainsKey("instruction") ? itemData["instruction"]?.ToString() ?? "General instruction" : "General instruction",
+                                                TargetSkills = "AI-Generated Skills",
+                                                IsActive = true,
+                                                CreatedAt = DateTime.UtcNow
+                                            };
+                                            catalogs.Add(catalog);
+                                            _logger.LogInformation("Added catalog: {Topic}", catalog.Topic);
+                                        }
+                                    }
+
+                                    _logger.LogInformation("Successfully parsed {Count} catalogs from external API response", catalogs.Count);
+                                }
+                                else
+                                {
+                                    _logger.LogWarning("Catalog array is empty or could not be converted to array");
+                                }
+                            }
+                            else
+                            {
+                                _logger.LogWarning("Catalog key not found in response data");
+                            }
+                        }
+
+                        // Alternative parsing for different response formats
+                        if (catalogs.Count == 0 && catalogData.ContainsKey("catalog") && catalogData["catalog"] is object[] directCatalogArray)
+                        {
+                            foreach (var item in directCatalogArray)
+                            {
+                                if (item is Dictionary<string, object> itemData)
+                                {
+                                    var catalog = new InterviewCatalog
+                                    {
+                                        UserId = userId,
+                                        Topic = itemData.ContainsKey("topic") ? itemData["topic"]?.ToString() ?? "General Topic" : "General Topic",
+                                        Description = itemData.ContainsKey("instruction") ? itemData["instruction"]?.ToString() ?? "General instruction" : "General instruction",
+                                        InterviewType = "AI-Generated",
+                                        AIAgentRoleId = 1, // Default AI agent role
+                                        KeyQuestions = itemData.ContainsKey("instruction") ? itemData["instruction"]?.ToString() ?? "General instruction" : "General instruction",
+                                        TargetSkills = "AI-Generated Skills",
+                                        IsActive = true,
+                                        CreatedAt = DateTime.UtcNow
+                                    };
+                                    catalogs.Add(catalog);
+                                }
+                            }
+
+                            if (catalogs.Any())
+                            {
+                                _logger.LogInformation("Successfully parsed {Count} catalogs from direct catalog array", catalogs.Count);
+                            }
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        _logger.LogError(ex, "Error parsing external API response");
+                    }
+
+                    // Return the parsed catalogs (if any)
+                    return catalogs;
+                }
+                else
+                {
+                    _logger.LogWarning("External API call failed: {ErrorMessage}", result.ErrorMessage);
+                }
+
+                // Return empty list if API call fails - no fallback to default catalogs
+                return new List<InterviewCatalog>();
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error calling external Interview Catalog API");
+                return new List<InterviewCatalog>();
+            }
+        }
+
+
 
         public async Task<InterviewCatalog> CreateCustomInterviewAsync(string title, string description, string customQuestions, string focusAreas, string difficultyLevel, string interviewDuration, int userId)
         {
@@ -137,11 +342,11 @@ namespace InterviewBot.Services
                 return new InterviewCatalog
                 {
                     UserId = userId,
-                    Title = title,
+                    Topic = title,
                     Description = description,
                     InterviewType = "Custom",
                     AIAgentRoleId = 1, // Default AI agent role
-                    InterviewStructure = GenerateInterviewStructure("custom"),
+
                     KeyQuestions = customQuestions,
                     TargetSkills = focusAreas,
                     IsActive = true,
@@ -322,17 +527,6 @@ namespace InterviewBot.Services
                 .ToListAsync();
         }
 
-        private string GenerateInterviewStructure(string type)
-        {
-            // Generate JSON structure for different interview types
-            return type switch
-            {
-                "career_exploration" => "{\"sections\": [{\"name\": \"Career Goals\", \"questions\": 5}, {\"name\": \"Professional Experience\", \"questions\": 4}, {\"name\": \"Future Plans\", \"questions\": 3}]}",
-                "skills_assessment" => "{\"sections\": [{\"name\": \"Technical Skills\", \"questions\": 6}, {\"name\": \"Soft Skills\", \"questions\": 4}, {\"name\": \"Areas for Improvement\", \"questions\": 3}]}",
-                "market_positioning" => "{\"sections\": [{\"name\": \"Industry Knowledge\", \"questions\": 4}, {\"name\": \"Personal Brand\", \"questions\": 3}, {\"name\": \"Market Opportunities\", \"questions\": 4}]}",
-                "custom" => "{\"sections\": [{\"name\": \"Custom Questions\", \"questions\": 5}]}",
-                _ => "{\"sections\": [{\"name\": \"General Questions\", \"questions\": 5}]}"
-            };
-        }
+
     }
 }

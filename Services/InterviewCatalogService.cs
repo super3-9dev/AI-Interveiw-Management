@@ -36,11 +36,11 @@ namespace InterviewBot.Services
                 var careerCatalog = new InterviewCatalog
                 {
                     UserId = userId,
-                    Title = "Career Counselling Interview",
+                    Topic = "Career Counselling Interview",
                     Description = "Professional career guidance interview based on your resume analysis",
                     InterviewType = "Career Counselling",
                     AIAgentRoleId = user.SelectedAIAgentRoleId.Value,
-                    InterviewStructure = GenerateCareerInterviewStructure(profile),
+
                     KeyQuestions = "What are your career goals? What skills do you want to develop? What industries interest you?",
                     TargetSkills = "Career planning, skill assessment, industry knowledge, goal setting"
                 };
@@ -53,11 +53,11 @@ namespace InterviewBot.Services
                 var purposeCatalog = new InterviewCatalog
                 {
                     UserId = userId,
-                    Title = "Purpose Discovery Interview",
+                    Topic = "Purpose Discovery Interview",
                     Description = "Deep exploration of your values, motivations, and life direction",
                     InterviewType = "Purpose Discovery",
                     AIAgentRoleId = user.SelectedAIAgentRoleId.Value,
-                    InterviewStructure = GeneratePurposeInterviewStructure(profile),
+
                     KeyQuestions = "What motivates you? What values do you hold? What impact do you want to create?",
                     TargetSkills = "Self-reflection, value clarification, purpose identification, motivation analysis"
                 };
@@ -68,11 +68,11 @@ namespace InterviewBot.Services
             var skillsCatalog = new InterviewCatalog
             {
                 UserId = userId,
-                Title = "Skills Assessment Interview",
+                Topic = "Skills Assessment Interview",
                 Description = "Comprehensive evaluation of your technical and soft skills",
                 InterviewType = "Skills Assessment",
                 AIAgentRoleId = user.SelectedAIAgentRoleId.Value,
-                InterviewStructure = GenerateSkillsInterviewStructure(profile),
+
                 KeyQuestions = "What are your strongest technical skills? How do you handle challenges? What are your learning goals?",
                 TargetSkills = "Technical skills, problem-solving, communication, leadership, adaptability"
             };
@@ -199,104 +199,7 @@ namespace InterviewBot.Services
             return analysis;
         }
 
-        private string GenerateCareerInterviewStructure(Profile profile)
-        {
-            // Generate JSON structure for career counselling interview
-            return @"{
-                ""sections"": [
-                    {
-                        ""name"": ""Career Goals"",
-                        ""questions"": [
-                            ""What are your short-term career goals?"",
-                            ""Where do you see yourself in 5 years?"",
-                            ""What industries interest you most?""
-                        ]
-                    },
-                    {
-                        ""name"": ""Skills Assessment"",
-                        ""questions"": [
-                            ""What are your strongest technical skills?"",
-                            ""How do you stay updated with industry trends?"",
-                            ""What skills would you like to develop?""
-                        ]
-                    },
-                    {
-                        ""name"": ""Experience Review"",
-                        ""questions"": [
-                            ""What was your most challenging project?"",
-                            ""How do you handle workplace conflicts?"",
-                            ""What leadership experience do you have?""
-                        ]
-                    }
-                ]
-            }";
-        }
 
-        private string GeneratePurposeInterviewStructure(Profile profile)
-        {
-            // Generate JSON structure for purpose discovery interview
-            return @"{
-                ""sections"": [
-                    {
-                        ""name"": ""Personal Values"",
-                        ""questions"": [
-                            ""What values are most important to you?"",
-                            ""What motivates you to get up in the morning?"",
-                            ""What would you fight for?""
-                        ]
-                    },
-                    {
-                        ""name"": ""Life Direction"",
-                        ""questions"": [
-                            ""What impact do you want to create?"",
-                            ""What legacy do you want to leave?"",
-                            ""What would success look like to you?""
-                        ]
-                    },
-                    {
-                        ""name"": ""Passions and Interests"",
-                        ""questions"": [
-                            ""What activities make you lose track of time?"",
-                            ""What would you do if money wasn't an issue?"",
-                            ""What problems in the world concern you most?""
-                        ]
-                    }
-                ]
-            }";
-        }
-
-        private string GenerateSkillsInterviewStructure(Profile profile)
-        {
-            // Generate JSON structure for skills assessment interview
-            return @"{
-                ""sections"": [
-                    {
-                        ""name"": ""Technical Skills"",
-                        ""questions"": [
-                            ""What programming languages do you know?"",
-                            ""How do you approach debugging?"",
-                            ""What tools and technologies do you use?""
-                        ]
-                    },
-                    {
-                        ""name"": ""Soft Skills"",
-                        ""questions"": [
-                            ""How do you handle tight deadlines?"",
-                            ""Describe a time you had to learn something quickly"",
-                            ""How do you give and receive feedback?""
-                        ]
-                    },
-                    {
-                        ""name"": ""Problem Solving"",
-                        ""questions"": [
-                            ""Walk me through your problem-solving process"",
-                            ""How do you handle ambiguity?"",
-                            ""What's the most complex problem you've solved?""
-                        ]
-                    }
-                ]
-            }";
-        }
 
         private async Task<InterviewResult> GenerateAIAnalysis(InterviewSession session)
         {
