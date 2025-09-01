@@ -297,13 +297,27 @@ namespace InterviewBot.Services
                     await dbContext.SaveChangesAsync();
                     _logger.LogInformation($"Profile {analysisId} completed successfully");
 
-                    // Generate interview catalogs for the completed profile
+                    // Generate interview catalogs for the completed profile (ONLY ONCE per user)
                     try
                     {
-                        using var interviewScope = _serviceScopeFactory.CreateScope();
-                        var interviewService = interviewScope.ServiceProvider.GetRequiredService<IInterviewService>();
-                        var catalogs = await interviewService.GenerateInterviewCatalogsAsync(profile.Id, profile.UserId);
-                        _logger.LogInformation($"Generated {catalogs.Count()} interview catalogs for profile {profile.Id}");
+                        // Check if user already has interview catalogs to avoid duplicate API calls
+                        var existingCatalogs = await dbContext.InterviewCatalogs
+                            .Where(c => c.UserId == profile.UserId)
+                            .AnyAsync();
+
+                        if (!existingCatalogs)
+                        {
+                            _logger.LogInformation($"User {profile.UserId} has no existing interview catalogs, calling API for first time");
+
+                            using var interviewScope = _serviceScopeFactory.CreateScope();
+                            var interviewService = interviewScope.ServiceProvider.GetRequiredService<IInterviewService>();
+                            var catalogs = await interviewService.GenerateInterviewCatalogsAsync(profile.Id, profile.UserId);
+                            _logger.LogInformation($"Generated {catalogs.Count()} interview catalogs for profile {profile.Id} (first time for user {profile.UserId})");
+                        }
+                        else
+                        {
+                            _logger.LogInformation($"User {profile.UserId} already has interview catalogs, skipping API call to avoid duplicates");
+                        }
                     }
                     catch (Exception ex)
                     {
