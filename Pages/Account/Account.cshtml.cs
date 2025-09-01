@@ -11,6 +11,12 @@ namespace InterviewBot.Pages.Account
     [Authorize]
     public class AccountModel : PageModel
     {
+        public override bool TryValidateModel(object model)
+        {
+            // Disable automatic model validation - we'll handle it manually
+            return true;
+        }
+
         private readonly IProfileService _profileService;
 
         public AccountModel(IProfileService profileService)
@@ -18,42 +24,35 @@ namespace InterviewBot.Pages.Account
             _profileService = profileService;
         }
 
-        [BindProperty]
-        [Required(ErrorMessage = "Email is required")]
-        [EmailAddress(ErrorMessage = "Invalid email format")]
+        // User Information - only bound when updating user info
+        [BindProperty(Name = "Email")]
         public string Email { get; set; } = string.Empty;
 
-        [BindProperty]
-        [Required(ErrorMessage = "Full name is required")]
-        [StringLength(100, ErrorMessage = "Full name cannot exceed 100 characters")]
+        [BindProperty(Name = "FullName")]
         public string FullName { get; set; } = string.Empty;
 
-        [BindProperty]
+        // Password Information - only bound when updating password
+        [BindProperty(Name = "CurrentPassword")]
         public string CurrentPassword { get; set; } = string.Empty;
 
-        [BindProperty]
-        [StringLength(100, MinimumLength = 6, ErrorMessage = "Password must be at least 6 characters long")]
+        [BindProperty(Name = "NewPassword")]
         public string NewPassword { get; set; } = string.Empty;
 
-        [BindProperty]
-        [Compare("NewPassword", ErrorMessage = "Passwords do not match")]
+        [BindProperty(Name = "ConfirmPassword")]
         public string ConfirmPassword { get; set; } = string.Empty;
 
-        [BindProperty]
-        [StringLength(1000, ErrorMessage = "Strengths cannot exceed 1000 characters")]
-        public string Strengths { get; set; } = string.Empty;
+        // Profile Information - only bound when updating profile
+        [BindProperty(Name = "Strengths")]
+        public string? Strengths { get; set; }
 
-        [BindProperty]
-        [StringLength(1000, ErrorMessage = "Weaknesses cannot exceed 1000 characters")]
-        public string Weaknesses { get; set; } = string.Empty;
+        [BindProperty(Name = "Weaknesses")]
+        public string? Weaknesses { get; set; }
 
-        [BindProperty]
-        [StringLength(1000, ErrorMessage = "Career goals cannot exceed 1000 characters")]
-        public string CareerGoals { get; set; } = string.Empty;
+        [BindProperty(Name = "CareerGoals")]
+        public string? CareerGoals { get; set; }
 
-        [BindProperty]
-        [StringLength(1000, ErrorMessage = "Interests cannot exceed 1000 characters")]
-        public string Interests { get; set; } = string.Empty;
+        [BindProperty(Name = "Interests")]
+        public string? Interests { get; set; }
 
         public string? SuccessMessage { get; set; }
         public string? ErrorMessage { get; set; }
@@ -84,18 +83,18 @@ namespace InterviewBot.Pages.Account
                     var profile = profiles.FirstOrDefault();
                     if (profile != null)
                     {
-                        Strengths = profile.Strengths ?? string.Empty;
-                        Weaknesses = profile.Weaknesses ?? string.Empty;
-                        CareerGoals = profile.CareerGoals ?? string.Empty;
-                        Interests = profile.Interests ?? string.Empty;
+                        Strengths = profile.Strengths;
+                        Weaknesses = profile.Weaknesses;
+                        CareerGoals = profile.CareerGoals;
+                        Interests = profile.Interests;
                     }
                     else
                     {
-                        // Set empty values if no profile exists
-                        Strengths = string.Empty;
-                        Weaknesses = string.Empty;
-                        CareerGoals = string.Empty;
-                        Interests = string.Empty;
+                        // Set null values if no profile exists
+                        Strengths = null;
+                        Weaknesses = null;
+                        CareerGoals = null;
+                        Interests = null;
                     }
                 }
             }
@@ -105,12 +104,37 @@ namespace InterviewBot.Pages.Account
             }
         }
 
-        public async Task<IActionResult> OnPostAsync()
+        // Handler for updating user information (email and full name)
+        public async Task<IActionResult> OnPostUpdateUserInfoAsync()
         {
             try
             {
-                if (!ModelState.IsValid)
+                // Clear any existing validation errors for other sections
+                ModelState.Clear();
+
+                // Only validate user information fields
+                if (string.IsNullOrWhiteSpace(Email))
                 {
+                    ModelState.AddModelError("Email", "Email is required");
+                    return Page();
+                }
+
+                // Validate email format
+                if (!Email.Contains("@") || !Email.Contains("."))
+                {
+                    ModelState.AddModelError("Email", "Invalid email format");
+                    return Page();
+                }
+
+                if (string.IsNullOrWhiteSpace(FullName))
+                {
+                    ModelState.AddModelError("FullName", "Full name is required");
+                    return Page();
+                }
+
+                if (FullName.Length > 100)
+                {
+                    ModelState.AddModelError("FullName", "Full name cannot exceed 100 characters");
                     return Page();
                 }
 
@@ -121,38 +145,6 @@ namespace InterviewBot.Pages.Account
                     return Page();
                 }
 
-                // Validate password change if new password is provided
-                if (!string.IsNullOrEmpty(NewPassword))
-                {
-                    if (string.IsNullOrEmpty(CurrentPassword))
-                    {
-                        ModelState.AddModelError("CurrentPassword", "Current password is required to change password.");
-                        return Page();
-                    }
-
-                    // Verify current password
-                    var currentUser = await _profileService.GetUserAsync(userId.Value);
-                    if (currentUser != null && !BCrypt.Net.BCrypt.Verify(CurrentPassword, currentUser.PasswordHash))
-                    {
-                        ModelState.AddModelError("CurrentPassword", "Current password is incorrect.");
-                        return Page();
-                    }
-
-                    // Validate new password length
-                    if (NewPassword.Length < 6)
-                    {
-                        ModelState.AddModelError("NewPassword", "New password must be at least 6 characters long.");
-                        return Page();
-                    }
-
-                    // Validate password confirmation
-                    if (NewPassword != ConfirmPassword)
-                    {
-                        ModelState.AddModelError("ConfirmPassword", "Passwords do not match.");
-                        return Page();
-                    }
-                }
-
                 // Update user information
                 var user = await _profileService.GetUserAsync(userId.Value);
                 if (user != null)
@@ -160,13 +152,160 @@ namespace InterviewBot.Pages.Account
                     user.Email = Email;
                     user.FullName = FullName;
 
-                    // Pass the new password if provided
-                    var userUpdateSuccess = await _profileService.UpdateUserAsync(user, NewPassword);
+                    var userUpdateSuccess = await _profileService.UpdateUserAsync(user);
                     if (!userUpdateSuccess)
                     {
                         ErrorMessage = "Failed to update user information.";
                         return Page();
                     }
+
+                    SuccessMessage = "User information updated successfully!";
+                }
+
+                return Page();
+            }
+            catch (Exception ex)
+            {
+                ErrorMessage = "Error updating user information: " + ex.Message;
+                return Page();
+            }
+        }
+
+        // Handler for updating password
+        public async Task<IActionResult> OnPostUpdatePasswordAsync()
+        {
+            try
+            {
+                // Clear any existing validation errors for other sections
+                ModelState.Clear();
+
+                // Only validate password fields
+                if (string.IsNullOrWhiteSpace(CurrentPassword))
+                {
+                    ViewData["CurrentPasswordError"] = "Current password is required";
+                    return Page();
+                }
+
+                if (string.IsNullOrWhiteSpace(NewPassword))
+                {
+                    ViewData["NewPasswordError"] = "New password is required";
+                    return Page();
+                }
+
+                var userId = GetCurrentUserId();
+                if (userId == null)
+                {
+                    ErrorMessage = "User not authenticated. Please log in again.";
+                    return Page();
+                }
+
+                // Validate password change
+                if (string.IsNullOrEmpty(NewPassword))
+                {
+                    ErrorMessage = "New password is required.";
+                    return Page();
+                }
+
+                if (string.IsNullOrEmpty(CurrentPassword))
+                {
+                    ErrorMessage = "Current password is required to change password.";
+                    return Page();
+                }
+
+                // Verify current password
+                var currentUser = await _profileService.GetUserAsync(userId.Value);
+                if (currentUser != null && !BCrypt.Net.BCrypt.Verify(CurrentPassword, currentUser.PasswordHash))
+                {
+                    ErrorMessage = "Current password is incorrect.";
+                    return Page();
+                }
+
+                // Validate new password length
+                if (NewPassword.Length < 6)
+                {
+                    ViewData["NewPasswordError"] = "New password must be at least 6 characters long.";
+                    return Page();
+                }
+
+                if (NewPassword.Length > 100)
+                {
+                    ViewData["NewPasswordError"] = "New password cannot exceed 100 characters.";
+                    return Page();
+                }
+
+                // Validate password confirmation
+                if (NewPassword != ConfirmPassword)
+                {
+                    ViewData["ConfirmPasswordError"] = "Passwords do not match.";
+                    return Page();
+                }
+
+                // Update password
+                var user = await _profileService.GetUserAsync(userId.Value);
+                if (user != null)
+                {
+                    var userUpdateSuccess = await _profileService.UpdateUserAsync(user, NewPassword);
+                    if (!userUpdateSuccess)
+                    {
+                        ErrorMessage = "Failed to update password.";
+                        return Page();
+                    }
+
+                    SuccessMessage = "Password updated successfully!";
+
+                    // Clear sensitive fields
+                    CurrentPassword = string.Empty;
+                    NewPassword = string.Empty;
+                    ConfirmPassword = string.Empty;
+                }
+
+                return Page();
+            }
+            catch (Exception ex)
+            {
+                ErrorMessage = "Error updating password: " + ex.Message;
+                return Page();
+            }
+        }
+
+        // Handler for updating profile information
+        public async Task<IActionResult> OnPostUpdateProfileAsync()
+        {
+            try
+            {
+                // Clear any existing validation errors for other sections
+                ModelState.Clear();
+
+                // Validate profile field lengths if they contain data
+                if (!string.IsNullOrWhiteSpace(Strengths) && Strengths.Length > 1000)
+                {
+                    ModelState.AddModelError("Strengths", "Strengths cannot exceed 1000 characters");
+                    return Page();
+                }
+
+                if (!string.IsNullOrWhiteSpace(Weaknesses) && Weaknesses.Length > 1000)
+                {
+                    ModelState.AddModelError("Weaknesses", "Weaknesses cannot exceed 1000 characters");
+                    return Page();
+                }
+
+                if (!string.IsNullOrWhiteSpace(CareerGoals) && CareerGoals.Length > 1000)
+                {
+                    ModelState.AddModelError("CareerGoals", "Career goals cannot exceed 1000 characters");
+                    return Page();
+                }
+
+                if (!string.IsNullOrWhiteSpace(Interests) && Interests.Length > 1000)
+                {
+                    ModelState.AddModelError("Interests", "Interests cannot exceed 1000 characters");
+                    return Page();
+                }
+
+                var userId = GetCurrentUserId();
+                if (userId == null)
+                {
+                    ErrorMessage = "User not authenticated. Please log in again.";
+                    return Page();
                 }
 
                 // Update profile information
@@ -176,10 +315,10 @@ namespace InterviewBot.Pages.Account
                 if (profile != null)
                 {
                     // Update existing profile
-                    profile.Strengths = Strengths;
-                    profile.Weaknesses = Weaknesses;
-                    profile.CareerGoals = CareerGoals;
-                    profile.Interests = Interests;
+                    profile.Strengths = Strengths ?? string.Empty;
+                    profile.Weaknesses = Weaknesses ?? string.Empty;
+                    profile.CareerGoals = CareerGoals ?? string.Empty;
+                    profile.Interests = Interests ?? string.Empty;
                     profile.UpdatedAt = DateTime.UtcNow;
 
                     var profileUpdateSuccess = await _profileService.UpdateProfileAsync(profile);
@@ -195,10 +334,10 @@ namespace InterviewBot.Pages.Account
                     var newProfile = new Profile
                     {
                         UserId = userId.Value,
-                        Strengths = Strengths,
-                        Weaknesses = Weaknesses,
-                        CareerGoals = CareerGoals,
-                        Interests = Interests,
+                        Strengths = Strengths ?? string.Empty,
+                        Weaknesses = Weaknesses ?? string.Empty,
+                        CareerGoals = CareerGoals ?? string.Empty,
+                        Interests = Interests ?? string.Empty,
                         Status = "Active",
                         CreatedAt = DateTime.UtcNow,
                         UpdatedAt = DateTime.UtcNow
@@ -207,23 +346,12 @@ namespace InterviewBot.Pages.Account
                     await _profileService.CreateProfileAsync(newProfile);
                 }
 
-                var updateMessage = "Profile updated successfully!";
-                if (!string.IsNullOrEmpty(NewPassword))
-                {
-                    updateMessage += " Password has been changed.";
-                }
-                SuccessMessage = updateMessage;
-
-                // Clear sensitive fields
-                CurrentPassword = string.Empty;
-                NewPassword = string.Empty;
-                ConfirmPassword = string.Empty;
-
+                SuccessMessage = "Profile information updated successfully!";
                 return Page();
             }
             catch (Exception ex)
             {
-                ErrorMessage = "Error updating profile: " + ex.Message;
+                ErrorMessage = "Error updating profile information: " + ex.Message;
                 return Page();
             }
         }

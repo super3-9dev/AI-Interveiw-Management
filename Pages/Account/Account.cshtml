@@ -79,7 +79,10 @@
                             <input asp-for="CurrentPassword" type="password" class="form-control"
                                 placeholder="Enter current password" />
                             <small class="form-text text-muted">Required to change password</small>
-                            <span asp-validation-for="CurrentPassword" class="text-danger"></span>
+                            @if (!string.IsNullOrEmpty(ViewData["CurrentPasswordError"]?.ToString()))
+                            {
+                                <div class="text-danger small">@ViewData["CurrentPasswordError"]</div>
+                            }
                         </div>
 
                         <div class="form-group" style="width: 48%;">
@@ -87,7 +90,10 @@
                             <input asp-for="NewPassword" type="password" class="form-control"
                                 placeholder="Enter new password" />
                             <small class="form-text text-muted">Leave blank to keep current password</small>
-                            <span asp-validation-for="NewPassword" class="text-danger"></span>
+                            @if (!string.IsNullOrEmpty(ViewData["NewPasswordError"]?.ToString()))
+                            {
+                                <div class="text-danger small">@ViewData["NewPasswordError"]</div>
+                            }
                         </div>
                     </div>
                     <div class="form-row">
@@ -96,7 +102,10 @@
                             <input asp-for="ConfirmPassword" type="password" class="form-control"
                                 placeholder="Confirm new password" />
                             <small class="form-text text-muted">Must match new password</small>
-                            <span asp-validation-for="ConfirmPassword" class="text-danger"></span>
+                            @if (!string.IsNullOrEmpty(ViewData["ConfirmPasswordError"]?.ToString()))
+                            {
+                                <div class="text-danger small">@ViewData["ConfirmPasswordError"]</div>
+                            }
                         </div>
                     </div>
                     <div class="form-actions">
@@ -120,14 +129,12 @@
                             <label asp-for="Strengths" class="form-label">Strengths</label>
                             <textarea asp-for="Strengths" class="form-control" rows="3"
                                 placeholder="Describe your key strengths and skills"></textarea>
-                            <span asp-validation-for="Strengths" class="text-danger"></span>
                         </div>
 
                         <div class="form-group" style="width: 48%;">
                             <label asp-for="Weaknesses" class="form-label">Areas for Improvement</label>
                             <textarea asp-for="Weaknesses" class="form-control" rows="3"
                                 placeholder="Describe areas you'd like to improve"></textarea>
-                            <span asp-validation-for="Weaknesses" class="text-danger"></span>
                         </div>
                     </div>
                     <div class="form-row">
@@ -135,14 +142,12 @@
                             <label asp-for="CareerGoals" class="form-label">Career Goals</label>
                             <textarea asp-for="CareerGoals" class="form-control" rows="3"
                                 placeholder="Describe your career aspirations and goals"></textarea>
-                            <span asp-validation-for="CareerGoals" class="text-danger"></span>
                         </div>
 
                         <div class="form-group" style="width: 48%;">
                             <label asp-for="Interests" class="form-label">Professional Interests</label>
                             <textarea asp-for="Interests" class="form-control" rows="3"
                                 placeholder="Describe your professional interests and passions"></textarea>
-                            <span asp-validation-for="Interests" class="text-danger"></span>
                         </div>
                     </div>
                     <div class="form-actions">
