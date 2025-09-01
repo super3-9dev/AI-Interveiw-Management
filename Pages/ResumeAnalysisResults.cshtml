@@ -50,6 +50,19 @@
             font-family: 'Courier New', monospace;
         }
 
+        .alert {
+            padding: 1rem;
+            margin-bottom: 1rem;
+            border: 1px solid transparent;
+            border-radius: 0.5rem;
+        }
+
+        .alert-danger {
+            color: #721c24;
+            background-color: #f8d7da;
+            border-color: #f5c6cb;
+        }
+
         .progress-section {
             background: white;
             border: 1px solid #e5e7eb;
@@ -366,8 +379,17 @@
         let isCompleted = @(Model.Profile?.Status == "Completed" ? "true" : "false");
         let profileId = @(Model.Profile?.Id ?? 0);
 
-        // Initialize progress bar
+        // Initialize progress tracking
         function initializeProgress() {
+            if (!profileId || profileId <= 0) {
+                console.error('Invalid profile ID:', profileId);
+                showErrorMessage('Invalid profile ID. Please check the URL and try again.');
+                return;
+            }
+
+            console.log('Initializing progress for profile:', profileId);
+            
+            // Initialize progress bar
             updateProgressBar(currentProgress);
             updateWorkflowSteps(currentProgress);
             
@@ -494,6 +516,21 @@
                     console.error('Test API error:', error);
                     alert('API Test Failed! Check console for details.');
                 });
+        }
+
+        // Show error message
+        function showErrorMessage(message) {
+            const errorDiv = document.createElement('div');
+            errorDiv.className = 'alert alert-danger';
+            errorDiv.innerHTML = `
+                <strong>Error:</strong> ${message}
+                <br><br>
+                <a href="/Dashboard" class="btn btn-primary">Go to Dashboard</a>
+                <a href="/NewAnalysis" class="btn btn-secondary">Start New Analysis</a>
+            `;
+            
+            const container = document.querySelector('.results-container');
+            container.insertBefore(errorDiv, container.firstChild);
         }
 
         // Initialize when page loads

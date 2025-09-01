@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
 using InterviewBot.Services;
 using InterviewBot.Models;
+using System.Security.Claims;
 
 namespace InterviewBot.Controllers
 {
@@ -22,27 +23,17 @@ namespace InterviewBot.Controllers
         {
             try
             {
-                // Get user ID from session or authentication
+                // Get user ID from authentication context
                 var userId = GetCurrentUserId();
-                
-                // For testing purposes, if no user ID is found, try to get the profile directly
-                Profile? profile;
-                if (userId == 0)
+                if (userId == null)
                 {
-                    // Try to get profile without user ID for testing
-                    profile = await _profileService.GetProfileAsync(id, 1); // Use default user ID 1 for testing
-                    if (profile == null)
-                    {
-                        return NotFound($"Profile {id} not found");
-                    }
+                    return Unauthorized("User not authenticated");
                 }
-                else
+
+                var profile = await _profileService.GetProfileAsync(id, userId.Value);
+                if (profile == null)
                 {
-                    profile = await _profileService.GetProfileAsync(id, userId);
-                    if (profile == null)
-                    {
-                        return NotFound($"Profile {id} not found for user {userId}");
-                    }
+                    return NotFound($"Profile {id} not found for user {userId.Value}");
                 }
 
                 var progressData = new
@@ -64,24 +55,14 @@ namespace InterviewBot.Controllers
             }
         }
 
-        private int GetCurrentUserId()
+        private int? GetCurrentUserId()
         {
-            // This is a simplified version - in a real app, you'd get this from authentication
-            // For now, we'll try to get it from the session or return a default
-            var userIdString = HttpContext.Session.GetString("UserId");
-            if (int.TryParse(userIdString, out int userId))
+            var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier);
+            if (userIdClaim != null && int.TryParse(userIdClaim.Value, out int userId))
             {
                 return userId;
             }
-            
-            // Fallback: try to get from query string for testing
-            var queryUserId = HttpContext.Request.Query["userId"].FirstOrDefault();
-            if (int.TryParse(queryUserId, out int queryId))
-            {
-                return queryId;
-            }
-            
-            return 0;
+            return null;
         }
     }
 }
