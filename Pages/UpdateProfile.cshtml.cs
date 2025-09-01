@@ -6,6 +6,7 @@ using InterviewBot.Models;
 using System.Security.Claims;
 using System.ComponentModel.DataAnnotations;
 
+
 namespace InterviewBot.Pages
 {
     [Authorize]
@@ -29,7 +30,6 @@ namespace InterviewBot.Pages
         public string FullName { get; set; } = string.Empty;
 
         [BindProperty]
-        [Required(ErrorMessage = "Current password is required")]
         public string CurrentPassword { get; set; } = string.Empty;
 
         [BindProperty]
@@ -122,14 +122,47 @@ namespace InterviewBot.Pages
                     return Page();
                 }
 
+                // Validate password change if new password is provided
+                if (!string.IsNullOrEmpty(NewPassword))
+                {
+                    if (string.IsNullOrEmpty(CurrentPassword))
+                    {
+                        ModelState.AddModelError("CurrentPassword", "Current password is required to change password.");
+                        return Page();
+                    }
+
+                    // Verify current password
+                    var currentUser = await _profileService.GetUserAsync(userId.Value);
+                    if (currentUser != null && !BCrypt.Net.BCrypt.Verify(CurrentPassword, currentUser.PasswordHash))
+                    {
+                        ModelState.AddModelError("CurrentPassword", "Current password is incorrect.");
+                        return Page();
+                    }
+
+                    // Validate new password length
+                    if (NewPassword.Length < 6)
+                    {
+                        ModelState.AddModelError("NewPassword", "New password must be at least 6 characters long.");
+                        return Page();
+                    }
+
+                    // Validate password confirmation
+                    if (NewPassword != ConfirmPassword)
+                    {
+                        ModelState.AddModelError("ConfirmPassword", "Passwords do not match.");
+                        return Page();
+                    }
+                }
+
                 // Update user information
                 var user = await _profileService.GetUserAsync(userId.Value);
                 if (user != null)
                 {
                     user.Email = Email;
                     user.FullName = FullName;
-                    
-                    var userUpdateSuccess = await _profileService.UpdateUserAsync(user);
+
+                    // Pass the new password if provided
+                    var userUpdateSuccess = await _profileService.UpdateUserAsync(user, NewPassword);
                     if (!userUpdateSuccess)
                     {
                         ErrorMessage = "Failed to update user information.";
@@ -140,7 +173,7 @@ namespace InterviewBot.Pages
                 // Update profile information
                 var profiles = await _profileService.GetUserProfilesAsync(userId.Value);
                 var profile = profiles.FirstOrDefault();
-                
+
                 if (profile != null)
                 {
                     // Update existing profile
@@ -149,7 +182,7 @@ namespace InterviewBot.Pages
                     profile.CareerGoals = CareerGoals;
                     profile.Interests = Interests;
                     profile.UpdatedAt = DateTime.UtcNow;
-                    
+
                     var profileUpdateSuccess = await _profileService.UpdateProfileAsync(profile);
                     if (!profileUpdateSuccess)
                     {
@@ -171,11 +204,16 @@ namespace InterviewBot.Pages
                         CreatedAt = DateTime.UtcNow,
                         UpdatedAt = DateTime.UtcNow
                     };
-                    
+
                     await _profileService.CreateProfileAsync(newProfile);
                 }
-                
-                SuccessMessage = "Profile updated successfully!";
+
+                var updateMessage = "Profile updated successfully!";
+                if (!string.IsNullOrEmpty(NewPassword))
+                {
+                    updateMessage += " Password has been changed.";
+                }
+                SuccessMessage = updateMessage;
 
                 // Clear sensitive fields
                 CurrentPassword = string.Empty;

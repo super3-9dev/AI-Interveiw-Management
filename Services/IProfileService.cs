@@ -22,6 +22,6 @@ namespace InterviewBot.Services
         Task<bool> UpdateProfileAsync(Profile profile);
         Task<Profile> CreateProfileAsync(Profile profile);
         Task<User?> GetUserAsync(int userId);
-        Task<bool> UpdateUserAsync(User user);
+        Task<bool> UpdateUserAsync(User user, string? newPassword = null);
     }
 }

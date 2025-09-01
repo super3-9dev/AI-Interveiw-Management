@@ -7,6 +7,7 @@ using System.Text;
 using Microsoft.Extensions.DependencyInjection;
 using System.Text.Json;
 
+
 namespace InterviewBot.Services
 {
     public class ProfileService : IProfileService
@@ -288,7 +289,7 @@ namespace InterviewBot.Services
 
                     // Final step: Results ready (100% of total progress)
                     await UpdateAnalysisStatusAsync(dbContext, analysisId, "Processing", "External API results received, analysis complete!", 95);
-                    
+
                     profile.Status = "Completed";
                     profile.Progress = 100;
                     profile.UpdatedAt = DateTime.UtcNow;
@@ -504,10 +505,10 @@ Format the response as JSON with these exact keys: briefIntroduction, possibleJo
             try
             {
                 _logger.LogInformation("Updating profile {ProfileId} for user {UserId}", profile.Id, profile.UserId);
-                
+
                 var existingProfile = await _dbContext.Profiles
                     .FirstOrDefaultAsync(p => p.Id == profile.Id && p.UserId == profile.UserId);
-                
+
                 if (existingProfile == null)
                 {
                     _logger.LogWarning("Profile {ProfileId} not found for user {UserId}", profile.Id, profile.UserId);
@@ -523,7 +524,7 @@ Format the response as JSON with these exact keys: briefIntroduction, possibleJo
 
                 await _dbContext.SaveChangesAsync();
                 _logger.LogInformation("Profile {ProfileId} updated successfully", profile.Id);
-                
+
                 return true;
             }
             catch (Exception ex)
@@ -538,15 +539,15 @@ Format the response as JSON with these exact keys: briefIntroduction, possibleJo
             try
             {
                 _logger.LogInformation("Creating new profile for user {UserId}", profile.UserId);
-                
+
                 profile.CreatedAt = DateTime.UtcNow;
                 profile.UpdatedAt = DateTime.UtcNow;
-                
+
                 _dbContext.Profiles.Add(profile);
                 await _dbContext.SaveChangesAsync();
-                
+
                 _logger.LogInformation("Profile {ProfileId} created successfully", profile.Id);
-                
+
                 return profile;
             }
             catch (Exception ex)
@@ -570,15 +571,15 @@ Format the response as JSON with these exact keys: briefIntroduction, possibleJo
             }
         }
 
-        public async Task<bool> UpdateUserAsync(User user)
+        public async Task<bool> UpdateUserAsync(User user, string? newPassword = null)
         {
             try
             {
                 _logger.LogInformation("Updating user {UserId}", user.Id);
-                
+
                 var existingUser = await _dbContext.Users
                     .FirstOrDefaultAsync(u => u.Id == user.Id);
-                
+
                 if (existingUser == null)
                 {
                     _logger.LogWarning("User {UserId} not found", user.Id);
@@ -590,9 +591,16 @@ Format the response as JSON with these exact keys: briefIntroduction, possibleJo
                 existingUser.FullName = user.FullName;
                 existingUser.UpdatedAt = DateTime.UtcNow;
 
+                // Update password if provided
+                if (!string.IsNullOrEmpty(newPassword))
+                {
+                    existingUser.PasswordHash = BCrypt.Net.BCrypt.HashPassword(newPassword);
+                    _logger.LogInformation("Password updated for user {UserId}", user.Id);
+                }
+
                 await _dbContext.SaveChangesAsync();
                 _logger.LogInformation("User {UserId} updated successfully", user.Id);
-                
+
                 return true;
             }
             catch (Exception ex)

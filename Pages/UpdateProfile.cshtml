@@ -17,7 +17,7 @@
             <h2 class="card-title">Update Your Profile</h2>
             <p class="card-subtitle">Modify your account information and profile details.</p>
         </div>
-        
+
         <div class="card-body">
             @if (!string.IsNullOrEmpty(Model.SuccessMessage))
             {
@@ -27,7 +27,7 @@
                     <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
                 </div>
             }
-            
+
             @if (!string.IsNullOrEmpty(Model.ErrorMessage))
             {
                 <div class="alert alert-danger alert-dismissible fade show" role="alert">
@@ -38,79 +38,92 @@
             }
 
             <form method="post" class="update-profile-form">
-                <!-- Account Information Section -->
-                <div class="form-section">
-                    <h4 class="section-title">
-                        <i class="bi bi-person-circle"></i>
-                        Account Information
-                    </h4>
-                    
-                                         <div class="form-group">
-                         <label asp-for="Email" class="form-label">Email</label>
-                         <input asp-for="Email" class="form-control" placeholder="Enter your email" />
-                         <span asp-validation-for="Email" class="text-danger"></span>
-                     </div>
-                     
-                     <div class="form-group">
-                         <label asp-for="FullName" class="form-label">Full Name</label>
-                         <input asp-for="FullName" class="form-control" placeholder="Enter your full name" />
-                         <span asp-validation-for="FullName" class="text-danger"></span>
-                     </div>
-                    
-                                         <div class="form-group">
-                         <label asp-for="CurrentPassword" class="form-label">Current Password</label>
-                         <input asp-for="CurrentPassword" type="password" class="form-control" placeholder="Enter current password" disabled />
-                         <small class="form-text text-muted">Password management not available in current version</small>
-                     </div>
-                     
-                     <div class="form-group">
-                         <label asp-for="NewPassword" class="form-label">New Password</label>
-                         <input asp-for="NewPassword" type="password" class="form-control" placeholder="Enter new password" disabled />
-                         <small class="form-text text-muted">Password management not available in current version</small>
-                     </div>
-                     
-                     <div class="form-group">
-                         <label asp-for="ConfirmPassword" class="form-label">Confirm New Password</label>
-                         <input asp-for="ConfirmPassword" type="password" class="form-control" placeholder="Confirm new password" disabled />
-                         <small class="form-text text-muted">Password management not available in current version</small>
-                     </div>
-                </div>
+                <div class="form-row">
+                    <!-- Account Information Section -->
+                    <div class="form-section" style="width: 50%;">
+                        <h4 class="section-title">
+                            <i class="bi bi-person-circle"></i>
+                            Account Information
+                        </h4>
 
-                <!-- Profile Information Section -->
-                <div class="form-section">
-                    <h4 class="section-title">
-                        <i class="bi bi-file-person"></i>
-                        Profile Information
-                    </h4>
-                    
-                    <div class="form-group">
-                        <label asp-for="Strengths" class="form-label">Strengths</label>
-                        <textarea asp-for="Strengths" class="form-control" rows="3" placeholder="Describe your key strengths and skills"></textarea>
-                        <span asp-validation-for="Strengths" class="text-danger"></span>
+                        <div class="form-group">
+                            <label asp-for="Email" class="form-label">Email</label>
+                            <input asp-for="Email" class="form-control" placeholder="Enter your email" />
+                            <span asp-validation-for="Email" class="text-danger"></span>
+                        </div>
+
+                        <div class="form-group">
+                            <label asp-for="FullName" class="form-label">Full Name</label>
+                            <input asp-for="FullName" class="form-control" placeholder="Enter your full name" />
+                            <span asp-validation-for="FullName" class="text-danger"></span>
+                        </div>
+
+                        <div class="form-group">
+                            <label asp-for="CurrentPassword" class="form-label">Current Password</label>
+                            <input asp-for="CurrentPassword" type="password" class="form-control"
+                                placeholder="Enter current password" />
+                            <small class="form-text text-muted">Required only if changing password</small>
+                            <span asp-validation-for="CurrentPassword" class="text-danger"></span>
+                        </div>
+
+                        <div class="form-group">
+                            <label asp-for="NewPassword" class="form-label">New Password</label>
+                            <input asp-for="NewPassword" type="password" class="form-control"
+                                placeholder="Enter new password" />
+                            <small class="form-text text-muted">Leave blank to keep current password</small>
+                            <span asp-validation-for="NewPassword" class="text-danger"></span>
+                        </div>
+
+                        <div class="form-group">
+                            <label asp-for="ConfirmPassword" class="form-label">Confirm New Password</label>
+                            <input asp-for="ConfirmPassword" type="password" class="form-control"
+                                placeholder="Confirm new password" />
+                            <small class="form-text text-muted">Must match new password</small>
+                            <span asp-validation-for="ConfirmPassword" class="text-danger"></span>
+                        </div>
                     </div>
-                    
-                    <div class="form-group">
-                        <label asp-for="Weaknesses" class="form-label">Areas for Improvement</label>
-                        <textarea asp-for="Weaknesses" class="form-control" rows="3" placeholder="Describe areas you'd like to improve"></textarea>
-                        <span asp-validation-for="Weaknesses" class="text-danger"></span>
-                    </div>
-                    
-                    <div class="form-group">
-                        <label asp-for="CareerGoals" class="form-label">Career Goals</label>
-                        <textarea asp-for="CareerGoals" class="form-control" rows="3" placeholder="Describe your career aspirations and goals"></textarea>
-                        <span asp-validation-for="CareerGoals" class="text-danger"></span>
-                    </div>
-                    
-                    <div class="form-group">
-                        <label asp-for="Interests" class="form-label">Professional Interests</label>
-                        <textarea asp-for="Interests" class="form-control" rows="3" placeholder="Describe your professional interests and passions"></textarea>
-                        <span asp-validation-for="Interests" class="text-danger"></span>
+
+                    <!-- Profile Information Section -->
+                    <div class="form-section" style="width: 50%;">
+                        <h4 class="section-title">
+                            <i class="bi bi-file-person"></i>
+                            Profile Information
+                        </h4>
+
+                        <div class="form-group">
+                            <label asp-for="Strengths" class="form-label">Strengths</label>
+                            <textarea asp-for="Strengths" class="form-control" rows="3"
+                                placeholder="Describe your key strengths and skills"></textarea>
+                            <span asp-validation-for="Strengths" class="text-danger"></span>
+                        </div>
+
+                        <div class="form-group">
+                            <label asp-for="Weaknesses" class="form-label">Areas for Improvement</label>
+                            <textarea asp-for="Weaknesses" class="form-control" rows="3"
+                                placeholder="Describe areas you'd like to improve"></textarea>
+                            <span asp-validation-for="Weaknesses" class="text-danger"></span>
+                        </div>
+
+                        <div class="form-group">
+                            <label asp-for="CareerGoals" class="form-label">Career Goals</label>
+                            <textarea asp-for="CareerGoals" class="form-control" rows="3"
+                                placeholder="Describe your career aspirations and goals"></textarea>
+                            <span asp-validation-for="CareerGoals" class="text-danger"></span>
+                        </div>
+
+                        <div class="form-group">
+                            <label asp-for="Interests" class="form-label">Professional Interests</label>
+                            <textarea asp-for="Interests" class="form-control" rows="3"
+                                placeholder="Describe your professional interests and passions"></textarea>
+                            <span asp-validation-for="Interests" class="text-danger"></span>
+                        </div>
                     </div>
                 </div>
 
                 <!-- Form Actions -->
                 <div class="form-actions">
-                    <a href="/Dashboard@(!string.IsNullOrEmpty(currentCulture) ? $"?culture={currentCulture}" : "")" class="btn btn-outline-secondary">
+                    <a href="/Dashboard@(!string.IsNullOrEmpty(currentCulture) ? $"?culture={currentCulture}" : "")"
+                        class="btn btn-outline-secondary">
                         <i class="bi bi-arrow-left"></i>
                         Back to Dashboard
                     </a>
@@ -127,8 +140,6 @@
 <style>
     .update-profile-container {
         padding: 2rem;
-        max-width: 800px;
-        margin: 0 auto;
     }
 
     .update-profile-card {
@@ -136,6 +147,12 @@
         border-radius: 1rem;
         box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
         overflow: hidden;
+    }
+
+    .form-row {
+        display: flex;
+        flex-direction: row;
+        gap: 1rem;
     }
 
     .card-header {
