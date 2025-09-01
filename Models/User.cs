@@ -28,6 +28,7 @@ namespace InterviewBot.Models
 
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
         public DateTime? LastLogin { get; set; }
+        public DateTime? UpdatedAt { get; set; }
         public bool IsGuest { get; set; } = false;
     }
 }

@@ -36,6 +36,19 @@ namespace InterviewBot.Models
         [StringLength(200)]
         public string? CurrentStepDescription { get; set; } // Description of current processing step
 
+        // User Profile Information
+        [StringLength(1000)]
+        public string? Strengths { get; set; }
+
+        [StringLength(1000)]
+        public string? Weaknesses { get; set; }
+
+        [StringLength(1000)]
+        public string? CareerGoals { get; set; }
+
+        [StringLength(1000)]
+        public string? Interests { get; set; }
+
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
         public DateTime? UpdatedAt { get; set; }
     }

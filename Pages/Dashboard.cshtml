@@ -46,29 +46,48 @@
                     </p>
 
                     <div class="profile-section">
-                        <div class="profile-item">
-                            <h6 class="profile-label">Strengths</h6>
-                            <p class="profile-text">Strong background in full-stack development, leadership potential.
-                            </p>
-                        </div>
-
-                        <div class="profile-item">
-                            <h6 class="profile-label">Weaknesses</h6>
-                            <p class="profile-text">Limited experience with cloud-native technologies.</p>
-                        </div>
-
-                        <div class="profile-item">
-                            <h6 class="profile-label">Potential Career Paths</h6>
-                            <p class="profile-text">Software Architect, Engineering Manager, DevOps Specialist.</p>
-                        </div>
+                                                 @if (Model.UserProfile != null)
+                         {
+                             <div class="profile-item">
+                                 <h6 class="profile-label">Strengths</h6>
+                                 <p class="profile-text">@(Model.UserProfile.Strengths ?? "Strong background in full-stack development, leadership potential.")</p>
+                             </div>
+ 
+                             <div class="profile-item">
+                                 <h6 class="profile-label">Weaknesses</h6>
+                                 <p class="profile-text">@(Model.UserProfile.Weaknesses ?? "Limited experience with cloud-native technologies.")</p>
+                             </div>
+ 
+                             <div class="profile-item">
+                                 <h6 class="profile-label">Career Goals</h6>
+                                 <p class="profile-text">@(Model.UserProfile.CareerGoals ?? "Software Architect, Engineering Manager, DevOps Specialist.")</p>
+                             </div>
+                         }
+                         else
+                         {
+                             <div class="profile-item">
+                                 <h6 class="profile-label">Strengths</h6>
+                                 <p class="profile-text">Strong background in full-stack development, leadership potential.</p>
+                             </div>
+ 
+                             <div class="profile-item">
+                                 <h6 class="profile-label">Weaknesses</h6>
+                                 <p class="profile-text">Limited experience with cloud-native technologies.</p>
+                             </div>
+ 
+                             <div class="profile-item">
+                                 <h6 class="profile-label">Career Goals</h6>
+                                 <p class="profile-text">Software Architect, Engineering Manager, DevOps Specialist.</p>
+                             </div>
+                         }
                     </div>
 
-                    <div class="profile-actions">
-                        <button class="btn btn-outline-secondary update-profile-btn">
-                            <i class="bi bi-pencil"></i>
-                            Update Profile
-                        </button>
-                    </div>
+                                         <div class="profile-actions">
+                         <a href="/UpdateProfile@(!string.IsNullOrEmpty(currentCulture) ? $"?culture={currentCulture}" : "")" class="btn btn-outline-secondary update-profile-btn">
+                             <i class="bi bi-pencil"></i>
+                             Update Profile
+                         </a>
+                     </div>
                 </div>
             </div>
 
@@ -90,44 +109,100 @@
                     </div>
 
                     <div class="interview-cards">
-                        <div class="interview-card">
-                            <div class="card-body">
-                                <h6 class="interview-title">Vocational Orientation Interview</h6>
-                                <p class="interview-description">
-                                    Explore your interests and values to find a career that aligns with your personality.
-                                </p>
-                                <a href="/InterviewFormat@(!string.IsNullOrEmpty(currentCulture) ? $"?culture={currentCulture}" : "")"
-                                    class="btn btn-primary interview-btn">
-                                    Start Interview
-                                </a>
+                        @if (Model.InterviewCatalogItems.Any())
+                        {
+                            @foreach (var item in Model.InterviewCatalogItems)
+                            {
+                                <div class="interview-card">
+                                    <div class="card-body">
+                                        <h6 class="interview-title">@item.Topic</h6>
+                                        <p class="interview-description">
+                                            @item.Instruction
+                                        </p>
+                                        <a href="/InterviewFormat@(!string.IsNullOrEmpty(currentCulture) ? $"?culture={currentCulture}" : "")"
+                                            class="btn btn-primary interview-btn">
+                                            Start Interview
+                                        </a>
+                                    </div>
+                                </div>
+                            }
+                        }
+                        
+                        @if (Model.CustomInterviews.Any())
+                        {
+                            @foreach (var customInterview in Model.CustomInterviews)
+                            {
+                                <div class="interview-card custom-interview-display">
+                                    <div class="card-body">
+                                        <div class="custom-interview-badge">
+                                            <i class="bi bi-star-fill"></i>
+                                            Custom
+                                        </div>
+                                        <h6 class="interview-title">@customInterview.Title</h6>
+                                        <p class="interview-description">
+                                            @customInterview.Description
+                                        </p>
+                                                                                 <div class="interview-meta">
+                                             <span class="meta-item">
+                                                 <i class="bi bi-clock"></i>
+                                                 @customInterview.InterviewDuration
+                                             </span>
+                                             <span class="meta-item">
+                                                 <i class="bi bi-bar-chart"></i>
+                                                 @customInterview.DifficultyLevel
+                                             </span>
+                                         </div>
+                                        <a href="/InterviewFormat@(!string.IsNullOrEmpty(currentCulture) ? $"?culture={currentCulture}" : "")"
+                                            class="btn btn-primary interview-btn">
+                                            Start Interview
+                                        </a>
+                                    </div>
+                                </div>
+                            }
+                        }
+                        
+                        @if (!Model.InterviewCatalogItems.Any() && !Model.CustomInterviews.Any())
+                        {
+                            <!-- Default interview cards when no dynamic items or custom interviews are available -->
+                            <div class="interview-card">
+                                <div class="card-body">
+                                    <h6 class="interview-title">Vocational Orientation Interview</h6>
+                                    <p class="interview-description">
+                                        Explore your interests and values to find a career that aligns with your personality.
+                                    </p>
+                                    <a href="/InterviewFormat@(!string.IsNullOrEmpty(currentCulture) ? $"?culture={currentCulture}" : "")"
+                                        class="btn btn-primary interview-btn">
+                                        Start Interview
+                                    </a>
+                                </div>
                             </div>
-                        </div>
 
-                        <div class="interview-card">
-                            <div class="card-body">
-                                <h6 class="interview-title">Professional Career Interview</h6>
-                                <p class="interview-description">
-                                    Discuss specific roles and industries based on your resume.
-                                </p>
-                                <a href="/InterviewFormat@(!string.IsNullOrEmpty(currentCulture) ? $"?culture={currentCulture}" : "")"
-                                    class="btn btn-primary interview-btn">
-                                    Start Interview
-                                </a>
+                            <div class="interview-card">
+                                <div class="card-body">
+                                    <h6 class="interview-title">Professional Career Interview</h6>
+                                    <p class="interview-description">
+                                        Discuss specific roles and industries based on your resume.
+                                    </p>
+                                    <a href="/InterviewFormat@(!string.IsNullOrEmpty(currentCulture) ? $"?culture={currentCulture}" : "")"
+                                        class="btn btn-primary interview-btn">
+                                        Start Interview
+                                    </a>
+                                </div>
                             </div>
-                        </div>
 
-                        <div class="interview-card">
-                            <div class="card-body">
-                                <h6 class="interview-title">Soft Skills Interview</h6>
-                                <p class="interview-description">
-                                    Assess your communication, leadership, and teamwork skills.
-                                </p>
-                                <a href="/InterviewFormat@(!string.IsNullOrEmpty(currentCulture) ? $"?culture={currentCulture}" : "")"
-                                    class="btn btn-primary interview-btn">
-                                    Start Interview
-                                </a>
+                            <div class="interview-card">
+                                <div class="card-body">
+                                    <h6 class="interview-title">Soft Skills Interview</h6>
+                                    <p class="interview-description">
+                                        Assess your communication, leadership, and teamwork skills.
+                                    </p>
+                                    <a href="/InterviewFormat@(!string.IsNullOrEmpty(currentCulture) ? $"?culture={currentCulture}" : "")"
+                                        class="btn btn-primary interview-btn">
+                                        Start Interview
+                                    </a>
+                                </div>
                             </div>
-                        </div>
+                        }
 
                         <!-- Create Custom Interview Card -->
                         <div class="interview-card custom-interview-card">
@@ -383,6 +458,55 @@
     .custom-interview-card:hover {
         border-color: #3b82f6;
         background-color: #eff6ff;
+    }
+
+    /* Custom Interview Display */
+    .custom-interview-display {
+        border: 2px solid #10b981;
+        background-color: #f0fdf4;
+        position: relative;
+    }
+
+    .custom-interview-display:hover {
+        border-color: #059669;
+        box-shadow: 0 4px 12px rgba(16, 185, 129, 0.15);
+    }
+
+    .custom-interview-badge {
+        position: absolute;
+        top: -10px;
+        right: 15px;
+        background-color: #10b981;
+        color: white;
+        padding: 0.25rem 0.75rem;
+        border-radius: 1rem;
+        font-size: 0.75rem;
+        font-weight: 600;
+        display: flex;
+        align-items: center;
+        gap: 0.25rem;
+    }
+
+    .interview-meta {
+        display: flex;
+        gap: 1rem;
+        margin-bottom: 1rem;
+        flex-wrap: wrap;
+    }
+
+    .meta-item {
+        display: flex;
+        align-items: center;
+        gap: 0.25rem;
+        font-size: 0.875rem;
+        color: #6b7280;
+        background-color: #f3f4f6;
+        padding: 0.25rem 0.5rem;
+        border-radius: 0.375rem;
+    }
+
+    .meta-item i {
+        color: #3b82f6;
     }
 
     .custom-interview-icon {

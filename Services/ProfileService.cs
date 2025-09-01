@@ -9,18 +9,6 @@ using System.Text.Json;
 
 namespace InterviewBot.Services
 {
-    public interface IProfileService
-    {
-        Task<Profile> UploadAndAnalyzeResumeAsync(IFormFile file, int userId);
-        Task<Profile> CreateProfileFromDescriptionAsync(string briefIntroduction, string careerGoals, string currentActivity, string motivations, int userId);
-        Task<Profile?> GetProfileAsync(int id, int userId);
-        Task<IEnumerable<Profile>> GetUserProfilesAsync(int userId);
-        Task<bool> DeleteProfileAsync(int id, int userId);
-        Task<bool> RetryAnalysisAsync(int analysisId, int userId);
-        Task<string> GetAnalysisStatusAsync(int analysisId, int userId);
-        Task<int> GetAnalysisProgressAsync(int analysisId, int userId);
-    }
-
     public class ProfileService : IProfileService
     {
         private readonly AppDbContext _dbContext;
@@ -508,6 +496,109 @@ Format the response as JSON with these exact keys: briefIntroduction, possibleJo
                     ErrorMessage = ex.Message,
                     Data = null
                 };
+            }
+        }
+
+        public async Task<bool> UpdateProfileAsync(Profile profile)
+        {
+            try
+            {
+                _logger.LogInformation("Updating profile {ProfileId} for user {UserId}", profile.Id, profile.UserId);
+                
+                var existingProfile = await _dbContext.Profiles
+                    .FirstOrDefaultAsync(p => p.Id == profile.Id && p.UserId == profile.UserId);
+                
+                if (existingProfile == null)
+                {
+                    _logger.LogWarning("Profile {ProfileId} not found for user {UserId}", profile.Id, profile.UserId);
+                    return false;
+                }
+
+                // Update the profile fields
+                existingProfile.Strengths = profile.Strengths;
+                existingProfile.Weaknesses = profile.Weaknesses;
+                existingProfile.CareerGoals = profile.CareerGoals;
+                existingProfile.Interests = profile.Interests;
+                existingProfile.UpdatedAt = DateTime.UtcNow;
+
+                await _dbContext.SaveChangesAsync();
+                _logger.LogInformation("Profile {ProfileId} updated successfully", profile.Id);
+                
+                return true;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error updating profile {ProfileId}", profile.Id);
+                return false;
+            }
+        }
+
+        public async Task<Profile> CreateProfileAsync(Profile profile)
+        {
+            try
+            {
+                _logger.LogInformation("Creating new profile for user {UserId}", profile.UserId);
+                
+                profile.CreatedAt = DateTime.UtcNow;
+                profile.UpdatedAt = DateTime.UtcNow;
+                
+                _dbContext.Profiles.Add(profile);
+                await _dbContext.SaveChangesAsync();
+                
+                _logger.LogInformation("Profile {ProfileId} created successfully", profile.Id);
+                
+                return profile;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error creating profile for user {UserId}", profile.UserId);
+                throw;
+            }
+        }
+
+        public async Task<User?> GetUserAsync(int userId)
+        {
+            try
+            {
+                return await _dbContext.Users
+                    .FirstOrDefaultAsync(u => u.Id == userId);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error getting user {UserId}", userId);
+                return null;
+            }
+        }
+
+        public async Task<bool> UpdateUserAsync(User user)
+        {
+            try
+            {
+                _logger.LogInformation("Updating user {UserId}", user.Id);
+                
+                var existingUser = await _dbContext.Users
+                    .FirstOrDefaultAsync(u => u.Id == user.Id);
+                
+                if (existingUser == null)
+                {
+                    _logger.LogWarning("User {UserId} not found", user.Id);
+                    return false;
+                }
+
+                // Update the user fields
+                existingUser.Email = user.Email;
+                existingUser.FullName = user.FullName;
+                existingUser.UpdatedAt = DateTime.UtcNow;
+
+                await _dbContext.SaveChangesAsync();
+                _logger.LogInformation("User {UserId} updated successfully", user.Id);
+                
+                return true;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error updating user {UserId}", user.Id);
+                return false;
             }
         }
     }

@@ -8,6 +8,7 @@ namespace InterviewBot.Services
         Task<CustomInterview> CreateCustomInterviewAsync(CustomInterview customInterview);
         Task<List<InterviewCatalog>> GetUserInterviewCatalogsAsync(int userId);
         Task<List<CustomInterview>> GetUserCustomInterviewsAsync(int userId);
+        Task<List<InterviewCatalogItem>> GetUserInterviewCatalogItemsAsync(int userId);
         Task<InterviewSession> StartInterviewAsync(int catalogId, int userId, InterviewType type);
         Task<bool> PauseInterviewAsync(int sessionId, string reason);
         Task<bool> ResumeInterviewAsync(int sessionId, string notes);

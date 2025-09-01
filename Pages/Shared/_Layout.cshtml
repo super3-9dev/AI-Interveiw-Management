@@ -1,5 +1,6 @@
 ﻿@inject Microsoft.AspNetCore.Antiforgery.IAntiforgery Xsrf
 @using Microsoft.AspNetCore.Mvc.Localization
+@using System.Security.Claims
 @inject IViewLocalizer Localizer
 @{
     var token = Xsrf.GetAndStoreTokens(Context).RequestToken;
@@ -44,7 +45,7 @@
                 @if (User.Identity?.IsAuthenticated == true)
                 {
                     <div class="user-info">
-                        <span class="user-id">123</span>
+                        <span class="user-name">@(User.FindFirst(ClaimTypes.Name)?.Value ?? User.Identity.Name ?? "User")</span>
                         <a href="/Account/Logout@(!string.IsNullOrEmpty(currentCulture) ? $"?culture={currentCulture}" : "")" class="logout-link">@Localizer["Logout"]</a>
                     </div>
                 }
@@ -192,7 +193,7 @@
             gap: 1rem;
         }
 
-        .user-id {
+        .user-name {
             background-color: #e9ecef;
             color: #6c757d;
             padding: 0.25rem 0.5rem;

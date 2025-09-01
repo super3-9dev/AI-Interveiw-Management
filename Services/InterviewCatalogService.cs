@@ -107,6 +107,14 @@ namespace InterviewBot.Services
                 .ToListAsync();
         }
 
+        public async Task<List<InterviewCatalogItem>> GetUserInterviewCatalogItemsAsync(int userId)
+        {
+            return await _context.InterviewCatalogItems
+                .Where(ici => ici.UserId == userId && ici.IsActive)
+                .OrderByDescending(ici => ici.CreatedAt)
+                .ToListAsync();
+        }
+
         public async Task<InterviewSession> StartInterviewAsync(int catalogId, int userId, InterviewType type)
         {
             var catalog = await _context.InterviewCatalogs

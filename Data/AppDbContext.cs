@@ -17,6 +17,7 @@ namespace InterviewBot.Data
         public DbSet<Profile> Profiles { get; set; }
         public DbSet<InterviewCatalog> InterviewCatalogs { get; set; }
         public DbSet<CustomInterview> CustomInterviews { get; set; }
+        public DbSet<InterviewCatalogItem> InterviewCatalogItems { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
