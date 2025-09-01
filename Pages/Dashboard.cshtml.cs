@@ -34,7 +34,7 @@ namespace InterviewBot.Pages
         public IEnumerable<InterviewCatalog> InterviewCatalogs { get; set; } = new List<InterviewCatalog>();
         public IEnumerable<InterviewSession> ActiveInterviewSessions { get; set; } = new List<InterviewSession>();
         public IEnumerable<CustomInterview> CustomInterviews { get; set; } = new List<CustomInterview>();
-        public IEnumerable<InterviewCatalogItem> InterviewCatalogItems { get; set; } = new List<InterviewCatalogItem>();
+
         public Profile? UserProfile { get; set; }
         public bool HasProfiles { get; set; } = false;
 
@@ -57,7 +57,7 @@ namespace InterviewBot.Pages
                     // Check if user has any profiles
                     var userProfiles = await _profileService.GetUserProfilesAsync(userId.Value);
                     HasProfiles = userProfiles.Any();
-                    
+
                     // Load user profile for display
                     if (HasProfiles)
                     {
@@ -70,13 +70,8 @@ namespace InterviewBot.Pages
                         InterviewCatalogs = await _interviewService.GetUserInterviewCatalogsAsync(userId.Value);
                         ActiveInterviewSessions = await _interviewService.GetUserInterviewSessionsAsync(userId.Value);
                         CustomInterviews = await _interviewService.GetUserCustomInterviewsAsync(userId.Value);
-                        
-                        // Load dynamic interview catalog items from external API
-                        var catalogService = HttpContext.RequestServices.GetService<IInterviewCatalogService>();
-                        if (catalogService != null)
-                        {
-                            InterviewCatalogItems = await catalogService.GetUserInterviewCatalogItemsAsync(userId.Value);
-                        }
+
+
                     }
                 }
             }

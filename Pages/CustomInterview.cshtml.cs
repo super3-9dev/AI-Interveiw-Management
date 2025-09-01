@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.AspNetCore.Authorization;
 using InterviewBot.Services;
 using InterviewBot.Models;
+using InterviewBot.Data;
 using System.Security.Claims;
 using System.ComponentModel.DataAnnotations;
 
@@ -11,40 +12,22 @@ namespace InterviewBot.Pages
     [Authorize]
     public class CustomInterviewModel : PageModel
     {
-        private readonly IInterviewCatalogService _interviewCatalogService;
+        private readonly IInterviewService _interviewService;
 
-        public CustomInterviewModel(IInterviewCatalogService interviewCatalogService)
+        public CustomInterviewModel(IInterviewService interviewService)
         {
-            _interviewCatalogService = interviewCatalogService;
+            _interviewService = interviewService;
         }
 
         [BindProperty]
         [Required(ErrorMessage = "Interview topic is required")]
         [StringLength(200, ErrorMessage = "Interview topic cannot exceed 200 characters")]
-        public string CustomTitle { get; set; } = string.Empty;
+        public string InterviewTopic { get; set; } = string.Empty;
 
         [BindProperty]
         [Required(ErrorMessage = "Description is required")]
         [StringLength(1000, ErrorMessage = "Description cannot exceed 1000 characters")]
-        public string CustomDescription { get; set; } = string.Empty;
-
-        [BindProperty]
-        [Required(ErrorMessage = "Key questions are required")]
-        [StringLength(2000, ErrorMessage = "Key questions cannot exceed 2000 characters")]
-        public string CustomQuestions { get; set; } = string.Empty;
-
-        [BindProperty]
-        [Required(ErrorMessage = "Focus areas are required")]
-        [StringLength(500, ErrorMessage = "Focus areas cannot exceed 500 characters")]
-        public string FocusAreas { get; set; } = string.Empty;
-
-        [BindProperty]
-        [Required(ErrorMessage = "Difficulty level is required")]
-        public string DifficultyLevel { get; set; } = string.Empty;
-
-        [BindProperty]
-        [Required(ErrorMessage = "Interview duration is required")]
-        public string InterviewDuration { get; set; } = string.Empty;
+        public string Description { get; set; } = string.Empty;
 
         public string? ErrorMessage { get; set; }
         public string? SuccessMessage { get; set; }
@@ -70,31 +53,32 @@ namespace InterviewBot.Pages
                     return Page();
                 }
 
-                // Create the custom interview
-                var interview = new CustomInterview
+                // Create the interview catalog entry
+                var interviewCatalog = new InterviewCatalog
                 {
                     UserId = userId.Value,
-                    Title = CustomTitle,
-                    Description = CustomDescription,
-                    CustomQuestions = CustomQuestions,
-                    FocusAreas = FocusAreas,
-                    DifficultyLevel = DifficultyLevel,
-                    InterviewDuration = InterviewDuration,
+                    Topic = InterviewTopic,
+                    Description = Description,
+                    InterviewType = "Custom",
+                    AIAgentRoleId = 1, // Default AI agent role
+                    KeyQuestions = Description, // Use description as key questions
+                    TargetSkills = "Custom Interview Skills",
                     IsActive = true,
                     CreatedAt = DateTime.UtcNow
                 };
 
-                await _interviewCatalogService.CreateCustomInterviewAsync(interview);
+                // Store directly in InterviewCatalogs table
+                using var scope = HttpContext.RequestServices.CreateScope();
+                var dbContext = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+
+                dbContext.InterviewCatalogs.Add(interviewCatalog);
+                await dbContext.SaveChangesAsync();
 
                 SuccessMessage = "Custom interview created successfully! You can now find it on your Dashboard.";
 
                 // Clear the form
-                CustomTitle = string.Empty;
-                CustomDescription = string.Empty;
-                CustomQuestions = string.Empty;
-                FocusAreas = string.Empty;
-                DifficultyLevel = string.Empty;
-                InterviewDuration = string.Empty;
+                InterviewTopic = string.Empty;
+                Description = string.Empty;
 
                 // Redirect to dashboard after a short delay to show the success message
                 return RedirectToPage("/Dashboard");

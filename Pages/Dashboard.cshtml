@@ -50,17 +50,17 @@
                          {
                              <div class="profile-item">
                                  <h6 class="profile-label">Strengths</h6>
-                                 <p class="profile-text">@(Model.UserProfile.Strengths ?? "Strong background in full-stack development, leadership potential.")</p>
+                                 <p class="profile-text">@(Model.UserProfile.Strengths ?? "Please update your profile.")</p>
                              </div>
  
                              <div class="profile-item">
                                  <h6 class="profile-label">Weaknesses</h6>
-                                 <p class="profile-text">@(Model.UserProfile.Weaknesses ?? "Limited experience with cloud-native technologies.")</p>
+                                 <p class="profile-text">@(Model.UserProfile.Weaknesses ?? "Please update your profile.")</p>
                              </div>
  
                              <div class="profile-item">
                                  <h6 class="profile-label">Career Goals</h6>
-                                 <p class="profile-text">@(Model.UserProfile.CareerGoals ?? "Software Architect, Engineering Manager, DevOps Specialist.")</p>
+                                 <p class="profile-text">@(Model.UserProfile.CareerGoals ?? "Please update your profile.")</p>
                              </div>
                          }
                          else
@@ -109,15 +109,15 @@
                     </div>
 
                     <div class="interview-cards">
-                        @if (Model.InterviewCatalogItems.Any())
+                        @if (Model.InterviewCatalogs.Any())
                         {
-                            @foreach (var item in Model.InterviewCatalogItems)
+                            @foreach (var catalog in Model.InterviewCatalogs)
                             {
                                 <div class="interview-card">
                                     <div class="card-body">
-                                        <h6 class="interview-title">@item.Topic</h6>
+                                        <h6 class="interview-title">@catalog.Topic</h6>
                                         <p class="interview-description">
-                                            @item.Instruction
+                                            @catalog.Description
                                         </p>
                                         <a href="/InterviewFormat@(!string.IsNullOrEmpty(currentCulture) ? $"?culture={currentCulture}" : "")"
                                             class="btn btn-primary interview-btn">
@@ -161,7 +161,7 @@
                             }
                         }
                         
-                        @if (!Model.InterviewCatalogItems.Any() && !Model.CustomInterviews.Any())
+                        @if (!Model.InterviewCatalogs.Any() && !Model.CustomInterviews.Any())
                         {
                             <!-- Default interview cards when no dynamic items or custom interviews are available -->
                             <div class="interview-card">

@@ -1,4 +1,5 @@
 @page
+@model InterviewBot.Pages.CustomInterviewModel
 @using Microsoft.AspNetCore.Mvc.Localization
 @inject IViewLocalizer Localizer
 @{
@@ -14,25 +15,41 @@
     <div class="custom-interview-card">
         <div class="card-header">
             <h2 class="card-title">Create a Custom Interview</h2>
-            <p class="card-subtitle">This is a mockup. Click the button to start a sample conversational interview.</p>
+            <p class="card-subtitle">Create your own personalized interview by entering a topic and description.</p>
         </div>
 
         <div class="card-body">
-            <form>
+            <form method="post">
+                @if (!string.IsNullOrEmpty(Model.ErrorMessage))
+                {
+                    <div class="alert alert-danger" role="alert">
+                        @Model.ErrorMessage
+                    </div>
+                }
+
+                @if (!string.IsNullOrEmpty(Model.SuccessMessage))
+                {
+                    <div class="alert alert-success" role="alert">
+                        @Model.SuccessMessage
+                    </div>
+                }
+
                 <div class="form-group">
-                    <label for="interviewTopic" class="form-label">Interview Topic</label>
-                    <input type="text" class="form-control" id="interviewTopic"
+                    <label asp-for="InterviewTopic" class="form-label">Interview Topic</label>
+                    <input asp-for="InterviewTopic" type="text" class="form-control"
                         placeholder="Please enter the topic of the interview">
+                    <span asp-validation-for="InterviewTopic" class="text-danger"></span>
                 </div>
 
                 <div class="form-group">
-                    <label for="description" class="form-label">Description</label>
-                    <textarea class="form-control" id="description" rows="4"
+                    <label asp-for="Description" class="form-label">Description</label>
+                    <textarea asp-for="Description" class="form-control" rows="4"
                         placeholder="Please enter the description of the interview"></textarea>
+                    <span asp-validation-for="Description" class="text-danger"></span>
                 </div>
 
                 <div class="form-actions">
-                    <button type="button" class="btn btn-primary generate-btn" onclick="generateInterview()">
+                    <button type="submit" class="btn btn-primary generate-btn">
                         Generate Interview
                     </button>
                 </div>
@@ -178,20 +195,7 @@
         }
     }
 </style>
-<script>
-    function generateInterview() {
-        // This is a mockup function - in a real implementation, this would:
-        // 1. Collect the form data
-        // 2. Send it to the server
-        // 3. Redirect to the interview page
 
-        const topic = document.getElementById('interviewTopic').value;
-        const description = document.getElementById('description').value;
-
-        // For now, just show an alert and redirect to the main interview format
-        alert(`Generating interview for: ${topic}\n\nDescription: ${description}\n\nRedirecting to interview...`);
-
-        // Redirect to the interview format page
-        window.location.href = '/InterviewFormat@(!string.IsNullOrEmpty(currentCulture) ? $"?culture={currentCulture}" : "")';
-    }
-</script>
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}
