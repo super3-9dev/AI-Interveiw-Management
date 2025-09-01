@@ -417,3 +417,37 @@
         }
     }
 </style>
+
+<script>
+    // Function to update the header username immediately after successful update
+    function updateHeaderUsername(newFullName) {
+        const userNameElement = document.querySelector('.user-name');
+        if (userNameElement) {
+            userNameElement.textContent = newFullName;
+        }
+    }
+
+    // Listen for form submission and update header if successful
+    document.addEventListener('DOMContentLoaded', function () {
+        const userInfoForm = document.querySelector('form[asp-page-handler="UpdateUserInfo"]');
+        if (userInfoForm) {
+            userInfoForm.addEventListener('submit', function (e) {
+                // Store the current full name value to update header if needed
+                const fullNameInput = this.querySelector('input[name="FullName"]');
+                if (fullNameInput) {
+                    this.dataset.fullName = fullNameInput.value;
+                }
+            });
+        }
+
+        // Check if there's a success message (indicating successful update)
+        const successAlert = document.querySelector('.alert-success');
+        if (successAlert && successAlert.textContent.includes('User information updated successfully')) {
+            // Update the header immediately
+            const fullNameInput = document.querySelector('input[name="FullName"]');
+            if (fullNameInput) {
+                updateHeaderUsername(fullNameInput.value);
+            }
+        }
+    });
+</script>

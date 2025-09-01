@@ -229,6 +229,49 @@
             margin: 1rem 0;
         }
 
+        .analysis-summary {
+            background: #f0fdf4;
+            border: 1px solid #bbf7d0;
+            border-radius: 0.75rem;
+            padding: 1.5rem;
+            margin: 1.5rem 0;
+        }
+
+        .summary-section {
+            margin-bottom: 1.5rem;
+        }
+
+        .summary-section:last-child {
+            margin-bottom: 0;
+        }
+
+        .summary-title {
+            font-size: 0.875rem;
+            font-weight: 600;
+            color: #065f46;
+            margin-bottom: 0.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .summary-content {
+            font-size: 0.875rem;
+            color: #374151;
+            line-height: 1.6;
+            margin: 0;
+            padding: 0.75rem;
+            background: white;
+            border-radius: 0.5rem;
+            border: 1px solid #d1fae5;
+        }
+
+        .summary-placeholder {
+            color: #6b7280;
+            font-style: italic;
+            text-align: center;
+        }
+
         .preview-header {
             color: #065f46;
             font-size: 0.875rem;
@@ -389,7 +432,8 @@
 <div class="results-container">
     <div class="page-header">
         <h1 class="page-title">Your Personalized Career Guidance</h1>
-        <p class="page-subtitle">Based on your profile and interview, here are your tailored insights and potential career roadmaps.</p>
+        <p class="page-subtitle">Based on your profile and interview, here are your tailored insights and potential
+            career roadmaps.</p>
     </div>
 
     @if (Model.Profiles.Any(p => !string.IsNullOrEmpty(p.ExternalAPIResponse)))
@@ -414,12 +458,30 @@
                                     <span>@profile.UpdatedAt?.ToString("MMM dd, yyyy")</span>
                                     <span class="result-status status-completed">API Response Received</span>
                                 </div>
-                                <div class="result-description">
-                                    <span>External platform analysis completed</span>
+
+                                <!-- Career Recommendations Section -->
+                                <div class="analysis-summary">
+                                    @if (!string.IsNullOrEmpty(profile.PossibleJobs))
+                                    {
+                                        <div class="summary-section">
+                                            <h4 class="summary-title">💼 Career Recommendations</h4>
+                                            <p class="summary-content">@profile.PossibleJobs</p>
+                                        </div>
+                                    }
+                                    else
+                                    {
+                                        <div class="summary-section">
+                                            <h4 class="summary-title">💼 Career Recommendations</h4>
+                                            <p class="summary-content summary-placeholder">
+                                                Analysis completed successfully. Click "View Full Result" to see detailed insights and
+                                                recommendations.
+                                            </p>
+                                        </div>
+                                    }
                                 </div>
-                                
+
                                 <div class="result-actions">
-                                    <a href="/ExternalAPIResults?id=@profile.Id" class="btn btn-success">View Result</a>
+                                    <a href="/ExternalAPIResults?id=@profile.Id" class="btn btn-success">View Full Result</a>
                                 </div>
                             </li>
                         }

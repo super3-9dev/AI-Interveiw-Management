@@ -5,6 +5,7 @@ using InterviewBot.Services;
 using InterviewBot.Models;
 using System.Security.Claims;
 using System.ComponentModel.DataAnnotations;
+using Microsoft.AspNetCore.Authentication;
 
 namespace InterviewBot.Pages.Account
 {
@@ -159,7 +160,10 @@ namespace InterviewBot.Pages.Account
                         return Page();
                     }
 
-                    SuccessMessage = "User information updated successfully!";
+                    // Update the user's claims in the current session so the header shows the new name immediately
+                    await UpdateUserClaimsAsync(user);
+
+                    SuccessMessage = "User information updated successfully! The header will now display your new name.";
                 }
 
                 return Page();
@@ -364,6 +368,40 @@ namespace InterviewBot.Pages.Account
                 return userId;
             }
             return null;
+        }
+
+        private async Task UpdateUserClaimsAsync(User user)
+        {
+            try
+            {
+                // Get the current user's identity
+                var currentIdentity = User.Identity as ClaimsIdentity;
+                if (currentIdentity != null)
+                {
+                    // Remove old claims
+                    var oldNameClaim = currentIdentity.FindFirst(ClaimTypes.Name);
+                    var oldEmailClaim = currentIdentity.FindFirst(ClaimTypes.Email);
+
+                    if (oldNameClaim != null)
+                        currentIdentity.RemoveClaim(oldNameClaim);
+                    if (oldEmailClaim != null)
+                        currentIdentity.RemoveClaim(oldEmailClaim);
+
+                    // Add new claims
+                    currentIdentity.AddClaim(new Claim(ClaimTypes.Name, user.FullName));
+                    currentIdentity.AddClaim(new Claim(ClaimTypes.Email, user.Email));
+
+                    // The changes will be reflected immediately in the current request
+                    // For subsequent requests, we need to refresh the authentication cookie
+                    await HttpContext.SignInAsync("Cookies", new ClaimsPrincipal(currentIdentity));
+                }
+            }
+            catch (Exception ex)
+            {
+                // Log the error but don't fail the update
+                // The user information is still updated in the database
+                System.Diagnostics.Debug.WriteLine($"Error updating user claims: {ex.Message}");
+            }
         }
     }
 }
