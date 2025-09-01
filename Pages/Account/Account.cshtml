@@ -37,44 +37,61 @@
                 </div>
             }
 
-            <form method="post" class="update-profile-form">
-                <div class="form-row">
-                    <!-- Account Information Section -->
-                    <div class="form-section" style="width: 50%;">
-                        <h4 class="section-title">
-                            <i class="bi bi-person-circle"></i>
-                            Account Information
-                        </h4>
-
-                        <div class="form-group">
+            <!-- User Information Section -->
+            <div class="form-section">
+                <h4 class="section-title">
+                    <i class="bi bi-person-circle"></i>
+                    User Information
+                </h4>
+                <form method="post" asp-page-handler="UpdateUserInfo" class="update-form">
+                    <div class="form-row">
+                        <div class="form-group" style="width: 48%;">
                             <label asp-for="Email" class="form-label">Email</label>
                             <input asp-for="Email" class="form-control" placeholder="Enter your email" />
                             <span asp-validation-for="Email" class="text-danger"></span>
                         </div>
 
-                        <div class="form-group">
+                        <div class="form-group" style="width: 48%;">
                             <label asp-for="FullName" class="form-label">Full Name</label>
                             <input asp-for="FullName" class="form-control" placeholder="Enter your full name" />
                             <span asp-validation-for="FullName" class="text-danger"></span>
                         </div>
+                    </div>
+                    <div class="form-actions">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="bi bi-check-lg"></i>
+                            Update User Information
+                        </button>
+                    </div>
+                </form>
+            </div>
 
-                        <div class="form-group">
+            <!-- Password Information Section -->
+            <div class="form-section">
+                <h4 class="section-title">
+                    <i class="bi bi-shield-lock"></i>
+                    Password Information
+                </h4>
+                <form method="post" asp-page-handler="UpdatePassword" class="update-form">
+                    <div class="form-row">
+                        <div class="form-group" style="width: 48%;">
                             <label asp-for="CurrentPassword" class="form-label">Current Password</label>
                             <input asp-for="CurrentPassword" type="password" class="form-control"
                                 placeholder="Enter current password" />
-                            <small class="form-text text-muted">Required only if changing password</small>
+                            <small class="form-text text-muted">Required to change password</small>
                             <span asp-validation-for="CurrentPassword" class="text-danger"></span>
                         </div>
 
-                        <div class="form-group">
+                        <div class="form-group" style="width: 48%;">
                             <label asp-for="NewPassword" class="form-label">New Password</label>
                             <input asp-for="NewPassword" type="password" class="form-control"
                                 placeholder="Enter new password" />
                             <small class="form-text text-muted">Leave blank to keep current password</small>
                             <span asp-validation-for="NewPassword" class="text-danger"></span>
                         </div>
-
-                        <div class="form-group">
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group" style="width: 48%;">
                             <label asp-for="ConfirmPassword" class="form-label">Confirm New Password</label>
                             <input asp-for="ConfirmPassword" type="password" class="form-control"
                                 placeholder="Confirm new password" />
@@ -82,57 +99,69 @@
                             <span asp-validation-for="ConfirmPassword" class="text-danger"></span>
                         </div>
                     </div>
+                    <div class="form-actions">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="bi bi-shield-check"></i>
+                            Update Password
+                        </button>
+                    </div>
+                </form>
+            </div>
 
-                    <!-- Profile Information Section -->
-                    <div class="form-section" style="width: 50%;">
-                        <h4 class="section-title">
-                            <i class="bi bi-file-person"></i>
-                            Profile Information
-                        </h4>
-
-                        <div class="form-group">
+            <!-- Profile Information Section -->
+            <div class="form-section">
+                <h4 class="section-title">
+                    <i class="bi bi-file-person"></i>
+                    Profile Information
+                </h4>
+                <form method="post" asp-page-handler="UpdateProfile" class="update-form">
+                    <div class="form-row">
+                        <div class="form-group" style="width: 48%;">
                             <label asp-for="Strengths" class="form-label">Strengths</label>
                             <textarea asp-for="Strengths" class="form-control" rows="3"
                                 placeholder="Describe your key strengths and skills"></textarea>
                             <span asp-validation-for="Strengths" class="text-danger"></span>
                         </div>
 
-                        <div class="form-group">
+                        <div class="form-group" style="width: 48%;">
                             <label asp-for="Weaknesses" class="form-label">Areas for Improvement</label>
                             <textarea asp-for="Weaknesses" class="form-control" rows="3"
                                 placeholder="Describe areas you'd like to improve"></textarea>
                             <span asp-validation-for="Weaknesses" class="text-danger"></span>
                         </div>
-
-                        <div class="form-group">
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group" style="width: 48%;">
                             <label asp-for="CareerGoals" class="form-label">Career Goals</label>
                             <textarea asp-for="CareerGoals" class="form-control" rows="3"
                                 placeholder="Describe your career aspirations and goals"></textarea>
                             <span asp-validation-for="CareerGoals" class="text-danger"></span>
                         </div>
 
-                        <div class="form-group">
+                        <div class="form-group" style="width: 48%;">
                             <label asp-for="Interests" class="form-label">Professional Interests</label>
                             <textarea asp-for="Interests" class="form-control" rows="3"
                                 placeholder="Describe your professional interests and passions"></textarea>
                             <span asp-validation-for="Interests" class="text-danger"></span>
                         </div>
                     </div>
-                </div>
+                    <div class="form-actions">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="bi bi-person-check"></i>
+                            Update Profile Information
+                        </button>
+                    </div>
+                </form>
+            </div>
 
-                <!-- Form Actions -->
-                <div class="form-actions">
-                    <a href="/Dashboard@(!string.IsNullOrEmpty(currentCulture) ? $"?culture={currentCulture}" : "")"
-                        class="btn btn-outline-secondary">
-                        <i class="bi bi-arrow-left"></i>
-                        Back to Dashboard
-                    </a>
-                    <button type="submit" class="btn btn-primary">
-                        <i class="bi bi-check-lg"></i>
-                        Update Account & Profile
-                    </button>
-                </div>
-            </form>
+            <!-- Navigation -->
+            <div class="form-actions navigation-actions">
+                <a href="/Dashboard@(!string.IsNullOrEmpty(currentCulture) ? $"?culture={currentCulture}" : "")"
+                    class="btn btn-outline-secondary">
+                    <i class="bi bi-arrow-left"></i>
+                    Back to Dashboard
+                </a>
+            </div>
         </div>
     </div>
 </div>
@@ -153,6 +182,7 @@
         display: flex;
         flex-direction: row;
         gap: 1rem;
+        margin-bottom: 1rem;
     }
 
     .card-header {
@@ -201,7 +231,7 @@
     }
 
     .form-group {
-        margin-bottom: 1.5rem;
+        margin-bottom: 1rem;
     }
 
     .form-label {
@@ -217,6 +247,7 @@
         padding: 0.75rem;
         font-size: 1rem;
         transition: all 0.2s ease;
+        width: 100%;
     }
 
     .form-control:focus {
@@ -240,12 +271,19 @@
 
     .form-actions {
         display: flex;
-        justify-content: space-between;
+        justify-content: flex-end;
         align-items: center;
         gap: 1rem;
+        margin-top: 1.5rem;
+        padding-top: 1rem;
+        border-top: 1px solid #e9ecef;
+    }
+
+    .navigation-actions {
+        justify-content: center;
+        border-top: 2px solid #e9ecef;
         margin-top: 2rem;
         padding-top: 1.5rem;
-        border-top: 1px solid #e9ecef;
     }
 
     .btn {
@@ -343,6 +381,14 @@
 
         .card-body {
             padding: 1.5rem;
+        }
+
+        .form-row {
+            flex-direction: column;
+        }
+
+        .form-group {
+            width: 100% !important;
         }
 
         .form-actions {
