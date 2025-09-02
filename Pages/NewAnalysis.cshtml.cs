@@ -96,7 +96,7 @@ namespace InterviewBot.Pages
                             return new JsonResult(new
                             {
                                 success = true,
-                                message = $"Resume '{ResumeFile.FileName}' uploaded successfully! AI analysis is in progress.",
+                                message = $"Resume '{ResumeFile.FileName}' analyzed successfully!",
                                 redirectUrl = $"/ResumeAnalysisResults/{profile.Id}"
                             });
                         }

@@ -32,13 +32,13 @@ namespace InterviewBot.Pages
                     .Take(10)
                     .ToListAsync();
 
-                InterviewSessions = await _db.InterviewSessions
-                    .Include(s => s.InterviewCatalog)
-                    .Include(s => s.CustomInterview)
-                    .Where(s => s.UserId == userId)
-                    .OrderByDescending(s => s.StartTime)
-                    .Take(10)
-                    .ToListAsync();
+                // InterviewSessions = await _db.InterviewSessions
+                //     .Include(s => s.InterviewCatalog)
+                //     .Include(s => s.CustomInterview)
+                //     .Where(s => s.UserId == userId)
+                //     .OrderByDescending(s => s.StartTime)
+                //     .Take(10)
+                //     .ToListAsync();
             }
 
             return Page();

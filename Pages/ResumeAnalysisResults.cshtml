@@ -95,8 +95,15 @@
         }
 
         @@keyframes pulse {
-            0%, 100% { transform: scale(1); }
-            50% { transform: scale(1.05); }
+
+            0%,
+            100% {
+                transform: scale(1);
+            }
+
+            50% {
+                transform: scale(1.05);
+            }
         }
 
         .progress-title {
@@ -136,13 +143,18 @@
             left: -100%;
             width: 100%;
             height: 100%;
-            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
             animation: shimmer 2s infinite;
         }
 
         @@keyframes shimmer {
-            0% { left: -100%; }
-            100% { left: 100%; }
+            0% {
+                left: -100%;
+            }
+
+            100% {
+                left: 100%;
+            }
         }
 
         .progress-text {
@@ -266,8 +278,13 @@
         }
 
         @@keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
         }
 
         .completion-message {
@@ -388,11 +405,11 @@
             }
 
             console.log('Initializing progress for profile:', profileId);
-            
+
             // Initialize progress bar
             updateProgressBar(currentProgress);
             updateWorkflowSteps(currentProgress);
-            
+
             if (isCompleted) {
                 showCompletionMessage();
             } else {
@@ -405,7 +422,7 @@
             const progressFill = document.querySelector('.progress-fill');
             const progressPercentage = document.querySelector('.progress-percentage');
             const progressStatus = document.querySelector('.progress-status');
-            
+
             if (progressFill && progressPercentage && progressStatus) {
                 progressFill.style.width = progress + '%';
                 progressPercentage.textContent = progress + '%';
@@ -416,13 +433,14 @@
         // Update workflow steps based on progress
         function updateWorkflowSteps(progress) {
             const steps = document.querySelectorAll('.workflow-step');
-            
+
             steps.forEach((step, index) => {
                 step.classList.remove('active', 'completed');
-                
-                if (progress >= (index + 1) * 33.33) {
+
+                // Since we only have one step now, mark it as active when progress > 0 and completed when progress = 100
+                if (progress >= 100) {
                     step.classList.add('completed');
-                } else if (progress >= index * 33.33 && progress < (index + 1) * 33.33) {
+                } else if (progress > 0) {
                     step.classList.add('active');
                 }
             });
@@ -431,10 +449,10 @@
         // Get status text based on progress
         function getStatusText(progress) {
             if (progress < 25) return "Initializing...";
-            if (progress < 50) return "Analyzing...";
-            if (progress < 75) return "Processing...";
-            if (progress < 100) return "Finalizing...";
-            return "Completed!";
+            if (progress < 50) return "Analyzing PDF...";
+            if (progress < 75) return "Processing results...";
+            if (progress < 100) return "Storing in database...";
+            return "Analysis Complete!";
         }
 
         // Start real-time progress updates
@@ -445,26 +463,26 @@
                     console.log('Fetching progress from:', `/api/progress/${profileId}`);
                     const response = await fetch(`/api/progress/${profileId}`);
                     console.log('Response status:', response.status);
-                    
+
                     if (response.ok) {
                         const data = await response.json();
                         console.log('Progress data received:', data);
-                        
+
                         const newProgress = data.progress;
                         const newStatus = data.status;
-                        
+
                         if (newProgress !== currentProgress) {
                             console.log('Progress updated from', currentProgress, 'to', newProgress);
                             currentProgress = newProgress;
                             updateProgressBar(currentProgress);
                             updateWorkflowSteps(currentProgress);
-                            
+
                             // Update step description if available
                             if (data.currentStepDescription) {
                                 updateStepDescription(data.currentStepDescription);
                             }
                         }
-                        
+
                         if (newStatus === "Completed") {
                             console.log('Analysis completed, showing completion message');
                             isCompleted = true;
@@ -492,7 +510,7 @@
 
         // Show completion message and redirect
         function showCompletionMessage() {
-            window.location.href = `/Results`;
+            window.location.href = `/NewAnalysis?culture=en`;
         }
 
         // Manual redirect to results
@@ -523,12 +541,12 @@
             const errorDiv = document.createElement('div');
             errorDiv.className = 'alert alert-danger';
             errorDiv.innerHTML = `
-                <strong>Error:</strong> ${message}
-                <br><br>
-                <a href="/Dashboard" class="btn btn-primary">Go to Dashboard</a>
-                <a href="/NewAnalysis" class="btn btn-secondary">Start New Analysis</a>
-            `;
-            
+                            <strong>Error:</strong> ${message}
+                            <br><br>
+                            <a href="/Dashboard" class="btn btn-primary">Go to Dashboard</a>
+                            <a href="/NewAnalysis" class="btn btn-secondary">Start New Analysis</a>
+                        `;
+
             const container = document.querySelector('.results-container');
             container.insertBefore(errorDiv, container.firstChild);
         }
@@ -542,7 +560,8 @@
     <!-- Page Header -->
     <div class="page-header">
         <h1 class="page-title">Analysis Progress</h1>
-        <p class="page-subtitle">Your resume analysis is being processed. Please wait while we analyze your profile and call external APIs.</p>
+        <p class="page-subtitle">Your PDF resume is being analyzed. Please wait while we process your file and store the
+            results in the database.</p>
     </div>
 
     <!-- Profile Information -->
@@ -556,12 +575,12 @@
             <div class="progress-icon">🔄</div>
             <h2 class="progress-title">Analysis Workflow Progress</h2>
         </div>
-        
+
         <div class="progress-bar-container">
             <div class="progress-bar">
                 <div class="progress-fill" style="width: @(Model.Profile?.Progress ?? 0)%"></div>
             </div>
-            
+
             <div class="progress-text">
                 <span class="progress-percentage">@(Model.Profile?.Progress ?? 0)%</span>
                 <span class="progress-status">@(Model.Profile?.Status ?? "Pending")</span>
@@ -579,17 +598,7 @@
             <div class="workflow-step">
                 <div class="step-number">1</div>
                 <div class="step-title">File Analysis</div>
-                <div class="step-description-small">Analyze uploaded file and input data</div>
-            </div>
-            <div class="workflow-step">
-                <div class="step-number">2</div>
-                <div class="step-title">External API</div>
-                <div class="step-description-small">Call external API with results</div>
-            </div>
-            <div class="workflow-step">
-                <div class="step-number">3</div>
-                <div class="step-title">Results Ready</div>
-                <div class="step-description-small">Display external API response</div>
+                <div class="step-description-small">Analyze uploaded PDF file and store results in database</div>
             </div>
         </div>
     </div>
