@@ -436,60 +436,53 @@
             career roadmaps.</p>
     </div>
 
-    @if (Model.Profiles.Any(p => !string.IsNullOrEmpty(p.ExternalAPIResponse)))
+    @if (Model.Profiles.Any(p => !string.IsNullOrEmpty(p.PossibleJobs)))
     {
         <div class="results-grid">
-
-
-            <!-- External API Results -->
-            @if (Model.Profiles.Any(p => !string.IsNullOrEmpty(p.ExternalAPIResponse)))
-            {
-                <div class="results-section">
-                    <div class="section-header">
-                        <div class="section-icon">🌐</div>
-                        <h2 class="section-title">AI Analysis Results</h2>
-                    </div>
-                    <ul class="results-list">
-                        @foreach (var profile in Model.Profiles.Where(p => !string.IsNullOrEmpty(p.ExternalAPIResponse)))
-                        {
-                            <li class="result-item external-api-result">
-                                <div class="result-title">AI Analysis</div>
-                                <div class="result-meta">
-                                    <span>@profile.UpdatedAt?.ToString("MMM dd, yyyy")</span>
-                                    <span class="result-status status-completed">API Response Received</span>
-                                </div>
-
-                                <!-- Career Recommendations Section -->
-                                <div class="analysis-summary">
-                                    @if (!string.IsNullOrEmpty(profile.PossibleJobs))
-                                    {
-                                        <div class="summary-section">
-                                            <h4 class="summary-title">💼 Career Recommendations</h4>
-                                            <p class="summary-content">@profile.PossibleJobs</p>
-                                        </div>
-                                    }
-                                    else
-                                    {
-                                        <div class="summary-section">
-                                            <h4 class="summary-title">💼 Career Recommendations</h4>
-                                            <p class="summary-content summary-placeholder">
-                                                Analysis completed successfully. Click "View Full Result" to see detailed insights and
-                                                recommendations.
-                                            </p>
-                                        </div>
-                                    }
-                                </div>
-
-                                <div class="result-actions">
-                                    <a href="/ExternalAPIResults?id=@profile.Id" class="btn btn-success">View Full Result</a>
-                                </div>
-                            </li>
-                        }
-                    </ul>
+            <!-- AI Analysis Results -->
+            <div class="results-section">
+                <div class="section-header">
+                    <div class="section-icon">🌐</div>
+                    <h2 class="section-title">AI Analysis Results</h2>
                 </div>
-            }
+                <ul class="results-list">
+                    @foreach (var profile in Model.Profiles.Where(p => !string.IsNullOrEmpty(p.PossibleJobs)))
+                    {
+                        <li class="result-item external-api-result">
+                            <div class="result-title">AI Analysis</div>
+                            <div class="result-meta">
+                                <span>@profile.UpdatedAt?.ToString("MMM dd, yyyy")</span>
+                                <span class="result-status status-completed">Analysis Complete</span>
+                            </div>
 
+                            <!-- Career Recommendations Section -->
+                            <div class="analysis-summary">
+                                @if (!string.IsNullOrEmpty(profile.PossibleJobs))
+                                {
+                                    <div class="summary-section">
+                                        <h4 class="summary-title">💼 Career Recommendations</h4>
+                                        <p class="summary-content">@profile.PossibleJobs</p>
+                                    </div>
+                                }
+                                else
+                                {
+                                    <div class="summary-section">
+                                        <h4 class="summary-title">💼 Career Recommendations</h4>
+                                        <p class="summary-content summary-placeholder">
+                                            Analysis completed successfully. Click "View Full Result" to see detailed insights and
+                                            recommendations.
+                                        </p>
+                                    </div>
+                                }
+                            </div>
 
+                            <div class="result-actions">
+                                <a href="/ExternalAPIResults?id=@profile.Id" class="btn btn-success">View Full Result</a>
+                            </div>
+                        </li>
+                    }
+                </ul>
+            </div>
         </div>
     }
     else

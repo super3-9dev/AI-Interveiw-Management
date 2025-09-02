@@ -477,10 +477,7 @@
                             updateProgressBar(currentProgress);
                             updateWorkflowSteps(currentProgress);
 
-                            // Update step description if available
-                            if (data.currentStepDescription) {
-                                updateStepDescription(data.currentStepDescription);
-                            }
+
                         }
 
                         if (newStatus === "Completed") {
@@ -541,11 +538,11 @@
             const errorDiv = document.createElement('div');
             errorDiv.className = 'alert alert-danger';
             errorDiv.innerHTML = `
-                            <strong>Error:</strong> ${message}
-                            <br><br>
-                            <a href="/Dashboard" class="btn btn-primary">Go to Dashboard</a>
-                            <a href="/NewAnalysis" class="btn btn-secondary">Start New Analysis</a>
-                        `;
+                                <strong>Error:</strong> ${message}
+                                <br><br>
+                                <a href="/Dashboard" class="btn btn-primary">Go to Dashboard</a>
+                                <a href="/NewAnalysis" class="btn btn-secondary">Start New Analysis</a>
+                            `;
 
             const container = document.querySelector('.results-container');
             container.insertBefore(errorDiv, container.firstChild);
@@ -587,12 +584,7 @@
             </div>
         </div>
 
-        @if (!string.IsNullOrEmpty(Model.Profile?.CurrentStepDescription))
-        {
-            <div class="step-description">
-                <strong>Current Step:</strong> @Model.Profile.CurrentStepDescription
-            </div>
-        }
+
 
         <div class="workflow-steps">
             <div class="workflow-step">

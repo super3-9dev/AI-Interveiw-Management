@@ -39,11 +39,10 @@ namespace InterviewBot.Controllers
                 var progressData = new
                 {
                     progress = profile.Progress,
-                    status = profile.Status,
-                    currentStepDescription = profile.CurrentStepDescription
+                    status = profile.Status
                 };
 
-                _logger.LogInformation("Progress data for profile {ProfileId}: Progress={Progress}, Status={Status}", 
+                _logger.LogInformation("Progress data for profile {ProfileId}: Progress={Progress}, Status={Status}",
                     id, profile.Progress, profile.Status);
 
                 return Ok(progressData);

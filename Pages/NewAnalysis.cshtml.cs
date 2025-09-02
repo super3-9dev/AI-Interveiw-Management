@@ -134,7 +134,7 @@ namespace InterviewBot.Pages
                     try
                     {
                         var profile = await _profileService.CreateProfileFromDescriptionAsync(
-                            BriefIntroduction,
+                            BriefIntroduction ?? "",
                             CareerGoals ?? "",
                             CurrentActivity ?? "",
                             Motivations ?? "",

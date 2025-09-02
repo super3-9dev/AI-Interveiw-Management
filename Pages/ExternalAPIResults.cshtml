@@ -415,153 +415,108 @@
             career roadmaps.</p>
     </div>
 
-@if (!string.IsNullOrEmpty(Model.Profile.ExternalAPIResponse))
+@if (!string.IsNullOrEmpty(Model.Profile.PossibleJobs))
 {
-    try
-    {
-        var externalData = System.Text.Json.JsonSerializer.Deserialize<Dictionary<string,
-        object>>(Model.Profile.ExternalAPIResponse);
-
-        @if (externalData != null && externalData.ContainsKey("response") && externalData["response"] is
-            System.Text.Json.JsonElement responseElement)
-        {
-            var responseData = System.Text.Json.JsonSerializer.Deserialize<Dictionary<string,
-            object>>(responseElement.GetRawText());
-
-            @if (responseData != null && responseData.ContainsKey("catalog") && responseData["catalog"] is
-                System.Text.Json.JsonElement catalogElement)
-            {
-                var catalogData = System.Text.Json.JsonSerializer.Deserialize<Dictionary<string,
-                object>>(catalogElement.GetRawText());
-
-                @if (catalogData != null)
-                {
-                        <div class="results-grid">
-                            <!-- Left Column -->
-                            <div>
-                                <!-- Interview Summary -->
-                                @if (catalogData.ContainsKey("InterviewSummary") && catalogData["InterviewSummary"] is
-                                            System.Text.Json.JsonElement
-                                            summaryElement)
-                                {
-                                    var summaryData = System.Text.Json.JsonSerializer.Deserialize<Dictionary<string,
-                                    object>>(summaryElement.GetRawText());
-
-                                    <div class="analysis-section">
-                                        <h2 class="section-title"><i class="bi bi-file-earmark-text"></i> Interview Summary</h2>
-                                        @if (summaryData != null && summaryData.ContainsKey("Summary"))
-                                        {
-                                            <div class="content-box">
-                                                <h4>Summary</h4>
-                                                <p>@summaryData["Summary"]</p>
-                                            </div>
-                                        }
-                                        @if (summaryData != null && summaryData.ContainsKey("Recommendations"))
-                                        {
-                                            <div class="content-box">
-                                                <h4>Recommendations</h4>
-                                                <p>@summaryData["Recommendations"]</p>
-                                            </div>
-                                        }
-                                    </div>
-                                }
-
-                                <!-- MBA Focus Area -->
-                                @if (catalogData.ContainsKey("MBAFocusArea"))
-                                {
-                                    <div class="analysis-section">
-                                        <h2 class="section-title"><i class="bi bi-book"></i> MBA Focus Area</h2>
-                                        <div class="content-box">
-                                            <p><strong>Recommended Focus:</strong> @catalogData["MBAFocusArea"]</p>
-                                        </div>
-                                    </div>
-                                }
-
-                                <!-- Additional Tips -->
-                                @if (catalogData.ContainsKey("AdditionalTips") && catalogData["AdditionalTips"] is
-                                            System.Text.Json.JsonElement
-                                            tipsElement)
-                                {
-                                    var tips = System.Text.Json.JsonSerializer.Deserialize<List<string>>(tipsElement.GetRawText());
-
-                                    @if (tips != null && tips.Any())
-                                    {
-                                        <div class="analysis-section">
-                                            <h2 class="section-title"><i class="bi bi-lightbulb"></i> Additional Tips</h2>
-                                            <ul class="tips-list">
-                                                @foreach (var tip in tips)
-                                                {
-                                                    <li>@tip</li>
-                                                }
-                                            </ul>
-                                        </div>
-                                    }
-                                }
-                            </div>
-
-                            <!-- Right Column -->
-                            <div>
-                                <!-- Career Roadmaps -->
-                                @if (catalogData.ContainsKey("YourCareerRoadmaps") && catalogData["YourCareerRoadmaps"] is
-                                            System.Text.Json.JsonElement roadmapsElement)
-                                {
-                                    var roadmaps = System.Text.Json.JsonSerializer.Deserialize<List<Dictionary<string,
-                                    object>>>(roadmapsElement.GetRawText());
-
-                                    @if (roadmaps != null && roadmaps.Any())
-                                    {
-                                        <div class="analysis-section">
-                                            <h2 class="section-title"><i class="bi bi-compass"></i> Your Career Roadmaps</h2>
-                                            <p style="color: #6b7280; margin-bottom: 1.5rem;">Actionable next steps for your professional journey.
-                                            </p>
-                                            @foreach (var roadmap in roadmaps)
-                                            {
-                                                @if (roadmap.ContainsKey("title") && roadmap.ContainsKey("steps") && roadmap["steps"] is
-                                                                System.Text.Json.JsonElement stepsElement)
-                                                {
-                                                    var steps = System.Text.Json.JsonSerializer.Deserialize<List<string>>(stepsElement.GetRawText());
-
-                                                    <div class="career-roadmap" onclick="toggleRoadmap(this)">
-                                                        <div class="roadmap-title">
-                                                            @roadmap["title"]
-                                                            <button class="roadmap-toggle"><i class="bi bi-arrow-down-short"></i></button>
-                                                        </div>
-                                                        @if (steps != null)
-                                                        {
-                                                            <ul class="roadmap-steps">
-                                                                @foreach (var step in steps)
-                                                                {
-                                                                    <li>@step</li>
-                                                                }
-                                                            </ul>
-                                                        }
-                                                    </div>
-                                                }
-                                            }
-                                        </div>
-                                    }
-                                }
-                            </div>
-                        </div>
-                }
-            }
-        }
-    }
-    catch (Exception ex)
-    {
+    <div class="results-grid">
+        <!-- Left Column -->
+        <div>
+            <!-- Career Analysis -->
             <div class="analysis-section">
-                <h2 class="section-title">⚠️ Data Parsing Error</h2>
-                <p>There was an error parsing the external API response. Please contact support.</p>
-                <p><strong>Error:</strong> @ex.Message</p>
+                <h2 class="section-title"><i class="bi bi-briefcase"></i> Career Analysis</h2>
+                
+                @if (!string.IsNullOrEmpty(Model.Profile.PossibleJobs))
+                {
+                    <div class="content-box">
+                        <h4>Possible Jobs</h4>
+                        <p>@Model.Profile.PossibleJobs</p>
+                    </div>
+                }
+                
+                @if (!string.IsNullOrEmpty(Model.Profile.MbaSubjectsToReinforce))
+                {
+                    <div class="content-box">
+                        <h4>MBA Subjects to Reinforce</h4>
+                        <p>@Model.Profile.MbaSubjectsToReinforce</p>
+                    </div>
+                }
             </div>
-    }
+
+            <!-- Personal Profile -->
+            <div class="analysis-section">
+                <h2 class="section-title"><i class="bi bi-person"></i> Personal Profile</h2>
+                
+                @if (!string.IsNullOrEmpty(Model.Profile.BriefIntroduction))
+                {
+                    <div class="content-box">
+                        <h4>Brief Introduction</h4>
+                        <p>@Model.Profile.BriefIntroduction</p>
+                    </div>
+                }
+                
+                @if (!string.IsNullOrEmpty(Model.Profile.CurrentActivities))
+                {
+                    <div class="content-box">
+                        <h4>Current Activities</h4>
+                        <p>@Model.Profile.CurrentActivities</p>
+                    </div>
+                }
+            </div>
+        </div>
+
+        <!-- Right Column -->
+        <div>
+            <!-- Career Goals & Motivations -->
+            <div class="analysis-section">
+                <h2 class="section-title"><i class="bi bi-target"></i> Career Goals & Motivations</h2>
+                
+                @if (!string.IsNullOrEmpty(Model.Profile.CareerGoals))
+                {
+                    <div class="content-box">
+                        <h4>Career Goals</h4>
+                        <p>@Model.Profile.CareerGoals</p>
+                    </div>
+                }
+                
+                @if (!string.IsNullOrEmpty(Model.Profile.Motivations))
+                {
+                    <div class="content-box">
+                        <h4>Motivations</h4>
+                        <p>@Model.Profile.Motivations</p>
+                    </div>
+                }
+            </div>
+
+            <!-- Strengths & Weaknesses -->
+            <div class="analysis-section">
+                <h2 class="section-title"><i class="bi bi-graph-up"></i> Strengths & Weaknesses</h2>
+                
+                @if (!string.IsNullOrEmpty(Model.Profile.Strengths))
+                {
+                    <div class="content-box">
+                        <h4>Strengths</h4>
+                        <p>@Model.Profile.Strengths</p>
+                    </div>
+                }
+                
+                @if (!string.IsNullOrEmpty(Model.Profile.Weaknesses))
+                {
+                    <div class="content-box">
+                        <h4>Weaknesses</h4>
+                        <p>@Model.Profile.Weaknesses</p>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
 }
 else
 {
-        <div class="analysis-section">
-            <h2 class="section-title">❌ No External API Data</h2>
-            <p>This profile does not have external API analysis data yet. Please ensure the analysis has been completed.</p>
-        </div>
+    <div class="empty-state">
+        <div class="empty-icon">📊</div>
+        <div class="empty-title">No Analysis Results Available</div>
+        <div class="empty-description">This profile doesn't have analysis results yet.</div>
+        <a href="/NewAnalysis" class="create-first-btn">Start New Analysis</a>
+    </div>
 }
 
     <!-- Bottom Action Buttons -->
@@ -573,27 +528,4 @@ else
         </div>
     </div>
 
-    <script>
-        function toggleRoadmap(roadmapElement) {
-            const stepsList = roadmapElement.querySelector('.roadmap-steps');
-            const toggleButton = roadmapElement.querySelector('.roadmap-toggle');
 
-            if (stepsList.classList.contains('expanded')) {
-                stepsList.classList.remove('expanded');
-                toggleButton.classList.remove('expanded');
-                roadmapElement.classList.add('expanded');
-            } else {
-                stepsList.classList.add('expanded');
-                toggleButton.classList.add('expanded');
-                roadmapElement.classList.remove('expanded');
-            }
-        }
-
-        // Auto-expand the first roadmap by default
-        document.addEventListener('DOMContentLoaded', function () {
-            const firstRoadmap = document.querySelector('.career-roadmap');
-            if (firstRoadmap) {
-                toggleRoadmap(firstRoadmap);
-            }
-        });
-    </script>

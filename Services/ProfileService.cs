@@ -279,8 +279,7 @@ namespace InterviewBot.Services
                     var externalAPIResponse = await CallExternalAPIAsync(analysisResult);
                     if (externalAPIResponse.Success)
                     {
-                        profile.ExternalAPIResponse = JsonSerializer.Serialize(externalAPIResponse.Data);
-                        _logger.LogInformation($"External API call successful for profile {analysisId}, response stored");
+                        _logger.LogInformation($"External API call successful for profile {analysisId}, response processed");
                     }
                     else
                     {
@@ -344,10 +343,6 @@ namespace InterviewBot.Services
                 {
                     profile.Status = status;
                     profile.Progress = progress;
-                    if (!string.IsNullOrEmpty(errorMessage))
-                    {
-                        profile.CurrentStepDescription = errorMessage; // Use errorMessage parameter for step description
-                    }
                     profile.UpdatedAt = DateTime.UtcNow;
                     await dbContext.SaveChangesAsync();
                 }

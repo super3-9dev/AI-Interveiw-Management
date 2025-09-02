@@ -23,18 +23,11 @@ namespace InterviewBot.Models
         [StringLength(1000)]
         public string? CurrentActivities { get; set; }
 
-        // External API Response
-        [StringLength(5000)]
-        public string? ExternalAPIResponse { get; set; }
-
         // Analysis Metadata
         [StringLength(50)]
         public string Status { get; set; } = "Pending"; // Pending, Processing, Completed, Failed
 
         public int Progress { get; set; } = 0; // Progress percentage (0-100)
-
-        [StringLength(200)]
-        public string? CurrentStepDescription { get; set; } // Description of current processing step
 
         // User Profile Information
         [StringLength(1000)]
@@ -45,6 +38,9 @@ namespace InterviewBot.Models
 
         [StringLength(1000)]
         public string? CareerGoals { get; set; }
+
+        [StringLength(1000)]
+        public string? Motivations { get; set; }
 
         [StringLength(1000)]
         public string? Interests { get; set; }
