@@ -1,14 +1,448 @@
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.AspNetCore.Authorization;
+using InterviewBot.Services;
+using InterviewBot.Models;
+using InterviewBot.Data;
+using Microsoft.EntityFrameworkCore;
+using System.Security.Claims;
+using System.ComponentModel.DataAnnotations;
+using System.Text.Json;
+using System.Text.Json.Serialization;
+using System.IO;
 
 namespace InterviewBot.Pages
 {
     [Authorize]
     public class TextInterviewModel : PageModel
     {
-        public void OnGet()
+        private readonly IInterviewService _interviewService;
+        private readonly AppDbContext _dbContext;
+        private readonly IOpenAIService _openAIService;
+
+        public TextInterviewModel(IInterviewService interviewService, AppDbContext dbContext, IOpenAIService openAIService)
         {
-            // Page logic can be added here if needed
+            _interviewService = interviewService;
+            _dbContext = dbContext;
+            _openAIService = openAIService;
         }
+
+        [BindProperty(SupportsGet = true)]
+        public string InterviewId { get; set; } = string.Empty;
+
+        [BindProperty]
+        [Required(ErrorMessage = "Please provide an answer")]
+        [StringLength(2000, ErrorMessage = "Answer cannot exceed 2000 characters")]
+        public string UserAnswer { get; set; } = string.Empty;
+
+        // Interview content properties
+        public string InterviewTopic { get; set; } = string.Empty;
+        public string InterviewDescription { get; set; } = string.Empty;
+        public string CurrentQuestion { get; set; } = string.Empty;
+        public List<InterviewHistoryItem> InterviewHistory { get; set; } = new List<InterviewHistoryItem>();
+
+        // Interview completion tracking
+        public int QuestionCount { get; set; } = 0;
+        public bool IsInterviewComplete { get; set; } = false;
+        public string InterviewSummary { get; set; } = string.Empty;
+
+        // Session-based question tracking
+        private const string QuestionCountKey = "InterviewQuestionCount";
+
+        public string? ErrorMessage { get; set; }
+        public string? SuccessMessage { get; set; }
+
+        public async Task<IActionResult> OnGetAsync()
+        {
+            try
+            {
+                if (string.IsNullOrEmpty(InterviewId))
+                {
+                    ErrorMessage = "Interview ID is required.";
+                    return RedirectToPage("/Dashboard");
+                }
+
+                // Load interview content from database
+                await LoadInterviewContentAsync();
+
+                if (string.IsNullOrEmpty(InterviewTopic))
+                {
+                    ErrorMessage = "Interview not found or access denied.";
+                    return RedirectToPage("/Dashboard");
+                }
+
+                // Load question count from session (reset if starting new interview)
+                var currentCount = GetQuestionCount();
+                if (currentCount == 0)
+                {
+                    // This is a new interview, ensure count starts at 0
+                    SetQuestionCount(0);
+                }
+                QuestionCount = currentCount;
+
+                return Page();
+            }
+            catch (Exception ex)
+            {
+                ErrorMessage = "Error loading interview: " + ex.Message;
+                return RedirectToPage("/Dashboard");
+            }
+        }
+
+        public async Task<IActionResult> OnPostAsync(string handler)
+        {
+            try
+            {
+                if (!ModelState.IsValid)
+                {
+                    await LoadInterviewContentAsync();
+                    return Page();
+                }
+
+                var userId = GetCurrentUserId();
+                if (userId == null)
+                {
+                    ErrorMessage = "User not authenticated. Please log in again.";
+                    return RedirectToPage("/Login");
+                }
+
+                switch (handler)
+                {
+                    case "SubmitAnswer":
+                        await SubmitAnswerAsync(userId.Value);
+                        break;
+                    case "NextQuestion":
+                        await MoveToNextQuestionAsync(userId.Value);
+                        break;
+                    default:
+                        ErrorMessage = "Invalid action.";
+                        break;
+                }
+
+                // Reload interview content
+                await LoadInterviewContentAsync();
+                return Page();
+            }
+            catch (Exception ex)
+            {
+                ErrorMessage = "Error processing request: " + ex.Message;
+                await LoadInterviewContentAsync();
+                return Page();
+            }
+        }
+
+        private async Task LoadInterviewContentAsync()
+        {
+            if (string.IsNullOrEmpty(InterviewId))
+                return;
+
+            // Handle default interviews
+            if (InterviewId.StartsWith("default-"))
+            {
+                LoadDefaultInterviewContent();
+                return;
+            }
+
+            // Load from database for real interviews
+            if (int.TryParse(InterviewId, out int catalogId))
+            {
+                var interviewCatalog = await _dbContext.InterviewCatalogs
+                    .FirstOrDefaultAsync(c => c.Id == catalogId);
+
+                if (interviewCatalog != null)
+                {
+                    InterviewTopic = interviewCatalog.Topic;
+                    InterviewDescription = interviewCatalog.Description;
+
+                    // For now, use the description as the first question
+                    // In a real implementation, you'd have a separate questions table
+                    CurrentQuestion = interviewCatalog.Description;
+                }
+            }
+
+            // Load interview history if session exists
+            await LoadInterviewHistoryAsync();
+        }
+
+        private void LoadDefaultInterviewContent()
+        {
+            switch (InterviewId)
+            {
+                case "default-vocational":
+                    InterviewTopic = "Vocational Orientation Interview";
+                    InterviewDescription = "Explore your interests and values to find a career that aligns with your personality.";
+                    CurrentQuestion = "Can you tell me about your main interests and what motivates you in your daily life?";
+                    break;
+                case "default-professional":
+                    InterviewTopic = "Professional Career Interview";
+                    InterviewDescription = "Discuss specific roles and industries based on your resume.";
+                    CurrentQuestion = "What specific career path are you most interested in pursuing, and why?";
+                    break;
+                case "default-softskills":
+                    InterviewTopic = "Soft Skills Interview";
+                    InterviewDescription = "Assess your communication, leadership, and teamwork skills.";
+                    CurrentQuestion = "Describe a situation where you had to work with a difficult team member. How did you handle it?";
+                    break;
+            }
+        }
+
+        private async Task LoadInterviewHistoryAsync()
+        {
+            if (string.IsNullOrEmpty(InterviewId))
+                return;
+
+            // In a real implementation, you'd load from InterviewSessions table
+            // For now, we'll use a simple in-memory approach
+            InterviewHistory = new List<InterviewHistoryItem>();
+        }
+
+        private async Task SubmitAnswerAsync(int userId)
+        {
+            if (string.IsNullOrEmpty(UserAnswer))
+                return;
+
+            // In a real implementation, you'd save the answer to the database
+            // For now, we'll add it to the history
+            InterviewHistory.Add(new InterviewHistoryItem
+            {
+                Question = CurrentQuestion,
+                Answer = UserAnswer,
+                Timestamp = DateTime.Now
+            });
+
+            SuccessMessage = "Answer submitted successfully!";
+            UserAnswer = string.Empty;
+
+            // Move to next question
+            await MoveToNextQuestionAsync(userId);
+        }
+
+        // API endpoint for OpenAI chat
+        public async Task<IActionResult> OnPostOpenAIChatAsync()
+        {
+            try
+            {
+                Console.WriteLine("OpenAI Chat endpoint called");
+
+                var requestBody = await new StreamReader(Request.Body).ReadToEndAsync();
+                Console.WriteLine($"Request body: {requestBody}");
+
+                // Try to parse the JSON manually to debug the issue
+                var jsonOptions = new JsonSerializerOptions
+                {
+                    PropertyNameCaseInsensitive = true
+                };
+
+                var request = JsonSerializer.Deserialize<OpenAIChatRequest>(requestBody, jsonOptions);
+                Console.WriteLine($"Deserialized request object: {request != null}");
+                Console.WriteLine($"Message property value: '{request?.Message}'");
+                Console.WriteLine($"Message length: {request?.Message?.Length ?? 0}");
+
+                if (request == null || string.IsNullOrEmpty(request.Message))
+                {
+                    Console.WriteLine("Invalid request - missing message");
+                    return BadRequest(new { error = "Invalid request - message is required" });
+                }
+
+                var userId = GetCurrentUserId();
+                Console.WriteLine($"User ID: {userId}");
+
+                if (userId == null)
+                {
+                    Console.WriteLine("User not authenticated");
+                    return Unauthorized();
+                }
+
+                Console.WriteLine($"Generating AI response for topic: {InterviewTopic ?? "Career Interview"}");
+                Console.WriteLine($"User message: {request.Message}");
+
+                // Get current question count from session and increment
+                var currentCount = GetQuestionCount();
+                currentCount++;
+                SetQuestionCount(currentCount);
+                Console.WriteLine($"Question count: {currentCount}");
+
+                // Check if interview should end (limit to 10 questions)
+                if (currentCount >= 10)
+                {
+                    Console.WriteLine("Interview ending - reached maximum questions (10)");
+                    var summaryResponse = await GenerateInterviewSummaryAsync();
+                    IsInterviewComplete = true;
+                    InterviewSummary = summaryResponse;
+
+                    // Clear the question count for next interview
+                    ClearQuestionCount();
+
+                    return new JsonResult(new
+                    {
+                        response = "Thank you for your responses. I have enough information to provide you with a comprehensive analysis. Let me generate your interview summary...",
+                        isComplete = true,
+                        summary = summaryResponse,
+                        questionCount = currentCount
+                    });
+                }
+
+                // Generate AI response using OpenAI service
+                var aiResponse = await _openAIService.GenerateInterviewResponseAsync(
+                    request.Message,
+                    InterviewTopic ?? "Career Interview"
+                );
+
+                Console.WriteLine($"AI Response generated: {aiResponse}");
+
+                // Check if AI response indicates interview completion (only after 5+ questions)
+                if (currentCount >= 5 && (aiResponse.Contains("interview complete") || aiResponse.Contains("enough information") ||
+                    aiResponse.Contains("thank you")))
+                {
+                    Console.WriteLine("AI indicates interview should end");
+                    var summaryResponse = await GenerateInterviewSummaryAsync();
+                    IsInterviewComplete = true;
+                    InterviewSummary = summaryResponse;
+
+                    // Clear the question count for next interview
+                    ClearQuestionCount();
+
+                    return new JsonResult(new
+                    {
+                        response = aiResponse,
+                        isComplete = true,
+                        summary = summaryResponse,
+                        questionCount = currentCount
+                    });
+                }
+
+                return new JsonResult(new { response = aiResponse, isComplete = false });
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error in OpenAI chat: {ex.Message}");
+                Console.WriteLine($"Stack trace: {ex.StackTrace}");
+                return StatusCode(500, new { error = "Internal server error: " + ex.Message });
+            }
+        }
+
+        private int GetQuestionCount()
+        {
+            var count = HttpContext.Session.GetInt32(QuestionCountKey);
+            return count ?? 0;
+        }
+
+        private void SetQuestionCount(int count)
+        {
+            HttpContext.Session.SetInt32(QuestionCountKey, count);
+            QuestionCount = count;
+        }
+
+        private void ClearQuestionCount()
+        {
+            HttpContext.Session.Remove(QuestionCountKey);
+            QuestionCount = 0;
+        }
+
+        private async Task<string> GenerateInterviewSummaryAsync()
+        {
+            try
+            {
+                Console.WriteLine("Generating interview summary...");
+
+                var summaryPrompt = $@"
+                Based on the interview conversation, provide a comprehensive summary and analysis.
+                
+                Interview Topic: {InterviewTopic}
+                Interview Description: {InterviewDescription}
+                Number of Questions Asked: {QuestionCount}
+                
+                Interview History:
+                {string.Join("\n", InterviewHistory.Select((item, index) => $"Q{index + 1}: {item.Question}\nA{index + 1}: {item.Answer}"))}
+                
+                Please provide:
+                1. A brief summary of the key points discussed
+                2. Assessment of the candidate's responses
+                3. Key strengths identified
+                4. Areas for improvement (if any)
+                5. Overall recommendation
+                
+                Format the response in a clear, professional manner suitable for a career interview summary.
+                ";
+
+                var summary = await _openAIService.GenerateInterviewResponseAsync(
+                    summaryPrompt,
+                    "Interview Summary Generation"
+                );
+
+                Console.WriteLine($"Interview summary generated successfully");
+                return summary;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error generating interview summary: {ex.Message}");
+                return "Interview completed. Summary generation encountered an error, but your responses have been recorded.";
+            }
+        }
+
+        private async Task MoveToNextQuestionAsync(int userId)
+        {
+            // In a real implementation, you'd have a questions table and move through them
+            // For now, we'll just show a completion message
+            if (InterviewHistory.Count >= 3) // Simple logic: 3 questions = interview complete
+            {
+                SuccessMessage = "Interview completed! You've answered all questions.";
+                CurrentQuestion = "Interview completed. Thank you for your participation!";
+            }
+            else
+            {
+                // Generate next question based on interview type
+                CurrentQuestion = GenerateNextQuestion();
+            }
+        }
+
+        private string GenerateNextQuestion()
+        {
+            if (InterviewId.StartsWith("default-"))
+            {
+                switch (InterviewId)
+                {
+                    case "default-vocational":
+                        return InterviewHistory.Count == 1
+                            ? "What values are most important to you when making decisions?"
+                            : "How do you see your interests evolving over the next 5 years?";
+                    case "default-professional":
+                        return InterviewHistory.Count == 1
+                            ? "What specific skills do you think are most important for this career?"
+                            : "Where do you see yourself in this field in 3-5 years?";
+                    case "default-softskills":
+                        return InterviewHistory.Count == 1
+                            ? "How do you typically handle stress and pressure in work situations?"
+                            : "Can you give an example of when you had to adapt to a major change?";
+                }
+            }
+
+            // For custom interviews, use the description as a base
+            return "Please elaborate on your previous answer with more specific examples.";
+        }
+
+        private int? GetCurrentUserId()
+        {
+            var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier);
+            if (userIdClaim != null && int.TryParse(userIdClaim.Value, out int userId))
+            {
+                return userId;
+            }
+            return null;
+        }
+    }
+
+    public class InterviewHistoryItem
+    {
+        public string Question { get; set; } = string.Empty;
+        public string Answer { get; set; } = string.Empty;
+        public string VoiceRecordingUrl { get; set; } = string.Empty;
+        public DateTime Timestamp { get; set; }
+    }
+
+    public class OpenAIChatRequest
+    {
+        [JsonPropertyName("message")]
+        public string Message { get; set; } = string.Empty;
     }
 }

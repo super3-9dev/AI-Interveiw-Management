@@ -17,10 +17,10 @@
         <div class="header-content">
             <div class="interview-info">
                 <h1 class="interview-title">
-                    <i class="bi bi-briefcase"></i>
-                    Professional Career Interview
+                    <i class="bi bi-robot"></i>
+                    @Model.InterviewTopic
                 </h1>
-                <p class="interview-subtitle">AI-powered interview with real-time feedback</p>
+                <p class="interview-subtitle">AI-powered text interview with OpenAI - Real-time conversation</p>
             </div>
             <div class="interview-status">
                 <span class="status-badge status-active">In Progress</span>
@@ -32,31 +32,39 @@
     <div class="chat-container">
         <div class="chat-messages" id="chatMessages">
             <!-- AI Welcome Message -->
-            <div class="message ai-message">
+            <div class="chat-message ai-message">
                 <div class="message-avatar">
                     <i class="bi bi-robot"></i>
                 </div>
                 <div class="message-content">
                     <div class="message-header">
-                        <span class="message-sender">AI</span>
+                        <span class="message-sender">AI Career Coach</span>
                         <span class="message-time" id="currentTime"></span>
                     </div>
                     <div class="message-text">
                         Hello! I'm your AI career coach. We're going to have a practice interview. Let's start with the
-                        first question: Can you tell me about a challenging project you've worked on?
+                        first question: @Model.CurrentQuestion
                     </div>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- User Input Area -->
+    <!-- Input Area -->
     <div class="input-container">
         <div class="input-wrapper">
-            <input type="text" id="userInput" class="user-input" placeholder="Type your answer..." maxlength="1000">
-            <button class="send-button" id="sendButton" onclick="sendMessage()">
-                <i class="bi bi-send"></i>
-            </button>
+            <form method="post" class="chat-form" id="chatForm">
+                @Html.AntiForgeryToken()
+                <input type="hidden" asp-for="InterviewId" />
+                <div class="input-group">
+                    <textarea asp-for="UserAnswer" style="border-radius: 10px;" class="chat-input"
+                        placeholder="Type your answer here..." rows="3" id="userInput"></textarea>
+                    <button type="button" class="send-button" id="sendButton" onclick="sendMessage()">
+                        <i class="bi bi-send"></i>
+                    </button>
+                </div>
+                <span asp-validation-for="UserAnswer" class="text-danger"></span>
+            </form>
         </div>
     </div>
 
@@ -67,7 +75,7 @@
             <i class="bi bi-arrow-left"></i>
             Back to Dashboard
         </a>
-        <button class="btn btn-danger action-btn">
+        <button class="btn btn-danger action-btn" onclick="finishInterview()">
             <i class="bi bi-arrow-left"></i>
             Finish Interview
         </button>
@@ -84,7 +92,7 @@
 
     /* Interview Header */
     .interview-header {
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
         color: white;
         padding: 1.5rem 2rem;
         box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
@@ -126,6 +134,17 @@
         border: 1px solid rgba(34, 197, 94, 0.3);
     }
 
+    .question-counter {
+        background-color: rgba(59, 130, 246, 0.2);
+        color: #3b82f6;
+        border: 1px solid rgba(59, 130, 246, 0.3);
+        padding: 0.5rem 1rem;
+        border-radius: 2rem;
+        font-size: 0.875rem;
+        font-weight: 500;
+        margin-left: 1rem;
+    }
+
     /* Chat Container */
     .chat-container {
         flex: 1;
@@ -142,11 +161,12 @@
         gap: 1.5rem;
     }
 
-    /* Message Styles */
-    .message {
+    /* Chat Message Styles */
+    .chat-message {
         display: flex;
         gap: 1rem;
         max-width: 80%;
+        animation: fadeInUp 0.3s ease-out;
     }
 
     .ai-message {
@@ -188,6 +208,7 @@
         border-radius: 1rem;
         box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
         position: relative;
+        min-width: 300px;
     }
 
     .ai-message .message-content {
@@ -219,7 +240,41 @@
 
     .message-text {
         line-height: 1.6;
-        margin: 0;
+        margin-bottom: 1rem;
+    }
+
+    /* Typing Indicator */
+    .typing-indicator {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 0.5rem 1rem;
+        background-color: #f3f4f6;
+        border-radius: 1rem;
+        font-size: 0.875rem;
+        color: #6b7280;
+        max-width: 120px;
+    }
+
+    .typing-dots {
+        display: flex;
+        gap: 0.25rem;
+    }
+
+    .typing-dot {
+        width: 6px;
+        height: 6px;
+        background-color: #9ca3af;
+        border-radius: 50%;
+        animation: typing 1.4s infinite ease-in-out;
+    }
+
+    .typing-dot:nth-child(1) {
+        animation-delay: -0.32s;
+    }
+
+    .typing-dot:nth-child(2) {
+        animation-delay: -0.16s;
     }
 
     /* Input Container */
@@ -232,29 +287,40 @@
     .input-wrapper {
         max-width: 1200px;
         margin: 0 auto;
+    }
+
+    .chat-form {
+        width: 100%;
+    }
+
+    .input-group {
         display: flex;
         gap: 1rem;
-        align-items: center;
+        align-items: flex-end;
     }
 
-    .user-input {
+    .chat-input {
         flex: 1;
-        padding: 1rem 1.5rem;
+        padding: 1rem;
         border: 2px solid #e9ecef;
-        border-radius: 2rem;
+        border-radius: 0.75rem !important;
         font-size: 1rem;
+        line-height: 1.5;
+        resize: vertical;
         transition: border-color 0.2s ease;
         outline: none;
+        min-height: 60px;
     }
 
-    .user-input:focus {
+    .chat-input:focus {
         border-color: #3b82f6;
     }
 
     .send-button {
         width: 50px;
         height: 50px;
-        border-radius: 50%;
+        border-radius: 50% 50% 50% 0 !important;
+
         background-color: #3b82f6;
         color: white;
         border: none;
@@ -267,7 +333,7 @@
     }
 
     .send-button:hover {
-        background-color: #2563eb;
+        background-color: #1d4ed8;
         transform: scale(1.05);
     }
 
@@ -275,6 +341,10 @@
         background-color: #9ca3af;
         cursor: not-allowed;
         transform: none;
+    }
+
+    .send-button i {
+        font-size: 1.2rem;
     }
 
     /* Action Buttons */
@@ -303,19 +373,84 @@
         box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
     }
 
-    /* Loading Spinner */
-    .spin {
-        animation: spin 1s linear infinite;
-    }
-
-    @@keyframes spin {
+    /* Animations */
+    @@keyframes fadeInUp {
         from {
-            transform: rotate(0deg);
+            opacity: 0;
+            transform: translateY(20px);
         }
 
         to {
-            transform: rotate(360deg);
+            opacity: 1;
+            transform: translateY(0);
         }
+    }
+
+    @@keyframes typing {
+
+        0%,
+        80%,
+        100% {
+            transform: scale(0.8);
+            opacity: 0.5;
+        }
+
+        40% {
+            transform: scale(1);
+            opacity: 1;
+        }
+    }
+
+    /* Interview Completion Styles */
+    .interview-completion-banner {
+        background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+        color: white;
+        padding: 2rem;
+        border-radius: 1rem;
+        margin: 1rem 0;
+        text-align: center;
+        box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+    }
+
+    .completion-header {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 1rem;
+        margin-bottom: 1rem;
+    }
+
+    .completion-header i {
+        font-size: 2rem;
+        color: #34d399;
+    }
+
+    .completion-header h3 {
+        margin: 0;
+        font-size: 1.5rem;
+        font-weight: 600;
+    }
+
+    .interview-summary {
+        background: white;
+        border-radius: 1rem;
+        padding: 2rem;
+        margin: 1rem 0;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        border-left: 4px solid #10b981;
+    }
+
+    .summary-content h4 {
+        color: #1f2937;
+        margin-bottom: 1rem;
+        font-size: 1.25rem;
+        font-weight: 600;
+    }
+
+    .summary-text {
+        line-height: 1.8;
+        color: #374151;
+        white-space: pre-line;
     }
 
     /* Responsive Design */
@@ -330,16 +465,12 @@
             padding: 1rem;
         }
 
-        .message {
+        .chat-message {
             max-width: 95%;
         }
 
-        .input-wrapper {
-            flex-direction: column;
-        }
-
-        .user-input {
-            width: 100%;
+        .input-container {
+            padding: 1rem;
         }
 
         .action-buttons {
@@ -378,16 +509,23 @@
 </style>
 
 <script>
+    let isWaitingForResponse = false;
+    let messageHistory = [];
+
     // Initialize current time
     document.addEventListener('DOMContentLoaded', function () {
         updateCurrentTime();
         setInterval(updateCurrentTime, 1000);
 
-        // Focus on input
-        document.getElementById('userInput').focus();
+        // Add initial AI message to history
+        messageHistory.push({
+            type: 'ai',
+            text: 'Hello! I\'m your AI career coach. We\'re going to have a practice interview. Let\'s start with the first question: @Model.CurrentQuestion',
+            timestamp: new Date()
+        });
 
-        // Enter key to send message
-        document.getElementById('userInput').addEventListener('keypress', function (e) {
+        // Enable enter key to send message
+        document.getElementById('userInput').addEventListener('keydown', function (e) {
             if (e.key === 'Enter' && !e.shiftKey) {
                 e.preventDefault();
                 sendMessage();
@@ -401,28 +539,76 @@
         document.getElementById('currentTime').textContent = timeString;
     }
 
-    function sendMessage() {
-        const input = document.getElementById('userInput');
-        const message = input.value.trim();
+    async function sendMessage() {
+        const userInput = document.getElementById('userInput');
+        const message = userInput.value.trim();
 
-        if (!message) return;
+        if (!message || isWaitingForResponse) return;
 
         // Add user message to chat
         addUserMessage(message);
 
-        // Clear input
-        input.value = '';
+        // Clear input and disable send button
+        userInput.value = '';
+        setSendButtonState(false);
 
-        // Simulate AI response (in real implementation, this would call OpenAI API)
-        setTimeout(() => {
-            generateAIResponse(message);
-        }, 1000);
+        // Show typing indicator
+        showTypingIndicator();
+
+        // Add to message history
+        messageHistory.push({
+            type: 'user',
+            text: message,
+            timestamp: new Date()
+        });
+
+        try {
+            // Call OpenAI API for response
+            const response = await getOpenAIResponse(message);
+
+            // Remove typing indicator
+            hideTypingIndicator();
+
+            // Check if interview is complete
+            if (response.isComplete) {
+                // Add AI response to chat
+                addAIMessage(response.response);
+
+                // Redirect to results page after a short delay
+                setTimeout(() => {
+                    const resultsUrl = `/InterviewResults?InterviewId=@Model.InterviewId&Summary=${encodeURIComponent(response.summary)}&QuestionCount=${response.questionCount || 10}`;
+                    window.location.href = resultsUrl;
+                }, 2000);
+
+                // Disable input
+                setSendButtonState(false);
+                document.getElementById('userInput').disabled = true;
+            } else {
+                // Add AI response to chat
+                addAIMessage(response.response);
+            }
+
+            // Add to message history
+            messageHistory.push({
+                type: 'ai',
+                text: response.response,
+                timestamp: new Date()
+            });
+
+        } catch (error) {
+            console.error('Error getting AI response:', error);
+            hideTypingIndicator();
+            addErrorMessage('Sorry, I encountered an error. Please try again.');
+        }
+
+        // Re-enable send button
+        setSendButtonState(true);
     }
 
     function addUserMessage(text) {
         const chatMessages = document.getElementById('chatMessages');
         const messageDiv = document.createElement('div');
-        messageDiv.className = 'message user-message';
+        messageDiv.className = 'chat-message user-message';
 
         const now = new Date();
         const timeString = now.toLocaleTimeString();
@@ -444,97 +630,190 @@
         scrollToBottom();
     }
 
-    async function generateAIResponse(userMessage) {
+    function addAIMessage(text) {
         const chatMessages = document.getElementById('chatMessages');
         const messageDiv = document.createElement('div');
-        messageDiv.className = 'message ai-message';
+        messageDiv.className = 'chat-message ai-message';
 
         const now = new Date();
         const timeString = now.toLocaleTimeString();
 
-        // Show loading state
         messageDiv.innerHTML = `
             <div class="message-avatar">
                 <i class="bi bi-robot"></i>
             </div>
             <div class="message-content">
                 <div class="message-header">
-                    <span class="message-sender">AI</span>
+                    <span class="message-sender">AI Career Coach</span>
                     <span class="message-time">${timeString}</span>
                 </div>
-                <div class="message-text">
-                    <i class="bi bi-arrow-clockwise spin"></i> Thinking...
-                </div>
+                <div class="message-text">${text}</div>
             </div>
         `;
 
         chatMessages.appendChild(messageDiv);
         scrollToBottom();
+    }
 
-        try {
-            // Call OpenAI API
-            const response = await fetch('/api/Interview/generate-response', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({
-                    userMessage: userMessage,
-                    interviewContext: 'Professional Career Interview'
-                })
-            });
+    function addErrorMessage(text) {
+        const chatMessages = document.getElementById('chatMessages');
+        const messageDiv = document.createElement('div');
+        messageDiv.className = 'chat-message ai-message';
 
-            if (!response.ok) {
-                throw new Error('Failed to get AI response');
-            }
+        const now = new Date();
+        const timeString = now.toLocaleTimeString();
 
-            const data = await response.json();
-            const aiResponse = data.response;
-
-            // Update the message with the real response
-            messageDiv.innerHTML = `
-                <div class="message-avatar">
-                    <i class="bi bi-robot"></i>
+        messageDiv.innerHTML = `
+            <div class="message-avatar">
+                <i class="bi bi-exclamation-triangle"></i>
+            </div>
+            <div class="message-content">
+                <div class="message-header">
+                    <span class="message-sender">System</span>
+                    <span class="message-time">${timeString}</span>
                 </div>
-                <div class="message-content">
-                    <div class="message-header">
-                        <span class="message-sender">AI</span>
-                        <span class="message-time">${timeString}</span>
+                <div class="message-text">${text}</div>
+            </div>
+        `;
+
+        chatMessages.appendChild(messageDiv);
+        scrollToBottom();
+    }
+
+    function showTypingIndicator() {
+        const chatMessages = document.getElementById('chatMessages');
+        const typingDiv = document.createElement('div');
+        typingDiv.className = 'chat-message ai-message';
+        typingDiv.id = 'typingIndicator';
+
+        typingDiv.innerHTML = `
+            <div class="message-avatar">
+                <i class="bi bi-robot"></i>
+            </div>
+            <div class="message-content">
+                <div class="typing-indicator">
+                    <span>AI is typing</span>
+                    <div class="typing-dots">
+                        <div class="typing-dot"></div>
+                        <div class="typing-dot"></div>
+                        <div class="typing-dot"></div>
                     </div>
-                    <div class="message-text">${aiResponse}</div>
                 </div>
-            `;
+            </div>
+        `;
 
-        } catch (error) {
-            console.error('Error getting AI response:', error);
-            // Show error message
-            messageDiv.innerHTML = `
-                <div class="message-avatar">
-                    <i class="bi bi-robot"></i>
-                </div>
-                <div class="message-content">
-                    <div class="message-header">
-                        <span class="message-sender">AI</span>
-                        <span class="message-time">${timeString}</span>
-                    </div>
-                    <div class="message-text">I apologize, but I'm experiencing technical difficulties. Please try again.</div>
-                </div>
-            `;
+        chatMessages.appendChild(typingDiv);
+        scrollToBottom();
+    }
+
+    function hideTypingIndicator() {
+        const typingIndicator = document.getElementById('typingIndicator');
+        if (typingIndicator) {
+            typingIndicator.remove();
         }
     }
 
+    function setSendButtonState(enabled) {
+        const sendButton = document.getElementById('sendButton');
+        sendButton.disabled = !enabled;
+        isWaitingForResponse = !enabled;
+    }
 
+    async function getOpenAIResponse(userMessage) {
+        try {
+            // Call the OpenAI API endpoint
+            console.log('Sending request to OpenAI API...');
+            const response = await fetch('/TextInterview?handler=OpenAIChat', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'RequestVerificationToken': document.querySelector('input[name="__RequestVerificationToken"]')?.value || ''
+                },
+                body: JSON.stringify({
+                    message: userMessage
+                })
+            });
+
+            console.log('Response status:', response.status);
+            console.log('Response headers:', response.headers);
+
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+
+            const data = await response.json();
+
+            if (data.error) {
+                throw new Error(data.error);
+            }
+
+            return data;
+        } catch (error) {
+            console.error('Error calling OpenAI API:', error);
+
+            // Fallback responses if API fails
+            const fallbackResponses = [
+                "That's a great point! Can you elaborate on how you handled that situation?",
+                "Interesting perspective. What would you do differently if you faced that challenge again?",
+                "Thank you for sharing that experience. It shows your problem-solving skills. Now, let me ask you another question: How do you handle working under pressure?",
+                "Excellent answer! It demonstrates your leadership abilities. What's your approach to motivating team members?",
+                "That's very insightful. How do you stay updated with industry trends and new technologies?",
+                "Great example! Can you tell me about a time when you had to adapt to a major change at work?",
+                "That's a valuable experience. How do you prioritize tasks when you have multiple deadlines?",
+                "Thank you for that detailed response. What are your career goals for the next 3-5 years?"
+            ];
+
+            // Return a fallback response with the correct structure
+            return {
+                response: fallbackResponses[Math.floor(Math.random() * fallbackResponses.length)],
+                isComplete: false
+            };
+        }
+    }
 
     function scrollToBottom() {
         const chatContainer = document.querySelector('.chat-container');
         chatContainer.scrollTop = chatContainer.scrollHeight;
     }
 
+    function showInterviewComplete(summary) {
+        const chatMessages = document.getElementById('chatMessages');
+
+        // Add completion banner
+        const completionBanner = document.createElement('div');
+        completionBanner.className = 'interview-completion-banner';
+        completionBanner.innerHTML = `
+            <div class="completion-header">
+                <i class="bi bi-check-circle-fill"></i>
+                <h3>Interview Complete!</h3>
+            </div>
+            <p>Thank you for participating in this interview. Here's your comprehensive summary:</p>
+        `;
+        chatMessages.appendChild(completionBanner);
+
+        // Add summary
+        const summaryDiv = document.createElement('div');
+        summaryDiv.className = 'interview-summary';
+        summaryDiv.innerHTML = `
+            <div class="summary-content">
+                <h4>Interview Summary & Analysis</h4>
+                <div class="summary-text">${summary}</div>
+            </div>
+        `;
+        chatMessages.appendChild(summaryDiv);
+
+        scrollToBottom();
+    }
+
     function finishInterview() {
         if (confirm('Are you sure you want to finish this interview? This action cannot be undone.')) {
-            // In real implementation, this would mark the interview as finished in database
+            // In real implementation, this would save the interview results to database
             alert('Interview finished! Redirecting to dashboard...');
             window.location.href = '/Dashboard';
         }
     }
 </script>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

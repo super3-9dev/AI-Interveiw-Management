@@ -119,7 +119,7 @@
                                         <p class="interview-description">
                                             @catalog.Description
                                         </p>
-                                        <a href="/InterviewFormat@(!string.IsNullOrEmpty(currentCulture) ? $"?culture={currentCulture}" : "")"
+                                        <a href="/InterviewFormat@(!string.IsNullOrEmpty(currentCulture) ? $"?culture={currentCulture}" : "")&interviewId=@catalog.Id"
                                             class="btn btn-primary interview-btn">
                                             Start Interview
                                         </a>
@@ -152,7 +152,7 @@
                                                  @customInterview.DifficultyLevel
                                              </span>
                                          </div>
-                                        <a href="/InterviewFormat@(!string.IsNullOrEmpty(currentCulture) ? $"?culture={currentCulture}" : "")"
+                                        <a href="/InterviewFormat@(!string.IsNullOrEmpty(currentCulture) ? $"?culture={currentCulture}" : "")&interviewId=@customInterview.Id"
                                             class="btn btn-primary interview-btn">
                                             Start Interview
                                         </a>
@@ -170,7 +170,7 @@
                                     <p class="interview-description">
                                         Explore your interests and values to find a career that aligns with your personality.
                                     </p>
-                                    <a href="/InterviewFormat@(!string.IsNullOrEmpty(currentCulture) ? $"?culture={currentCulture}" : "")"
+                                    <a href="/InterviewFormat@(!string.IsNullOrEmpty(currentCulture) ? $"?culture={currentCulture}" : "")&interviewId=default-vocational"
                                         class="btn btn-primary interview-btn">
                                         Start Interview
                                     </a>
@@ -183,7 +183,7 @@
                                     <p class="interview-description">
                                         Discuss specific roles and industries based on your resume.
                                     </p>
-                                    <a href="/InterviewFormat@(!string.IsNullOrEmpty(currentCulture) ? $"?culture={currentCulture}" : "")"
+                                    <a href="/InterviewFormat@(!string.IsNullOrEmpty(currentCulture) ? $"?culture={currentCulture}" : "")&interviewId=default-professional"
                                         class="btn btn-primary interview-btn">
                                         Start Interview
                                     </a>
@@ -196,7 +196,7 @@
                                     <p class="interview-description">
                                         Assess your communication, leadership, and teamwork skills.
                                     </p>
-                                    <a href="/InterviewFormat@(!string.IsNullOrEmpty(currentCulture) ? $"?culture={currentCulture}" : "")"
+                                    <a href="/InterviewFormat@(!string.IsNullOrEmpty(currentCulture) ? $"?culture={currentCulture}" : "")&interviewId=default-softskills"
                                         class="btn btn-primary interview-btn">
                                         Start Interview
                                     </a>

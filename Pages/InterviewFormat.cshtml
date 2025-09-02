@@ -1,4 +1,5 @@
 @page
+@model InterviewBot.Pages.InterviewFormatModel
 @using Microsoft.AspNetCore.Mvc.Localization
 @inject IViewLocalizer Localizer
 @{
@@ -45,7 +46,7 @@
                             <span>No audio equipment needed</span>
                         </div>
                     </div>
-                    <a href="/TextInterview@(!string.IsNullOrEmpty(currentCulture) ? $"?culture={currentCulture}" : "")"
+                    <a href="/TextInterview@(!string.IsNullOrEmpty(currentCulture) ? $"?culture={currentCulture}" : "")&interviewId=@Model.InterviewId"
                         class="btn btn-primary format-btn">
                         <i class="bi bi-chat-text"></i>
                         Start Text Interview
@@ -78,7 +79,7 @@
                             <span>Real-time interaction</span>
                         </div>
                     </div>
-                    <a href="/VoiceInterview@(!string.IsNullOrEmpty(currentCulture) ? $"?culture={currentCulture}" : "")"
+                    <a href="/VoiceInterview@(!string.IsNullOrEmpty(currentCulture) ? $"?culture={currentCulture}" : "")&interviewId=@Model.InterviewId"
                         class="btn btn-success format-btn">
                         <i class="bi bi-mic"></i>
                         Start Voice Interview
