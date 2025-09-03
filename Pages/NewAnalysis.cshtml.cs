@@ -32,9 +32,14 @@ namespace InterviewBot.Pages
         public string? ErrorMessage { get; set; }
         public string? SuccessMessage { get; set; }
 
-        public NewAnalysisModel(IProfileService profileService)
+        private readonly IExternalAPIService _externalAPIService;
+        private readonly IInterviewCatalogService _interviewCatalogService;
+
+        public NewAnalysisModel(IProfileService profileService, IExternalAPIService externalAPIService, IInterviewCatalogService interviewCatalogService)
         {
             _profileService = profileService;
+            _externalAPIService = externalAPIService;
+            _interviewCatalogService = interviewCatalogService;
         }
 
         public async Task OnGetAsync()
@@ -192,6 +197,71 @@ namespace InterviewBot.Pages
                 }
                 ErrorMessage = $"An error occurred: {ex.Message}";
                 return Page();
+            }
+        }
+
+        public async Task<IActionResult> OnPostDescriptionAnalysisAsync()
+        {
+            try
+            {
+                // Get current user ID
+                var userId = GetCurrentUserId();
+                if (userId == null)
+                {
+                    return new JsonResult(new { success = false, message = "User not authenticated" });
+                }
+
+                // Validate required fields
+                if (string.IsNullOrWhiteSpace(BriefIntroduction) || string.IsNullOrWhiteSpace(CurrentActivity))
+                {
+                    return new JsonResult(new { success = false, message = "Brief Introduction and Current Activities are required" });
+                }
+
+                if (string.IsNullOrWhiteSpace(CareerGoals) || string.IsNullOrWhiteSpace(Motivations))
+                {
+                    return new JsonResult(new { success = false, message = "Please fill in your Career Goals and Motivations" });
+                }
+
+                // Prepare API request data
+                var interviewCatalogRequest = new
+                {
+                    briefIntroduction = BriefIntroduction,
+                    futureCareerGoals = CareerGoals,
+                    currentActivities = CurrentActivity,
+                    motivations = Motivations
+                };
+
+                // Call the external API
+                var apiResponse = await _externalAPIService.SendInterviewCatalogRequestAsync(interviewCatalogRequest);
+
+                if (!apiResponse.Success)
+                {
+                    return new JsonResult(new { success = false, message = $"API Error: {apiResponse.ErrorMessage}" });
+                }
+
+                // Get user's latest profile to get the profile ID
+                var userProfiles = await _profileService.GetUserProfilesAsync(userId.Value);
+                var latestProfile = userProfiles.FirstOrDefault();
+
+                if (latestProfile == null)
+                {
+                    return new JsonResult(new { success = false, message = "No profile found. Please create a profile first." });
+                }
+
+                // Generate interview catalogs from the API response
+                var catalogs = await _interviewCatalogService.GenerateInterviewCatalogsAsync(userId.Value, latestProfile.Id, apiResponse.Data);
+
+                return new JsonResult(new
+                {
+                    success = true,
+                    message = "Interview catalogs generated successfully!",
+                    catalogCount = catalogs.Count,
+                    redirectUrl = "/Dashboard"
+                });
+            }
+            catch (Exception ex)
+            {
+                return new JsonResult(new { success = false, message = $"Error: {ex.Message}" });
             }
         }
 

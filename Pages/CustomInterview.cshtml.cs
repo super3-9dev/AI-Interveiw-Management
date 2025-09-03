@@ -58,11 +58,8 @@ namespace InterviewBot.Pages
                 {
                     UserId = userId.Value,
                     Topic = InterviewTopic,
-                    Description = Description,
+                    Introduction = Description,
                     InterviewType = "Custom",
-                    AIAgentRoleId = 1, // Default AI agent role
-                    KeyQuestions = Description, // Use description as key questions
-                    TargetSkills = "Custom Interview Skills",
                     IsActive = true,
                     CreatedAt = DateTime.UtcNow
                 };

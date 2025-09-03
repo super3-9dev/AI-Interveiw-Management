@@ -13,7 +13,7 @@ namespace InterviewBot.Services
             _context = context;
         }
 
-        public async Task<List<InterviewCatalog>> GenerateInterviewCatalogsAsync(int userId, int profileId)
+        public async Task<List<InterviewCatalog>> GenerateInterviewCatalogsAsync(int userId, int profileId, Dictionary<string, object>? apiResponseData = null)
         {
             var user = await _context.Users
                 .Include(u => u.SelectedAIAgentRole)
@@ -30,53 +30,68 @@ namespace InterviewBot.Services
 
             var catalogs = new List<InterviewCatalog>();
 
-            // Generate Career Counselling Interview Catalog
-            if (user.SelectedAIAgentRole.Name.Contains("Career Counselling"))
+            // If API response data is provided, use it to create catalogs
+            if (apiResponseData != null && apiResponseData.ContainsKey("parsedCatalogs"))
             {
-                var careerCatalog = new InterviewCatalog
+                var parsedCatalogs = apiResponseData["parsedCatalogs"] as object[];
+                if (parsedCatalogs != null)
                 {
-                    UserId = userId,
-                    Topic = "Career Counselling Interview",
-                    Description = "Professional career guidance interview based on your resume analysis",
-                    InterviewType = "Career Counselling",
-                    AIAgentRoleId = user.SelectedAIAgentRoleId.Value,
-
-                    KeyQuestions = "What are your career goals? What skills do you want to develop? What industries interest you?",
-                    TargetSkills = "Career planning, skill assessment, industry knowledge, goal setting"
-                };
-                catalogs.Add(careerCatalog);
+                    foreach (var catalogItem in parsedCatalogs)
+                    {
+                        if (catalogItem is Dictionary<string, object> catalogData)
+                        {
+                            var catalog = new InterviewCatalog
+                            {
+                                UserId = userId,
+                                Topic = catalogData.GetValueOrDefault("topic")?.ToString() ?? "Interview Topic",
+                                Introduction = catalogData.GetValueOrDefault("instruction")?.ToString() ?? "AI-generated interview catalog based on your profile analysis",
+                                InterviewType = "AI Generated"
+                            };
+                            catalogs.Add(catalog);
+                        }
+                    }
+                }
             }
 
-            // Generate Purpose Discovery Interview Catalog
-            if (user.SelectedAIAgentRole.Name.Contains("Purpose Discovery"))
+            // If no API data or fallback, generate default catalogs
+            if (catalogs.Count == 0)
             {
-                var purposeCatalog = new InterviewCatalog
+                // Generate Career Counselling Interview Catalog
+                if (user.SelectedAIAgentRole.Name.Contains("Career Counselling"))
+                {
+                    var careerCatalog = new InterviewCatalog
+                    {
+                        UserId = userId,
+                        Topic = "Career Counselling Interview",
+                        Introduction = "Professional career guidance interview based on your resume analysis",
+                        InterviewType = "Career Counselling"
+                    };
+                    catalogs.Add(careerCatalog);
+                }
+
+                // Generate Purpose Discovery Interview Catalog
+                if (user.SelectedAIAgentRole.Name.Contains("Purpose Discovery"))
+                {
+                    var purposeCatalog = new InterviewCatalog
+                    {
+                        UserId = userId,
+                        Topic = "Purpose Discovery Interview",
+                        Introduction = "Deep exploration of your values, motivations, and life direction",
+                        InterviewType = "Purpose Discovery"
+                    };
+                    catalogs.Add(purposeCatalog);
+                }
+
+                // Generate Skills Assessment Interview Catalog
+                var skillsCatalog = new InterviewCatalog
                 {
                     UserId = userId,
-                    Topic = "Purpose Discovery Interview",
-                    Description = "Deep exploration of your values, motivations, and life direction",
-                    InterviewType = "Purpose Discovery",
-                    AIAgentRoleId = user.SelectedAIAgentRoleId.Value,
-
-                    KeyQuestions = "What motivates you? What values do you hold? What impact do you want to create?",
-                    TargetSkills = "Self-reflection, value clarification, purpose identification, motivation analysis"
+                    Topic = "Skills Assessment Interview",
+                    Introduction = "Comprehensive evaluation of your technical and soft skills",
+                    InterviewType = "Skills Assessment"
                 };
-                catalogs.Add(purposeCatalog);
+                catalogs.Add(skillsCatalog);
             }
-
-            // Generate Skills Assessment Interview Catalog
-            var skillsCatalog = new InterviewCatalog
-            {
-                UserId = userId,
-                Topic = "Skills Assessment Interview",
-                Description = "Comprehensive evaluation of your technical and soft skills",
-                InterviewType = "Skills Assessment",
-                AIAgentRoleId = user.SelectedAIAgentRoleId.Value,
-
-                KeyQuestions = "What are your strongest technical skills? How do you handle challenges? What are your learning goals?",
-                TargetSkills = "Technical skills, problem-solving, communication, leadership, adaptability"
-            };
-            catalogs.Add(skillsCatalog);
 
             // Save catalogs to database
             _context.InterviewCatalogs.AddRange(catalogs);
@@ -95,7 +110,6 @@ namespace InterviewBot.Services
         public async Task<List<InterviewCatalog>> GetUserInterviewCatalogsAsync(int userId)
         {
             return await _context.InterviewCatalogs
-                .Include(ic => ic.AIAgentRole)
                 .Where(ic => ic.UserId == userId && ic.IsActive)
                 .ToListAsync();
         }
@@ -118,7 +132,6 @@ namespace InterviewBot.Services
         public async Task<InterviewSession> StartInterviewAsync(int catalogId, int userId, InterviewType type)
         {
             var catalog = await _context.InterviewCatalogs
-                .Include(ic => ic.AIAgentRole)
                 .FirstOrDefaultAsync(ic => ic.Id == catalogId && ic.UserId == userId);
 
             if (catalog == null)
@@ -129,7 +142,6 @@ namespace InterviewBot.Services
                 UserId = userId,
                 Type = type,
                 Status = InterviewStatus.InProgress,
-                AIAgentRoleId = catalog.AIAgentRoleId,
                 InterviewCatalogId = catalogId,
                 StartTime = DateTime.UtcNow
             };

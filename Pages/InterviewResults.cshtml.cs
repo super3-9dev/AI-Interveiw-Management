@@ -33,7 +33,7 @@ namespace InterviewBot.Pages
 
         // Interview content properties
         public string InterviewTopic { get; set; } = string.Empty;
-        public string InterviewDescription { get; set; } = string.Empty;
+        public string InterviewIntroduction { get; set; } = string.Empty;
         public string InterviewSummary { get; set; } = string.Empty;
 
         public string? ErrorMessage { get; set; }
@@ -93,7 +93,7 @@ namespace InterviewBot.Pages
                 if (interviewCatalog != null)
                 {
                     InterviewTopic = interviewCatalog.Topic;
-                    InterviewDescription = interviewCatalog.Description;
+                    InterviewIntroduction = interviewCatalog.Introduction;
                 }
             }
         }
@@ -104,15 +104,15 @@ namespace InterviewBot.Pages
             {
                 case "default-vocational":
                     InterviewTopic = "Vocational Orientation Interview";
-                    InterviewDescription = "Explore your interests and values to find a career that aligns with your personality.";
+                    InterviewIntroduction = "Explore your interests and values to find a career that aligns with your personality.";
                     break;
                 case "default-professional":
                     InterviewTopic = "Professional Career Interview";
-                    InterviewDescription = "Discuss specific roles and industries based on your resume.";
+                    InterviewIntroduction = "Discuss specific roles and industries based on your resume.";
                     break;
                 case "default-softskills":
                     InterviewTopic = "Soft Skills Interview";
-                    InterviewDescription = "Assess your communication, leadership, and teamwork skills.";
+                    InterviewIntroduction = "Assess your communication, leadership, and teamwork skills.";
                     break;
             }
         }

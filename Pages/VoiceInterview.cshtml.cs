@@ -35,7 +35,7 @@ namespace InterviewBot.Pages
 
         // Interview content properties
         public string InterviewTopic { get; set; } = string.Empty;
-        public string InterviewDescription { get; set; } = string.Empty;
+        public string InterviewIntroduction { get; set; } = string.Empty;
         public string CurrentQuestion { get; set; } = string.Empty;
         public List<InterviewHistoryItem> InterviewHistory { get; set; } = new List<InterviewHistoryItem>();
 
@@ -133,10 +133,10 @@ namespace InterviewBot.Pages
                 if (interviewCatalog != null)
                 {
                     InterviewTopic = interviewCatalog.Topic;
-                    InterviewDescription = interviewCatalog.Description;
+                    InterviewIntroduction = interviewCatalog.Introduction;
 
                     // For now, use the description as the first question
-                    CurrentQuestion = interviewCatalog.Description;
+                    CurrentQuestion = interviewCatalog.Introduction;
                 }
             }
 
@@ -150,17 +150,17 @@ namespace InterviewBot.Pages
             {
                 case "default-vocational":
                     InterviewTopic = "Vocational Orientation Interview";
-                    InterviewDescription = "Explore your interests and values to find a career that aligns with your personality.";
+                    InterviewIntroduction = "Explore your interests and values to find a career that aligns with your personality.";
                     CurrentQuestion = "Can you tell me about your main interests and what motivates you in your daily life?";
                     break;
                 case "default-professional":
                     InterviewTopic = "Professional Career Interview";
-                    InterviewDescription = "Discuss specific roles and industries based on your resume.";
+                    InterviewIntroduction = "Discuss specific roles and industries based on your resume.";
                     CurrentQuestion = "What specific career path are you most interested in pursuing, and why?";
                     break;
                 case "default-softskills":
                     InterviewTopic = "Soft Skills Interview";
-                    InterviewDescription = "Assess your communication, leadership, and teamwork skills.";
+                    InterviewIntroduction = "Assess your communication, leadership, and teamwork skills.";
                     CurrentQuestion = "Describe a situation where you had to work with a difficult team member. How did you handle it?";
                     break;
             }

@@ -15,23 +15,13 @@ namespace InterviewBot.Models
         public string Topic { get; set; } = string.Empty;
 
         [MaxLength(1000)]
-        public string Description { get; set; } = string.Empty;
+        public string Introduction { get; set; } = string.Empty;
 
         [Required]
         [MaxLength(50)]
         public string InterviewType { get; set; } = string.Empty; // "Career Counselling" or "Purpose Discovery"
 
-        [Required]
-        public int AIAgentRoleId { get; set; }
-        public AIAgentRole AIAgentRole { get; set; } = null!;
 
-
-
-        [MaxLength(1000)]
-        public string? KeyQuestions { get; set; } // Main questions for this interview type
-
-        [MaxLength(500)]
-        public string? TargetSkills { get; set; } // Skills this interview focuses on
 
         public bool IsActive { get; set; } = true;
 

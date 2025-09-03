@@ -113,11 +113,9 @@ namespace InterviewBot.Services
                                     {
                                         UserId = userId,
                                         Topic = itemData.ContainsKey("topic") ? itemData["topic"]?.ToString() ?? "General Topic" : "General Topic",
-                                        Description = itemData.ContainsKey("instruction") ? itemData["instruction"]?.ToString() ?? "General instruction" : "General instruction",
+                                        Introduction = itemData.ContainsKey("instruction") ? itemData["instruction"]?.ToString() ?? "General instruction" : "General instruction",
                                         InterviewType = "AI-Generated",
-                                        AIAgentRoleId = 1, // Default AI agent role
-                                        KeyQuestions = itemData.ContainsKey("instruction") ? itemData["instruction"]?.ToString() ?? "General instruction" : "General instruction",
-                                        TargetSkills = "AI-Generated Skills",
+
                                         IsActive = true,
                                         CreatedAt = DateTime.UtcNow
                                     };
@@ -236,11 +234,9 @@ namespace InterviewBot.Services
                                             {
                                                 UserId = userId,
                                                 Topic = itemData.ContainsKey("topic") ? itemData["topic"]?.ToString() ?? "General Topic" : "General Topic",
-                                                Description = itemData.ContainsKey("instruction") ? itemData["instruction"]?.ToString() ?? "General instruction" : "General instruction",
+                                                Introduction = itemData.ContainsKey("instruction") ? itemData["instruction"]?.ToString() ?? "General instruction" : "General instruction",
                                                 InterviewType = "AI-Generated",
-                                                AIAgentRoleId = 1, // Default AI agent role
-                                                KeyQuestions = itemData.ContainsKey("instruction") ? itemData["instruction"]?.ToString() ?? "General instruction" : "General instruction",
-                                                TargetSkills = "AI-Generated Skills",
+
                                                 IsActive = true,
                                                 CreatedAt = DateTime.UtcNow
                                             };
@@ -273,11 +269,9 @@ namespace InterviewBot.Services
                                     {
                                         UserId = userId,
                                         Topic = itemData.ContainsKey("topic") ? itemData["topic"]?.ToString() ?? "General Topic" : "General Topic",
-                                        Description = itemData.ContainsKey("instruction") ? itemData["instruction"]?.ToString() ?? "General instruction" : "General instruction",
+                                        Introduction = itemData.ContainsKey("instruction") ? itemData["instruction"]?.ToString() ?? "General instruction" : "General instruction",
                                         InterviewType = "AI-Generated",
-                                        AIAgentRoleId = 1, // Default AI agent role
-                                        KeyQuestions = itemData.ContainsKey("instruction") ? itemData["instruction"]?.ToString() ?? "General instruction" : "General instruction",
-                                        TargetSkills = "AI-Generated Skills",
+
                                         IsActive = true,
                                         CreatedAt = DateTime.UtcNow
                                     };
@@ -343,12 +337,8 @@ namespace InterviewBot.Services
                 {
                     UserId = userId,
                     Topic = title,
-                    Description = description,
+                    Introduction = description,
                     InterviewType = "Custom",
-                    AIAgentRoleId = 1, // Default AI agent role
-
-                    KeyQuestions = customQuestions,
-                    TargetSkills = focusAreas,
                     IsActive = true,
                     CreatedAt = DateTime.UtcNow
                 };
@@ -513,7 +503,6 @@ namespace InterviewBot.Services
         public async Task<IEnumerable<InterviewCatalog>> GetUserInterviewCatalogsAsync(int userId)
         {
             return await _dbContext.InterviewCatalogs
-                .Include(c => c.AIAgentRole)
                 .Where(c => c.UserId == userId && c.IsActive)
                 .OrderByDescending(c => c.CreatedAt)
                 .ToListAsync();

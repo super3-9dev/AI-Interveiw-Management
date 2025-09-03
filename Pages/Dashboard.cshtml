@@ -117,7 +117,7 @@
                                     <div class="card-body">
                                         <h6 class="interview-title">@catalog.Topic</h6>
                                         <p class="interview-description">
-                                            @catalog.Description
+                                            @catalog.Introduction
                                         </p>
                                         <a href="/InterviewFormat@(!string.IsNullOrEmpty(currentCulture) ? $"?culture={currentCulture}" : "")&interviewId=@catalog.Id"
                                             class="btn btn-primary interview-btn">

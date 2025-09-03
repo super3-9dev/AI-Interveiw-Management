@@ -118,12 +118,7 @@ namespace InterviewBot.Data
                 .HasForeignKey(ci => ci.UserId)
                 .OnDelete(DeleteBehavior.Cascade);
 
-            // Configure InterviewCatalog-AIAgentRole relationship
-            modelBuilder.Entity<InterviewCatalog>()
-                .HasOne(ic => ic.AIAgentRole)
-                .WithMany()
-                .HasForeignKey(ic => ic.AIAgentRoleId)
-                .OnDelete(DeleteBehavior.Restrict);
+
 
             // Configure InterviewSession relationships
             modelBuilder.Entity<InterviewSession>()

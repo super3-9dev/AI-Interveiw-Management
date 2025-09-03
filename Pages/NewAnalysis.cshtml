@@ -95,7 +95,9 @@
                             <label for="briefIntroduction" class="form-label">Brief introduction about yourself</label>
                             <textarea id="briefIntroduction" name="BriefIntroduction" class="form-control" rows="4"
                                 placeholder="Tell us about your experience, skills, and career goals..."
-                                disabled>@Model.BriefIntroduction</textarea>
+                                readonly>@Model.BriefIntroduction</textarea>
+                            <small class="form-text text-muted">This field is pre-filled from your latest profile
+                                analysis.</small>
                         </div>
 
                         <div class="form-group">
@@ -110,7 +112,9 @@
                                 projects)?</label>
                             <input type="text" id="currentActivity" name="CurrentActivity" class="form-control"
                                 placeholder="e.g., Working as a full-stack developer and mentoring junior engineers"
-                                disabled value="@Model.CurrentActivity">
+                                readonly value="@Model.CurrentActivity">
+                            <small class="form-text text-muted">This field is pre-filled from your latest profile
+                                analysis.</small>
                         </div>
 
                         <div class="form-group">
@@ -122,7 +126,7 @@
 
                         <!-- Submit Button -->
                         <div class="form-actions">
-                            <button type="submit" class="start-analysis-btn" id="description-submit-btn">
+                            <button type="button" class="start-analysis-btn" id="description-analysis-btn">
                                 <i class="bi bi-play-circle"></i>
                                 Description Analysis
                             </button>
@@ -652,6 +656,70 @@
                 alert('Please upload a resume file to start the analysis.');
             }
         });
+
+        // Handle Description Analysis button click
+        const descriptionAnalysisBtn = document.getElementById('description-analysis-btn');
+        if (descriptionAnalysisBtn) {
+            descriptionAnalysisBtn.addEventListener('click', async function () {
+                // Get form data
+                const briefIntroduction = document.getElementById('briefIntroduction').value;
+                const careerGoals = document.getElementById('careerGoals').value;
+                const currentActivity = document.getElementById('currentActivity').value;
+                const motivations = document.getElementById('motivations').value;
+
+                // Validate required fields
+                if (!briefIntroduction || !currentActivity) {
+                    alert('Brief Introduction and Current Activities are required.');
+                    return;
+                }
+
+                if (!careerGoals || !motivations) {
+                    alert('Please fill in your Career Goals and Motivations.');
+                    return;
+                }
+
+                // Show loading state
+                const originalText = this.innerHTML;
+                this.innerHTML = '<i class="bi bi-hourglass-split"></i> Analyzing...';
+                this.disabled = true;
+
+                try {
+                    // Prepare form data
+                    const formData = new FormData();
+                    formData.append('BriefIntroduction', briefIntroduction);
+                    formData.append('CareerGoals', careerGoals);
+                    formData.append('CurrentActivity', currentActivity);
+                    formData.append('Motivations', motivations);
+
+                    // Make API call
+                    const response = await fetch('/NewAnalysis?handler=DescriptionAnalysis', {
+                        method: 'POST',
+                        body: formData,
+                        headers: {
+                            'RequestVerificationToken': document.querySelector('input[name="__RequestVerificationToken"]').value
+                        }
+                    });
+
+                    const result = await response.json();
+
+                    if (result.success) {
+                        alert(result.message);
+                        if (result.redirectUrl) {
+                            window.location.href = result.redirectUrl;
+                        }
+                    } else {
+                        alert('Error: ' + result.message);
+                    }
+                } catch (error) {
+                    console.error('Error:', error);
+                    alert('An error occurred while processing your request.');
+                } finally {
+                    // Restore button state
+                    this.innerHTML = originalText;
+                    this.disabled = false;
+                }
+            });
+        }
     });
 
     function removeFile() {
