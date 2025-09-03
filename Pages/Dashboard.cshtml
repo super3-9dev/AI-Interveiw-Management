@@ -46,72 +46,144 @@
                     </p>
 
                     <div class="profile-section">
-                                                 @if (Model.UserProfile != null)
-                         {
-                             <div class="profile-item">
-                                 <h6 class="profile-label">Strengths</h6>
-                                 <p class="profile-text">@(Model.UserProfile.Strengths ?? "Please update your profile.")</p>
-                             </div>
- 
-                             <div class="profile-item">
-                                 <h6 class="profile-label">Weaknesses</h6>
-                                 <p class="profile-text">@(Model.UserProfile.Weaknesses ?? "Please update your profile.")</p>
-                             </div>
- 
-                             <div class="profile-item">
-                                 <h6 class="profile-label">Career Goals</h6>
-                                 <p class="profile-text">@(Model.UserProfile.CareerGoals ?? "Please update your profile.")</p>
-                             </div>
-                         }
-                         else
-                         {
-                             <div class="profile-item">
-                                 <h6 class="profile-label">Strengths</h6>
-                                 <p class="profile-text">Strong background in full-stack development, leadership potential.</p>
-                             </div>
- 
-                             <div class="profile-item">
-                                 <h6 class="profile-label">Weaknesses</h6>
-                                 <p class="profile-text">Limited experience with cloud-native technologies.</p>
-                             </div>
- 
-                             <div class="profile-item">
-                                 <h6 class="profile-label">Career Goals</h6>
-                                 <p class="profile-text">Software Architect, Engineering Manager, DevOps Specialist.</p>
-                             </div>
-                         }
+                        @if (Model.UserProfile != null)
+                        {
+                            <div class="profile-item">
+                                <h6 class="profile-label">Strengths</h6>
+                                <p class="profile-text">@(Model.UserProfile.Strengths ?? "Please update your profile.")</p>
+                            </div>
+
+                            <div class="profile-item">
+                                <h6 class="profile-label">Weaknesses</h6>
+                                <p class="profile-text">@(Model.UserProfile.Weaknesses ?? "Please update your profile.")</p>
+                            </div>
+
+                            <div class="profile-item">
+                                <h6 class="profile-label">Career Goals</h6>
+                                <p class="profile-text">@(Model.UserProfile.CareerGoals ?? "Please update your profile.")
+                                </p>
+                            </div>
+                        }
+                        else
+                        {
+                            <div class="profile-item">
+                                <h6 class="profile-label">Strengths</h6>
+                                <p class="profile-text">Strong background in full-stack development, leadership potential.
+                                </p>
+                            </div>
+
+                            <div class="profile-item">
+                                <h6 class="profile-label">Weaknesses</h6>
+                                <p class="profile-text">Limited experience with cloud-native technologies.</p>
+                            </div>
+
+                            <div class="profile-item">
+                                <h6 class="profile-label">Career Goals</h6>
+                                <p class="profile-text">Software Architect, Engineering Manager, DevOps Specialist.</p>
+                            </div>
+                        }
                     </div>
 
-                                                                 <div class="profile-actions">
-                            <a href="/Account@(!string.IsNullOrEmpty(currentCulture) ? $"?culture={currentCulture}" : "")" class="btn btn-outline-secondary update-profile-btn">
-                             <i class="bi bi-pencil"></i>
-                             Update Profile
-                         </a>
-                     </div>
+                    <div class="profile-actions">
+                        <a href="/Account@(!string.IsNullOrEmpty(currentCulture) ? $"?culture={currentCulture}" : "")"
+                            class="btn btn-outline-secondary update-profile-btn">
+                            <i class="bi bi-pencil"></i>
+                            Update Profile
+                        </a>
+                    </div>
                 </div>
             </div>
 
 
         </div>
 
-        <!-- Right Column - Interview Catalog or Profile Creation Prompt -->
+        <!-- Right Column - Interview Status Sections -->
         <div class="col-md-6 mb-4">
             @if (Model.HasProfiles)
             {
-                <div class="interview-catalog">
-                    <div class="catalog-header">
-                        <h5 class="catalog-title">
+                <!-- In Progress Section -->
+                @if (Model.InterviewCatalogs.Any(c => c.Status == "InProgress"))
+                {
+                    <div class="interview-section">
+                        <div class="section-header">
+                            <h5 class="section-title">
+                                <i class="bi bi-pencil"></i>
+                                In Progress
+                            </h5>
+                        </div>
+                        <div class="interview-cards">
+                            @foreach (var catalog in Model.InterviewCatalogs.Where(c => c.Status == "InProgress"))
+                            {
+                                <div class="interview-card">
+                                    <div class="card-body">
+                                        <h6 class="interview-title">@catalog.Topic</h6>
+                                        <div class="interview-status">
+                                            <span class="status-badge status-in-progress">
+                                                <i class="bi bi-clock"></i>
+                                                In Progress
+                                            </span>
+                                        </div>
+                                        <a href="/TextInterview@(!string.IsNullOrEmpty(currentCulture) ? $"?culture={currentCulture}" : "")&interviewId=@catalog.Id"
+                                            class="btn btn-primary interview-btn continue-btn">
+                                            <i class="bi bi-arrow-right"></i>
+                                            Continue Interview
+                                        </a>
+                                    </div>
+                                </div>
+                            }
+                        </div>
+                    </div>
+                }
+
+                <!-- Completed Section -->
+                @if (Model.InterviewCatalogs.Any(c => c.Status == "Completed"))
+                {
+                    <div class="interview-section">
+                        <div class="section-header">
+                            <h5 class="section-title">
+                                <i class="bi bi-check-circle"></i>
+                                Completed
+                            </h5>
+                        </div>
+                        <div class="interview-cards">
+                            @foreach (var catalog in Model.InterviewCatalogs.Where(c => c.Status == "Completed"))
+                            {
+                                <div class="interview-card">
+                                    <div class="card-body">
+                                        <h6 class="interview-title">@catalog.Topic</h6>
+                                        <div class="interview-status">
+                                            <span class="status-badge status-completed">
+                                                <i class="bi bi-check-circle"></i>
+                                                Completed
+                                            </span>
+                                        </div>
+                                        <a href="/InterviewResults@(!string.IsNullOrEmpty(currentCulture) ? $"?culture={currentCulture}" : "")&interviewId=@catalog.Id"
+                                            class="btn btn-primary interview-btn view-results-btn">
+                                            <i class="bi bi-arrow-right"></i>
+                                            View Results
+                                        </a>
+                                    </div>
+                                </div>
+                            }
+                        </div>
+                    </div>
+                }
+
+                <!-- Interview Catalog Section -->
+                <div class="interview-section">
+                    <div class="section-header">
+                        <h5 class="section-title">
                             <i class="bi bi-list-ul"></i>
                             Interview Catalog
                         </h5>
-                        <p class="catalog-subtitle">Choose from your personalized list of interviews or create a new one.
+                        <p class="section-subtitle">Choose from your personalized list of interviews or create a new one.
                         </p>
                     </div>
-
                     <div class="interview-cards">
-                        @if (Model.InterviewCatalogs.Any())
+                        @if (Model.InterviewCatalogs.Any(c => c.Status == "NotStarted" || string.IsNullOrEmpty(c.Status)))
                         {
-                            @foreach (var catalog in Model.InterviewCatalogs)
+                            @foreach (var catalog in Model.InterviewCatalogs.Where(c => c.Status == "NotStarted" ||
+                                                string.IsNullOrEmpty(c.Status)))
                             {
                                 <div class="interview-card">
                                     <div class="card-body">
@@ -127,7 +199,15 @@
                                 </div>
                             }
                         }
-                        
+
+                        @if (!Model.InterviewCatalogs.Any(c => c.Status == "NotStarted" || string.IsNullOrEmpty(c.Status)))
+                        {
+                            <div class="no-interviews-message">
+                                <p class="text-muted">No interviews available. Complete your profile analysis to generate
+                                    personalized interviews.</p>
+                            </div>
+                        }
+
                         @if (Model.CustomInterviews.Any())
                         {
                             @foreach (var customInterview in Model.CustomInterviews)
@@ -142,16 +222,16 @@
                                         <p class="interview-description">
                                             @customInterview.Description
                                         </p>
-                                                                                 <div class="interview-meta">
-                                             <span class="meta-item">
-                                                 <i class="bi bi-clock"></i>
-                                                 @customInterview.InterviewDuration
-                                             </span>
-                                             <span class="meta-item">
-                                                 <i class="bi bi-bar-chart"></i>
-                                                 @customInterview.DifficultyLevel
-                                             </span>
-                                         </div>
+                                        <div class="interview-meta">
+                                            <span class="meta-item">
+                                                <i class="bi bi-clock"></i>
+                                                @customInterview.InterviewDuration
+                                            </span>
+                                            <span class="meta-item">
+                                                <i class="bi bi-bar-chart"></i>
+                                                @customInterview.DifficultyLevel
+                                            </span>
+                                        </div>
                                         <a href="/InterviewFormat@(!string.IsNullOrEmpty(currentCulture) ? $"?culture={currentCulture}" : "")&interviewId=@customInterview.Id"
                                             class="btn btn-primary interview-btn">
                                             Start Interview
@@ -160,7 +240,7 @@
                                 </div>
                             }
                         }
-                        
+
                         @if (!Model.InterviewCatalogs.Any() && !Model.CustomInterviews.Any())
                         {
                             <!-- Default interview cards when no dynamic items or custom interviews are available -->
@@ -381,33 +461,32 @@
         color: white;
     }
 
-    /* Interview Catalog */
-    .interview-catalog {
+    /* Interview Sections */
+    .interview-section {
         background-color: #f8f9fa;
         border-radius: 0.75rem;
         padding: 1.5rem;
-        height: 100%;
+        margin-bottom: 1.5rem;
     }
 
-    .catalog-header {
-        text-align: center;
-        margin-bottom: 2rem;
+    .section-header {
+        margin-bottom: 1.5rem;
     }
 
-    .catalog-title {
-        font-size: 1.5rem;
+    .section-title {
+        font-size: 1.25rem;
         font-weight: 600;
         color: #1f2937;
         margin-bottom: 0.5rem;
         display: flex;
         align-items: center;
-        justify-content: center;
         gap: 0.5rem;
     }
 
-    .catalog-subtitle {
+    .section-subtitle {
         color: #6b7280;
         margin: 0;
+        font-size: 0.9rem;
     }
 
     .interview-cards {
@@ -448,6 +527,69 @@
         width: 100%;
         border-radius: 0.5rem;
         font-weight: 500;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.5rem;
+        padding: 0.75rem 1rem;
+        transition: all 0.2s ease;
+    }
+
+    .interview-btn:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 2px 8px rgba(59, 130, 246, 0.3);
+    }
+
+    /* Interview Status Styles */
+    .interview-status {
+        margin-bottom: 1rem;
+        display: flex;
+        justify-content: flex-start;
+    }
+
+    .status-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.25rem;
+        padding: 0.25rem 0.75rem;
+        border-radius: 1rem;
+        font-size: 0.75rem;
+        font-weight: 500;
+        text-transform: uppercase;
+        letter-spacing: 0.025em;
+    }
+
+    .status-in-progress {
+        background-color: #f3f4f6;
+        color: #6b7280;
+        border: 1px solid #d1d5db;
+    }
+
+    .status-completed {
+        background-color: #dcfce7;
+        color: #166534;
+        border: 1px solid #bbf7d0;
+    }
+
+    /* Button Variations */
+    .continue-btn {
+        background-color: #3b82f6;
+        border-color: #3b82f6;
+    }
+
+    .continue-btn:hover {
+        background-color: #2563eb;
+        border-color: #2563eb;
+    }
+
+    .view-results-btn {
+        background-color: #3b82f6;
+        border-color: #3b82f6;
+    }
+
+    .view-results-btn:hover {
+        background-color: #2563eb;
+        border-color: #2563eb;
     }
 
     /* Custom Interview Card */

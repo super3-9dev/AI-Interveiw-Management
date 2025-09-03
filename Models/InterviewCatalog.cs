@@ -21,7 +21,8 @@ namespace InterviewBot.Models
         [MaxLength(50)]
         public string InterviewType { get; set; } = string.Empty; // "Career Counselling" or "Purpose Discovery"
 
-
+        [MaxLength(20)]
+        public string Status { get; set; } = "NotStarted"; // "NotStarted", "InProgress", "Completed"
 
         public bool IsActive { get; set; } = true;
 

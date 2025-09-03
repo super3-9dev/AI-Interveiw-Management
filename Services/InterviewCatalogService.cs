@@ -264,5 +264,31 @@ namespace InterviewBot.Services
 
             return questions;
         }
+
+        public async Task<bool> UpdateInterviewCatalogStatusAsync(int catalogId, string status)
+        {
+            var catalog = await _context.InterviewCatalogs.FindAsync(catalogId);
+            if (catalog == null) return false;
+
+            catalog.Status = status;
+            catalog.UpdatedAt = DateTime.UtcNow;
+
+            await _context.SaveChangesAsync();
+            return true;
+        }
+
+        public async Task<bool> StartInterviewCatalogAsync(int catalogId, int userId)
+        {
+            var catalog = await _context.InterviewCatalogs
+                .FirstOrDefaultAsync(ic => ic.Id == catalogId && ic.UserId == userId);
+
+            if (catalog == null) return false;
+
+            catalog.Status = "InProgress";
+            catalog.UpdatedAt = DateTime.UtcNow;
+
+            await _context.SaveChangesAsync();
+            return true;
+        }
     }
 }

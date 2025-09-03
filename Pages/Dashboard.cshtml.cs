@@ -12,6 +12,7 @@ namespace InterviewBot.Pages
     {
         private readonly IInterviewService _interviewService;
         private readonly IProfileService _profileService;
+        private readonly IInterviewCatalogService _interviewCatalogService;
 
         [BindProperty]
         public string CustomTitle { get; set; } = string.Empty;
@@ -41,10 +42,11 @@ namespace InterviewBot.Pages
         public string? ErrorMessage { get; set; }
         public string? SuccessMessage { get; set; }
 
-        public DashboardModel(IInterviewService interviewService, IProfileService profileService)
+        public DashboardModel(IInterviewService interviewService, IProfileService profileService, IInterviewCatalogService interviewCatalogService)
         {
             _interviewService = interviewService;
             _profileService = profileService;
+            _interviewCatalogService = interviewCatalogService;
         }
 
         public async Task OnGetAsync()
@@ -71,7 +73,17 @@ namespace InterviewBot.Pages
                         ActiveInterviewSessions = await _interviewService.GetUserInterviewSessionsAsync(userId.Value);
                         CustomInterviews = await _interviewService.GetUserCustomInterviewsAsync(userId.Value);
 
-
+                        // If no interview catalogs exist, generate some default ones
+                        if (!InterviewCatalogs.Any())
+                        {
+                            var userProfile = userProfiles.FirstOrDefault();
+                            if (userProfile != null)
+                            {
+                                // Generate default interview catalogs
+                                var defaultCatalogs = await _interviewCatalogService.GenerateInterviewCatalogsAsync(userId.Value, userProfile.Id);
+                                InterviewCatalogs = defaultCatalogs;
+                            }
+                        }
                     }
                 }
             }

@@ -19,12 +19,14 @@ namespace InterviewBot.Pages
         private readonly IInterviewService _interviewService;
         private readonly AppDbContext _dbContext;
         private readonly IOpenAIService _openAIService;
+        private readonly IInterviewCatalogService _interviewCatalogService;
 
-        public TextInterviewModel(IInterviewService interviewService, AppDbContext dbContext, IOpenAIService openAIService)
+        public TextInterviewModel(IInterviewService interviewService, AppDbContext dbContext, IOpenAIService openAIService, IInterviewCatalogService interviewCatalogService)
         {
             _interviewService = interviewService;
             _dbContext = dbContext;
             _openAIService = openAIService;
+            _interviewCatalogService = interviewCatalogService;
         }
 
         [BindProperty(SupportsGet = true)]
@@ -62,6 +64,16 @@ namespace InterviewBot.Pages
                     return RedirectToPage("/Dashboard");
                 }
 
+                // Set status to "InProgress" when user starts the interview
+                if (int.TryParse(InterviewId, out int catalogId))
+                {
+                    var userId = GetCurrentUserId();
+                    if (userId.HasValue)
+                    {
+                        await _interviewCatalogService.StartInterviewCatalogAsync(catalogId, userId.Value);
+                    }
+                }
+
                 // Load interview content from database
                 await LoadInterviewContentAsync();
 
@@ -85,6 +97,28 @@ namespace InterviewBot.Pages
             catch (Exception ex)
             {
                 ErrorMessage = "Error loading interview: " + ex.Message;
+                return RedirectToPage("/Dashboard");
+            }
+        }
+
+        public async Task<IActionResult> OnGetBackToDashboardAsync()
+        {
+            try
+            {
+                // Set status to "InProgress" when user goes back to dashboard
+                if (int.TryParse(InterviewId, out int catalogId))
+                {
+                    var userId = GetCurrentUserId();
+                    if (userId.HasValue)
+                    {
+                        await _interviewCatalogService.UpdateInterviewCatalogStatusAsync(catalogId, "InProgress");
+                    }
+                }
+                return RedirectToPage("/Dashboard");
+            }
+            catch (Exception)
+            {
+                // If there's an error, still redirect to dashboard
                 return RedirectToPage("/Dashboard");
             }
         }
@@ -114,6 +148,8 @@ namespace InterviewBot.Pages
                     case "NextQuestion":
                         await MoveToNextQuestionAsync(userId.Value);
                         break;
+                    case "CompleteInterview":
+                        return await OnPostCompleteInterviewAsync();
                     default:
                         ErrorMessage = "Invalid action.";
                         break;
@@ -396,6 +432,50 @@ namespace InterviewBot.Pages
                 CurrentQuestion = GenerateNextQuestion();
             }
             return Task.CompletedTask;
+        }
+
+        public async Task<IActionResult> OnPostCompleteInterviewAsync()
+        {
+            try
+            {
+                Console.WriteLine($"OnPostCompleteInterviewAsync called for InterviewId: {InterviewId}");
+
+                var userId = GetCurrentUserId();
+                if (userId == null)
+                {
+                    Console.WriteLine("User not authenticated, redirecting to login");
+                    return RedirectToPage("/Account/Login");
+                }
+
+                Console.WriteLine($"User ID: {userId}");
+
+                // Set status to "Completed" when interview is completed
+                if (int.TryParse(InterviewId, out int catalogId))
+                {
+                    Console.WriteLine($"Updating catalog {catalogId} status to Completed");
+                    var result = await _interviewCatalogService.UpdateInterviewCatalogStatusAsync(catalogId, "Completed");
+                    Console.WriteLine($"Status update result: {result}");
+                }
+                else
+                {
+                    Console.WriteLine($"Failed to parse InterviewId: {InterviewId}");
+                }
+
+                // Generate interview summary
+                var summary = await GenerateInterviewSummaryAsync();
+                Console.WriteLine($"Generated summary: {summary?.Substring(0, Math.Min(100, summary?.Length ?? 0))}...");
+
+                // Redirect to dashboard page
+                Console.WriteLine("Redirecting to Dashboard page");
+                return RedirectToPage("/Dashboard");
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error in OnPostCompleteInterviewAsync: {ex.Message}");
+                Console.WriteLine($"Stack trace: {ex.StackTrace}");
+                ErrorMessage = "Error completing interview: " + ex.Message;
+                return Page();
+            }
         }
 
         private string GenerateNextQuestion()
