@@ -47,7 +47,8 @@
                     </div>
                     <div class="detail-item">
                         <span class="detail-label">Completed:</span>
-                        <span class="detail-value">@DateTime.Now.ToString("MMM dd, yyyy 'at' h:mm tt")</span>
+                        <span class="detail-value">@(Model.CompleteDate?.ToString("MMM dd, yyyy 'at' h:mm tt") ??
+                                                        DateTime.Now.ToString("MMM dd, yyyy 'at' h:mm tt"))</span>
                     </div>
                 </div>
             </div>

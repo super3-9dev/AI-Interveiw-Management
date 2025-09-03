@@ -3,6 +3,7 @@ using System;
 using InterviewBot.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,9 +12,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace InterviewBot.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250903181638_FixInterviewIdColumnType")]
+    partial class FixInterviewIdColumnType
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -285,8 +288,8 @@ namespace InterviewBot.Migrations
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("timestamp with time zone");
 
-                    b.Property<string>("InterviewId")
-                        .HasColumnType("text");
+                    b.Property<int?>("InterviewId")
+                        .HasColumnType("integer");
 
                     b.Property<string>("Question")
                         .IsRequired()
@@ -305,6 +308,8 @@ namespace InterviewBot.Migrations
                         .HasColumnType("integer");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("InterviewId");
 
                     b.HasIndex("UserId");
 
@@ -576,11 +581,18 @@ namespace InterviewBot.Migrations
 
             modelBuilder.Entity("InterviewBot.Models.InterviewResult", b =>
                 {
+                    b.HasOne("InterviewBot.Models.InterviewCatalog", "InterviewCatalog")
+                        .WithMany()
+                        .HasForeignKey("InterviewId")
+                        .OnDelete(DeleteBehavior.SetNull);
+
                     b.HasOne("InterviewBot.Models.User", "User")
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+
+                    b.Navigation("InterviewCatalog");
 
                     b.Navigation("User");
                 });

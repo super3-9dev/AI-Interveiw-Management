@@ -30,6 +30,9 @@ namespace InterviewBot.Data
                 .HasForeignKey(r => r.UserId)
                 .OnDelete(DeleteBehavior.Cascade);
 
+            // Note: InterviewCatalog-InterviewResult relationship temporarily disabled
+            // due to data type mismatch. Will be re-enabled after data cleanup.
+
             // Configure InterviewSession-ChatMessage relationship
             modelBuilder.Entity<ChatMessage>()
                 .HasOne(m => m.Session)

@@ -15,6 +15,12 @@ namespace InterviewBot.Models
         [ForeignKey("UserId")]
         public User User { get; set; } = null!;
 
+        // Interview catalog reference
+        public string? InterviewId { get; set; }
+
+        // Note: Temporarily using string to handle data type mismatch
+        // Will be converted back to int after data cleanup
+
         // Interview information
         [Required]
         [MaxLength(200)]

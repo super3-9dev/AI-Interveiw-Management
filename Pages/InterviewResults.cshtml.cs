@@ -37,6 +37,7 @@ namespace InterviewBot.Pages
         public string InterviewTopic { get; set; } = string.Empty;
         public string InterviewIntroduction { get; set; } = string.Empty;
         public string InterviewSummary { get; set; } = string.Empty;
+        public DateTime? CompleteDate { get; set; }
 
         public string? ErrorMessage { get; set; }
 
@@ -50,30 +51,43 @@ namespace InterviewBot.Pages
                     return RedirectToPage("/Dashboard");
                 }
 
-                // Load interview content from database
-                await LoadInterviewContentAsync();
-
-                if (string.IsNullOrEmpty(InterviewTopic))
+                var userId = GetCurrentUserId();
+                if (userId == null)
                 {
-                    ErrorMessage = "Interview not found or access denied.";
-                    return RedirectToPage("/Dashboard");
+                    ErrorMessage = "User not authenticated.";
+                    return RedirectToPage("/Account/Login");
                 }
 
-                // Set the interview summary from query parameter
-                if (!string.IsNullOrEmpty(Summary))
-                {
-                    InterviewSummary = Summary;
-                }
+                // Try to load stored interview results first
+                bool hasStoredResults = await LoadStoredInterviewResultAsync(userId.Value);
 
-                // Update interview status to "Completed" when results page loads
-                if (int.TryParse(InterviewId, out int catalogId))
+                if (!hasStoredResults)
                 {
-                    Console.WriteLine($"Updating interview catalog {catalogId} status to Completed");
-                    var result = await _interviewCatalogService.UpdateInterviewCatalogStatusAsync(catalogId, "Completed");
-                    Console.WriteLine($"Status update result: {result}");
+                    // If no stored results, load from catalog and save new results
+                    await LoadInterviewContentAsync();
 
-                    // Save interview results to database
-                    await SaveInterviewResultsAsync(catalogId);
+                    if (string.IsNullOrEmpty(InterviewTopic))
+                    {
+                        ErrorMessage = "Interview not found or access denied.";
+                        return RedirectToPage("/Dashboard");
+                    }
+
+                    // Set the interview summary from query parameter
+                    if (!string.IsNullOrEmpty(Summary))
+                    {
+                        InterviewSummary = Summary;
+                    }
+
+                    // Update interview status to "Completed" when results page loads
+                    if (int.TryParse(InterviewId, out int catalogId))
+                    {
+                        Console.WriteLine($"Updating interview catalog {catalogId} status to Completed");
+                        var result = await _interviewCatalogService.UpdateInterviewCatalogStatusAsync(catalogId, "Completed");
+                        Console.WriteLine($"Status update result: {result}");
+
+                        // Save interview results to database
+                        await SaveInterviewResultsAsync(catalogId);
+                    }
                 }
 
                 return Page();
@@ -82,6 +96,53 @@ namespace InterviewBot.Pages
             {
                 ErrorMessage = "Error loading interview results: " + ex.Message;
                 return RedirectToPage("/Dashboard");
+            }
+        }
+
+        private async Task<bool> LoadStoredInterviewResultAsync(int userId)
+        {
+            try
+            {
+                Console.WriteLine($"Loading stored interview result for user {userId} and InterviewId {InterviewId}");
+
+                if (int.TryParse(InterviewId, out int catalogId))
+                {
+                    // Find the stored interview result for this user and interview ID
+                    // Using string comparison to handle data type mismatch
+                    var storedResult = await _dbContext.InterviewResults
+                        .Where(r => r.UserId == userId && r.InterviewId == catalogId.ToString())
+                        .OrderByDescending(r => r.CompleteDate)
+                        .FirstOrDefaultAsync();
+
+                    if (storedResult != null)
+                    {
+                        Console.WriteLine($"Found stored result: InterviewId={storedResult.InterviewId}, Topic={storedResult.Topic}, Content={storedResult.Content?.Substring(0, Math.Min(50, storedResult.Content?.Length ?? 0))}...");
+
+                        InterviewTopic = storedResult.Topic;
+                        InterviewSummary = storedResult.Content ?? "No content available";
+                        QuestionCount = 10; // Default value since we don't store this separately
+                        CompleteDate = storedResult.CompleteDate;
+
+                        Console.WriteLine($"Loaded interview result: {InterviewTopic}");
+                        return true;
+                    }
+                    else
+                    {
+                        Console.WriteLine("No stored interview result found for this interview ID");
+                        return false;
+                    }
+                }
+                else
+                {
+                    Console.WriteLine("Invalid InterviewId format");
+                    return false;
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error loading stored interview result: {ex.Message}");
+                Console.WriteLine($"Exception details: {ex}");
+                return false;
             }
         }
 
@@ -143,13 +204,13 @@ namespace InterviewBot.Pages
                     return;
                 }
 
-                // Check if results already exist for this user and topic
+                // Check if results already exist for this user and interview
                 var existingResult = await _dbContext.InterviewResults
-                    .FirstOrDefaultAsync(r => r.UserId == userId.Value && r.Topic == InterviewTopic);
+                    .FirstOrDefaultAsync(r => r.UserId == userId.Value && r.InterviewId == catalogId.ToString());
 
                 if (existingResult != null)
                 {
-                    Console.WriteLine($"Interview results already exist for user {userId.Value} and topic: {InterviewTopic}");
+                    Console.WriteLine($"Interview results already exist for user {userId.Value} and interview: {catalogId}");
                     return;
                 }
 
@@ -157,6 +218,7 @@ namespace InterviewBot.Pages
                 var interviewResult = new InterviewResult
                 {
                     UserId = userId.Value,
+                    InterviewId = catalogId.ToString(),
                     Topic = InterviewTopic,
                     Question = GenerateQuestion(),
                     CompleteDate = DateTime.UtcNow,
