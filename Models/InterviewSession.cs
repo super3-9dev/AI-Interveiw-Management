@@ -57,16 +57,16 @@ namespace InterviewBot.Models
         // Interview progress and settings
         public int CurrentQuestionNumber { get; set; } = 0;
         public bool IsCompleted { get; set; } = false;
-        
+
         [Required]
         public InterviewType Type { get; set; } = InterviewType.Text;
-        
+
         [Required]
         public InterviewStatus Status { get; set; } = InterviewStatus.InProgress;
-        
+
         [MaxLength(1000)]
         public string? PauseReason { get; set; }
-        
+
         [MaxLength(2000)]
         public string? ResumeNotes { get; set; }
 
@@ -74,24 +74,16 @@ namespace InterviewBot.Models
         public int? InterviewCatalogId { get; set; }
         [ForeignKey("InterviewCatalogId")]
         public InterviewCatalog? InterviewCatalog { get; set; }
-        
+
         public int? CustomInterviewId { get; set; }
         [ForeignKey("CustomInterviewId")]
         public CustomInterview? CustomInterview { get; set; }
-        
+
         public int? AIAgentRoleId { get; set; }
         [ForeignKey("AIAgentRoleId")]
         public AIAgentRole? AIAgentRole { get; set; }
 
-        // Navigation property for results (one-to-one)
-        public InterviewResult? Result { get; set; }
-
-        // Convenience properties to access result data
-        [NotMapped]
-        public int? Score => Result?.Score;
-
-        [NotMapped]
-        public string? Evaluation => Result?.Evaluation;
+        // Note: InterviewResult is now stored independently without direct relationship to InterviewSession
 
         // Calculated property for duration
         [NotMapped]

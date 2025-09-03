@@ -60,7 +60,9 @@ namespace InterviewBot.Pages
                     var userId = GetCurrentUserId();
                     if (userId.HasValue)
                     {
+                        // Update catalog status to InProgress
                         await _interviewCatalogService.StartInterviewCatalogAsync(catalogId, userId.Value);
+                        Console.WriteLine($"Updated catalog {catalogId} status to InProgress");
                     }
                 }
 

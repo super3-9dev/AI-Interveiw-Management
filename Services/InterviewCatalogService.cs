@@ -219,10 +219,11 @@ namespace InterviewBot.Services
             // For now, creating a mock analysis
             var result = new InterviewResult
             {
-                SessionId = session.Id,
-                Score = CalculateMockScore(session),
-                Evaluation = GenerateMockEvaluation(session),
-                Questions = GenerateMockQuestions(session)
+                UserId = session.UserId ?? 0,
+                Topic = "Mock Interview",
+                Question = "Mock interview question",
+                CompleteDate = DateTime.UtcNow,
+                Content = GenerateMockEvaluation(session)
             };
 
             return Task.FromResult(result);

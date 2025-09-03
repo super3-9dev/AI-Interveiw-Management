@@ -8,20 +8,32 @@ namespace InterviewBot.Models
         [Key]
         public int Id { get; set; }
 
+        // User information
         [Required]
-        public int SessionId { get; set; }
+        public int UserId { get; set; }
 
-        [ForeignKey("SessionId")]
-        public InterviewSession Session { get; set; } = null!;
+        [ForeignKey("UserId")]
+        public User User { get; set; } = null!;
 
-        [Range(0, 100)]
-        public int? Score { get; set; }
+        // Interview information
+        [Required]
+        [MaxLength(200)]
+        public string Topic { get; set; } = string.Empty;
 
         [Required]
-        public string Evaluation { get; set; } = string.Empty;
+        [MaxLength(1000)]
+        public string Question { get; set; } = string.Empty;
 
+        [Required]
+        public DateTime CompleteDate { get; set; } = DateTime.UtcNow;
+
+        [Required]
+        [MaxLength(5000)]
+        public string Content { get; set; } = string.Empty;
+
+        // Timestamps
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 
-        public List<InterviewQuestion> Questions { get; set; } = new();
+        public DateTime? UpdatedAt { get; set; }
     }
 }

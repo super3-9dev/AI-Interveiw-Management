@@ -23,18 +23,11 @@ namespace InterviewBot.Data
         {
 
 
-            // Configure InterviewSession-InterviewResult relationship (one-to-one)
-            modelBuilder.Entity<InterviewSession>()
-                .HasOne(s => s.Result)
-                .WithOne(r => r.Session)
-                .HasForeignKey<InterviewResult>(r => r.SessionId)
-                .OnDelete(DeleteBehavior.Cascade);
-
-            // Configure InterviewResult-InterviewQuestion relationship (one-to-many)
+            // Configure User-InterviewResult relationship (one-to-many)
             modelBuilder.Entity<InterviewResult>()
-                .HasMany(r => r.Questions)
-                .WithOne(q => q.Result)
-                .HasForeignKey(q => q.InterviewResultId)
+                .HasOne(r => r.User)
+                .WithMany()
+                .HasForeignKey(r => r.UserId)
                 .OnDelete(DeleteBehavior.Cascade);
 
             // Configure InterviewSession-ChatMessage relationship
@@ -76,8 +69,8 @@ namespace InterviewBot.Data
                 .HasMaxLength(50);
 
             modelBuilder.Entity<InterviewResult>()
-                .Property(r => r.Evaluation)
-                .HasMaxLength(4000);
+                .Property(r => r.Content)
+                .HasMaxLength(5000);
 
             modelBuilder.Entity<InterviewQuestion>()
                 .Property(q => q.Question)

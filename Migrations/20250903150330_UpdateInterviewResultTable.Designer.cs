@@ -3,6 +3,7 @@ using System;
 using InterviewBot.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,9 +12,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace InterviewBot.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250903150330_UpdateInterviewResultTable")]
+    partial class UpdateInterviewResultTable
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -274,21 +277,56 @@ namespace InterviewBot.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
-                    b.Property<DateTime>("CompleteDate")
-                        .HasColumnType("timestamp with time zone");
+                    b.Property<string>("AreasForImprovement")
+                        .HasMaxLength(2000)
+                        .HasColumnType("character varying(2000)");
 
-                    b.Property<string>("Content")
-                        .IsRequired()
-                        .HasMaxLength(5000)
-                        .HasColumnType("character varying(5000)");
+                    b.Property<string>("Assessment")
+                        .HasMaxLength(2000)
+                        .HasColumnType("character varying(2000)");
+
+                    b.Property<DateTime>("CompletedAt")
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("timestamp with time zone");
 
-                    b.Property<string>("Question")
-                        .IsRequired()
-                        .HasMaxLength(1000)
-                        .HasColumnType("character varying(1000)");
+                    b.Property<string>("DifficultyLevel")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<string>("FollowUpQuestion")
+                        .HasMaxLength(2000)
+                        .HasColumnType("character varying(2000)");
+
+                    b.Property<string>("InterviewType")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<string>("KeyStrengths")
+                        .HasMaxLength(2000)
+                        .HasColumnType("character varying(2000)");
+
+                    b.Property<string>("OverallEvaluation")
+                        .HasMaxLength(2000)
+                        .HasColumnType("character varying(2000)");
+
+                    b.Property<int>("QuestionsAsked")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("Recommendations")
+                        .HasMaxLength(2000)
+                        .HasColumnType("character varying(2000)");
+
+                    b.Property<int?>("Score")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("SessionId")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("Summary")
+                        .HasMaxLength(2000)
+                        .HasColumnType("character varying(2000)");
 
                     b.Property<string>("Topic")
                         .IsRequired()
@@ -298,12 +336,10 @@ namespace InterviewBot.Migrations
                     b.Property<DateTime?>("UpdatedAt")
                         .HasColumnType("timestamp with time zone");
 
-                    b.Property<int>("UserId")
-                        .HasColumnType("integer");
-
                     b.HasKey("Id");
 
-                    b.HasIndex("UserId");
+                    b.HasIndex("SessionId")
+                        .IsUnique();
 
                     b.ToTable("InterviewResults");
                 });
@@ -563,7 +599,7 @@ namespace InterviewBot.Migrations
             modelBuilder.Entity("InterviewBot.Models.InterviewQuestion", b =>
                 {
                     b.HasOne("InterviewBot.Models.InterviewResult", "Result")
-                        .WithMany()
+                        .WithMany("Questions")
                         .HasForeignKey("InterviewResultId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -573,13 +609,13 @@ namespace InterviewBot.Migrations
 
             modelBuilder.Entity("InterviewBot.Models.InterviewResult", b =>
                 {
-                    b.HasOne("InterviewBot.Models.User", "User")
-                        .WithMany()
-                        .HasForeignKey("UserId")
+                    b.HasOne("InterviewBot.Models.InterviewSession", "Session")
+                        .WithOne("Result")
+                        .HasForeignKey("InterviewBot.Models.InterviewResult", "SessionId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.Navigation("User");
+                    b.Navigation("Session");
                 });
 
             modelBuilder.Entity("InterviewBot.Models.InterviewSession", b =>
@@ -652,9 +688,16 @@ namespace InterviewBot.Migrations
                     b.Navigation("InterviewSessions");
                 });
 
+            modelBuilder.Entity("InterviewBot.Models.InterviewResult", b =>
+                {
+                    b.Navigation("Questions");
+                });
+
             modelBuilder.Entity("InterviewBot.Models.InterviewSession", b =>
                 {
                     b.Navigation("Messages");
+
+                    b.Navigation("Result");
                 });
 
             modelBuilder.Entity("InterviewBot.Models.User", b =>
