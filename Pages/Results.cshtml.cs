@@ -13,8 +13,7 @@ namespace InterviewBot.Pages
     {
         private readonly AppDbContext _db;
 
-        public List<Profile> Profiles { get; set; } = new();
-        public List<InterviewSession> InterviewSessions { get; set; } = new();
+        public List<InterviewResult> InterviewResults { get; set; } = new();
 
         public ResultsModel(AppDbContext db)
         {
@@ -26,19 +25,11 @@ namespace InterviewBot.Pages
             var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier);
             if (userIdClaim != null && int.TryParse(userIdClaim.Value, out int userId))
             {
-                Profiles = await _db.Profiles
+                // Load interview results
+                InterviewResults = await _db.InterviewResults
                     .Where(r => r.UserId == userId)
-                    .OrderByDescending(r => r.CreatedAt)
-                    .Take(10)
+                    .OrderByDescending(r => r.CompleteDate)
                     .ToListAsync();
-
-                // InterviewSessions = await _db.InterviewSessions
-                //     .Include(s => s.InterviewCatalog)
-                //     .Include(s => s.CustomInterview)
-                //     .Where(s => s.UserId == userId)
-                //     .OrderByDescending(s => s.StartTime)
-                //     .Take(10)
-                //     .ToListAsync();
             }
 
             return Page();

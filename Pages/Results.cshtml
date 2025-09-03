@@ -436,48 +436,38 @@
             career roadmaps.</p>
     </div>
 
-    @if (Model.Profiles.Any(p => !string.IsNullOrEmpty(p.PossibleJobs)))
+    @if (Model.InterviewResults.Any())
     {
         <div class="results-grid">
-            <!-- AI Analysis Results -->
+            <!-- Interview Results -->
             <div class="results-section">
                 <div class="section-header">
-                    <div class="section-icon">🌐</div>
-                    <h2 class="section-title">AI Analysis Results</h2>
+                    <div class="section-icon">📋</div>
+                    <h2 class="section-title">Interview Results</h2>
                 </div>
                 <ul class="results-list">
-                    @foreach (var profile in Model.Profiles.Where(p => !string.IsNullOrEmpty(p.PossibleJobs)))
+                    @foreach (var result in Model.InterviewResults)
                     {
-                        <li class="result-item external-api-result">
-                            <div class="result-title">AI Analysis</div>
+                        <li class="result-item">
+                            <div class="result-title">@result.Topic</div>
                             <div class="result-meta">
-                                <span>@profile.UpdatedAt?.ToString("MMM dd, yyyy")</span>
-                                <span class="result-status status-completed">Analysis Complete</span>
+                                <span>@result.CompleteDate.ToString("MMM dd, yyyy 'at' h:mm tt")</span>
+                                <span class="result-status status-completed">Completed</span>
                             </div>
-
-                            <!-- Career Recommendations Section -->
-                            <div class="analysis-summary">
-                                @if (!string.IsNullOrEmpty(profile.PossibleJobs))
+                            <div class="result-description">
+                                @if (!string.IsNullOrEmpty(result.Content))
                                 {
-                                    <div class="summary-section">
-                                        <h4 class="summary-title">💼 Career Recommendations</h4>
-                                        <p class="summary-content">@profile.PossibleJobs</p>
-                                    </div>
+                                    @(result.Content.Length > 150 ? result.Content.Substring(0, 150) + "..." : result.Content)
                                 }
                                 else
                                 {
-                                    <div class="summary-section">
-                                        <h4 class="summary-title">💼 Career Recommendations</h4>
-                                        <p class="summary-content summary-placeholder">
-                                            Analysis completed successfully. Click "View Full Result" to see detailed insights and
-                                            recommendations.
-                                        </p>
-                                    </div>
+                                    <span class="summary-placeholder">Interview completed successfully. Click "View Result" to see
+                                        detailed analysis.</span>
                                 }
                             </div>
-
                             <div class="result-actions">
-                                <a href="/ExternalAPIResults?id=@profile.Id" class="btn btn-success">View Full Result</a>
+                                <a href="/InterviewResults?interviewId=@result.InterviewId" class="btn btn-primary">View
+                                    Result</a>
                             </div>
                         </li>
                     }
@@ -489,11 +479,11 @@
     {
         <!-- Complete Empty State -->
         <div class="empty-state">
-            <div class="empty-icon">🌐</div>
-            <div class="empty-title">No External API Results Yet</div>
-            <div class="empty-description">Start by analyzing your resume to generate external API results</div>
+            <div class="empty-icon">📋</div>
+            <div class="empty-title">No Interview Results Yet</div>
+            <div class="empty-description">Start by completing interviews to generate results</div>
             <div style="display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap;">
-                <a href="/NewAnalysis" class="create-first-btn">Analyze Resume</a>
+                <a href="/Dashboard" class="create-first-btn">Go to Dashboard</a>
             </div>
         </div>
     }
