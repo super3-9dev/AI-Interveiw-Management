@@ -15,11 +15,13 @@ namespace InterviewBot.Pages
     {
         private readonly IInterviewService _interviewService;
         private readonly AppDbContext _dbContext;
+        private readonly IInterviewCatalogService _interviewCatalogService;
 
-        public InterviewResultsModel(IInterviewService interviewService, AppDbContext dbContext)
+        public InterviewResultsModel(IInterviewService interviewService, AppDbContext dbContext, IInterviewCatalogService interviewCatalogService)
         {
             _interviewService = interviewService;
             _dbContext = dbContext;
+            _interviewCatalogService = interviewCatalogService;
         }
 
         [BindProperty(SupportsGet = true)]
@@ -61,6 +63,14 @@ namespace InterviewBot.Pages
                 if (!string.IsNullOrEmpty(Summary))
                 {
                     InterviewSummary = Summary;
+                }
+
+                // Update interview status to "Completed" when results page loads
+                if (int.TryParse(InterviewId, out int catalogId))
+                {
+                    Console.WriteLine($"Updating interview catalog {catalogId} status to Completed");
+                    var result = await _interviewCatalogService.UpdateInterviewCatalogStatusAsync(catalogId, "Completed");
+                    Console.WriteLine($"Status update result: {result}");
                 }
 
                 return Page();
