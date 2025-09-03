@@ -37,9 +37,25 @@ namespace InterviewBot.Pages
             _profileService = profileService;
         }
 
-        public void OnGet()
+        public async Task OnGetAsync()
         {
-            // Initialize the page
+            // Get current user ID
+            var userId = GetCurrentUserId();
+            if (userId != null)
+            {
+                // Get user's latest profile to populate form fields
+                var userProfiles = await _profileService.GetUserProfilesAsync(userId.Value);
+                var latestProfile = userProfiles.FirstOrDefault();
+
+                if (latestProfile != null)
+                {
+                    // Populate form fields with data from the latest profile
+                    BriefIntroduction = latestProfile.BriefIntroduction;
+                    CareerGoals = latestProfile.CareerGoals;
+                    CurrentActivity = latestProfile.CurrentActivities;
+                    Motivations = latestProfile.Motivations;
+                }
+            }
         }
 
         public async Task<IActionResult> OnPostAsync()

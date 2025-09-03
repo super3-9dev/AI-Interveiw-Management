@@ -94,26 +94,30 @@
                         <div class="form-group">
                             <label for="briefIntroduction" class="form-label">Brief introduction about yourself</label>
                             <textarea id="briefIntroduction" name="BriefIntroduction" class="form-control" rows="4"
-                                placeholder="Tell us about your experience, skills, and career goals..."></textarea>
+                                placeholder="Tell us about your experience, skills, and career goals..."
+                                disabled>@Model.BriefIntroduction</textarea>
                         </div>
 
                         <div class="form-group">
                             <label for="careerGoals" class="form-label">What are your future career goals?</label>
                             <input type="text" id="careerGoals" name="CareerGoals" class="form-control"
-                                placeholder="e.g., Lead a team of developers and contribute to open-source projects">
+                                placeholder="e.g., Lead a team of developers and contribute to open-source projects"
+                                value="@Model.CareerGoals">
                         </div>
 
                         <div class="form-group">
                             <label for="currentActivity" class="form-label">What are you currently doing (studies, work,
                                 projects)?</label>
                             <input type="text" id="currentActivity" name="CurrentActivity" class="form-control"
-                                placeholder="e.g., Working as a full-stack developer and mentoring junior engineers">
+                                placeholder="e.g., Working as a full-stack developer and mentoring junior engineers"
+                                disabled value="@Model.CurrentActivity">
                         </div>
 
                         <div class="form-group">
                             <label for="motivations" class="form-label">What are your main motivations?</label>
                             <input type="text" id="motivations" name="Motivations" class="form-control"
-                                placeholder="e.g., Solving complex problems and learning new technologies">
+                                placeholder="e.g., Solving complex problems and learning new technologies"
+                                value="@Model.Motivations">
                         </div>
 
                         <!-- Submit Button -->

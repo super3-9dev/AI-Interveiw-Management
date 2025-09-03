@@ -422,9 +422,10 @@ Format the response as JSON with these exact keys: briefIntroduction, possibleJo
                     _logger.LogWarning(ex, "Could not parse AI response as JSON, using fallback analysis");
 
                     // Fallback to structured analysis
+                    _logger.LogWarning(aiResponse, "Using fallback analysis");
                     return new
                     {
-                        BriefIntroduction = aiResponse.Length > 200 ? aiResponse.Substring(0, 200) + "..." : aiResponse,
+                        BriefIntroduction = "Experienced software professional with a proven track record of delivering innovative solutions and leading technical teams. Combines deep technical knowledge with strong business acumen to drive successful project outcomes.",
                         PossibleJobs = "Software Developer, Technical Lead, Project Manager",
                         MbaSubjectsToReinforce = "Strategic Management, Business Analytics, Digital Transformation",
                         CurrentActivities = "Currently focused on software development and technical leadership"
