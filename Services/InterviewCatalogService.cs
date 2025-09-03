@@ -213,7 +213,7 @@ namespace InterviewBot.Services
 
 
 
-        private async Task<InterviewResult> GenerateAIAnalysis(InterviewSession session)
+        private Task<InterviewResult> GenerateAIAnalysis(InterviewSession session)
         {
             // This would integrate with OpenAI API to generate analysis
             // For now, creating a mock analysis
@@ -225,7 +225,7 @@ namespace InterviewBot.Services
                 Questions = GenerateMockQuestions(session)
             };
 
-            return result;
+            return Task.FromResult(result);
         }
 
         private int CalculateMockScore(InterviewSession session)

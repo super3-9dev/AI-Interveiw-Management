@@ -166,13 +166,14 @@ namespace InterviewBot.Pages
             }
         }
 
-        private async Task LoadInterviewHistoryAsync()
+        private Task LoadInterviewHistoryAsync()
         {
             if (string.IsNullOrEmpty(InterviewId))
-                return;
+                return Task.CompletedTask;
 
             // In a real implementation, you'd load from InterviewSessions table
             InterviewHistory = new List<InterviewHistoryItem>();
+            return Task.CompletedTask;
         }
 
         private async Task SubmitAnswerAsync(int userId)
@@ -197,7 +198,7 @@ namespace InterviewBot.Pages
             await MoveToNextQuestionAsync(userId);
         }
 
-        private async Task MoveToNextQuestionAsync(int userId)
+        private Task MoveToNextQuestionAsync(int userId)
         {
             // Simple logic: 3 questions = interview complete
             if (InterviewHistory.Count >= 3)
@@ -209,6 +210,7 @@ namespace InterviewBot.Pages
             {
                 CurrentQuestion = GenerateNextQuestion();
             }
+            return Task.CompletedTask;
         }
 
         private string GenerateNextQuestion()

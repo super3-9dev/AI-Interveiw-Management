@@ -186,14 +186,15 @@ namespace InterviewBot.Pages
             }
         }
 
-        private async Task LoadInterviewHistoryAsync()
+        private Task LoadInterviewHistoryAsync()
         {
             if (string.IsNullOrEmpty(InterviewId))
-                return;
+                return Task.CompletedTask;
 
             // In a real implementation, you'd load from InterviewSessions table
             // For now, we'll use a simple in-memory approach
             InterviewHistory = new List<InterviewHistoryItem>();
+            return Task.CompletedTask;
         }
 
         private async Task SubmitAnswerAsync(int userId)
@@ -380,7 +381,7 @@ namespace InterviewBot.Pages
             }
         }
 
-        private async Task MoveToNextQuestionAsync(int userId)
+        private Task MoveToNextQuestionAsync(int userId)
         {
             // In a real implementation, you'd have a questions table and move through them
             // For now, we'll just show a completion message
@@ -394,6 +395,7 @@ namespace InterviewBot.Pages
                 // Generate next question based on interview type
                 CurrentQuestion = GenerateNextQuestion();
             }
+            return Task.CompletedTask;
         }
 
         private string GenerateNextQuestion()

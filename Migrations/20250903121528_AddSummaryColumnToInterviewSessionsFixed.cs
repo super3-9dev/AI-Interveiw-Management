@@ -5,7 +5,7 @@
 namespace InterviewBot.Migrations
 {
     /// <inheritdoc />
-    public partial class AddSummaryColumnToInterviewSessions : Migration
+    public partial class AddSummaryColumnToInterviewSessionsFixed : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)

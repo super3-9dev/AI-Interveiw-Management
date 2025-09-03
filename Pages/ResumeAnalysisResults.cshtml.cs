@@ -41,7 +41,7 @@ namespace InterviewBot.Pages
 
                 return Page();
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 // Log the error
                 return StatusCode(500, "An error occurred while retrieving the analysis results.");
@@ -78,7 +78,7 @@ namespace InterviewBot.Pages
 
                 return Page();
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 return StatusCode(500, "An error occurred while processing the request.");
             }
@@ -106,7 +106,7 @@ namespace InterviewBot.Pages
                     progress = profile.Progress
                 });
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 return StatusCode(500, "An error occurred while checking status.");
             }
