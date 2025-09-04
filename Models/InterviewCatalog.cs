@@ -24,6 +24,9 @@ namespace InterviewBot.Models
         [MaxLength(20)]
         public string Status { get; set; } = "NotStarted"; // "NotStarted", "InProgress", "Completed"
 
+        [MaxLength(50)]
+        public string InterviewKind { get; set; } = string.Empty; // Type of interview (e.g., "Technical", "Behavioral", "General")
+
         public bool IsActive { get; set; } = true;
 
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;

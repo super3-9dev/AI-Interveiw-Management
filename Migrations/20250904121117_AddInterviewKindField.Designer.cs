@@ -3,6 +3,7 @@ using System;
 using InterviewBot.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,9 +12,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace InterviewBot.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250904121117_AddInterviewKindField")]
+    partial class AddInterviewKindField
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -57,7 +60,7 @@ namespace InterviewBot.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("AIAgentRoles", (string)null);
+                    b.ToTable("AIAgentRoles");
                 });
 
             modelBuilder.Entity("InterviewBot.Models.ChatMessage", b =>
@@ -86,7 +89,7 @@ namespace InterviewBot.Migrations
 
                     b.HasIndex("SessionId");
 
-                    b.ToTable("ChatMessages", (string)null);
+                    b.ToTable("ChatMessages");
                 });
 
             modelBuilder.Entity("InterviewBot.Models.CustomInterview", b =>
@@ -139,7 +142,7 @@ namespace InterviewBot.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("CustomInterviews", (string)null);
+                    b.ToTable("CustomInterviews");
                 });
 
             modelBuilder.Entity("InterviewBot.Models.InterviewCatalog", b =>
@@ -186,7 +189,7 @@ namespace InterviewBot.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("InterviewCatalogs", (string)null);
+                    b.ToTable("InterviewCatalogs");
                 });
 
             modelBuilder.Entity("InterviewBot.Models.InterviewCatalogItem", b =>
@@ -227,7 +230,7 @@ namespace InterviewBot.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("InterviewCatalogItems", (string)null);
+                    b.ToTable("InterviewCatalogItems");
                 });
 
             modelBuilder.Entity("InterviewBot.Models.InterviewQuestion", b =>
@@ -263,7 +266,7 @@ namespace InterviewBot.Migrations
 
                     b.HasIndex("InterviewResultId");
 
-                    b.ToTable("InterviewQuestions", (string)null);
+                    b.ToTable("InterviewQuestions");
                 });
 
             modelBuilder.Entity("InterviewBot.Models.InterviewResult", b =>
@@ -308,7 +311,7 @@ namespace InterviewBot.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("InterviewResults", (string)null);
+                    b.ToTable("InterviewResults");
                 });
 
             modelBuilder.Entity("InterviewBot.Models.InterviewSession", b =>
@@ -401,7 +404,7 @@ namespace InterviewBot.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("InterviewSessions", (string)null);
+                    b.ToTable("InterviewSessions");
                 });
 
             modelBuilder.Entity("InterviewBot.Models.Profile", b =>
@@ -469,7 +472,7 @@ namespace InterviewBot.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("Profiles", (string)null);
+                    b.ToTable("Profiles");
                 });
 
             modelBuilder.Entity("InterviewBot.Models.User", b =>
@@ -516,7 +519,7 @@ namespace InterviewBot.Migrations
 
                     b.HasIndex("SelectedAIAgentRoleId");
 
-                    b.ToTable("Users", (string)null);
+                    b.ToTable("Users");
                 });
 
             modelBuilder.Entity("InterviewBot.Models.ChatMessage", b =>
