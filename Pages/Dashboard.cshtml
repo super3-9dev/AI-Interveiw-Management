@@ -123,11 +123,13 @@
                                                 In Progress
                                             </span>
                                         </div>
-                                        <a href="/TextInterview@(!string.IsNullOrEmpty(currentCulture) ? $"?culture={currentCulture}" : "")&interviewId=@catalog.Id"
-                                            class="btn btn-primary interview-btn continue-btn">
-                                            <i class="bi bi-arrow-right"></i>
-                                            Continue Interview
-                                        </a>
+                                        <form method="post" asp-page-handler="ContinueInterview" style="display: inline;">
+                                            <input type="hidden" name="interviewId" value="@catalog.Id" />
+                                            <button type="submit" class="btn btn-primary interview-btn continue-btn">
+                                                <i class="bi bi-arrow-right"></i>
+                                                Continue Interview
+                                            </button>
+                                        </form>
                                     </div>
                                 </div>
                             }

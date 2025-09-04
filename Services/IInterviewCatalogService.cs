@@ -16,5 +16,7 @@ namespace InterviewBot.Services
         Task<InterviewResult> GenerateInterviewAnalysisAsync(int sessionId);
         Task<bool> UpdateInterviewCatalogStatusAsync(int catalogId, string status);
         Task<bool> StartInterviewCatalogAsync(int catalogId, int userId);
+        Task<bool> UpdateInterviewKindAsync(int catalogId, string interviewKind);
+        Task<InterviewCatalog?> GetInterviewCatalogByIdAsync(int catalogId);
     }
 }

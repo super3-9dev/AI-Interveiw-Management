@@ -291,5 +291,40 @@ namespace InterviewBot.Services
             await _context.SaveChangesAsync();
             return true;
         }
+
+        public async Task<bool> UpdateInterviewKindAsync(int catalogId, string interviewKind)
+        {
+            try
+            {
+                var catalog = await _context.InterviewCatalogs
+                    .FirstOrDefaultAsync(c => c.Id == catalogId);
+
+                if (catalog == null)
+                    return false;
+
+                catalog.InterviewKind = interviewKind;
+                catalog.UpdatedAt = DateTime.UtcNow;
+
+                await _context.SaveChangesAsync();
+                return true;
+            }
+            catch (Exception)
+            {
+                return false;
+            }
+        }
+
+        public async Task<InterviewCatalog?> GetInterviewCatalogByIdAsync(int catalogId)
+        {
+            try
+            {
+                return await _context.InterviewCatalogs
+                    .FirstOrDefaultAsync(c => c.Id == catalogId);
+            }
+            catch (Exception)
+            {
+                return null;
+            }
+        }
     }
 }

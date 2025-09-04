@@ -135,6 +135,49 @@ namespace InterviewBot.Pages
             }
         }
 
+        public async Task<IActionResult> OnPostContinueInterviewAsync(int interviewId)
+        {
+            try
+            {
+                var userId = GetCurrentUserId();
+                if (userId == null)
+                {
+                    return RedirectToPage("/Account/Login");
+                }
+
+                // Get the interview catalog to check the interviewKind
+                var catalog = await _interviewCatalogService.GetInterviewCatalogByIdAsync(interviewId);
+                if (catalog == null)
+                {
+                    ErrorMessage = "Interview not found.";
+                    return Page();
+                }
+
+                // Get current culture
+                var currentCulture = HttpContext.Request.Query["culture"].ToString();
+                if (string.IsNullOrEmpty(currentCulture))
+                {
+                    currentCulture = HttpContext.Request.Cookies["culture"] ?? "en";
+                }
+
+                // Redirect based on interviewKind
+                if (catalog.InterviewKind?.ToLower() == "voice")
+                {
+                    return RedirectToPage("/VoiceInterview", new { interviewId = interviewId, culture = currentCulture });
+                }
+                else
+                {
+                    // Default to text interview if interviewKind is "text" or empty/null
+                    return RedirectToPage("/TextInterview", new { interviewId = interviewId, culture = currentCulture });
+                }
+            }
+            catch (Exception)
+            {
+                ErrorMessage = "Error continuing interview.";
+                return Page();
+            }
+        }
+
         private int? GetCurrentUserId()
         {
             var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier);
