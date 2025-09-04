@@ -17,9 +17,8 @@
     <div class="centered-container">
         <!-- Header Section -->
         <div class="analysis-header">
-            <h1 class="analysis-title">Start Your Analysis</h1>
-            <p class="analysis-subtitle">This is a mockup. Click "Start Analysis" to generate a sample report and
-                navigate the app.</p>
+            <h1 class="analysis-title">@Localizer["Start Your Analysis"]</h1>
+            <p class="analysis-subtitle">@Localizer["This is a mockup. Click \"Start Analysis\" to generate a sample report and navigate the app."]</p>
         </div>
 
         @if (!string.IsNullOrEmpty(Model.ErrorMessage))
@@ -44,11 +43,11 @@
             <div class="input-tabs">
                 <button type="button" class="tab-button @(Model.HasExistingProfile ? "disabled" : "active")" data-tab="upload">
                     <i class="bi bi-file-earmark-arrow-up"></i>
-                    Upload Resume
+                    @Localizer["Upload Resume"]
                 </button>
                 <button type="button" class="tab-button @(Model.HasExistingProfile ? "active" : "")" data-tab="describe">
                     <i class="bi bi-pencil-square"></i>
-                    Describe Yourself
+                    @Localizer["Describe Yourself"]
                 </button>
             </div>
 
@@ -63,11 +62,9 @@
                             <div class="alert-content">
                                 <i class="bi bi-exclamation-triangle-fill alert-icon"></i>
                                 <div class="alert-text">
-                                    <h4 class="alert-title">Resume Already Uploaded</h4>
+                                    <h4 class="alert-title">@Localizer["Resume Already Uploaded"]</h4>
                                     <p class="alert-message">
-                                        You have already uploaded a resume and completed the analysis. 
-                                        You can only upload one resume per account. 
-                                        If you need to update your profile information, please use the "Update Profile" feature in your dashboard.
+                                        @Localizer["You have already uploaded a resume and completed the analysis. You can only upload one resume per account. If you need to update your profile information, please use the \"Update Profile\" feature in your dashboard."]
                                     </p>
                                 </div>
                             </div>
@@ -77,9 +74,9 @@
                         <div class="upload-area disabled" id="uploadArea">
                             <div class="upload-content">
                                 <i class="bi bi-file-earmark-pdf upload-icon disabled"></i>
-                                <p class="upload-text disabled">Upload Disabled</p>
-                                <p class="upload-subtext disabled">You have already completed your resume analysis</p>
-                                <p class="upload-hint disabled">Visit your dashboard to view your analysis results</p>
+                                <p class="upload-text disabled">@Localizer["Upload Disabled"]</p>
+                                <p class="upload-subtext disabled">@Localizer["You have already completed your resume analysis"]</p>
+                                <p class="upload-hint disabled">@Localizer["Visit your dashboard to view your analysis results"]</p>
                             </div>
                             <input type="file" id="resumeFile" name="ResumeFile" accept=".pdf" class="file-input" disabled />
                         </div>
@@ -88,7 +85,7 @@
                         <div class="form-actions">
                             <button type="button" class="start-analysis-btn disabled" id="submitBtn" disabled>
                                 <i class="bi bi-play-circle"></i>
-                                File Analysis (Disabled)
+                                @Localizer["File Analysis (Disabled)"]
                             </button>
                         </div>
                     }
@@ -98,9 +95,9 @@
                         <div class="upload-area" id="uploadArea">
                             <div class="upload-content">
                                 <i class="bi bi-file-earmark-pdf upload-icon"></i>
-                                <p class="upload-text">Click to upload or drag and drop</p>
-                                <p class="upload-subtext">PDF files only (MAX. 10MB)</p>
-                                <p class="upload-hint">We'll analyze your resume and provide career insights</p>
+                                <p class="upload-text">@Localizer["Click to upload or drag and drop"]</p>
+                                <p class="upload-subtext">@Localizer["PDF files only (MAX. 10MB)"]</p>
+                                <p class="upload-hint">@Localizer["We'll analyze your resume and provide career insights"]</p>
                             </div>
                             <input type="file" id="resumeFile" name="ResumeFile" accept=".pdf" class="file-input" />
                         </div>
@@ -122,7 +119,7 @@
                         <div class="form-actions">
                             <button type="submit" class="start-analysis-btn" id="submitBtn" disabled>
                                 <i class="bi bi-play-circle"></i>
-                                File Analysis
+                                @Localizer["File Analysis"]
                             </button>
                         </div>
                     }
@@ -132,35 +129,32 @@
                 <div class="tab-pane @(Model.HasExistingProfile ? "active" : "")" id="describe-tab">
                     <div class="form-fields">
                         <div class="form-group">
-                            <label for="briefIntroduction" class="form-label">Brief introduction about yourself</label>
+                            <label for="briefIntroduction" class="form-label">@Localizer["Brief introduction about yourself"]</label>
                             <textarea id="briefIntroduction" name="BriefIntroduction" class="form-control" rows="4"
-                                placeholder="Tell us about your experience, skills, and career goals..."
+                                placeholder="@Localizer["Tell us about your experience, skills, and career goals..."]"
                                 readonly>@Model.BriefIntroduction</textarea>
-                            <small class="form-text text-muted">This field is pre-filled from your latest profile
-                                analysis.</small>
+                            <small class="form-text text-muted">@Localizer["This field is pre-filled from your latest profile analysis."]</small>
                         </div>
 
                         <div class="form-group">
-                            <label for="careerGoals" class="form-label">What are your future career goals?</label>
+                            <label for="careerGoals" class="form-label">@Localizer["What are your future career goals?"]</label>
                             <input type="text" id="careerGoals" name="CareerGoals" class="form-control"
-                                placeholder="e.g., Lead a team of developers and contribute to open-source projects"
+                                placeholder="@Localizer["e.g., Lead a team of developers and contribute to open-source projects"]"
                                 value="@Model.CareerGoals">
                         </div>
 
                         <div class="form-group">
-                            <label for="currentActivity" class="form-label">What are you currently doing (studies, work,
-                                projects)?</label>
+                            <label for="currentActivity" class="form-label">@Localizer["What are you currently doing (studies, work, projects)?"]</label>
                             <input type="text" id="currentActivity" name="CurrentActivity" class="form-control"
-                                placeholder="e.g., Working as a full-stack developer and mentoring junior engineers"
+                                placeholder="@Localizer["e.g., Working as a full-stack developer and mentoring junior engineers"]"
                                 readonly value="@Model.CurrentActivity">
-                            <small class="form-text text-muted">This field is pre-filled from your latest profile
-                                analysis.</small>
+                            <small class="form-text text-muted">@Localizer["This field is pre-filled from your latest profile analysis."]</small>
                         </div>
 
                         <div class="form-group">
-                            <label for="motivations" class="form-label">What are your main motivations?</label>
+                            <label for="motivations" class="form-label">@Localizer["What are your main motivations?"]</label>
                             <input type="text" id="motivations" name="Motivations" class="form-control"
-                                placeholder="e.g., Solving complex problems and learning new technologies"
+                                placeholder="@Localizer["e.g., Solving complex problems and learning new technologies"]"
                                 value="@Model.Motivations">
                         </div>
 
@@ -168,7 +162,7 @@
                         <div class="form-actions">
                             <button type="button" class="start-analysis-btn" id="description-analysis-btn">
                                 <i class="bi bi-play-circle"></i>
-                                Description Analysis
+                                @Localizer["Description Analysis"]
                             </button>
                         </div>
                     </div>

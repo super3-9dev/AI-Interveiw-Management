@@ -39,52 +39,65 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
-  <data name="Interview Format">
-    <value>Formato de Entrevista</value>
+  <data name="Register">
+    <value>Register</value>
   </data>
-  <data name="Choose Your Interview Format">
-    <value>Elige Tu Formato de Entrevista</value>
+  <data name="Create an Account">
+    <value>Create an Account</value>
   </data>
-  <data name="Select how you'd like to conduct your interview">
-    <value>Selecciona cómo te gustaría realizar tu entrevista</value>
+  <data name="Start your journey with Intrevidor Guiado today.">
+    <value>Start your journey with Intrevidor Guiado today.</value>
   </data>
-  <data name="Text Interview">
-    <value>Entrevista de Texto</value>
+  <data name="What is your main objective?">
+    <value>What is your main objective?</value>
   </data>
-  <data name="Conduct your interview through text-based questions and answers. Perfect for detailed responses and easy review.">
-    <value>Realiza tu entrevista a través de preguntas y respuestas basadas en texto. Perfecto para respuestas detalladas y fácil revisión.</value>
+  <data name="Career Counseling">
+    <value>Career Counseling</value>
   </data>
-  <data name="Written questions and responses">
-    <value>Preguntas y respuestas escritas</value>
+  <data name="Get expert advice and guidance for your professional path.">
+    <value>Get expert advice and guidance for your professional path.</value>
   </data>
-  <data name="Easy to review and analyze">
-    <value>Fácil de revisar y analizar</value>
+  <data name="Purpose Discovery">
+    <value>Purpose Discovery</value>
   </data>
-  <data name="No audio equipment needed">
-    <value>No se necesita equipo de audio</value>
+  <data name="Discover your true purpose and find meaning in your life.">
+    <value>Discover your true purpose and find meaning in your life.</value>
   </data>
-  <data name="Start Text Interview">
-    <value>Iniciar Entrevista de Texto</value>
+  <data name="Full Name">
+    <value>Full Name</value>
   </data>
-  <data name="Voice Interview">
-    <value>Entrevista de Voz</value>
+  <data name="Enter your full name">
+    <value>Enter your full name</value>
   </data>
-  <data name="Conduct your interview through voice interaction. More natural conversation flow and real-time responses.">
-    <value>Realiza tu entrevista a través de interacción de voz. Flujo de conversación más natural y respuestas en tiempo real.</value>
+  <data name="Email">
+    <value>Email</value>
   </data>
-  <data name="Voice-based questions and answers">
-    <value>Preguntas y respuestas basadas en voz</value>
+  <data name="Enter your email">
+    <value>Enter your email</value>
   </data>
-  <data name="Natural conversation flow">
-    <value>Flujo de conversación natural</value>
+  <data name="Password">
+    <value>Password</value>
   </data>
-  <data name="Real-time interaction">
-    <value>Interacción en tiempo real</value>
+  <data name="Enter your password">
+    <value>Enter your password</value>
   </data>
-  <data name="Start Voice Interview">
-    <value>Iniciar Entrevista de Voz</value>
+  <data name="Create Account">
+    <value>Create Account</value>
   </data>
-  <data name="Back to Dashboard">
-    <value>Volver al Panel de Control</value>
+  <data name="Already have an account?">
+    <value>Already have an account?</value>
+  </data>
+  <data name="Sign In">
+    <value>Sign In</value>
+  </data>
+  <data name="Email is already registered.">
+    <value>Email is already registered.</value>
+  </data>
+  <data name="Please select your main objective.">
+    <value>Please select your main objective.</value>
+  </data>
+  <data name="Invalid objective selection.">
+    <value>Invalid objective selection.</value>
   </data>
 </root>
+

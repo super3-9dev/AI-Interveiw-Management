@@ -39,37 +39,13 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
-  <data name="Voice Interview">
-    <value>Voice Interview</value>
+  <data name="Settings">
+    <value>Settings</value>
   </data>
-  <data name="AI-powered voice interview with real-time feedback">
-    <value>AI-powered voice interview with real-time feedback</value>
+  <data name="Settings page is coming soon.">
+    <value>Settings page is coming soon.</value>
   </data>
-  <data name="In Progress">
-    <value>In Progress</value>
-  </data>
-  <data name="Ready">
-    <value>Ready</value>
-  </data>
-  <data name="Start Recording">
-    <value>Start Recording</value>
-  </data>
-  <data name="Recording...">
-    <value>Recording...</value>
-  </data>
-  <data name="Your voice will be transcribed here...">
-    <value>Your voice will be transcribed here...</value>
-  </data>
-  <data name="Send">
-    <value>Send</value>
-  </data>
-  <data name="Clear">
-    <value>Clear</value>
-  </data>
-  <data name="Back to Dashboard">
-    <value>Back to Dashboard</value>
-  </data>
-  <data name="Finish Interview">
-    <value>Finish Interview</value>
+  <data name="Back to Home">
+    <value>Back to Home</value>
   </data>
 </root>

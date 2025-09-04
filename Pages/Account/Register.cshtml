@@ -56,6 +56,7 @@
 
     .language-switcher {
         position: fixed;
+        z-index: 1000;
         right: 30px;
         top: 30px;
     }
@@ -449,8 +450,8 @@
     <div class="register-card">
         <!-- Welcome Section -->
         <div class="mb-4">
-            <h2 class="welcome-text">Create an Account</h2>
-            <p class="subtitle-text">Comienza tu viaje con Intrevidor Guiado hoy.</p>
+            <h2 class="welcome-text">@Localizer["Create an Account"]</h2>
+            <p class="subtitle-text">@Localizer["Start your journey with Intrevidor Guiado today."]</p>
         </div>
 
         <!-- Register Form -->
@@ -459,7 +460,7 @@
 
             <!-- Objective Selection Section -->
             <div class="objective-section">
-                <h3 class="objective-title">What is your main objective?</h3>
+                <h3 class="objective-title">@Localizer["What is your main objective?"]</h3>
 
                 <div class="objective-card" onclick="selectObjective('CareerCounselling')">
                     <div class="objective-content">
@@ -467,8 +468,8 @@
                             🏛️
                         </div>
                         <div class="objective-text">
-                            <h5>Career Counseling</h5>
-                            <p>Get expert advice and guidance for your professional path.</p>
+                            <h5>@Localizer["Career Counseling"]</h5>
+                            <p>@Localizer["Get expert advice and guidance for your professional path."]</p>
                         </div>
                     </div>
                     <div class="radio-button" id="career-radio"></div>
@@ -480,8 +481,8 @@
                             🎯
                         </div>
                         <div class="objective-text">
-                            <h5>Discovering My Purpose</h5>
-                            <p>Explore your passions and find a career with meaning.</p>
+                            <h5>@Localizer["Purpose Discovery"]</h5>
+                            <p>@Localizer["Discover your true purpose and find meaning in your life."]</p>
                         </div>
                     </div>
                     <div class="radio-button" id="purpose-radio"></div>
@@ -492,20 +493,20 @@
             <input type="hidden" asp-for="Input.Objective" id="objective-input" />
 
             <div class="form-group">
-                <label asp-for="Input.FullName" class="form-label">Full Name</label>
-                <input asp-for="Input.FullName" class="form-control" placeholder="Enter your full name" />
+                <label asp-for="Input.FullName" class="form-label">@Localizer["Full Name"]</label>
+                <input asp-for="Input.FullName" class="form-control" placeholder="@Localizer["Enter your full name"]" />
                 <span asp-validation-for="Input.FullName" class="validation-error"></span>
             </div>
 
             <div class="form-group">
-                <label asp-for="Input.Email" class="form-label">Email</label>
-                <input asp-for="Input.Email" class="form-control" placeholder="you@example.com" />
+                <label asp-for="Input.Email" class="form-label">@Localizer["Email"]</label>
+                <input asp-for="Input.Email" class="form-control" placeholder="@Localizer["Enter your email"]" />
                 <span asp-validation-for="Input.Email" class="validation-error"></span>
             </div>
 
             <div class="form-group">
-                <label asp-for="Input.Password" class="form-label">Password</label>
-                <input asp-for="Input.Password" type="password" class="form-control" placeholder="********" />
+                <label asp-for="Input.Password" class="form-label">@Localizer["Password"]</label>
+                <input asp-for="Input.Password" type="password" class="form-control" placeholder="@Localizer["Enter your password"]" />
                 <div class="password-validation">Must be at least 8 characters long.</div>
                 <span asp-validation-for="Input.Password" class="validation-error"></span>
             </div>
@@ -513,13 +514,13 @@
 
 
             <div class="d-grid mb-3">
-                <button type="submit" class="btn btn-primary">Create Account</button>
+                <button type="submit" class="btn btn-primary">@Localizer["Create Account"]</button>
             </div>
         </form>
 
         <div class="login-section">
-            <span class="login-text">Already have an account? </span>
-            <a asp-page="/Account/Login" class="login-link">Login</a>
+            <span class="login-text">@Localizer["Already have an account?"] </span>
+            <a asp-page="/Account/Login" class="login-link">@Localizer["Sign In"]</a>
         </div>
     </div>
 </div>

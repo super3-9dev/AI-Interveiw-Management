@@ -20,10 +20,10 @@
                     <i class="bi bi-robot"></i>
                     @Model.InterviewTopic
                 </h1>
-                <p class="interview-subtitle">AI-powered text interview with OpenAI - Real-time conversation</p>
+                <p class="interview-subtitle">@Localizer["AI-powered text interview with OpenAI - Real-time conversation"]</p>
             </div>
             <div class="interview-status">
-                <span class="status-badge status-active">In Progress</span>
+                <span class="status-badge status-active">@Localizer["In Progress"]</span>
             </div>
         </div>
     </div>
@@ -38,12 +38,11 @@
                 </div>
                 <div class="message-content">
                     <div class="message-header">
-                        <span class="message-sender">AI Career Coach</span>
+                        <span class="message-sender">@Localizer["AI Career Coach"]</span>
                         <span class="message-time" id="currentTime"></span>
                     </div>
                     <div class="message-text">
-                        Hello! I'm your AI career coach. We're going to have a practice interview. Let's start with the
-                        first question: @Model.CurrentQuestion
+                        @Localizer["Hello! I'm your AI career coach. We're going to have a practice interview. Let's start with the first question:"] @Model.CurrentQuestion
                     </div>
                 </div>
             </div>
@@ -58,7 +57,7 @@
                 <input type="hidden" asp-for="InterviewId" />
                 <div class="input-group">
                     <textarea asp-for="UserAnswer" style="border-radius: 10px;" class="chat-input"
-                        placeholder="Type your answer here..." rows="3" id="userInput"></textarea>
+                        placeholder="@Localizer["Type your answer here..."]" rows="3" id="userInput"></textarea>
                     <button type="button" class="send-button" id="sendButton" onclick="sendMessage()">
                         <i class="bi bi-send"></i>
                     </button>
@@ -73,11 +72,11 @@
         <a href="/Dashboard@(!string.IsNullOrEmpty(currentCulture) ? $"?culture={currentCulture}" : "")"
             class="btn btn-outline-secondary action-btn">
             <i class="bi bi-arrow-left"></i>
-            Back to Dashboard
+            @Localizer["Back to Dashboard"]
         </a>
         <button class="btn btn-danger action-btn" onclick="finishInterview()">
             <i class="bi bi-arrow-left"></i>
-            Finish Interview
+            @Localizer["Finish Interview"]
         </button>
     </div>
 </div>

@@ -15,8 +15,8 @@
     <div class="centered-container">
         <!-- Header Section -->
         <div class="interview-format-header">
-            <h1 class="interview-format-title">Choose Your Interview Format</h1>
-            <p class="interview-format-subtitle">Select how you'd like to conduct your interview</p>
+            <h1 class="interview-format-title">@Localizer["Choose Your Interview Format"]</h1>
+            <p class="interview-format-subtitle">@Localizer["Select how you'd like to conduct your interview"]</p>
         </div>
 
         <!-- Interview Format Options -->
@@ -27,30 +27,29 @@
                     <i class="bi bi-chat-text"></i>
                 </div>
                 <div class="format-content">
-                    <h3 class="format-title">Text Interview</h3>
+                    <h3 class="format-title">@Localizer["Text Interview"]</h3>
                     <p class="format-description">
-                        Conduct your interview through text-based questions and answers.
-                        Perfect for detailed responses and easy review.
+                        @Localizer["Conduct your interview through text-based questions and answers. Perfect for detailed responses and easy review."]
                     </p>
                     <div class="format-features">
                         <div class="feature-item">
                             <i class="bi bi-check-circle"></i>
-                            <span>Written questions and responses</span>
+                            <span>@Localizer["Written questions and responses"]</span>
                         </div>
                         <div class="feature-item">
                             <i class="bi bi-check-circle"></i>
-                            <span>Easy to review and analyze</span>
+                            <span>@Localizer["Easy to review and analyze"]</span>
                         </div>
                         <div class="feature-item">
                             <i class="bi bi-check-circle"></i>
-                            <span>No audio equipment needed</span>
+                            <span>@Localizer["No audio equipment needed"]</span>
                         </div>
                     </div>
                     <form method="post" asp-page-handler="StartTextInterview" style="display: inline;">
                         <input type="hidden" name="InterviewId" value="@Model.InterviewId" />
                         <button type="submit" class="btn btn-primary format-btn">
                             <i class="bi bi-chat-text"></i>
-                            Start Text Interview
+                            @Localizer["Start Text Interview"]
                         </button>
                     </form>
                 </div>
@@ -62,30 +61,29 @@
                     <i class="bi bi-mic"></i>
                 </div>
                 <div class="format-content">
-                    <h3 class="format-title">Voice Interview</h3>
+                    <h3 class="format-title">@Localizer["Voice Interview"]</h3>
                     <p class="format-description">
-                        Conduct your interview through voice interaction.
-                        More natural conversation flow and real-time responses.
+                        @Localizer["Conduct your interview through voice interaction. More natural conversation flow and real-time responses."]
                     </p>
                     <div class="format-features">
                         <div class="feature-item">
                             <i class="bi bi-check-circle"></i>
-                            <span>Voice-based questions and answers</span>
+                            <span>@Localizer["Voice-based questions and answers"]</span>
                         </div>
                         <div class="feature-item">
                             <i class="bi bi-check-circle"></i>
-                            <span>Natural conversation flow</span>
+                            <span>@Localizer["Natural conversation flow"]</span>
                         </div>
                         <div class="feature-item">
                             <i class="bi bi-check-circle"></i>
-                            <span>Real-time interaction</span>
+                            <span>@Localizer["Real-time interaction"]</span>
                         </div>
                     </div>
                     <form method="post" asp-page-handler="StartVoiceInterview" style="display: inline;">
                         <input type="hidden" name="InterviewId" value="@Model.InterviewId" />
                         <button type="submit" class="btn btn-success format-btn">
                             <i class="bi bi-mic"></i>
-                            Start Voice Interview
+                            @Localizer["Start Voice Interview"]
                         </button>
                     </form>
                 </div>
@@ -97,7 +95,7 @@
             <a href="/Dashboard@(!string.IsNullOrEmpty(currentCulture) ? $"?culture={currentCulture}" : "")"
                 class="btn btn-outline-secondary">
                 <i class="bi bi-arrow-left"></i>
-                Back to Dashboard
+                @Localizer["Back to Dashboard"]
             </a>
         </div>
     </div>

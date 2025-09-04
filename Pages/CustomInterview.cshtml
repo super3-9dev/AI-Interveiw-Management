@@ -14,8 +14,8 @@
 <div class="custom-interview-container">
     <div class="custom-interview-card">
         <div class="card-header">
-            <h2 class="card-title">Create a Custom Interview</h2>
-            <p class="card-subtitle">Create your own personalized interview by entering a topic and description.</p>
+            <h2 class="card-title">@Localizer["Create a Custom Interview"]</h2>
+            <p class="card-subtitle">@Localizer["Create your own personalized interview by entering a topic and description."]</p>
         </div>
 
         <div class="card-body">
@@ -35,22 +35,22 @@
                 }
 
                 <div class="form-group">
-                    <label asp-for="InterviewTopic" class="form-label">Interview Topic</label>
+                    <label asp-for="InterviewTopic" class="form-label">@Localizer["Interview Topic"]</label>
                     <input asp-for="InterviewTopic" type="text" class="form-control"
-                        placeholder="Please enter the topic of the interview">
+                        placeholder="@Localizer["Please enter the topic of the interview"]">
                     <span asp-validation-for="InterviewTopic" class="text-danger"></span>
                 </div>
 
                 <div class="form-group">
-                    <label asp-for="Description" class="form-label">Description</label>
+                    <label asp-for="Description" class="form-label">@Localizer["Description"]</label>
                     <textarea asp-for="Description" class="form-control" rows="4"
-                        placeholder="Please enter the description of the interview"></textarea>
+                        placeholder="@Localizer["Please enter the description of the interview"]"></textarea>
                     <span asp-validation-for="Description" class="text-danger"></span>
                 </div>
 
                 <div class="form-actions">
                     <button type="submit" class="btn btn-primary generate-btn">
-                        Generate Interview
+                        @Localizer["Generate Interview"]
                     </button>
                 </div>
             </form>

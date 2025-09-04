@@ -1,0 +1,139 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+    <xsd:element name="root" msdata:IsDataSet="true">
+      <xsd:complexType>
+        <xsd:choice maxOccurs="unbounded">
+          <xsd:element name="data">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" />
+                <xsd:element name="comment" type="xsd:string" minOccurs="0" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" />
+              <xsd:attribute name="type" type="xsd:string" />
+              <xsd:attribute name="mimetype" type="xsd:string" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="resheader">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" />
+            </xsd:complexType>
+          </xsd:element>
+        </xsd:choice>
+      </xsd:complexType>
+    </xsd:element>
+  </xsd:schema>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="Dashboard">
+    <value>Panel de Control</value>
+  </data>
+  <data name="Your Dashboard">
+    <value>Tu Panel de Control</value>
+  </data>
+  <data name="Track your progress, continue interviews, or start a new one.">
+    <value>Rastrea tu progreso, continúa entrevistas o inicia una nueva.</value>
+  </data>
+  <data name="Start New Analysis">
+    <value>Iniciar Nuevo Análisis</value>
+  </data>
+  <data name="Your Profile">
+    <value>Tu Perfil</value>
+  </data>
+  <data name="This information is used to generate your personalized interviews.">
+    <value>Esta información se utiliza para generar tus entrevistas personalizadas.</value>
+  </data>
+  <data name="Strengths">
+    <value>Fortalezas</value>
+  </data>
+  <data name="Weaknesses">
+    <value>Debilidades</value>
+  </data>
+  <data name="Career Goals">
+    <value>Objetivos Profesionales</value>
+  </data>
+  <data name="Please update your profile.">
+    <value>Por favor actualiza tu perfil.</value>
+  </data>
+  <data name="Strong background in full-stack development, leadership potential.">
+    <value>Fuerte experiencia en desarrollo full-stack, potencial de liderazgo.</value>
+  </data>
+  <data name="Limited experience with cloud-native technologies.">
+    <value>Experiencia limitada con tecnologías cloud-native.</value>
+  </data>
+  <data name="Software Architect, Engineering Manager, DevOps Specialist.">
+    <value>Arquitecto de Software, Gerente de Ingeniería, Especialista en DevOps.</value>
+  </data>
+  <data name="Update Profile">
+    <value>Actualizar Perfil</value>
+  </data>
+  <data name="In Progress">
+    <value>En Progreso</value>
+  </data>
+  <data name="Continue Interview">
+    <value>Continuar Entrevista</value>
+  </data>
+  <data name="Completed">
+    <value>Completado</value>
+  </data>
+  <data name="View Results">
+    <value>Ver Resultados</value>
+  </data>
+  <data name="Interview Catalog">
+    <value>Catálogo de Entrevistas</value>
+  </data>
+  <data name="Choose from your personalized list of interviews or create a new one.">
+    <value>Elige de tu lista personalizada de entrevistas o crea una nueva.</value>
+  </data>
+  <data name="Start Interview">
+    <value>Iniciar Entrevista</value>
+  </data>
+  <data name="No interviews available. Complete your profile analysis to generate personalized interviews.">
+    <value>No hay entrevistas disponibles. Completa el análisis de tu perfil para generar entrevistas personalizadas.</value>
+  </data>
+  <data name="Custom">
+    <value>Personalizado</value>
+  </data>
+  <data name="Vocational Orientation Interview">
+    <value>Entrevista de Orientación Vocacional</value>
+  </data>
+  <data name="Explore your interests and values to find a career that aligns with your personality.">
+    <value>Explora tus intereses y valores para encontrar una carrera que se alinee con tu personalidad.</value>
+  </data>
+  <data name="Professional Career Interview">
+    <value>Entrevista de Carrera Profesional</value>
+  </data>
+  <data name="Discuss specific roles and industries based on your resume.">
+    <value>Discute roles específicos e industrias basadas en tu currículum.</value>
+  </data>
+  <data name="Soft Skills Interview">
+    <value>Entrevista de Habilidades Blandas</value>
+  </data>
+  <data name="Assess your communication, leadership, and teamwork skills.">
+    <value>Evalúa tus habilidades de comunicación, liderazgo y trabajo en equipo.</value>
+  </data>
+  <data name="Create Custom Interview">
+    <value>Crear Entrevista Personalizada</value>
+  </data>
+  <data name="Can't find what you're looking for? Generate your own interview.">
+    <value>¿No encuentras lo que buscas? Genera tu propia entrevista.</value>
+  </data>
+  <data name="Create Your Own">
+    <value>Crea la Tuya</value>
+  </data>
+</root>
+

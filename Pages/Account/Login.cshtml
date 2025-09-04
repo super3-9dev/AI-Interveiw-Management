@@ -56,6 +56,7 @@
 
     .language-switcher {
         position: fixed;
+        z-index: 1000;
         right: 30px;
         top: 30px;
     }
@@ -383,8 +384,8 @@
     <div class="login-card">
         <!-- Welcome Section -->
         <div class="mb-4">
-            <h2 class="welcome-text">Welcome Back!</h2>
-            <p class="subtitle-text">Enter your credentials to access your dashboard.</p>
+            <h2 class="welcome-text">@Localizer["Welcome Back!"]</h2>
+            <p class="subtitle-text">@Localizer["Enter your credentials to access your dashboard."]</p>
         </div>
 
         <!-- Login Form -->
@@ -400,12 +401,12 @@
             <div class="form-group">
                 <label asp-for="Input.Password" class="form-label">@Localizer["Password"]</label>
                 <input asp-for="Input.Password" type="password" class="form-control"
-                    placeholder="Enter your password" />
+                    placeholder="@Localizer["Enter your password"]" />
                 <span asp-validation-for="Input.Password" class="validation-error"></span>
             </div>
 
             <div class="forgot-password">
-                <a href="#" onclick="alert('Password reset functionality coming soon!')">Forgot your password?</a>
+                <a href="#" onclick="alert('Password reset functionality coming soon!')">@Localizer["Forgot your password?"]</a>
             </div>
 
             <div class="d-grid mb-3">
@@ -413,8 +414,8 @@
             </div>
 
             <div class="signup-section">
-                <span class="signup-text">Don't have an account? </span>
-                <a asp-page="/Account/Register" class="signup-link">Sign up</a>
+                <span class="signup-text">@Localizer["Don't have an account?"] </span>
+                <a asp-page="/Account/Register" class="signup-link">@Localizer["Sign Up"]</a>
             </div>
         </form>
     </div>

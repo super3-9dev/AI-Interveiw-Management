@@ -17,14 +17,14 @@
     <div class="dashboard-header">
         <div class="header-content">
             <div class="title-section">
-                <h2 class="main-title">Your Dashboard</h2>
-                <p class="subtitle">Track your progress, continue interviews, or start a new one.</p>
+                <h2 class="main-title">@Localizer["Your Dashboard"]</h2>
+                <p class="subtitle">@Localizer["Track your progress, continue interviews, or start a new one."]</p>
             </div>
             <div class="header-actions">
                 <a href="/NewAnalysis@(!string.IsNullOrEmpty(currentCulture) ? $"?culture={currentCulture}" : "")"
                     class="btn btn-primary start-analysis-btn">
                     <i class="bi bi-arrow-clockwise"></i>
-                    Start New Analysis
+                    @Localizer["Start New Analysis"]
                 </a>
             </div>
         </div>
@@ -38,48 +38,47 @@
         <div class="col-md-6 mb-4">
             <div class="card profile-card">
                 <div class="card-header">
-                    <h5 class="mb-0">Your Profile</h5>
+                    <h5 class="mb-0">@Localizer["Your Profile"]</h5>
                 </div>
                 <div class="card-body">
                     <p class="profile-description">
-                        This information is used to generate your personalized interviews.
+                        @Localizer["This information is used to generate your personalized interviews."]
                     </p>
 
                     <div class="profile-section">
                         @if (Model.UserProfile != null)
                         {
                             <div class="profile-item">
-                                <h6 class="profile-label">Strengths</h6>
-                                <p class="profile-text">@(Model.UserProfile.Strengths ?? "Please update your profile.")</p>
+                                <h6 class="profile-label">@Localizer["Strengths"]</h6>
+                                <p class="profile-text">@(string.IsNullOrEmpty(Model.UserProfile.Strengths) ? Localizer["Please update your profile."] : Model.UserProfile.Strengths)</p>
                             </div>
 
                             <div class="profile-item">
-                                <h6 class="profile-label">Weaknesses</h6>
-                                <p class="profile-text">@(Model.UserProfile.Weaknesses ?? "Please update your profile.")</p>
+                                <h6 class="profile-label">@Localizer["Weaknesses"]</h6>
+                                <p class="profile-text">@(string.IsNullOrEmpty(Model.UserProfile.Weaknesses) ? Localizer["Please update your profile."] : Model.UserProfile.Weaknesses)</p>
                             </div>
 
                             <div class="profile-item">
-                                <h6 class="profile-label">Career Goals</h6>
-                                <p class="profile-text">@(Model.UserProfile.CareerGoals ?? "Please update your profile.")
-                                </p>
+                                <h6 class="profile-label">@Localizer["Career Goals"]</h6>
+                                <p class="profile-text">@(string.IsNullOrEmpty(Model.UserProfile.CareerGoals) ? Localizer["Please update your profile."] : Model.UserProfile.CareerGoals)</p>
                             </div>
                         }
                         else
                         {
                             <div class="profile-item">
-                                <h6 class="profile-label">Strengths</h6>
-                                <p class="profile-text">Strong background in full-stack development, leadership potential.
+                                <h6 class="profile-label">@Localizer["Strengths"]</h6>
+                                <p class="profile-text">@Localizer["Strong background in full-stack development, leadership potential."]
                                 </p>
                             </div>
 
                             <div class="profile-item">
-                                <h6 class="profile-label">Weaknesses</h6>
-                                <p class="profile-text">Limited experience with cloud-native technologies.</p>
+                                <h6 class="profile-label">@Localizer["Weaknesses"]</h6>
+                                <p class="profile-text">@Localizer["Limited experience with cloud-native technologies."]</p>
                             </div>
 
                             <div class="profile-item">
-                                <h6 class="profile-label">Career Goals</h6>
-                                <p class="profile-text">Software Architect, Engineering Manager, DevOps Specialist.</p>
+                                <h6 class="profile-label">@Localizer["Career Goals"]</h6>
+                                <p class="profile-text">@Localizer["Software Architect, Engineering Manager, DevOps Specialist."]</p>
                             </div>
                         }
                     </div>
@@ -88,7 +87,7 @@
                         <a href="/Account@(!string.IsNullOrEmpty(currentCulture) ? $"?culture={currentCulture}" : "")"
                             class="btn btn-outline-secondary update-profile-btn">
                             <i class="bi bi-pencil"></i>
-                            Update Profile
+                            @Localizer["Update Profile"]
                         </a>
                     </div>
                 </div>
@@ -108,7 +107,7 @@
                         <div class="section-header">
                             <h5 class="section-title">
                                 <i class="bi bi-pencil"></i>
-                                In Progress
+                                @Localizer["In Progress"]
                             </h5>
                         </div>
                         <div class="interview-cards">
@@ -120,14 +119,14 @@
                                         <div class="interview-status">
                                             <span class="status-badge status-in-progress">
                                                 <i class="bi bi-clock"></i>
-                                                In Progress
+                                                @Localizer["In Progress"]
                                             </span>
                                         </div>
                                         <form method="post" asp-page-handler="ContinueInterview" style="display: inline;">
                                             <input type="hidden" name="interviewId" value="@catalog.Id" />
                                             <button type="submit" class="btn btn-primary interview-btn continue-btn">
                                                 <i class="bi bi-arrow-right"></i>
-                                                Continue Interview
+                                                @Localizer["Continue Interview"]
                                             </button>
                                         </form>
                                     </div>
@@ -144,7 +143,7 @@
                         <div class="section-header">
                             <h5 class="section-title">
                                 <i class="bi bi-check-circle"></i>
-                                Completed
+                                @Localizer["Completed"]
                             </h5>
                         </div>
                         <div class="interview-cards">
@@ -156,13 +155,13 @@
                                         <div class="interview-status">
                                             <span class="status-badge status-completed">
                                                 <i class="bi bi-check-circle"></i>
-                                                Completed
+                                                @Localizer["Completed"]
                                             </span>
                                         </div>
                                         <a href="/Results@(!string.IsNullOrEmpty(currentCulture) ? $"?culture={currentCulture}" : "")"
                                             class="btn btn-primary interview-btn view-results-btn">
                                             <i class="bi bi-arrow-right"></i>
-                                            View Results
+                                            @Localizer["View Results"]
                                         </a>
                                     </div>
                                 </div>
@@ -176,9 +175,9 @@
                     <div class="section-header">
                         <h5 class="section-title">
                             <i class="bi bi-list-ul"></i>
-                            Interview Catalog
+                            @Localizer["Interview Catalog"]
                         </h5>
-                        <p class="section-subtitle">Choose from your personalized list of interviews or create a new one.
+                        <p class="section-subtitle">@Localizer["Choose from your personalized list of interviews or create a new one."]
                         </p>
                     </div>
                     <div class="interview-cards">
@@ -195,7 +194,7 @@
                                         </p>
                                         <a href="/InterviewFormat@(!string.IsNullOrEmpty(currentCulture) ? $"?culture={currentCulture}" : "")&interviewId=@catalog.Id"
                                             class="btn btn-primary interview-btn">
-                                            Start Interview
+                                            @Localizer["Start Interview"]
                                         </a>
                                     </div>
                                 </div>
@@ -205,8 +204,7 @@
                         @if (!Model.InterviewCatalogs.Any(c => c.Status == "NotStarted" || string.IsNullOrEmpty(c.Status)))
                         {
                             <div class="no-interviews-message">
-                                <p class="text-muted">No interviews available. Complete your profile analysis to generate
-                                    personalized interviews.</p>
+                                <p class="text-muted">@Localizer["No interviews available. Complete your profile analysis to generate personalized interviews."]</p>
                             </div>
                         }
 
@@ -218,7 +216,7 @@
                                     <div class="card-body">
                                         <div class="custom-interview-badge">
                                             <i class="bi bi-star-fill"></i>
-                                            Custom
+                                            @Localizer["Custom"]
                                         </div>
                                         <h6 class="interview-title">@customInterview.Title</h6>
                                         <p class="interview-description">
@@ -236,7 +234,7 @@
                                         </div>
                                         <a href="/InterviewFormat@(!string.IsNullOrEmpty(currentCulture) ? $"?culture={currentCulture}" : "")&interviewId=@customInterview.Id"
                                             class="btn btn-primary interview-btn">
-                                            Start Interview
+                                            @Localizer["Start Interview"]
                                         </a>
                                     </div>
                                 </div>
@@ -248,39 +246,39 @@
                             <!-- Default interview cards when no dynamic items or custom interviews are available -->
                             <div class="interview-card">
                                 <div class="card-body">
-                                    <h6 class="interview-title">Vocational Orientation Interview</h6>
+                                    <h6 class="interview-title">@Localizer["Vocational Orientation Interview"]</h6>
                                     <p class="interview-description">
-                                        Explore your interests and values to find a career that aligns with your personality.
+                                        @Localizer["Explore your interests and values to find a career that aligns with your personality."]
                                     </p>
                                     <a href="/InterviewFormat@(!string.IsNullOrEmpty(currentCulture) ? $"?culture={currentCulture}" : "")&interviewId=default-vocational"
                                         class="btn btn-primary interview-btn">
-                                        Start Interview
+                                        @Localizer["Start Interview"]
                                     </a>
                                 </div>
                             </div>
 
                             <div class="interview-card">
                                 <div class="card-body">
-                                    <h6 class="interview-title">Professional Career Interview</h6>
+                                    <h6 class="interview-title">@Localizer["Professional Career Interview"]</h6>
                                     <p class="interview-description">
-                                        Discuss specific roles and industries based on your resume.
+                                        @Localizer["Discuss specific roles and industries based on your resume."]
                                     </p>
                                     <a href="/InterviewFormat@(!string.IsNullOrEmpty(currentCulture) ? $"?culture={currentCulture}" : "")&interviewId=default-professional"
                                         class="btn btn-primary interview-btn">
-                                        Start Interview
+                                        @Localizer["Start Interview"]
                                     </a>
                                 </div>
                             </div>
 
                             <div class="interview-card">
                                 <div class="card-body">
-                                    <h6 class="interview-title">Soft Skills Interview</h6>
+                                    <h6 class="interview-title">@Localizer["Soft Skills Interview"]</h6>
                                     <p class="interview-description">
-                                        Assess your communication, leadership, and teamwork skills.
+                                        @Localizer["Assess your communication, leadership, and teamwork skills."]
                                     </p>
                                     <a href="/InterviewFormat@(!string.IsNullOrEmpty(currentCulture) ? $"?culture={currentCulture}" : "")&interviewId=default-softskills"
                                         class="btn btn-primary interview-btn">
-                                        Start Interview
+                                        @Localizer["Start Interview"]
                                     </a>
                                 </div>
                             </div>
@@ -292,13 +290,13 @@
                                 <div class="custom-interview-icon">
                                     <i class="bi bi-plus-circle"></i>
                                 </div>
-                                <h6 class="interview-title">Create Custom Interview</h6>
+                                <h6 class="interview-title">@Localizer["Create Custom Interview"]</h6>
                                 <p class="interview-description">
-                                    Can't find what you're looking for? Generate your own interview.
+                                    @Localizer["Can't find what you're looking for? Generate your own interview."]
                                 </p>
                                 <a href="/CustomInterview@(!string.IsNullOrEmpty(currentCulture) ? $"?culture={currentCulture}" : "")"
                                     class="btn btn-outline-secondary custom-interview-btn">
-                                    Create Your Own
+                                    @Localizer["Create Your Own"]
                                 </a>
                             </div>
                         </div>
@@ -311,26 +309,26 @@
                     <div class="prompt-header">
                         <h5 class="prompt-title">
                             <i class="bi bi-person-plus"></i>
-                            Interview Catalog
+                            @Localizer["Interview Catalog"]
                         </h5>
-                        <p class="prompt-subtitle">Choose from your personalized list of interviews or create a new one.</p>
+                        <p class="prompt-subtitle">@Localizer["Choose from your personalized list of interviews or create a new one."]</p>
                     </div>
 
-                    <div class="interview-card custom-interview-card">
-                        <div class="card-body">
-                            <div class="custom-interview-icon">
-                                <i class="bi bi-plus-circle"></i>
+                                                <div class="interview-card custom-interview-card">
+                                <div class="card-body">
+                                    <div class="custom-interview-icon">
+                                        <i class="bi bi-plus-circle"></i>
+                                    </div>
+                                    <h6 class="interview-title">@Localizer["Create Custom Interview"]</h6>
+                                    <p class="interview-description">
+                                        @Localizer["Can't find what you're looking for? Generate your own interview."]
+                                    </p>
+                                    <a href="/CustomInterview@(!string.IsNullOrEmpty(currentCulture) ? $"?culture={currentCulture}" : "")"
+                                        class="btn btn-outline-secondary custom-interview-btn">
+                                        @Localizer["Create Your Own"]
+                                    </a>
+                                </div>
                             </div>
-                            <h6 class="interview-title">Create Custom Interview</h6>
-                            <p class="interview-description">
-                                Can't find what you're looking for? Generate your own interview.
-                            </p>
-                            <a href="/CustomInterview@(!string.IsNullOrEmpty(currentCulture) ? $"?culture={currentCulture}" : "")"
-                                class="btn btn-outline-secondary custom-interview-btn">
-                                Create Your Own
-                            </a>
-                        </div>
-                    </div>
 
                 </div>
             }

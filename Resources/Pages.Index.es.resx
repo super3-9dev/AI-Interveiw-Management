@@ -57,4 +57,31 @@
   <data name="Resume Interview" xml:space="preserve">
     <value>Reanudar Entrevista</value>
   </data>
+  <data name="Home" xml:space="preserve">
+    <value>Inicio</value>
+  </data>
+  <data name="Welcome to Intrevidor Guiado" xml:space="preserve">
+    <value>BIENVENIDO a Intrevidor Guiado</value>
+  </data>
+  <data name="Your personal career guide powered by AI. Start by analyzing your profile or review the results of your last interview." xml:space="preserve">
+    <value>Tu guía de carrera personal impulsada por IA. Comienza analizando tu perfil o revisa los resultados de tu última entrevista.</value>
+  </data>
+  <data name="Start a New Analysis" xml:space="preserve">
+    <value>Iniciar un Nuevo Análisis</value>
+  </data>
+  <data name="Let our AI analyze your profile to create personalized interview questions. Upload your resume or provide a description of your skills and experience to generate a new career analysis and a tailored interview catalog." xml:space="preserve">
+    <value>Permite que nuestra IA analice tu perfil para crear preguntas de entrevista personalizadas. Sube tu currículum o proporciona una descripción de tus habilidades y experiencia para generar un nuevo análisis de carrera y un catálogo de entrevistas personalizado.</value>
+  </data>
+  <data name="Get Started →" xml:space="preserve">
+    <value>Comenzar →</value>
+  </data>
+  <data name="Review Your Results" xml:space="preserve">
+    <value>Revisa Tus Resultados</value>
+  </data>
+  <data name="Check your latest interview summary and career roadmap. You have no interview results yet. Complete an interview to see your results here." xml:space="preserve">
+    <value>Revisa tu último resumen de entrevista y hoja de ruta profesional. Aún no tienes resultados de entrevista. Completa una entrevista para ver tus resultados aquí.</value>
+  </data>
+  <data name="Go to Interview Catalog" xml:space="preserve">
+    <value>Ir al Catálogo de Entrevistas</value>
+  </data>
 </root>

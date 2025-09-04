@@ -18,13 +18,13 @@
             <div class="results-info">
                 <h1 class="results-title">
                     <i class="bi bi-check-circle-fill"></i>
-                    Interview Complete
+                    @Localizer["Interview Complete"]
                 </h1>
-                <p class="results-subtitle">Your interview results and analysis</p>
+                <p class="results-subtitle">@Localizer["Your interview results and analysis"]</p>
             </div>
             <div class="results-status">
-                <span class="status-badge status-complete">Completed</span>
-                <span class="question-count">@Model.QuestionCount Questions Asked</span>
+                <span class="status-badge status-complete">@Localizer["Completed"]</span>
+                <span class="question-count">@Model.QuestionCount @Localizer["Questions Asked"]</span>
             </div>
         </div>
     </div>
@@ -33,20 +33,20 @@
     <div class="results-content">
         <div class="summary-section">
             <div class="section-header">
-                <h2><i class="bi bi-clipboard-data"></i> Interview Summary</h2>
+                <h2><i class="bi bi-clipboard-data"></i> @Localizer["Interview Summary"]</h2>
             </div>
             <div class="summary-content">
                 <div class="interview-details">
                     <div class="detail-item">
-                        <span class="detail-label">Topic:</span>
+                        <span class="detail-label">@Localizer["Topic:"]</span>
                         <span class="detail-value">@Model.InterviewTopic</span>
                     </div>
                     <div class="detail-item">
-                        <span class="detail-label">Questions Asked:</span>
+                        <span class="detail-label">@Localizer["Questions Asked:"]</span>
                         <span class="detail-value">@Model.QuestionCount</span>
                     </div>
                     <div class="detail-item">
-                        <span class="detail-label">Completed:</span>
+                        <span class="detail-label">@Localizer["Completed:"]</span>
                         <span class="detail-value">@(Model.CompleteDate?.ToString("MMM dd, yyyy 'at' h:mm tt") ??
                                                         DateTime.Now.ToString("MMM dd, yyyy 'at' h:mm tt"))</span>
                     </div>
@@ -57,7 +57,7 @@
         <!-- AI Analysis -->
         <div class="analysis-section">
             <div class="section-header">
-                <h2><i class="bi bi-robot"></i> AI Analysis & Recommendations</h2>
+                <h2><i class="bi bi-robot"></i> @Localizer["AI Analysis & Recommendations"]</h2>
             </div>
             <div class="analysis-content">
                 <div class="analysis-text">
@@ -72,16 +72,16 @@
                 <a href="/Dashboard@(!string.IsNullOrEmpty(currentCulture) ? $"?culture={currentCulture}" : "")"
                     class="btn btn-primary action-btn">
                     <i class="bi bi-house"></i>
-                    Back to Dashboard
+                    @Localizer["Back to Dashboard"]
                 </a>
                 <button class="btn btn-success action-btn" onclick="downloadResults()">
                     <i class="bi bi-download"></i>
-                    Download Results
+                    @Localizer["Download Results"]
                 </button>
                 <a href="/CustomInterview@(!string.IsNullOrEmpty(currentCulture) ? $"?culture={currentCulture}" : "")"
                     class="btn btn-outline-primary action-btn">
                     <i class="bi bi-plus-circle"></i>
-                    Start New Interview
+                    @Localizer["Start New Interview"]
                 </a>
             </div>
         </div>

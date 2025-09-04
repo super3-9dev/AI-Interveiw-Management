@@ -39,52 +39,28 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
-  <data name="Interview Format">
-    <value>Interview Format</value>
+  <data name="Custom Interview">
+    <value>Entrevista Personalizada</value>
   </data>
-  <data name="Choose Your Interview Format">
-    <value>Choose Your Interview Format</value>
+  <data name="Create a Custom Interview">
+    <value>Crear una Entrevista Personalizada</value>
   </data>
-  <data name="Select how you'd like to conduct your interview">
-    <value>Select how you'd like to conduct your interview</value>
+  <data name="Create your own personalized interview by entering a topic and description.">
+    <value>Crea tu propia entrevista personalizada ingresando un tema y descripción.</value>
   </data>
-  <data name="Text Interview">
-    <value>Text Interview</value>
+  <data name="Interview Topic">
+    <value>Tema de la Entrevista</value>
   </data>
-  <data name="Conduct your interview through text-based questions and answers. Perfect for detailed responses and easy review.">
-    <value>Conduct your interview through text-based questions and answers. Perfect for detailed responses and easy review.</value>
+  <data name="Please enter the topic of the interview">
+    <value>Por favor ingresa el tema de la entrevista</value>
   </data>
-  <data name="Written questions and responses">
-    <value>Written questions and responses</value>
+  <data name="Description">
+    <value>Descripción</value>
   </data>
-  <data name="Easy to review and analyze">
-    <value>Easy to review and analyze</value>
+  <data name="Please enter the description of the interview">
+    <value>Por favor ingresa la descripción de la entrevista</value>
   </data>
-  <data name="No audio equipment needed">
-    <value>No audio equipment needed</value>
-  </data>
-  <data name="Start Text Interview">
-    <value>Start Text Interview</value>
-  </data>
-  <data name="Voice Interview">
-    <value>Voice Interview</value>
-  </data>
-  <data name="Conduct your interview through voice interaction. More natural conversation flow and real-time responses.">
-    <value>Conduct your interview through voice interaction. More natural conversation flow and real-time responses.</value>
-  </data>
-  <data name="Voice-based questions and answers">
-    <value>Voice-based questions and answers</value>
-  </data>
-  <data name="Natural conversation flow">
-    <value>Natural conversation flow</value>
-  </data>
-  <data name="Real-time interaction">
-    <value>Real-time interaction</value>
-  </data>
-  <data name="Start Voice Interview">
-    <value>Start Voice Interview</value>
-  </data>
-  <data name="Back to Dashboard">
-    <value>Back to Dashboard</value>
+  <data name="Generate Interview">
+    <value>Generar Entrevista</value>
   </data>
 </root>

@@ -14,8 +14,8 @@
 <div class="page-content">
     <!-- Welcome Section -->
     <div class="welcome-section">
-        <h1 class="welcome-title">BIENVENIDO a Intrevidor Guiado</h1>
-        <p class="welcome-subtitle">Tu guía de carrera personal impulsada por IA. Comienza analizando tu perfil o revisa los resultados de tu última entrevista.</p>
+        <h1 class="welcome-title">@Localizer["Welcome to Intrevidor Guiado"]</h1>
+        <p class="welcome-subtitle">@Localizer["Your personal career guide powered by AI. Start by analyzing your profile or review the results of your last interview."]</p>
     </div>
 
     <!-- Action Cards -->
@@ -25,10 +25,10 @@
             <div class="card-icon">
                 <i class="bi bi-file-earmark-text"></i>
             </div>
-            <h3 class="card-title">Start a New Analysis</h3>
-            <p class="card-description">Let our AI analyze your profile to create personalized interview questions. Upload your resume or provide a description of your skills and experience to generate a new career analysis and a tailored interview catalog.</p>
+            <h3 class="card-title">@Localizer["Start a New Analysis"]</h3>
+            <p class="card-description">@Localizer["Let our AI analyze your profile to create personalized interview questions. Upload your resume or provide a description of your skills and experience to generate a new career analysis and a tailored interview catalog."]</p>
             <a href="/NewAnalysis@(!string.IsNullOrEmpty(currentCulture) ? $"?culture={currentCulture}" : "")" class="card-button primary">
-                Get Started →
+                @Localizer["Get Started →"]
             </a>
         </div>
 
@@ -37,10 +37,10 @@
             <div class="card-icon results">
                 <i class="bi bi-chat-dots"></i>
             </div>
-            <h3 class="card-title">Review Your Results</h3>
-            <p class="card-description">Check your latest interview summary and career roadmap. You have no interview results yet. Complete an interview to see your results here.</p>
+            <h3 class="card-title">@Localizer["Review Your Results"]</h3>
+            <p class="card-description">@Localizer["Check your latest interview summary and career roadmap. You have no interview results yet. Complete an interview to see your results here."]</p>
             <a href="/CustomInterview@(!string.IsNullOrEmpty(currentCulture) ? $"?culture={currentCulture}" : "")" class="card-button secondary">
-                Go to Interview Catalog
+                @Localizer["Go to Interview Catalog"]
             </a>
         </div>
     </div>

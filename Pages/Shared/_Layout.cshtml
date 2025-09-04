@@ -39,8 +39,18 @@
             </div>
             <div class="top-bar-right">
                 <div class="language-switcher">
-                    <i class="bi bi-globe"></i>
-                    <span class="language-text">@(isEnglish ? "English" : "Español")</span>
+                    <div class="language-dropdown">
+                        <button class="language-btn" type="button">
+                            <i class="bi bi-globe"></i>
+                            <span class="language-text">@(isEnglish ? "English" : "Español")</span>
+                        </button>
+                        <div class="language-dropdown-content">
+                            <a href="?culture=en"
+                                class="language-option @(isEnglish ? "active" : "")">English</a>
+                            <a href="?culture=es"
+                                class="language-option @(isSpanish ? "active" : "")">Español</a>
+                        </div>
+                    </div>
                 </div>
                 @if (User.Identity?.IsAuthenticated == true)
                 {
@@ -171,19 +181,73 @@
         }
 
         .language-switcher {
+            position: relative;
+        }
+
+        .language-dropdown {
+            position: relative;
+            display: inline-block;
+        }
+
+        .language-btn {
+            background: none;
+            border: none;
             display: flex;
             align-items: center;
             gap: 0.5rem;
             color: #6c757d;
             cursor: pointer;
+            padding: 0.5rem;
+            border-radius: 0.25rem;
+            transition: all 0.2s ease;
         }
 
-        .language-switcher:hover {
+        .language-btn:hover {
             color: #4285f4;
+            background-color: #f8f9fa;
         }
 
         .language-text {
             font-size: 0.9rem;
+            font-weight: 500;
+        }
+
+        .language-dropdown-content {
+            display: none;
+            position: absolute;
+            right: 0;
+            top: 100%;
+            background-color: #fff;
+            min-width: 120px;
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+            border-radius: 0.5rem;
+            z-index: 1000;
+            overflow: hidden;
+            margin-top: 0.5rem;
+            border: 1px solid #e9ecef;
+        }
+
+        .language-dropdown:hover .language-dropdown-content {
+            display: block;
+        }
+
+        .language-option {
+            color: #333;
+            padding: 0.75rem 1rem;
+            text-decoration: none;
+            display: block;
+            transition: background-color 0.3s ease;
+            font-size: 0.9rem;
+        }
+
+        .language-option:hover {
+            background-color: #f8f9fa;
+            text-decoration: none;
+        }
+
+        .language-option.active {
+            background-color: #e7f3ff;
+            color: #0d6efd;
             font-weight: 500;
         }
 

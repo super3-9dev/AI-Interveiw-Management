@@ -20,17 +20,17 @@
                     <i class="bi bi-mic"></i>
                     @Model.InterviewTopic
                 </h1>
-                <p class="interview-subtitle">AI-powered voice interview with real-time feedback</p>
+                <p class="interview-subtitle">@Localizer["AI-powered voice interview with real-time feedback"]</p>
             </div>
             <div class="interview-status">
-                <span class="status-badge status-active">In Progress</span>
+                <span class="status-badge status-active">@Localizer["In Progress"]</span>
                 <!-- Real-time User Status Graph -->
                 <div class="user-status-display">
                     <div class="status-graph-container">
                         <canvas id="statusGraph" width="120" height="40"></canvas>
                     </div>
                     <div class="status-indicators">
-                        <span id="userStatus" class="status-text">Ready</span>
+                        <span id="userStatus" class="status-text">@Localizer["Ready"]</span>
                         <div class="status-dot" id="statusDot"></div>
                     </div>
                 </div>
@@ -51,23 +51,23 @@
             <div class="voice-control-panel">
                 <button class="voice-record-btn" id="recordButton" onclick="toggleRecording()">
                     <i class="bi bi-mic-fill"></i>
-                    <span class="record-text">Start Recording</span>
+                    <span class="record-text">@Localizer["Start Recording"]</span>
                 </button>
                 <div class="recording-indicator" id="recordingIndicator" style="display: none;">
                     <div class="pulse-dot"></div>
-                    <span>Recording...</span>
+                    <span>@Localizer["Recording..."]</span>
                 </div>
             </div>
 
             <div class="voice-transcription">
                 <textarea id="transcriptionArea" class="transcription-textarea"
-                    placeholder="Your voice will be transcribed here..." readonly></textarea>
+                    placeholder="@Localizer["Your voice will be transcribed here..."]" readonly></textarea>
                 <div class="transcription-actions">
                     <button class="btn btn-primary" id="sendVoiceBtn" onclick="sendVoiceMessage()">
-                        <i class="bi bi-send"></i> Send
+                        <i class="bi bi-send"></i> @Localizer["Send"]
                     </button>
                     <button class="btn btn-outline-secondary" onclick="clearTranscription()">
-                        <i class="bi bi-trash"></i> Clear
+                        <i class="bi bi-trash"></i> @Localizer["Clear"]
                     </button>
                 </div>
             </div>
@@ -79,11 +79,11 @@
         <a href="/Dashboard@(!string.IsNullOrEmpty(currentCulture) ? $"?culture={currentCulture}" : "")"
             class="btn btn-outline-secondary action-btn">
             <i class="bi bi-arrow-left"></i>
-            Back to Dashboard
+            @Localizer["Back to Dashboard"]
         </a>
         <button class="btn btn-danger action-btn" onclick="finishInterview()">
             <i class="bi bi-arrow-left"></i>
-            Finish Interview
+            @Localizer["Finish Interview"]
         </button>
     </div>
 </div>

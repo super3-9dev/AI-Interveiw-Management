@@ -4,7 +4,7 @@
 @using InterviewBot.Models
 @inject IViewLocalizer Localizer
 @{
-    ViewData["Title"] = "Your Personalized Career Guidance";
+    ViewData["Title"] = Localizer["Your Personalized Career Guidance"];
 }
 
 @section Styles {
@@ -431,9 +431,8 @@
 
 <div class="results-container">
     <div class="page-header">
-        <h1 class="page-title">Your Personalized Career Guidance</h1>
-        <p class="page-subtitle">Based on your profile and interview, here are your tailored insights and potential
-            career roadmaps.</p>
+        <h1 class="page-title">@Localizer["Your Personalized Career Guidance"]</h1>
+        <p class="page-subtitle">@Localizer["Based on your profile and interview, here are your tailored insights and potential career roadmaps."]</p>
     </div>
 
     @if (Model.InterviewResults.Any())
@@ -443,7 +442,7 @@
             <div class="results-section">
                 <div class="section-header">
                     <div class="section-icon">📋</div>
-                    <h2 class="section-title">Interview Results</h2>
+                    <h2 class="section-title">@Localizer["Interview Results"]</h2>
                 </div>
                 <ul class="results-list">
                     @foreach (var result in Model.InterviewResults)
@@ -452,7 +451,7 @@
                             <div class="result-title">@result.Topic</div>
                             <div class="result-meta">
                                 <span>@result.CompleteDate.ToString("MMM dd, yyyy 'at' h:mm tt")</span>
-                                <span class="result-status status-completed">Completed</span>
+                                <span class="result-status status-completed">@Localizer["Completed"]</span>
                             </div>
                             <div class="result-description">
                                 @if (!string.IsNullOrEmpty(result.Content))
@@ -461,13 +460,11 @@
                                 }
                                 else
                                 {
-                                    <span class="summary-placeholder">Interview completed successfully. Click "View Result" to see
-                                        detailed analysis.</span>
+                                    <span class="summary-placeholder">@Localizer["Interview completed successfully. Click \"View Result\" to see detailed analysis."]</span>
                                 }
                             </div>
                             <div class="result-actions">
-                                <a href="/InterviewResults?interviewId=@result.InterviewId" class="btn btn-primary">View
-                                    Result</a>
+                                <a href="/InterviewResults?interviewId=@result.InterviewId" class="btn btn-primary">@Localizer["View Result"]</a>
                             </div>
                         </li>
                     }
@@ -480,20 +477,20 @@
         <!-- Complete Empty State -->
         <div class="empty-state">
             <div class="empty-icon">📋</div>
-            <div class="empty-title">No Interview Results Yet</div>
-            <div class="empty-description">Start by completing interviews to generate results</div>
+            <div class="empty-title">@Localizer["No Interview Results Yet"]</div>
+            <div class="empty-description">@Localizer["Start by completing interviews to generate results"]</div>
             <div style="display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap;">
-                <a href="/Dashboard" class="create-first-btn">Go to Dashboard</a>
+                <a href="/Dashboard" class="create-first-btn">@Localizer["Go to Dashboard"]</a>
             </div>
         </div>
     }
 
     <!-- Bottom Action Buttons -->
     <div class="bottom-actions">
-        <h3>Ready for More?</h3>
+        <h3>@Localizer["Ready for More?"]</h3>
         <div class="bottom-buttons">
-            <a href="/Dashboard" class="btn btn-outline">Back to Dashboard</a>
-            <a href="/NewAnalysis" class="btn btn-primary">Start New Analysis</a>
+            <a href="/Dashboard" class="btn btn-outline">@Localizer["Back to Dashboard"]</a>
+            <a href="/NewAnalysis" class="btn btn-primary">@Localizer["Start New Analysis"]</a>
         </div>
     </div>
 </div>

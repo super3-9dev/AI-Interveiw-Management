@@ -1,60 +1,69 @@
 <?xml version="1.0" encoding="utf-8"?>
 <root>
-  <data name="My Interview Topics" xml:space="preserve">
-    <value>My Interview Topics</value>
+  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+    <xsd:element name="root" msdata:IsDataSet="true">
+      <xsd:complexType>
+        <xsd:choice maxOccurs="unbounded">
+          <xsd:element name="data">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" />
+                <xsd:element name="comment" type="xsd:string" minOccurs="0" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" />
+              <xsd:attribute name="type" type="xsd:string" />
+              <xsd:attribute name="mimetype" type="xsd:string" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="resheader">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" />
+            </xsd:complexType>
+          </xsd:element>
+        </xsd:choice>
+      </xsd:complexType>
+    </xsd:element>
+  </xsd:schema>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="Home">
+    <value>Home</value>
   </data>
-  <data name="Create New Topic" xml:space="preserve">
-    <value>Create New Topic</value>
+  <data name="Welcome to Intrevidor Guiado">
+    <value>Welcome to Intrevidor Guiado</value>
   </data>
-  <data name="No subtopics available" xml:space="preserve">
-    <value>No subtopics available</value>
+  <data name="Your personal career guide powered by AI. Start by analyzing your profile or review the results of your last interview.">
+    <value>Your personal career guide powered by AI. Start by analyzing your profile or review the results of your last interview.</value>
   </data>
-  <data name="Start" xml:space="preserve">
-    <value>Start</value>
+  <data name="Start a New Analysis">
+    <value>Start a New Analysis</value>
   </data>
-  <data name="Language" xml:space="preserve">
-    <value>Language</value>
+  <data name="Let our AI analyze your profile to create personalized interview questions. Upload your resume or provide a description of your skills and experience to generate a new career analysis and a tailored interview catalog.">
+    <value>Let our AI analyze your profile to create personalized interview questions. Upload your resume or provide a description of your skills and experience to generate a new career analysis and a tailored interview catalog.</value>
   </data>
-  <data name="Welcome to InterviewBot!" xml:space="preserve">
-    <value>Welcome to InterviewBot!</value>
+  <data name="Get Started →">
+    <value>Get Started →</value>
   </data>
-  <data name="Get started by creating your first interview topic. You can organize your interview preparation by creating topics and subtopics." xml:space="preserve">
-    <value>Get started by creating your first interview topic. You can organize your interview preparation by creating topics and subtopics.</value>
+  <data name="Review Your Results">
+    <value>Review Your Results</value>
   </data>
-  <data name="Create Topics" xml:space="preserve">
-    <value>Create Topics</value>
+  <data name="Check your latest interview summary and career roadmap. You have no interview results yet. Complete an interview to see your results here.">
+    <value>Check your latest interview summary and career roadmap. You have no interview results yet. Complete an interview to see your results here.</value>
   </data>
-  <data name="Organize your interview preparation by creating main topics like 'Technical Skills', 'Behavioral Questions', etc." xml:space="preserve">
-    <value>Organize your interview preparation by creating main topics like 'Technical Skills', 'Behavioral Questions', etc.</value>
+  <data name="Go to Interview Catalog">
+    <value>Go to Interview Catalog</value>
   </data>
-  <data name="Add Subtopics" xml:space="preserve">
-    <value>Add Subtopics</value>
-  </data>
-  <data name="Break down topics into specific areas like 'JavaScript Fundamentals', 'System Design', etc." xml:space="preserve">
-    <value>Break down topics into specific areas like 'JavaScript Fundamentals', 'System Design', etc.</value>
-  </data>
-  <data name="Start Interviews" xml:space="preserve">
-    <value>Start Interviews</value>
-  </data>
-  <data name="Begin AI-powered mock interviews to practice and improve your skills." xml:space="preserve">
-    <value>Begin AI-powered mock interviews to practice and improve your skills.</value>
-  </data>
-  <data name="Review Results" xml:space="preserve">
-    <value>Review Results</value>
-  </data>
-  <data name="Get detailed feedback and scores to track your progress." xml:space="preserve">
-    <value>Get detailed feedback and scores to track your progress.</value>
-  </data>
-  <data name="Create Your First Topic" xml:space="preserve">
-    <value>Create Your First Topic</value>
-  </data>
-  <data name="Start Interview" xml:space="preserve">
-    <value>Start Interview</value>
-  </data>
-  <data name="View Results" xml:space="preserve">
-    <value>View Results</value>
-  </data>
-  <data name="Resume Interview" xml:space="preserve">
-    <value>Resume Interview</value>
-  </data>
-</root> 
+</root>

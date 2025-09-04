@@ -1,0 +1,117 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+    <xsd:element name="root" msdata:IsDataSet="true">
+      <xsd:complexType>
+        <xsd:choice maxOccurs="unbounded">
+          <xsd:element name="data">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" />
+                <xsd:element name="comment" type="xsd:string" minOccurs="0" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" />
+              <xsd:attribute name="type" type="xsd:string" />
+              <xsd:attribute name="mimetype" type="xsd:string" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="resheader">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" />
+            </xsd:complexType>
+          </xsd:element>
+        </xsd:choice>
+      </xsd:complexType>
+    </xsd:element>
+  </xsd:schema>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="New Analysis">
+    <value>Nuevo Análisis</value>
+  </data>
+  <data name="Start Your Analysis">
+    <value>Inicia Tu Análisis</value>
+  </data>
+  <data name="This is a mockup. Click &quot;Start Analysis&quot; to generate a sample report and navigate the app.">
+    <value>Esta es una maqueta. Haz clic en "Iniciar Análisis" para generar un reporte de muestra y navegar por la aplicación.</value>
+  </data>
+  <data name="Upload Resume">
+    <value>Subir Currículum</value>
+  </data>
+  <data name="Describe Yourself">
+    <value>Descríbete a Ti Mismo</value>
+  </data>
+  <data name="Resume Already Uploaded">
+    <value>Currículum Ya Subido</value>
+  </data>
+  <data name="You have already uploaded a resume and completed the analysis. You can only upload one resume per account. If you need to update your profile information, please use the &quot;Update Profile&quot; feature in your dashboard.">
+    <value>Ya has subido un currículum y completado el análisis. Solo puedes subir un currículum por cuenta. Si necesitas actualizar la información de tu perfil, por favor usa la función "Actualizar Perfil" en tu panel de control.</value>
+  </data>
+  <data name="Upload Disabled">
+    <value>Subida Deshabilitada</value>
+  </data>
+  <data name="You have already completed your resume analysis">
+    <value>Ya has completado el análisis de tu currículum</value>
+  </data>
+  <data name="Visit your dashboard to view your analysis results">
+    <value>Visita tu panel de control para ver los resultados de tu análisis</value>
+  </data>
+  <data name="File Analysis (Disabled)">
+    <value>Análisis de Archivo (Deshabilitado)</value>
+  </data>
+  <data name="Click to upload or drag and drop">
+    <value>Haz clic para subir o arrastra y suelta</value>
+  </data>
+  <data name="PDF files only (MAX. 10MB)">
+    <value>Solo archivos PDF (MÁX. 10MB)</value>
+  </data>
+  <data name="We'll analyze your resume and provide career insights">
+    <value>Analizaremos tu currículum y proporcionaremos perspectivas profesionales</value>
+  </data>
+  <data name="File Analysis">
+    <value>Análisis de Archivo</value>
+  </data>
+  <data name="Brief introduction about yourself">
+    <value>Breve introducción sobre ti mismo</value>
+  </data>
+  <data name="Tell us about your experience, skills, and career goals...">
+    <value>Cuéntanos sobre tu experiencia, habilidades y objetivos profesionales...</value>
+  </data>
+  <data name="This field is pre-filled from your latest profile analysis.">
+    <value>Este campo está pre-llenado desde tu último análisis de perfil.</value>
+  </data>
+  <data name="What are your future career goals?">
+    <value>¿Cuáles son tus objetivos profesionales futuros?</value>
+  </data>
+  <data name="e.g., Lead a team of developers and contribute to open-source projects">
+    <value>ej., Liderar un equipo de desarrolladores y contribuir a proyectos de código abierto</value>
+  </data>
+  <data name="What are you currently doing (studies, work, projects)?">
+    <value>¿Qué estás haciendo actualmente (estudios, trabajo, proyectos)?</value>
+  </data>
+  <data name="e.g., Working as a full-stack developer and mentoring junior engineers">
+    <value>ej., Trabajando como desarrollador full-stack y mentorizando ingenieros junior</value>
+  </data>
+  <data name="What are your main motivations?">
+    <value>¿Cuáles son tus principales motivaciones?</value>
+  </data>
+  <data name="e.g., Solving complex problems and learning new technologies">
+    <value>ej., Resolver problemas complejos y aprender nuevas tecnologías</value>
+  </data>
+  <data name="Description Analysis">
+    <value>Análisis de Descripción</value>
+  </data>
+</root>

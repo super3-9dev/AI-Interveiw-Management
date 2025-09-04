@@ -72,6 +72,51 @@
   <data name="Email is already registered.">
     <value>El correo electrónico ya está registrado.</value>
   </data>
+  <data name="Create an Account">
+    <value>Crear una Cuenta</value>
+  </data>
+  <data name="Start your journey with Intrevidor Guiado today.">
+    <value>Comienza tu viaje con Intrevidor Guiado hoy.</value>
+  </data>
+  <data name="What is your main objective?">
+    <value>¿Cuál es tu objetivo principal?</value>
+  </data>
+  <data name="Career Counseling">
+    <value>Orientación Profesional</value>
+  </data>
+  <data name="Get expert advice and guidance for your professional path.">
+    <value>Obtén consejos expertos y orientación para tu camino profesional.</value>
+  </data>
+  <data name="Purpose Discovery">
+    <value>Descubrimiento de Propósito</value>
+  </data>
+  <data name="Discover your true purpose and find meaning in your life.">
+    <value>Descubre tu verdadero propósito y encuentra significado en tu vida.</value>
+  </data>
+  <data name="Full Name">
+    <value>Nombre Completo</value>
+  </data>
+  <data name="Enter your full name">
+    <value>Ingresa tu nombre completo</value>
+  </data>
+  <data name="Enter your email">
+    <value>Ingresa tu correo electrónico</value>
+  </data>
+  <data name="Enter your password">
+    <value>Ingresa tu contraseña</value>
+  </data>
+  <data name="Already have an account?">
+    <value>¿Ya tienes una cuenta?</value>
+  </data>
+  <data name="Sign In">
+    <value>Iniciar Sesión</value>
+  </data>
+  <data name="Please select your main objective.">
+    <value>Por favor selecciona tu objetivo principal.</value>
+  </data>
+  <data name="Invalid objective selection.">
+    <value>Selección de objetivo inválida.</value>
+  </data>
   <data name="Passwords don't match.">
     <value>Las contraseñas no coinciden.</value>
   </data>

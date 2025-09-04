@@ -14,8 +14,8 @@
 <div class="update-profile-container">
     <div class="update-profile-card">
         <div class="card-header">
-            <h2 class="card-title">Account & Profile Management</h2>
-            <p class="card-subtitle">Manage your account information and profile details.</p>
+            <h2 class="card-title">@Localizer["Account & Profile Management"]</h2>
+            <p class="card-subtitle">@Localizer["Manage your account information and profile details."]</p>
         </div>
 
         <div class="card-body">
@@ -41,26 +41,26 @@
             <div class="form-section">
                 <h4 class="section-title">
                     <i class="bi bi-person-circle"></i>
-                    User Information
+                    @Localizer["User Information"]
                 </h4>
                 <form method="post" asp-page-handler="UpdateUserInfo" class="update-form">
                     <div class="form-row">
                         <div class="form-group" style="width: 48%;">
-                            <label asp-for="Email" class="form-label">Email</label>
-                            <input asp-for="Email" class="form-control" placeholder="Enter your email" />
+                            <label asp-for="Email" class="form-label">@Localizer["Email"]</label>
+                            <input asp-for="Email" class="form-control" placeholder="@Localizer["Enter your email"]" />
                             <span asp-validation-for="Email" class="text-danger"></span>
                         </div>
 
                         <div class="form-group" style="width: 48%;">
-                            <label asp-for="FullName" class="form-label">Full Name</label>
-                            <input asp-for="FullName" class="form-control" placeholder="Enter your full name" />
+                            <label asp-for="FullName" class="form-label">@Localizer["Full Name"]</label>
+                            <input asp-for="FullName" class="form-control" placeholder="@Localizer["Enter your full name"]" />
                             <span asp-validation-for="FullName" class="text-danger"></span>
                         </div>
                     </div>
                     <div class="form-actions">
                         <button type="submit" class="btn btn-primary">
                             <i class="bi bi-check-lg"></i>
-                            Update User Information
+                            @Localizer["Update User Information"]
                         </button>
                     </div>
                 </form>
@@ -70,15 +70,15 @@
             <div class="form-section">
                 <h4 class="section-title">
                     <i class="bi bi-shield-lock"></i>
-                    Password Information
+                    @Localizer["Password Information"]
                 </h4>
                 <form method="post" asp-page-handler="UpdatePassword" class="update-form">
                     <div class="form-row">
                         <div class="form-group" style="width: 48%;">
-                            <label asp-for="CurrentPassword" class="form-label">Current Password</label>
+                            <label asp-for="CurrentPassword" class="form-label">@Localizer["Current Password"]</label>
                             <input asp-for="CurrentPassword" type="password" class="form-control"
-                                placeholder="Enter current password" />
-                            <small class="form-text text-muted">Required to change password</small>
+                                placeholder="@Localizer["Enter current password"]" />
+                            <small class="form-text text-muted">@Localizer["Required to change password"]</small>
                             @if (!string.IsNullOrEmpty(ViewData["CurrentPasswordError"]?.ToString()))
                             {
                                 <div class="text-danger small">@ViewData["CurrentPasswordError"]</div>
@@ -86,10 +86,10 @@
                         </div>
 
                         <div class="form-group" style="width: 48%;">
-                            <label asp-for="NewPassword" class="form-label">New Password</label>
+                            <label asp-for="NewPassword" class="form-label">@Localizer["New Password"]</label>
                             <input asp-for="NewPassword" type="password" class="form-control"
-                                placeholder="Enter new password" />
-                            <small class="form-text text-muted">Leave blank to keep current password</small>
+                                placeholder="@Localizer["Enter new password"]" />
+                            <small class="form-text text-muted">@Localizer["Leave blank to keep current password"]</small>
                             @if (!string.IsNullOrEmpty(ViewData["NewPasswordError"]?.ToString()))
                             {
                                 <div class="text-danger small">@ViewData["NewPasswordError"]</div>
@@ -98,10 +98,10 @@
                     </div>
                     <div class="form-row">
                         <div class="form-group" style="width: 48%;">
-                            <label asp-for="ConfirmPassword" class="form-label">Confirm New Password</label>
+                            <label asp-for="ConfirmPassword" class="form-label">@Localizer["Confirm New Password"]</label>
                             <input asp-for="ConfirmPassword" type="password" class="form-control"
-                                placeholder="Confirm new password" />
-                            <small class="form-text text-muted">Must match new password</small>
+                                placeholder="@Localizer["Confirm new password"]" />
+                            <small class="form-text text-muted">@Localizer["Must match new password"]</small>
                             @if (!string.IsNullOrEmpty(ViewData["ConfirmPasswordError"]?.ToString()))
                             {
                                 <div class="text-danger small">@ViewData["ConfirmPasswordError"]</div>
@@ -111,7 +111,7 @@
                     <div class="form-actions">
                         <button type="submit" class="btn btn-primary">
                             <i class="bi bi-shield-check"></i>
-                            Update Password
+                            @Localizer["Update Password"]
                         </button>
                     </div>
                 </form>
@@ -121,39 +121,39 @@
             <div class="form-section">
                 <h4 class="section-title">
                     <i class="bi bi-file-person"></i>
-                    Profile Information
+                    @Localizer["Profile Information"]
                 </h4>
                 <form method="post" asp-page-handler="UpdateProfile" class="update-form">
                     <div class="form-row">
                         <div class="form-group" style="width: 48%;">
-                            <label asp-for="Strengths" class="form-label">Strengths</label>
+                            <label asp-for="Strengths" class="form-label">@Localizer["Strengths"]</label>
                             <textarea asp-for="Strengths" class="form-control" rows="3"
-                                placeholder="Describe your key strengths and skills"></textarea>
+                                placeholder="@Localizer["Describe your key strengths and skills"]"></textarea>
                         </div>
 
                         <div class="form-group" style="width: 48%;">
-                            <label asp-for="Weaknesses" class="form-label">Areas for Improvement</label>
+                            <label asp-for="Weaknesses" class="form-label">@Localizer["Areas for Improvement"]</label>
                             <textarea asp-for="Weaknesses" class="form-control" rows="3"
-                                placeholder="Describe areas you'd like to improve"></textarea>
+                                placeholder="@Localizer["Describe areas you'd like to improve"]"></textarea>
                         </div>
                     </div>
                     <div class="form-row">
                         <div class="form-group" style="width: 48%;">
-                            <label asp-for="CareerGoals" class="form-label">Career Goals</label>
+                            <label asp-for="CareerGoals" class="form-label">@Localizer["Career Goals"]</label>
                             <textarea asp-for="CareerGoals" class="form-control" rows="3"
-                                placeholder="Describe your career aspirations and goals"></textarea>
+                                placeholder="@Localizer["Describe your career aspirations and goals"]"></textarea>
                         </div>
 
                         <div class="form-group" style="width: 48%;">
-                            <label asp-for="Interests" class="form-label">Professional Interests</label>
+                            <label asp-for="Interests" class="form-label">@Localizer["Professional Interests"]</label>
                             <textarea asp-for="Interests" class="form-control" rows="3"
-                                placeholder="Describe your professional interests and passions"></textarea>
+                                placeholder="@Localizer["Describe your professional interests and passions"]"></textarea>
                         </div>
                     </div>
                     <div class="form-actions">
                         <button type="submit" class="btn btn-primary">
                             <i class="bi bi-person-check"></i>
-                            Update Profile Information
+                            @Localizer["Update Profile Information"]
                         </button>
                     </div>
                 </form>
@@ -164,7 +164,7 @@
                 <a href="/Dashboard@(!string.IsNullOrEmpty(currentCulture) ? $"?culture={currentCulture}" : "")"
                     class="btn btn-outline-secondary">
                     <i class="bi bi-arrow-left"></i>
-                    Back to Dashboard
+                    @Localizer["Back to Dashboard"]
                 </a>
             </div>
         </div>
