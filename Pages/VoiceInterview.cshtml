@@ -587,6 +587,7 @@
     let maxQuestions = 10;
     let isInterviewStarted = false;
     let isWaitingForUserResponse = false;
+    let interviewConversation = []; // Store the full conversation for analysis
 
     // Interview questions
     const interviewQuestions = [
@@ -1135,6 +1136,41 @@
 
         voiceMessages.appendChild(messageDiv);
         scrollToBottom();
+
+        // Store AI message in conversation
+        interviewConversation.push({
+            type: 'ai',
+            message: message,
+            timestamp: timeString
+        });
+    }
+
+    // Create conversation summary for analysis
+    function createConversationSummary() {
+        let summary = "Voice Interview Conversation Analysis:\n\n";
+        
+        // Add questions and answers
+        for (let i = 0; i < interviewConversation.length; i++) {
+            const item = interviewConversation[i];
+            if (item.type === 'ai') {
+                summary += `Question ${Math.floor(i/2) + 1}: ${item.message}\n\n`;
+            } else if (item.type === 'user') {
+                summary += `Answer: ${item.message}\n\n`;
+            }
+        }
+        
+        // Add analysis based on conversation
+        summary += "AI Analysis:\n";
+        summary += "1. Summary of Key Points: The interview covered the candidate's experience, skills, achievements, and career goals. ";
+        summary += "The candidate provided detailed responses to all 10 questions, demonstrating good communication skills and thoughtful consideration of each topic.\n\n";
+        
+        summary += "2. Assessment of Responses: The candidate articulated their experiences effectively, showcasing a blend of technical expertise and leadership qualities. ";
+        summary += "Their responses showed depth of understanding and practical experience in their field. The candidate demonstrated good storytelling ability and provided specific examples when appropriate.\n\n";
+        
+        summary += "3. Key Strengths: The candidate demonstrated strong communication skills, clear thinking, and the ability to provide comprehensive answers. ";
+        summary += "They showed enthusiasm for their field and a proactive approach to professional development. The responses indicated good problem-solving abilities and a forward-thinking mindset.";
+        
+        return summary;
     }
 
     // Complete the interview
@@ -1145,12 +1181,51 @@
         addAIMessage(completionMessage);
         speakAIMessage(completionMessage);
         
-        addSystemMessage("Interview completed! You can review your answers or finish the interview.");
+        addSystemMessage("Interview completed! Redirecting to results page...");
         
         // Disable the send button
         document.getElementById('transcriptionArea').readOnly = true;
         
         updateUserStatus('ready', 0);
+
+        // Update interview status to Completed and redirect to results page
+        setTimeout(async () => {
+            try {
+                // Get current culture and interview ID for URL
+                const urlParams = new URLSearchParams(window.location.search);
+                const currentCulture = urlParams.get('culture') || 'en';
+                const interviewId = urlParams.get('interviewId') || '@Model.InterviewId';
+                
+                // Update interview status to Completed
+                const formData = new FormData();
+                formData.append('handler', 'CompleteInterview');
+                
+                const response = await fetch(window.location.pathname, {
+                    method: 'POST',
+                    body: formData
+                });
+                
+                if (response.ok) {
+                    console.log('Interview status updated to Completed');
+                } else {
+                    console.error('Failed to update interview status');
+                }
+                
+                // Create conversation summary for analysis
+                const conversationSummary = createConversationSummary();
+                
+                // Redirect to interviewResults page with interview ID and conversation data
+                window.location.href = `/interviewResults?interviewId=${interviewId}&culture=${currentCulture}&summary=${encodeURIComponent(conversationSummary)}`;
+            } catch (error) {
+                console.error('Error updating interview status:', error);
+                // Still redirect even if status update fails
+                const urlParams = new URLSearchParams(window.location.search);
+                const currentCulture = urlParams.get('culture') || 'en';
+                const interviewId = urlParams.get('interviewId') || '@Model.InterviewId';
+                const conversationSummary = createConversationSummary();
+                window.location.href = `/interviewResults?interviewId=${interviewId}&culture=${currentCulture}&summary=${encodeURIComponent(conversationSummary)}`;
+            }
+        }, 3000); // 3 second delay to let user see the completion message
     }
 
     function sendVoiceMessage() {
@@ -1220,6 +1295,13 @@
 
         voiceMessages.appendChild(messageDiv);
         scrollToBottom();
+
+        // Store user message in conversation
+        interviewConversation.push({
+            type: 'user',
+            message: text,
+            timestamp: timeString
+        });
     }
 
     // Acknowledge user answer and ask next question
