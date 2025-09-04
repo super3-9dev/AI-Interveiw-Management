@@ -42,11 +42,11 @@
         <form method="post" enctype="multipart/form-data" class="analysis-form">
             <!-- Input Method Tabs -->
             <div class="input-tabs">
-                <button type="button" class="tab-button active" data-tab="upload">
+                <button type="button" class="tab-button @(Model.HasExistingProfile ? "disabled" : "active")" data-tab="upload">
                     <i class="bi bi-file-earmark-arrow-up"></i>
                     Upload Resume
                 </button>
-                <button type="button" class="tab-button" data-tab="describe">
+                <button type="button" class="tab-button @(Model.HasExistingProfile ? "active" : "")" data-tab="describe">
                     <i class="bi bi-pencil-square"></i>
                     Describe Yourself
                 </button>
@@ -55,41 +55,81 @@
             <!-- Tab Content -->
             <div class="tab-content">
                 <!-- Upload Resume Tab -->
-                <div class="tab-pane active" id="upload-tab">
-                    <div class="upload-area" id="uploadArea">
-                        <div class="upload-content">
-                            <i class="bi bi-file-earmark-pdf upload-icon"></i>
-                            <p class="upload-text">Click to upload or drag and drop</p>
-                            <p class="upload-subtext">PDF files only (MAX. 10MB)</p>
-                            <p class="upload-hint">We'll analyze your resume and provide career insights</p>
-                        </div>
-                        <input type="file" id="resumeFile" name="ResumeFile" accept=".pdf" class="file-input" />
-                    </div>
-
-                    <div id="filePreview" class="file-preview" style="display: none;">
-                        <div class="file-info">
-                            <i class="bi bi-file-earmark-pdf file-icon"></i>
-                            <div class="file-details">
-                                <span class="file-name" id="fileName"></span>
-                                <span class="file-size" id="fileSize"></span>
+                <div class="tab-pane @(Model.HasExistingProfile ? "" : "active")" id="upload-tab">
+                    @if (Model.HasExistingProfile)
+                    {
+                        <!-- Alert for existing profile -->
+                        <div class="alert alert-warning" role="alert">
+                            <div class="alert-content">
+                                <i class="bi bi-exclamation-triangle-fill alert-icon"></i>
+                                <div class="alert-text">
+                                    <h4 class="alert-title">Resume Already Uploaded</h4>
+                                    <p class="alert-message">
+                                        You have already uploaded a resume and completed the analysis. 
+                                        You can only upload one resume per account. 
+                                        If you need to update your profile information, please use the "Update Profile" feature in your dashboard.
+                                    </p>
+                                </div>
                             </div>
-                            <button type="button" class="remove-file-btn" onclick="removeFile()">
-                                <i class="bi bi-x-circle"></i>
+                        </div>
+
+                        <!-- Disabled upload area -->
+                        <div class="upload-area disabled" id="uploadArea">
+                            <div class="upload-content">
+                                <i class="bi bi-file-earmark-pdf upload-icon disabled"></i>
+                                <p class="upload-text disabled">Upload Disabled</p>
+                                <p class="upload-subtext disabled">You have already completed your resume analysis</p>
+                                <p class="upload-hint disabled">Visit your dashboard to view your analysis results</p>
+                            </div>
+                            <input type="file" id="resumeFile" name="ResumeFile" accept=".pdf" class="file-input" disabled />
+                        </div>
+
+                        <!-- Disabled submit button -->
+                        <div class="form-actions">
+                            <button type="button" class="start-analysis-btn disabled" id="submitBtn" disabled>
+                                <i class="bi bi-play-circle"></i>
+                                File Analysis (Disabled)
                             </button>
                         </div>
-                    </div>
+                    }
+                    else
+                    {
+                        <!-- Normal upload area -->
+                        <div class="upload-area" id="uploadArea">
+                            <div class="upload-content">
+                                <i class="bi bi-file-earmark-pdf upload-icon"></i>
+                                <p class="upload-text">Click to upload or drag and drop</p>
+                                <p class="upload-subtext">PDF files only (MAX. 10MB)</p>
+                                <p class="upload-hint">We'll analyze your resume and provide career insights</p>
+                            </div>
+                            <input type="file" id="resumeFile" name="ResumeFile" accept=".pdf" class="file-input" />
+                        </div>
 
-                    <!-- Submit Button -->
-                    <div class="form-actions">
-                        <button type="submit" class="start-analysis-btn" id="submitBtn" disabled>
-                            <i class="bi bi-play-circle"></i>
-                            File Analysis
-                        </button>
-                    </div>
+                        <div id="filePreview" class="file-preview" style="display: none;">
+                            <div class="file-info">
+                                <i class="bi bi-file-earmark-pdf file-icon"></i>
+                                <div class="file-details">
+                                    <span class="file-name" id="fileName"></span>
+                                    <span class="file-size" id="fileSize"></span>
+                                </div>
+                                <button type="button" class="remove-file-btn" onclick="removeFile()">
+                                    <i class="bi bi-x-circle"></i>
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Submit Button -->
+                        <div class="form-actions">
+                            <button type="submit" class="start-analysis-btn" id="submitBtn" disabled>
+                                <i class="bi bi-play-circle"></i>
+                                File Analysis
+                            </button>
+                        </div>
+                    }
                 </div>
 
                 <!-- Describe Yourself Tab -->
-                <div class="tab-pane" id="describe-tab">
+                <div class="tab-pane @(Model.HasExistingProfile ? "active" : "")" id="describe-tab">
                     <div class="form-fields">
                         <div class="form-group">
                             <label for="briefIntroduction" class="form-label">Brief introduction about yourself</label>
@@ -214,6 +254,17 @@
         background-color: white;
     }
 
+    .tab-button.disabled {
+        color: #9ca3af;
+        cursor: not-allowed;
+        opacity: 0.6;
+    }
+
+    .tab-button.disabled:hover {
+        color: #9ca3af;
+        background-color: transparent;
+    }
+
     /* Tab Content */
     .tab-content {
         margin-bottom: 2rem;
@@ -243,8 +294,27 @@
         background-color: #eff6ff;
     }
 
+    .upload-area.disabled {
+        border-color: #d1d5db;
+        background-color: #f3f4f6;
+        cursor: not-allowed;
+        opacity: 0.6;
+    }
+
+    .upload-area.disabled:hover {
+        border-color: #d1d5db;
+        background-color: #f3f4f6;
+    }
+
     .upload-content {
         pointer-events: none;
+    }
+
+    .upload-icon.disabled,
+    .upload-text.disabled,
+    .upload-subtext.disabled,
+    .upload-hint.disabled {
+        color: #9ca3af;
     }
 
     .upload-icon {
@@ -460,11 +530,55 @@
         box-shadow: 0 8px 25px rgba(59, 130, 246, 0.3);
     }
 
-    .start-analysis-btn:disabled {
+    .start-analysis-btn:disabled,
+    .start-analysis-btn.disabled {
         background-color: #9ca3af;
         cursor: not-allowed;
         transform: none;
         box-shadow: none;
+    }
+
+    /* Alert Styles */
+    .alert {
+        border-radius: 0.75rem;
+        padding: 1.5rem;
+        margin-bottom: 1.5rem;
+        border: 1px solid transparent;
+    }
+
+    .alert-warning {
+        background-color: #fef3c7;
+        border-color: #f59e0b;
+        color: #92400e;
+    }
+
+    .alert-content {
+        display: flex;
+        align-items: flex-start;
+        gap: 1rem;
+    }
+
+    .alert-icon {
+        font-size: 1.5rem;
+        color: #f59e0b;
+        margin-top: 0.125rem;
+    }
+
+    .alert-text {
+        flex: 1;
+    }
+
+    .alert-title {
+        font-size: 1.125rem;
+        font-weight: 600;
+        margin: 0 0 0.5rem 0;
+        color: #92400e;
+    }
+
+    .alert-message {
+        margin: 0;
+        line-height: 1.5;
+        color: #92400e;
     }
 
     /* Features Section */
@@ -594,6 +708,14 @@
         tabButtons.forEach(button => {
             button.addEventListener('click', function () {
                 const targetTab = this.getAttribute('data-tab');
+                
+                // Check if user has existing profile and is trying to switch to upload tab
+                const uploadArea = document.getElementById('uploadArea');
+                if (uploadArea && uploadArea.classList.contains('disabled') && targetTab === 'upload') {
+                    // Prevent switching to upload tab if it's disabled
+                    alert('You have already uploaded a resume and completed the analysis. You can only upload one resume per account.');
+                    return;
+                }
 
                 // Remove active class from all tabs and panes
                 tabButtons.forEach(btn => btn.classList.remove('active'));
@@ -607,6 +729,10 @@
 
         // Handle file upload area click
         uploadArea.addEventListener('click', function () {
+            // Check if upload area is disabled
+            if (uploadArea.classList.contains('disabled')) {
+                return;
+            }
             fileInput.click();
         });
 
@@ -629,18 +755,30 @@
 
         // Handle drag and drop
         uploadArea.addEventListener('dragover', function (e) {
+            // Check if upload area is disabled
+            if (uploadArea.classList.contains('disabled')) {
+                return;
+            }
             e.preventDefault();
             uploadArea.style.borderColor = '#3b82f6';
             uploadArea.style.backgroundColor = '#eff6ff';
         });
 
         uploadArea.addEventListener('dragleave', function (e) {
+            // Check if upload area is disabled
+            if (uploadArea.classList.contains('disabled')) {
+                return;
+            }
             e.preventDefault();
             uploadArea.style.borderColor = '#d1d5db';
             uploadArea.style.backgroundColor = '#f9fafb';
         });
 
         uploadArea.addEventListener('drop', function (e) {
+            // Check if upload area is disabled
+            if (uploadArea.classList.contains('disabled')) {
+                return;
+            }
             e.preventDefault();
             const files = e.dataTransfer.files;
             if (files.length > 0) {
@@ -651,6 +789,13 @@
 
         // Handle form submission
         document.querySelector('.analysis-form').addEventListener('submit', function (e) {
+            // Check if upload area is disabled
+            if (uploadArea.classList.contains('disabled')) {
+                e.preventDefault();
+                alert('You have already uploaded a resume and completed the analysis. You can only upload one resume per account.');
+                return;
+            }
+            
             if (!filePreview.style.display) { // Check if file is selected
                 e.preventDefault();
                 alert('Please upload a resume file to start the analysis.');

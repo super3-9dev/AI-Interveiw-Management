@@ -619,5 +619,22 @@ Format the response as JSON with these exact keys: briefIntroduction, possibleJo
                 return false;
             }
         }
+
+        public async Task<bool> HasCompletedProfileAsync(int userId)
+        {
+            try
+            {
+                var hasCompletedProfile = await _dbContext.Profiles
+                    .AnyAsync(p => p.UserId == userId && p.Status == "Completed");
+
+                _logger.LogInformation("User {UserId} has completed profile: {HasCompleted}", userId, hasCompletedProfile);
+                return hasCompletedProfile;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error checking if user {UserId} has completed profile", userId);
+                return false;
+            }
+        }
     }
 }

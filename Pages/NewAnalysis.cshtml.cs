@@ -31,6 +31,7 @@ namespace InterviewBot.Pages
 
         public string? ErrorMessage { get; set; }
         public string? SuccessMessage { get; set; }
+        public bool HasExistingProfile { get; set; } = false;
 
         private readonly IExternalAPIService _externalAPIService;
         private readonly IInterviewCatalogService _interviewCatalogService;
@@ -48,6 +49,9 @@ namespace InterviewBot.Pages
             var userId = GetCurrentUserId();
             if (userId != null)
             {
+                // Check if user already has a completed profile
+                HasExistingProfile = await _profileService.HasCompletedProfileAsync(userId.Value);
+
                 // Get user's latest profile to populate form fields
                 var userProfiles = await _profileService.GetUserProfilesAsync(userId.Value);
                 var latestProfile = userProfiles.FirstOrDefault();
@@ -76,6 +80,18 @@ namespace InterviewBot.Pages
                         return new JsonResult(new { success = false, message = "User not authenticated" });
                     }
                     ErrorMessage = "User not authenticated. Please log in again.";
+                    return Page();
+                }
+
+                // Check if user already has a completed profile
+                var hasExistingProfile = await _profileService.HasCompletedProfileAsync(userId.Value);
+                if (hasExistingProfile)
+                {
+                    if (Request.Headers["X-Requested-With"] == "XMLHttpRequest")
+                    {
+                        return new JsonResult(new { success = false, message = "You have already uploaded a resume and completed the analysis. You can only upload one resume per account." });
+                    }
+                    ErrorMessage = "You have already uploaded a resume and completed the analysis. You can only upload one resume per account.";
                     return Page();
                 }
 
