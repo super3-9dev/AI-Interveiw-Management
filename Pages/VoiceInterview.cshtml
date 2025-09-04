@@ -1224,76 +1224,20 @@
 
     // Acknowledge user answer and ask next question
     function acknowledgeAnswerAndAskNext(userAnswer) {
+        // Check if this was the last question
+        if (currentQuestionNumber >= maxQuestions || currentQuestionNumber >= interviewQuestions.length) {
+            // This was the last question, go directly to completion
+            completeInterview();
+            return;
+        }
+
         // Update status to processing
         updateUserStatus('processing', 0);
 
-        const voiceMessages = document.getElementById('voiceMessages');
-        const messageDiv = document.createElement('div');
-        messageDiv.className = 'voice-message ai-voice-message';
-
-        const now = new Date();
-        const timeString = now.toLocaleTimeString();
-
-        // Show immediate response with typing indicator
-        messageDiv.innerHTML = `
-            <div class="voice-avatar">
-                <i class="bi bi-robot"></i>
-            </div>
-            <div class="voice-content">
-                <div class="voice-header">
-                    <span class="voice-sender">AI</span>
-                    <span class="voice-time">${timeString}</span>
-                </div>
-                <div class="voice-text">
-                    <span class="typing-indicator">
-                        <span></span>
-                        <span></span>
-                        <span></span>
-                    </span>
-                </div>
-            </div>
-        `;
-
-        voiceMessages.appendChild(messageDiv);
-        scrollToBottom();
-
-        // Acknowledge the answer and ask next question
+        // Go directly to the next question without acknowledgment
         setTimeout(() => {
-            // Generate acknowledgment based on the answer
-            const acknowledgments = [
-                "That's a great answer! Thank you for sharing that.",
-                "Excellent! I appreciate your detailed response.",
-                "Very insightful! That shows good understanding.",
-                "Perfect! That's exactly what I was looking for.",
-                "Wonderful! Your experience really comes through.",
-                "Great perspective! Thank you for that example."
-            ];
-
-            const acknowledgment = acknowledgments[Math.floor(Math.random() * acknowledgments.length)];
-            
-            // Update the message with acknowledgment
-            messageDiv.innerHTML = `
-                <div class="voice-avatar">
-                    <i class="bi bi-robot"></i>
-                </div>
-                <div class="voice-content">
-                    <div class="voice-header">
-                        <span class="voice-sender">AI</span>
-                        <span class="voice-time">${timeString}</span>
-                    </div>
-                    <div class="voice-text">${acknowledgment}</div>
-                </div>
-            `;
-
-            // Speak the acknowledgment
-            speakAIMessage(acknowledgment);
-
-            // Ask the next question after a short delay
-            setTimeout(() => {
-                askNextQuestion();
-            }, 2000);
-
-        }, 1000 + Math.random() * 1000); // Random delay between 1-2 seconds
+            askNextQuestion();
+        }, 1000);
     }
 
     async function generateAIVoiceResponse(userMessage) {
