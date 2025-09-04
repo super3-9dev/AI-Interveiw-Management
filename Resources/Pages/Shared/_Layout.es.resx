@@ -42,20 +42,23 @@
   <data name="Home">
     <value>Inicio</value>
   </data>
-  <data name="Topics">
-    <value>Temas</value>
+  <data name="Dashboard">
+    <value>Panel</value>
   </data>
-  <data name="SubTopics">
-    <value>Subtemas</value>
+  <data name="New Analysis">
+    <value>Nuevo Análisis</value>
   </data>
-  <data name="Sessions">
-    <value>Sesiones</value>
+  <data name="Results">
+    <value>Resultados</value>
   </data>
-  <data name="Welcome">
-    <value>Bienvenido</value>
+  <data name="Custom Interview">
+    <value>Entrevista Personalizada</value>
   </data>
-  <data name="Language">
-    <value>Idioma</value>
+  <data name="Settings">
+    <value>Configuración</value>
+  </data>
+  <data name="Account">
+    <value>Cuenta</value>
   </data>
   <data name="Logout">
     <value>Cerrar Sesión</value>
@@ -66,4 +69,4 @@
   <data name="Register">
     <value>Registrarse</value>
   </data>
-</root> 
+</root>

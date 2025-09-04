@@ -42,20 +42,23 @@
   <data name="Home">
     <value>Home</value>
   </data>
-  <data name="Topics">
-    <value>Topics</value>
+  <data name="Dashboard">
+    <value>Dashboard</value>
   </data>
-  <data name="SubTopics">
-    <value>SubTopics</value>
+  <data name="New Analysis">
+    <value>New Analysis</value>
   </data>
-  <data name="Sessions">
-    <value>Sessions</value>
+  <data name="Results">
+    <value>Results</value>
   </data>
-  <data name="Welcome">
-    <value>Welcome</value>
+  <data name="Custom Interview">
+    <value>Custom Interview</value>
   </data>
-  <data name="Language">
-    <value>Language</value>
+  <data name="Settings">
+    <value>Settings</value>
+  </data>
+  <data name="Account">
+    <value>Account</value>
   </data>
   <data name="Logout">
     <value>Logout</value>
@@ -66,4 +69,4 @@
   <data name="Register">
     <value>Register</value>
   </data>
-</root> 
+</root>
