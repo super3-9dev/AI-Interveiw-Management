@@ -33,11 +33,11 @@ namespace InterviewBot.Data
             // Note: InterviewCatalog-InterviewResult relationship temporarily disabled
             // due to data type mismatch. Will be re-enabled after data cleanup.
 
-            // Configure InterviewSession-ChatMessage relationship
+            // Configure User-ChatMessage relationship
             modelBuilder.Entity<ChatMessage>()
-                .HasOne(m => m.Session)
-                .WithMany(s => s.Messages)
-                .HasForeignKey(m => m.SessionId)
+                .HasOne(m => m.User)
+                .WithMany()
+                .HasForeignKey(m => m.UserId)
                 .OnDelete(DeleteBehavior.Cascade);
 
             modelBuilder.Entity<User>(entity =>

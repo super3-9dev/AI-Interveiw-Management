@@ -8,12 +8,16 @@ namespace InterviewBot.Models
         public int Id { get; set; }
         
         [Required]
-        public int SessionId { get; set; }
+        public int UserId { get; set; }
         
-        [ForeignKey("SessionId")]
-        public InterviewSession Session { get; set; } = null!;
+        [ForeignKey("UserId")]
+        public User User { get; set; } = null!;
         
-        public bool IsUserMessage { get; set; }
+        [Required]
+        public string InterviewId { get; set; } = null!;
+        
+        [MaxLength(2000)]
+        public string? Question { get; set; }
         
         [Required]
         [MaxLength(2000)]

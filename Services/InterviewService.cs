@@ -486,7 +486,6 @@ namespace InterviewBot.Services
                 .Include(s => s.InterviewCatalog)
                 .Include(s => s.CustomInterview)
                 .Include(s => s.AIAgentRole)
-                .Include(s => s.Messages)
                 .FirstOrDefaultAsync(s => s.Id == sessionId && s.UserId == userId);
         }
 

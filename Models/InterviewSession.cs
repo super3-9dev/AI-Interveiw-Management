@@ -39,7 +39,6 @@ namespace InterviewBot.Models
         [MaxLength(2000)]
         public string? Summary { get; set; }
 
-        public List<ChatMessage> Messages { get; set; } = new();
 
         // Candidate information
         [MaxLength(100)]

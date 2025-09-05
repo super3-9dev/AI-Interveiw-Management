@@ -194,7 +194,6 @@ namespace InterviewBot.Services
         public async Task<InterviewResult> GenerateInterviewAnalysisAsync(int sessionId)
         {
             var session = await _context.InterviewSessions
-                .Include(s => s.Messages)
                 .Include(s => s.AIAgentRole)
                 .FirstOrDefaultAsync(s => s.Id == sessionId);
 
@@ -213,7 +212,7 @@ namespace InterviewBot.Services
 
 
 
-        private Task<InterviewResult> GenerateAIAnalysis(InterviewSession session)
+        private async Task<InterviewResult> GenerateAIAnalysis(InterviewSession session)
         {
             // This would integrate with OpenAI API to generate analysis
             // For now, creating a mock analysis
@@ -223,16 +222,17 @@ namespace InterviewBot.Services
                 Topic = "Mock Interview",
                 Question = "Mock interview question",
                 CompleteDate = DateTime.UtcNow,
-                Content = GenerateMockEvaluation(session)
+                Content = await GenerateMockEvaluation(session)
             };
 
-            return Task.FromResult(result);
+            return result;
         }
 
-        private int CalculateMockScore(InterviewSession session)
+        private async Task<int> CalculateMockScore(InterviewSession session)
         {
             // Mock scoring logic
-            var messageCount = session.Messages.Count;
+            var messageCount = await _context.ChatMessages
+                .CountAsync(m => m.InterviewId == session.Id.ToString());
             var duration = session.Duration?.TotalMinutes ?? 0;
 
             var baseScore = Math.Min(100, messageCount * 10);
@@ -241,9 +241,9 @@ namespace InterviewBot.Services
             return Math.Min(100, baseScore + timeBonus);
         }
 
-        private string GenerateMockEvaluation(InterviewSession session)
+        private async Task<string> GenerateMockEvaluation(InterviewSession session)
         {
-            var score = CalculateMockScore(session);
+            var score = await CalculateMockScore(session);
 
             if (score >= 90)
                 return "Excellent performance! You demonstrated strong communication skills and deep understanding of the topics discussed.";

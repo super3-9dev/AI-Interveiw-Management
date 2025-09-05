@@ -25,7 +25,7 @@
             <div class="interview-status">
                 <span class="status-badge status-active">@Localizer["In Progress"]</span>
                 <!-- Real-time User Status Graph -->
-                <div class="user-status-display">
+                <!-- <div class="user-status-display">
                     <div class="status-graph-container">
                         <canvas id="statusGraph" width="120" height="40"></canvas>
                     </div>
@@ -33,7 +33,7 @@
                         <span id="userStatus" class="status-text">@Localizer["Ready"]</span>
                         <div class="status-dot" id="statusDot"></div>
                     </div>
-                </div>
+                </div> -->
             </div>
         </div>
     </div>
@@ -51,7 +51,6 @@
             <div class="voice-control-panel">
                 <button class="voice-record-btn" id="recordButton" onclick="toggleRecording()">
                     <i class="bi bi-mic-fill"></i>
-                    <span class="record-text">@Localizer["Start Recording"]</span>
                 </button>
                 <div class="recording-indicator" id="recordingIndicator" style="display: none;">
                     <div class="pulse-dot"></div>
@@ -64,10 +63,7 @@
                     placeholder="@Localizer["Your voice will be transcribed here..."]" readonly></textarea>
                 <div class="transcription-actions">
                     <button class="btn btn-primary" id="sendVoiceBtn" onclick="sendVoiceMessage()">
-                        <i class="bi bi-send"></i> @Localizer["Send"]
-                    </button>
-                    <button class="btn btn-outline-secondary" onclick="clearTranscription()">
-                        <i class="bi bi-trash"></i> @Localizer["Clear"]
+                        <i class="bi bi-send"></i>
                     </button>
                 </div>
             </div>
@@ -414,8 +410,15 @@
 
     .voice-transcription {
         display: flex;
-        flex-direction: column;
+        flex-direction: row;
         gap: 1rem;
+        align-items: flex-end;
+    }
+
+    #sendVoiceBtn {
+        width: 50px;
+        height: 50px;
+        border-radius: 0 50% 50% 50%;
     }
 
     .transcription-textarea {
@@ -963,7 +966,7 @@
         if (!isVoiceActive) {
             isVoiceActive = true;
             document.getElementById('recordButton').classList.add('recording');
-            document.getElementById('recordButton').innerHTML = '<i class="bi bi-stop-fill"></i><span class="record-text">Stop</span>';
+            document.getElementById('recordButton').innerHTML = '<i class="bi bi-stop-fill"></i>';
             
             // Start the interview if not already started
             if (!isInterviewStarted) {
@@ -993,7 +996,7 @@
         } else {
             isVoiceActive = false;
             document.getElementById('recordButton').classList.remove('recording');
-            document.getElementById('recordButton').innerHTML = '<i class="bi bi-mic-fill"></i><span class="record-text">Start Recording</span>';
+            document.getElementById('recordButton').innerHTML = '<i class="bi bi-mic-fill"></i>';
             addSystemMessage("Voice interview paused.");
             
             // Stop microphone monitoring
