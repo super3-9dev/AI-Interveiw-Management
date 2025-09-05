@@ -49,8 +49,8 @@ namespace InterviewBot.Pages.Account
         [BindProperty(Name = "Weaknesses")]
         public string? Weaknesses { get; set; }
 
-        [BindProperty(Name = "CareerGoals")]
-        public string? CareerGoals { get; set; }
+        [BindProperty(Name = "FutureCareerGoals")]
+        public string? FutureCareerGoals { get; set; }
 
         [BindProperty(Name = "Interests")]
         public string? Interests { get; set; }
@@ -86,7 +86,7 @@ namespace InterviewBot.Pages.Account
                     {
                         Strengths = profile.Strengths;
                         Weaknesses = profile.Weaknesses;
-                        CareerGoals = profile.CareerGoals;
+                        FutureCareerGoals = profile.FutureCareerGoals;
                         Interests = profile.Interests;
                     }
                     else
@@ -94,7 +94,7 @@ namespace InterviewBot.Pages.Account
                         // Set null values if no profile exists
                         Strengths = null;
                         Weaknesses = null;
-                        CareerGoals = null;
+                        FutureCareerGoals = null;
                         Interests = null;
                     }
                 }
@@ -293,9 +293,9 @@ namespace InterviewBot.Pages.Account
                     return Page();
                 }
 
-                if (!string.IsNullOrWhiteSpace(CareerGoals) && CareerGoals.Length > 1000)
+                if (!string.IsNullOrWhiteSpace(FutureCareerGoals) && FutureCareerGoals.Length > 1000)
                 {
-                    ModelState.AddModelError("CareerGoals", "Career goals cannot exceed 1000 characters");
+                    ModelState.AddModelError("FutureCareerGoals", "Future career goals cannot exceed 1000 characters");
                     return Page();
                 }
 
@@ -321,7 +321,7 @@ namespace InterviewBot.Pages.Account
                     // Update existing profile
                     profile.Strengths = Strengths ?? string.Empty;
                     profile.Weaknesses = Weaknesses ?? string.Empty;
-                    profile.CareerGoals = CareerGoals ?? string.Empty;
+                    profile.FutureCareerGoals = FutureCareerGoals ?? string.Empty;
                     profile.Interests = Interests ?? string.Empty;
                     profile.UpdatedAt = DateTime.UtcNow;
 
@@ -340,7 +340,7 @@ namespace InterviewBot.Pages.Account
                         UserId = userId.Value,
                         Strengths = Strengths ?? string.Empty,
                         Weaknesses = Weaknesses ?? string.Empty,
-                        CareerGoals = CareerGoals ?? string.Empty,
+                        FutureCareerGoals = FutureCareerGoals ?? string.Empty,
                         Interests = Interests ?? string.Empty,
                         Status = "Active",
                         CreatedAt = DateTime.UtcNow,

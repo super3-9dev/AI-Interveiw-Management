@@ -528,7 +528,7 @@ Format the response as JSON with these exact keys: briefIntroduction, possibleJo
                 // Update the profile fields
                 existingProfile.Strengths = profile.Strengths;
                 existingProfile.Weaknesses = profile.Weaknesses;
-                existingProfile.CareerGoals = profile.CareerGoals;
+                existingProfile.FutureCareerGoals = profile.FutureCareerGoals;
                 existingProfile.Interests = profile.Interests;
                 existingProfile.UpdatedAt = DateTime.UtcNow;
 
@@ -635,6 +635,251 @@ Format the response as JSON with these exact keys: briefIntroduction, possibleJo
                 _logger.LogError(ex, "Error checking if user {UserId} has completed profile", userId);
                 return false;
             }
+        }
+
+        public async Task<(bool Success, string? ApiResponse, string? ErrorMessage)> CallResumeAnalysisAPIAsync(IFormFile file)
+        {
+            try
+            {
+                _logger.LogInformation("Calling resume analysis API for file: {FileName}", file.FileName);
+
+                using var httpClient = new HttpClient();
+                httpClient.Timeout = TimeSpan.FromMinutes(5); // Set longer timeout for file processing
+
+                using var formData = new MultipartFormDataContent();
+                
+                // Create file content with proper headers
+                using var fileStream = file.OpenReadStream();
+                using var streamContent = new StreamContent(fileStream);
+                streamContent.Headers.ContentType = new System.Net.Http.Headers.MediaTypeHeaderValue("application/pdf");
+                
+                // Add the file with the correct key name as shown in the API documentation
+                // The key should be "file" and the value should be the file content
+                formData.Add(streamContent, "file", file.FileName);
+                
+                _logger.LogInformation("Form data created with key: 'file' and filename: {FileName}", file.FileName);
+                _logger.LogInformation("Stream content headers: {Headers}", string.Join(", ", streamContent.Headers.Select(h => $"{h.Key}={string.Join(",", h.Value)}")));
+
+                _logger.LogInformation("Sending request to API endpoint: https://plataform.arandutechia.com/webhook/ai_pdf_summariser");
+                _logger.LogInformation("File size: {FileSize} bytes", file.Length);
+                _logger.LogInformation("File content type: {ContentType}", file.ContentType);
+                
+                // Log form data details
+                _logger.LogInformation("Form data count: {Count}", formData.Count());
+                foreach (var content in formData)
+                {
+                    _logger.LogInformation("Form data item headers: {Headers}", string.Join(", ", content.Headers.Select(h => $"{h.Key}={string.Join(",", h.Value)}")));
+                    if (content is StreamContent streamContentItem)
+                    {
+                        _logger.LogInformation("Stream content length: {Length}", streamContentItem.Headers.ContentLength);
+                    }
+                }
+                
+                var response = await httpClient.PostAsync("https://plataform.arandutechia.com/webhook/ai_pdf_summariser", formData);
+                var responseContent = await response.Content.ReadAsStringAsync();
+
+                _logger.LogInformation("Resume analysis API response status: {StatusCode}", response.StatusCode);
+                _logger.LogInformation("Resume analysis API response content length: {Length}", responseContent.Length);
+                _logger.LogInformation("Resume analysis API response content preview: {Content}", responseContent.Length > 200 ? responseContent.Substring(0, 200) + "..." : responseContent);
+                _logger.LogInformation("Resume analysis API response content: {Content}", responseContent);
+                
+                if (response.IsSuccessStatusCode)
+                {
+                    // Check if response is empty
+                    if (string.IsNullOrWhiteSpace(responseContent))
+                    {
+                        _logger.LogWarning("API returned empty response despite success status");
+                        return (false, null, "API returned empty response");
+                    }
+
+                    // Validate that the response is JSON
+                    if (responseContent.TrimStart().StartsWith("<!DOCTYPE") || responseContent.TrimStart().StartsWith("<html"))
+                    {
+                        _logger.LogError("API returned HTML instead of JSON. Content: {Content}", responseContent);
+                        return (false, null, "API returned HTML instead of JSON. This might be an error page.");
+                    }
+
+                    // Validate that the response is valid JSON
+                    try
+                    {
+                        using var testDoc = JsonDocument.Parse(responseContent);
+                        _logger.LogInformation("API returned valid JSON response");
+                        return (true, responseContent, null);
+                    }
+                    catch (JsonException ex)
+                    {
+                        _logger.LogError("API returned invalid JSON. Content: {Content}, Error: {Error}", responseContent, ex.Message);
+                        return (false, null, $"API returned invalid JSON: {ex.Message}");
+                    }
+                }
+                else
+                {
+                    _logger.LogError("Resume analysis API failed with status: {StatusCode}, content: {Content}", response.StatusCode, responseContent);
+                    return (false, null, $"API call failed with status {response.StatusCode}: {responseContent}");
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error calling resume analysis API");
+                return (false, null, ex.Message);
+            }
+        }
+
+        public async Task<Profile> CreateProfileFromApiResponseAsync(string apiResponse, int userId, bool isFallback = false)
+        {
+            try
+            {
+                _logger.LogInformation("Creating profile from API response for user {UserId}, isFallback: {IsFallback}", userId, isFallback);
+
+                var profile = new Profile
+                {
+                    UserId = userId,
+                    Status = "Completed",
+                    Progress = 100,
+                    CreatedAt = DateTime.UtcNow,
+                    UpdatedAt = DateTime.UtcNow,
+                    // Note: ExternalAPIResponse field has been removed
+                };
+
+                // Validate and parse the JSON response
+                if (string.IsNullOrWhiteSpace(apiResponse))
+                {
+                    _logger.LogError("API response is empty or null for user {UserId}", userId);
+                    throw new ArgumentException("API response cannot be empty or null", nameof(apiResponse));
+                }
+
+                using var jsonDocument = JsonDocument.Parse(apiResponse);
+                var root = jsonDocument.RootElement;
+
+                // Map API response fields to profile properties
+                if (root.TryGetProperty("possibleJobs", out var possibleJobs))
+                    profile.PossibleJobs = possibleJobs.GetString() ?? string.Empty;
+
+                if (root.TryGetProperty("mbaSubjectsToReinforce", out var mbaSubjects))
+                    profile.MbaSubjectsToReinforce = mbaSubjects.GetString() ?? string.Empty;
+
+                if (root.TryGetProperty("briefIntroduction", out var briefIntro))
+                    profile.BriefIntroduction = briefIntro.GetString() ?? string.Empty;
+
+                if (root.TryGetProperty("currentActivities", out var currentActivities))
+                    profile.CurrentActivities = currentActivities.GetString() ?? string.Empty;
+
+                if (root.TryGetProperty("motivations", out var motivations))
+                    profile.Motivations = motivations.GetString() ?? string.Empty;
+
+                if (root.TryGetProperty("futureCareerGoals", out var careerGoals))
+                    profile.FutureCareerGoals = careerGoals.GetString() ?? string.Empty;
+
+                if (root.TryGetProperty("strengths", out var strengths))
+                    profile.Strengths = strengths.GetString() ?? string.Empty;
+
+                if (root.TryGetProperty("weaknesses", out var weaknesses))
+                    profile.Weaknesses = weaknesses.GetString() ?? string.Empty;
+
+                if (root.TryGetProperty("potentialCareerPaths", out var careerPaths))
+                    profile.Interests = careerPaths.GetString() ?? string.Empty;
+
+                // Note: TopicsMarkdown field has been removed
+
+                _dbContext.Profiles.Add(profile);
+                await _dbContext.SaveChangesAsync();
+
+                _logger.LogInformation("Profile {ProfileId} created successfully from API response for user {UserId}", profile.Id, userId);
+                return profile;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error creating profile from API response for user {UserId}", userId);
+                throw;
+            }
+        }
+
+        private string GenerateTopicsMarkdown(Profile profile)
+        {
+            var markdown = new System.Text.StringBuilder();
+            
+            markdown.AppendLine("# Profile Analysis");
+            markdown.AppendLine();
+
+            if (!string.IsNullOrEmpty(profile.BriefIntroduction))
+            {
+                markdown.AppendLine("## Brief Introduction");
+                markdown.AppendLine(profile.BriefIntroduction);
+                markdown.AppendLine();
+            }
+
+            if (!string.IsNullOrEmpty(profile.CurrentActivities))
+            {
+                markdown.AppendLine("## Current Activities");
+                markdown.AppendLine(profile.CurrentActivities);
+                markdown.AppendLine();
+            }
+
+            if (!string.IsNullOrEmpty(profile.PossibleJobs))
+            {
+                markdown.AppendLine("## Potential Job Opportunities");
+                markdown.AppendLine(profile.PossibleJobs);
+                markdown.AppendLine();
+            }
+
+            if (!string.IsNullOrEmpty(profile.Strengths))
+            {
+                markdown.AppendLine("## Strengths");
+                markdown.AppendLine(profile.Strengths);
+                markdown.AppendLine();
+            }
+
+            if (!string.IsNullOrEmpty(profile.Weaknesses))
+            {
+                markdown.AppendLine("## Areas for Improvement");
+                markdown.AppendLine(profile.Weaknesses);
+                markdown.AppendLine();
+            }
+
+            if (!string.IsNullOrEmpty(profile.MbaSubjectsToReinforce))
+            {
+                markdown.AppendLine("## MBA Subjects to Reinforce");
+                markdown.AppendLine(profile.MbaSubjectsToReinforce);
+                markdown.AppendLine();
+            }
+
+            if (!string.IsNullOrEmpty(profile.Motivations))
+            {
+                markdown.AppendLine("## Motivations");
+                markdown.AppendLine(profile.Motivations);
+                markdown.AppendLine();
+            }
+
+            if (!string.IsNullOrEmpty(profile.FutureCareerGoals))
+            {
+                markdown.AppendLine("## Future Career Goals");
+                markdown.AppendLine(profile.FutureCareerGoals);
+                markdown.AppendLine();
+            }
+
+            if (!string.IsNullOrEmpty(profile.Interests))
+            {
+                markdown.AppendLine("## Potential Career Paths");
+                markdown.AppendLine(profile.Interests);
+                markdown.AppendLine();
+            }
+
+            return markdown.ToString();
+        }
+
+        private string GetFallbackApiResponse()
+        {
+            return @"{
+                ""possibleJobs"": ""Potential job opportunities for Emrah include positions as a Senior Shopify Developer, eCommerce Consultant, or Front-End Developer, possibly within larger organizations or agencies that focus on delivering comprehensive eCommerce solutions."",
+                ""mbaSubjectsToReinforce"": ""To further enhance his career, Emrah could benefit from reinforcing subjects related to Digital Marketing, Project Management, and Business Analytics during an MBA program. Understanding these areas in-depth would provide him with a broader business perspective and enhance his ability to strategize and execute eCommerce initiatives effectively."",
+                ""briefIntroduction"": ""Emrah Gunel is a seasoned Shopify Developer with a focus on theme customization, development, app integrations, and eCommerce business creation. With over 7 years of hands-on experience in Shopify and eCommerce development, Emrah possesses a comprehensive skill set that allows him to effectively leverage modern web design trends and standards to build high-performing online stores."",
+                ""currentActivities"": ""Currently, Emrah is employed as a Shopify Developer at Mark Anthony Group, where he is responsible for setting up Shopify stores, theme configurations, custom functionalities, and much more. His previous roles include positions at Royal Retailer, Anheuser-Busch, Carian's Bistro Chocolates, and Design Furniture, where he honed his skills in various aspects of both front-end development and eCommerce management."",
+                ""motivations"": ""Emrah is motivated by a desire to create intuitive digital experiences that drive customer engagement and revenue growth for online businesses. He is passionate about keeping up with the latest trends in web design and eCommerce, which is showcased through his continuous learning and application of advanced technologies in his work."",
+                ""futureCareerGoals"": """",
+                ""strengths"": ""Emrah's strengths lie in his extensive experience with Shopify Liquid, custom theme development, site optimization, and strong understanding of front-end technologies including HTML, CSS, and JavaScript. His hands-on experience with various eCommerce platforms, debugging skills, and knowledge of integrations further enhance his capability to deliver high-quality solutions."",
+                ""weaknesses"": ""One potential weakness could be his specific focus on Shopify, which may limit his exposure to other eCommerce platforms or technologies that could broaden his expertise. Additionally, while Emrah has experience with a variety of programming languages and tools, his primary proficiency may lead to less experience with certain niche tools that could be beneficial in specific projects."",
+                ""potentialCareerPaths"": ""Emrah's career could progress towards roles such as eCommerce Manager or Technical Project Manager, where he can leverage his deep understanding of development and customer relationship dynamics. He may also transition into a consulting role, helping businesses optimize their Shopify and eCommerce strategies.""
+            }";
         }
     }
 }

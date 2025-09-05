@@ -114,4 +114,7 @@
   <data name="Description Analysis">
     <value>Análisis de Descripción</value>
   </data>
+  <data name="API Response">
+    <value>Respuesta de la API</value>
+  </data>
 </root>

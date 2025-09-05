@@ -24,5 +24,7 @@ namespace InterviewBot.Services
         Task<User?> GetUserAsync(int userId);
         Task<bool> UpdateUserAsync(User user, string? newPassword = null);
         Task<bool> HasCompletedProfileAsync(int userId);
+        Task<(bool Success, string? ApiResponse, string? ErrorMessage)> CallResumeAnalysisAPIAsync(IFormFile file);
+        Task<Profile> CreateProfileFromApiResponseAsync(string apiResponse, int userId, bool isFallback = false);
     }
 }

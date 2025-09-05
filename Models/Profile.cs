@@ -37,7 +37,7 @@ namespace InterviewBot.Models
         public string? Weaknesses { get; set; }
 
         [StringLength(1000)]
-        public string? CareerGoals { get; set; }
+        public string? FutureCareerGoals { get; set; }
 
         [StringLength(1000)]
         public string? Motivations { get; set; }

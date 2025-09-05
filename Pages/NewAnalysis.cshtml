@@ -137,10 +137,10 @@
                         </div>
 
                         <div class="form-group">
-                            <label for="careerGoals" class="form-label">@Localizer["What are your future career goals?"]</label>
-                            <input type="text" id="careerGoals" name="CareerGoals" class="form-control"
+                            <label for="futureCareerGoals" class="form-label">@Localizer["What are your future career goals?"]</label>
+                            <input type="text" id="futureCareerGoals" name="FutureCareerGoals" class="form-control"
                                 placeholder="@Localizer["e.g., Lead a team of developers and contribute to open-source projects"]"
-                                value="@Model.CareerGoals">
+                                value="@Model.FutureCareerGoals">
                         </div>
 
                         <div class="form-group">
@@ -169,7 +169,19 @@
                 </div>
             </div>
 
-
+            <!-- API Result Display Section -->
+            @if (!string.IsNullOrEmpty(Model.ApiResult))
+            {
+                <div class="api-result-section">
+                    <h3 class="api-result-title">
+                        <i class="bi bi-code-slash"></i>
+                        @Localizer["API Response"]
+                    </h3>
+                    <div class="api-result-content">
+                        <pre class="api-result-json">@Model.ApiResult</pre>
+                    </div>
+                </div>
+            }
         </form>
     </div>
 </div>
@@ -685,6 +697,45 @@
             min-width: 180px;
         }
     }
+
+    /* API Result Section */
+    .api-result-section {
+        margin-top: 2rem;
+        background-color: white;
+        border-radius: 1rem;
+        padding: 2rem;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+        border: 1px solid #e5e7eb;
+    }
+
+    .api-result-title {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        margin-bottom: 1rem;
+        color: #374151;
+        font-size: 1.25rem;
+        font-weight: 600;
+    }
+
+    .api-result-content {
+        background-color: #f8fafc;
+        border-radius: 0.5rem;
+        padding: 1rem;
+        border: 1px solid #e2e8f0;
+    }
+
+    .api-result-json {
+        margin: 0;
+        font-family: 'Courier New', monospace;
+        font-size: 0.875rem;
+        line-height: 1.5;
+        color: #1e293b;
+        white-space: pre-wrap;
+        word-wrap: break-word;
+        max-height: 400px;
+        overflow-y: auto;
+    }
 </style>
 
 <script>
@@ -802,7 +853,7 @@
             descriptionAnalysisBtn.addEventListener('click', async function () {
                 // Get form data
                 const briefIntroduction = document.getElementById('briefIntroduction').value;
-                const careerGoals = document.getElementById('careerGoals').value;
+                const futureCareerGoals = document.getElementById('futureCareerGoals').value;
                 const currentActivity = document.getElementById('currentActivity').value;
                 const motivations = document.getElementById('motivations').value;
 
@@ -812,8 +863,8 @@
                     return;
                 }
 
-                if (!careerGoals || !motivations) {
-                    alert('Please fill in your Career Goals and Motivations.');
+                if (!futureCareerGoals || !motivations) {
+                    alert('Please fill in your Future Career Goals and Motivations.');
                     return;
                 }
 
@@ -826,7 +877,7 @@
                     // Prepare form data
                     const formData = new FormData();
                     formData.append('BriefIntroduction', briefIntroduction);
-                    formData.append('CareerGoals', careerGoals);
+                    formData.append('FutureCareerGoals', futureCareerGoals);
                     formData.append('CurrentActivity', currentActivity);
                     formData.append('Motivations', motivations);
 

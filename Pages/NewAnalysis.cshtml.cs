@@ -6,6 +6,7 @@ using InterviewBot.Services;
 using InterviewBot.Models;
 using System.ComponentModel.DataAnnotations;
 using System.Security.Claims;
+using Microsoft.Extensions.Logging;
 
 namespace InterviewBot.Pages
 {
@@ -21,7 +22,7 @@ namespace InterviewBot.Pages
         public string? BriefIntroduction { get; set; }
 
         [BindProperty]
-        public string? CareerGoals { get; set; }
+        public string? FutureCareerGoals { get; set; }
 
         [BindProperty]
         public string? CurrentActivity { get; set; }
@@ -32,15 +33,18 @@ namespace InterviewBot.Pages
         public string? ErrorMessage { get; set; }
         public string? SuccessMessage { get; set; }
         public bool HasExistingProfile { get; set; } = false;
+        public string? ApiResult { get; set; }
 
         private readonly IExternalAPIService _externalAPIService;
         private readonly IInterviewCatalogService _interviewCatalogService;
+        private readonly ILogger<NewAnalysisModel> _logger;
 
-        public NewAnalysisModel(IProfileService profileService, IExternalAPIService externalAPIService, IInterviewCatalogService interviewCatalogService)
+        public NewAnalysisModel(IProfileService profileService, IExternalAPIService externalAPIService, IInterviewCatalogService interviewCatalogService, ILogger<NewAnalysisModel> logger)
         {
             _profileService = profileService;
             _externalAPIService = externalAPIService;
             _interviewCatalogService = interviewCatalogService;
+            _logger = logger;
         }
 
         public async Task OnGetAsync()
@@ -60,7 +64,7 @@ namespace InterviewBot.Pages
                 {
                     // Populate form fields with data from the latest profile
                     BriefIntroduction = latestProfile.BriefIntroduction;
-                    CareerGoals = latestProfile.CareerGoals;
+                    FutureCareerGoals = latestProfile.FutureCareerGoals;
                     CurrentActivity = latestProfile.CurrentActivities;
                     Motivations = latestProfile.Motivations;
                 }
@@ -126,19 +130,52 @@ namespace InterviewBot.Pages
                     // Upload and analyze resume
                     try
                     {
-                        var profile = await _profileService.UploadAndAnalyzeResumeAsync(ResumeFile, userId.Value);
+                        // Call the resume analysis API directly
+                        var (apiSuccess, apiResponse, apiError) = await _profileService.CallResumeAnalysisAPIAsync(ResumeFile);
+                        
+                        Profile profile;
+                        string responseToStore;
+                        bool isFallback = false;
+
+                        if (apiSuccess && !string.IsNullOrWhiteSpace(apiResponse))
+                        {
+                            // API call successful and returned valid content - use the real response
+                            responseToStore = apiResponse!;
+                            profile = await _profileService.CreateProfileFromApiResponseAsync(apiResponse!, userId.Value, false);
+                            
+                            // Store the API response in TempData to display it
+                            TempData["ApiResult"] = apiResponse;
+                        }
+                        else
+                        {
+                            // API call failed or returned empty content - use fallback data
+                            var reason = apiSuccess ? "API returned empty response" : $"API call failed: {apiError}";
+                            _logger.LogWarning("{Reason}. Using fallback data for user {UserId}", reason, userId.Value);
+                            var fallbackResponse = GetFallbackApiResponse();
+                            responseToStore = fallbackResponse;
+                            profile = await _profileService.CreateProfileFromApiResponseAsync(fallbackResponse, userId.Value, true);
+                            isFallback = true;
+                            
+                            // Store the fallback response in TempData to display it
+                            TempData["ApiResult"] = fallbackResponse;
+                        }
 
                         if (Request.Headers["X-Requested-With"] == "XMLHttpRequest")
                         {
                             return new JsonResult(new
                             {
                                 success = true,
-                                message = $"Resume '{ResumeFile.FileName}' analyzed successfully!",
-                                redirectUrl = $"/ResumeAnalysisResults/{profile.Id}"
+                                message = isFallback 
+                                    ? $"Resume '{ResumeFile.FileName}' processed using fallback data due to API issues." 
+                                    : $"Resume '{ResumeFile.FileName}' analyzed successfully!",
+                                apiResponse = responseToStore,
+                                isFallback = isFallback
                             });
                         }
 
-                        SuccessMessage = $"Resume '{ResumeFile.FileName}' uploaded successfully! AI analysis is in progress.";
+                        SuccessMessage = isFallback 
+                            ? $"Resume '{ResumeFile.FileName}' processed using fallback data due to API issues. The analysis has been completed with sample data." 
+                            : $"Resume '{ResumeFile.FileName}' analyzed successfully!";
 
                         // Redirect to a results page or dashboard
                         return RedirectToPage("/ResumeAnalysisResults", new { id = profile.Id });
@@ -172,7 +209,7 @@ namespace InterviewBot.Pages
                     {
                         var profile = await _profileService.CreateProfileFromDescriptionAsync(
                             BriefIntroduction ?? "",
-                            CareerGoals ?? "",
+                            FutureCareerGoals ?? "",
                             CurrentActivity ?? "",
                             Motivations ?? "",
                             userId.Value);
@@ -233,7 +270,7 @@ namespace InterviewBot.Pages
                     return new JsonResult(new { success = false, message = "Brief Introduction and Current Activities are required" });
                 }
 
-                if (string.IsNullOrWhiteSpace(CareerGoals) || string.IsNullOrWhiteSpace(Motivations))
+                if (string.IsNullOrWhiteSpace(FutureCareerGoals) || string.IsNullOrWhiteSpace(Motivations))
                 {
                     return new JsonResult(new { success = false, message = "Please fill in your Career Goals and Motivations" });
                 }
@@ -242,7 +279,7 @@ namespace InterviewBot.Pages
                 var interviewCatalogRequest = new
                 {
                     briefIntroduction = BriefIntroduction,
-                    futureCareerGoals = CareerGoals,
+                    futureCareerGoals = FutureCareerGoals,
                     currentActivities = CurrentActivity,
                     motivations = Motivations
                 };
@@ -289,6 +326,21 @@ namespace InterviewBot.Pages
                 return userId;
             }
             return null;
+        }
+
+        private string GetFallbackApiResponse()
+        {
+            return @"{
+                ""possibleJobs"": ""Potential job opportunities for Emrah include positions as a Senior Shopify Developer, eCommerce Consultant, or Front-End Developer, possibly within larger organizations or agencies that focus on delivering comprehensive eCommerce solutions."",
+                ""mbaSubjectsToReinforce"": ""To further enhance his career, Emrah could benefit from reinforcing subjects related to Digital Marketing, Project Management, and Business Analytics during an MBA program. Understanding these areas in-depth would provide him with a broader business perspective and enhance his ability to strategize and execute eCommerce initiatives effectively."",
+                ""briefIntroduction"": ""Emrah Gunel is a seasoned Shopify Developer with a focus on theme customization, development, app integrations, and eCommerce business creation. With over 7 years of hands-on experience in Shopify and eCommerce development, Emrah possesses a comprehensive skill set that allows him to effectively leverage modern web design trends and standards to build high-performing online stores."",
+                ""currentActivities"": ""Currently, Emrah is employed as a Shopify Developer at Mark Anthony Group, where he is responsible for setting up Shopify stores, theme configurations, custom functionalities, and much more. His previous roles include positions at Royal Retailer, Anheuser-Busch, Carian's Bistro Chocolates, and Design Furniture, where he honed his skills in various aspects of both front-end development and eCommerce management."",
+                ""motivations"": ""Emrah is motivated by a desire to create intuitive digital experiences that drive customer engagement and revenue growth for online businesses. He is passionate about keeping up with the latest trends in web design and eCommerce, which is showcased through his continuous learning and application of advanced technologies in his work."",
+                ""futureCareerGoals"": """",
+                ""strengths"": ""Emrah's strengths lie in his extensive experience with Shopify Liquid, custom theme development, site optimization, and strong understanding of front-end technologies including HTML, CSS, and JavaScript. His hands-on experience with various eCommerce platforms, debugging skills, and knowledge of integrations further enhance his capability to deliver high-quality solutions."",
+                ""weaknesses"": ""One potential weakness could be his specific focus on Shopify, which may limit his exposure to other eCommerce platforms or technologies that could broaden his expertise. Additionally, while Emrah has experience with a variety of programming languages and tools, his primary proficiency may lead to less experience with certain niche tools that could be beneficial in specific projects."",
+                ""potentialCareerPaths"": ""Emrah's career could progress towards roles such as eCommerce Manager or Technical Project Manager, where he can leverage his deep understanding of development and customer relationship dynamics. He may also transition into a consulting role, helping businesses optimize their Shopify and eCommerce strategies.""
+            }";
         }
     }
 }
