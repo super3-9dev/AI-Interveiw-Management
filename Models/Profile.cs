@@ -45,6 +45,9 @@ namespace InterviewBot.Models
         [StringLength(1000)]
         public string? Interests { get; set; }
 
+        [StringLength(1000)]
+        public string? PotentialCareerPaths { get; set; }
+
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
         public DateTime? UpdatedAt { get; set; }
     }

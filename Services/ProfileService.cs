@@ -768,7 +768,7 @@ Format the response as JSON with these exact keys: briefIntroduction, possibleJo
                         profile.Weaknesses = weaknesses.GetString() ?? string.Empty;
 
                     if (result.TryGetProperty("potentialCareerPaths", out var careerPaths))
-                        profile.Interests = careerPaths.GetString() ?? string.Empty;
+                        profile.PotentialCareerPaths = careerPaths.GetString() ?? string.Empty;
                 }
                 else
                 {
@@ -913,7 +913,7 @@ Format the response as JSON with these exact keys: briefIntroduction, possibleJo
                         existingProfile.Weaknesses = weaknesses.GetString() ?? string.Empty;
 
                     if (result.TryGetProperty("potentialCareerPaths", out var careerPaths))
-                        existingProfile.Interests = careerPaths.GetString() ?? string.Empty;
+                        existingProfile.PotentialCareerPaths = careerPaths.GetString() ?? string.Empty;
                 }
                 else
                 {
