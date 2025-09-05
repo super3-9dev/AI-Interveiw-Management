@@ -130,7 +130,6 @@ namespace InterviewBot.Pages
                     {
                         // Call the resume analysis API directly
                         var (apiSuccess, apiResponse, apiError) = await _profileService.CallResumeAnalysisAPIAsync(ResumeFile);
-                        
                         Profile profile;
                         string responseToStore;
                         bool isFallback = false;

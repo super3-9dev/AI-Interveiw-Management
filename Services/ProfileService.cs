@@ -643,84 +643,72 @@ Format the response as JSON with these exact keys: briefIntroduction, possibleJo
             {
                 _logger.LogInformation("Calling resume analysis API for file: {FileName}", file.FileName);
 
-                using var httpClient = new HttpClient();
-                httpClient.Timeout = TimeSpan.FromMinutes(5); // Set longer timeout for file processing
-
-                using var formData = new MultipartFormDataContent();
-                
-                // Create file content with proper headers
-                using var fileStream = file.OpenReadStream();
-                using var streamContent = new StreamContent(fileStream);
-                streamContent.Headers.ContentType = new System.Net.Http.Headers.MediaTypeHeaderValue("application/pdf");
-                
-                // Add the file with the correct key name as shown in the API documentation
-                // The key should be "file" and the value should be the file content
-                formData.Add(streamContent, "file", file.FileName);
-                
-                _logger.LogInformation("Form data created with key: 'file' and filename: {FileName}", file.FileName);
-                _logger.LogInformation("Stream content headers: {Headers}", string.Join(", ", streamContent.Headers.Select(h => $"{h.Key}={string.Join(",", h.Value)}")));
-
-                _logger.LogInformation("Sending request to API endpoint: https://plataform.arandutechia.com/webhook/ai_pdf_summariser");
-                _logger.LogInformation("File size: {FileSize} bytes", file.Length);
-                _logger.LogInformation("File content type: {ContentType}", file.ContentType);
-                
-                // Log form data details
-                _logger.LogInformation("Form data count: {Count}", formData.Count());
-                foreach (var content in formData)
+                // Leer todo a memoria para forzar Content-Length y evitar chunked
+                byte[] bytes;
+                await using (var ms = new MemoryStream())
                 {
-                    _logger.LogInformation("Form data item headers: {Headers}", string.Join(", ", content.Headers.Select(h => $"{h.Key}={string.Join(",", h.Value)}")));
-                    if (content is StreamContent streamContentItem)
-                    {
-                        _logger.LogInformation("Stream content length: {Length}", streamContentItem.Headers.ContentLength);
-                    }
+                    await file.CopyToAsync(ms);
+                    bytes = ms.ToArray();
                 }
-                
-                var response = await httpClient.PostAsync("https://plataform.arandutechia.com/webhook/ai_pdf_summariser", formData);
-                var responseContent = await response.Content.ReadAsStringAsync();
 
-                _logger.LogInformation("Resume analysis API response status: {StatusCode}", response.StatusCode);
-                _logger.LogInformation("Resume analysis API response content length: {Length}", responseContent.Length);
-                _logger.LogInformation("Resume analysis API response content preview: {Content}", responseContent.Length > 200 ? responseContent.Substring(0, 200) + "..." : responseContent);
-                _logger.LogInformation("Resume analysis API response content: {Content}", responseContent);
-                
-                if (response.IsSuccessStatusCode)
+                if (bytes.Length == 0)
+                    return (false, null, "El archivo está vacío.");
+
+                using var handler = new HttpClientHandler
                 {
-                    // Check if response is empty
-                    if (string.IsNullOrWhiteSpace(responseContent))
-                    {
-                        _logger.LogWarning("API returned empty response despite success status");
-                        return (false, null, "API returned empty response");
-                    }
+                    AllowAutoRedirect = false // Evitar perder el body en redirecciones
+                };
 
-                    // Validate that the response is JSON
-                    if (responseContent.TrimStart().StartsWith("<!DOCTYPE") || responseContent.TrimStart().StartsWith("<html"))
-                    {
-                        _logger.LogError("API returned HTML instead of JSON. Content: {Content}", responseContent);
-                        return (false, null, "API returned HTML instead of JSON. This might be an error page.");
-                    }
-
-                    // Validate that the response is valid JSON
-                    try
-                    {
-                        using var testDoc = JsonDocument.Parse(responseContent);
-                        _logger.LogInformation("API returned valid JSON response");
-                        return (true, responseContent, null);
-                    }
-                    catch (JsonException ex)
-                    {
-                        _logger.LogError("API returned invalid JSON. Content: {Content}, Error: {Error}", responseContent, ex.Message);
-                        return (false, null, $"API returned invalid JSON: {ex.Message}");
-                    }
-                }
-                else
+                using var http = new HttpClient(handler)
                 {
-                    _logger.LogError("Resume analysis API failed with status: {StatusCode}, content: {Content}", response.StatusCode, responseContent);
-                    return (false, null, $"API call failed with status {response.StatusCode}: {responseContent}");
-                }
+                    Timeout = TimeSpan.FromMinutes(5)
+                };
+
+                // Desactivar Expect: 100-continue (algunos servidores fallan con esto)
+                http.DefaultRequestHeaders.ExpectContinue = false;
+                http.DefaultRequestHeaders.UserAgent.ParseAdd("PdfUploaderClient/1.0");
+
+                using var form = new MultipartFormDataContent();
+
+                // Contenido del archivo como byte array (Content-Length conocido)
+                var fileContent = new ByteArrayContent(bytes);
+                fileContent.Headers.ContentType =
+                    new System.Net.Http.Headers.MediaTypeHeaderValue(
+                        string.IsNullOrWhiteSpace(file.ContentType) ? "application/pdf" : file.ContentType
+                    );
+                fileContent.Headers.ContentDisposition =
+                    new System.Net.Http.Headers.ContentDispositionHeaderValue("form-data")
+                    {
+                        Name = "\"file\"",
+                        FileName = $"\"{Path.GetFileName(string.IsNullOrWhiteSpace(file.FileName) ? "document.pdf" : file.FileName)}\""
+                    };
+                // (Opcional) declarar longitud de la parte
+                fileContent.Headers.ContentLength = bytes.Length;
+
+                form.Add(fileContent, "file", Path.GetFileName(file.FileName));
+
+                var url = "https://plataform.arandutechia.com/webhook/ai_pdf_summariser";
+                _logger.LogInformation("POST {Url} ({Length} bytes)", url, bytes.Length);
+
+                using var response = await http.PostAsync(url, form);
+                var body = await response.Content.ReadAsStringAsync();
+
+                _logger.LogInformation("Status: {Status} | Len: {Len}", response.StatusCode, body?.Length ?? 0);
+                if (!response.IsSuccessStatusCode)
+                    return (false, null, $"API call failed with status {response.StatusCode}: {body}");
+
+                if (string.IsNullOrWhiteSpace(body))
+                    return (false, null, "API returned empty response");
+
+                if (body.TrimStart().StartsWith("<!DOCTYPE", StringComparison.OrdinalIgnoreCase) ||
+                    body.TrimStart().StartsWith("<html", StringComparison.OrdinalIgnoreCase))
+                    return (false, null, "API returned HTML instead of JSON (posible WAF/redirect).");
+                
+                return (true, body, null);
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error calling resume analysis API");
+                _logger.LogError(ex, "Error calling resume analysis API");                    
                 return (false, null, ex.Message);
             }
         }
@@ -750,37 +738,44 @@ Format the response as JSON with these exact keys: briefIntroduction, possibleJo
 
                 using var jsonDocument = JsonDocument.Parse(apiResponse);
                 var root = jsonDocument.RootElement;
+                
+                // Extract the result object from the API response
+                if (root.TryGetProperty("result", out var result))
+                {
+                    // Map API response fields to profile properties from the result object
+                    if (result.TryGetProperty("possibleJobs", out var possibleJobs))
+                        profile.PossibleJobs = possibleJobs.GetString() ?? string.Empty;
 
-                // Map API response fields to profile properties
-                if (root.TryGetProperty("possibleJobs", out var possibleJobs))
-                    profile.PossibleJobs = possibleJobs.GetString() ?? string.Empty;
+                    if (result.TryGetProperty("mbaSubjectsToReinforce", out var mbaSubjects))
+                        profile.MbaSubjectsToReinforce = mbaSubjects.GetString() ?? string.Empty;
 
-                if (root.TryGetProperty("mbaSubjectsToReinforce", out var mbaSubjects))
-                    profile.MbaSubjectsToReinforce = mbaSubjects.GetString() ?? string.Empty;
+                    if (result.TryGetProperty("briefIntroduction", out var briefIntro))
+                        profile.BriefIntroduction = briefIntro.GetString() ?? string.Empty;
 
-                if (root.TryGetProperty("briefIntroduction", out var briefIntro))
-                    profile.BriefIntroduction = briefIntro.GetString() ?? string.Empty;
+                    if (result.TryGetProperty("currentActivities", out var currentActivities))
+                        profile.CurrentActivities = currentActivities.GetString() ?? string.Empty;
 
-                if (root.TryGetProperty("currentActivities", out var currentActivities))
-                    profile.CurrentActivities = currentActivities.GetString() ?? string.Empty;
+                    if (result.TryGetProperty("motivations", out var motivations))
+                        profile.Motivations = motivations.GetString() ?? string.Empty;
 
-                if (root.TryGetProperty("motivations", out var motivations))
-                    profile.Motivations = motivations.GetString() ?? string.Empty;
+                    if (result.TryGetProperty("futureCareerGoals", out var careerGoals))
+                        profile.FutureCareerGoals = careerGoals.GetString() ?? string.Empty;
 
-                if (root.TryGetProperty("futureCareerGoals", out var careerGoals))
-                    profile.FutureCareerGoals = careerGoals.GetString() ?? string.Empty;
+                    if (result.TryGetProperty("strengths", out var strengths))
+                        profile.Strengths = strengths.GetString() ?? string.Empty;
 
-                if (root.TryGetProperty("strengths", out var strengths))
-                    profile.Strengths = strengths.GetString() ?? string.Empty;
+                    if (result.TryGetProperty("weaknesses", out var weaknesses))
+                        profile.Weaknesses = weaknesses.GetString() ?? string.Empty;
 
-                if (root.TryGetProperty("weaknesses", out var weaknesses))
-                    profile.Weaknesses = weaknesses.GetString() ?? string.Empty;
-
-                if (root.TryGetProperty("potentialCareerPaths", out var careerPaths))
-                    profile.Interests = careerPaths.GetString() ?? string.Empty;
+                    if (result.TryGetProperty("potentialCareerPaths", out var careerPaths))
+                        profile.Interests = careerPaths.GetString() ?? string.Empty;
+                }
+                else
+                {
+                    _logger.LogWarning("API response does not contain 'result' object. Response structure: {Response}", apiResponse);
+                }
 
                 // Note: TopicsMarkdown field has been removed
-
                 _dbContext.Profiles.Add(profile);
                 await _dbContext.SaveChangesAsync();
 
@@ -889,33 +884,41 @@ Format the response as JSON with these exact keys: briefIntroduction, possibleJo
                 using var jsonDocument = JsonDocument.Parse(apiResponse);
                 var root = jsonDocument.RootElement;
 
-                // Map API response fields to profile properties
-                if (root.TryGetProperty("possibleJobs", out var possibleJobs))
-                    existingProfile.PossibleJobs = possibleJobs.GetString() ?? string.Empty;
+                // Extract the result object from the API response
+                if (root.TryGetProperty("result", out var result))
+                {
+                    // Map API response fields to profile properties from the result object
+                    if (result.TryGetProperty("possibleJobs", out var possibleJobs))
+                        existingProfile.PossibleJobs = possibleJobs.GetString() ?? string.Empty;
 
-                if (root.TryGetProperty("mbaSubjectsToReinforce", out var mbaSubjects))
-                    existingProfile.MbaSubjectsToReinforce = mbaSubjects.GetString() ?? string.Empty;
+                    if (result.TryGetProperty("mbaSubjectsToReinforce", out var mbaSubjects))
+                        existingProfile.MbaSubjectsToReinforce = mbaSubjects.GetString() ?? string.Empty;
 
-                if (root.TryGetProperty("briefIntroduction", out var briefIntro))
-                    existingProfile.BriefIntroduction = briefIntro.GetString() ?? string.Empty;
+                    if (result.TryGetProperty("briefIntroduction", out var briefIntro))
+                        existingProfile.BriefIntroduction = briefIntro.GetString() ?? string.Empty;
 
-                if (root.TryGetProperty("currentActivities", out var currentActivities))
-                    existingProfile.CurrentActivities = currentActivities.GetString() ?? string.Empty;
+                    if (result.TryGetProperty("currentActivities", out var currentActivities))
+                        existingProfile.CurrentActivities = currentActivities.GetString() ?? string.Empty;
 
-                if (root.TryGetProperty("motivations", out var motivations))
-                    existingProfile.Motivations = motivations.GetString() ?? string.Empty;
+                    if (result.TryGetProperty("motivations", out var motivations))
+                        existingProfile.Motivations = motivations.GetString() ?? string.Empty;
 
-                if (root.TryGetProperty("futureCareerGoals", out var careerGoals))
-                    existingProfile.FutureCareerGoals = careerGoals.GetString() ?? string.Empty;
+                    if (result.TryGetProperty("futureCareerGoals", out var careerGoals))
+                        existingProfile.FutureCareerGoals = careerGoals.GetString() ?? string.Empty;
 
-                if (root.TryGetProperty("strengths", out var strengths))
-                    existingProfile.Strengths = strengths.GetString() ?? string.Empty;
+                    if (result.TryGetProperty("strengths", out var strengths))
+                        existingProfile.Strengths = strengths.GetString() ?? string.Empty;
 
-                if (root.TryGetProperty("weaknesses", out var weaknesses))
-                    existingProfile.Weaknesses = weaknesses.GetString() ?? string.Empty;
+                    if (result.TryGetProperty("weaknesses", out var weaknesses))
+                        existingProfile.Weaknesses = weaknesses.GetString() ?? string.Empty;
 
-                if (root.TryGetProperty("potentialCareerPaths", out var careerPaths))
-                    existingProfile.Interests = careerPaths.GetString() ?? string.Empty;
+                    if (result.TryGetProperty("potentialCareerPaths", out var careerPaths))
+                        existingProfile.Interests = careerPaths.GetString() ?? string.Empty;
+                }
+                else
+                {
+                    _logger.LogWarning("API response does not contain 'result' object. Response structure: {Response}", apiResponse);
+                }
 
                 await _dbContext.SaveChangesAsync();
 
