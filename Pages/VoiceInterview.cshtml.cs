@@ -204,14 +204,42 @@ namespace InterviewBot.Pages
             }
         }
 
-        private Task LoadInterviewHistoryAsync()
+        private async Task LoadInterviewHistoryAsync()
         {
             if (string.IsNullOrEmpty(InterviewId))
-                return Task.CompletedTask;
+                return;
 
-            // In a real implementation, you'd load from InterviewSessions table
-            InterviewHistory = new List<InterviewHistoryItem>();
-            return Task.CompletedTask;
+            try
+            {
+                var userId = GetCurrentUserId();
+                if (userId == null)
+                    return;
+
+                // Load chat messages from database
+                var chatMessages = await _interviewService.GetChatMessagesAsync(userId.Value, InterviewId);
+                
+                // Convert chat messages to interview history
+                InterviewHistory = new List<InterviewHistoryItem>();
+                var messages = chatMessages.ToList();
+                
+                for (int i = 0; i < messages.Count; i += 2)
+                {
+                    if (i + 1 < messages.Count)
+                    {
+                        InterviewHistory.Add(new InterviewHistoryItem
+                        {
+                            Question = messages[i].Content, // AI question
+                            Answer = messages[i + 1].Content, // User answer
+                            Timestamp = messages[i + 1].Timestamp
+                        });
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error loading interview history: {ex.Message}");
+                InterviewHistory = new List<InterviewHistoryItem>();
+            }
         }
 
         private async Task SubmitAnswerAsync(int userId)
@@ -219,7 +247,26 @@ namespace InterviewBot.Pages
             if (string.IsNullOrEmpty(UserAnswer) && string.IsNullOrEmpty(VoiceRecordingData))
                 return;
 
-            // In a real implementation, you'd save the answer and voice recording to the database
+            // Save the question and answer to chat messages
+            try
+            {
+                Console.WriteLine($"Saving chat messages - UserId: {userId}, InterviewId: '{InterviewId}', Question: '{CurrentQuestion}'");
+                
+                // Save the AI question
+                await _interviewService.SaveChatMessageAsync(userId, InterviewId, null, CurrentQuestion);
+                
+                // Save the user's answer
+                var answerContent = !string.IsNullOrEmpty(UserAnswer) ? UserAnswer : "Voice recording provided";
+                await _interviewService.SaveChatMessageAsync(userId, InterviewId, CurrentQuestion, answerContent);
+                
+                Console.WriteLine($"Chat messages saved successfully for InterviewId: '{InterviewId}'");
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error saving chat messages: {ex.Message}");
+            }
+
+            // Add to local history for display
             InterviewHistory.Add(new InterviewHistoryItem
             {
                 Question = CurrentQuestion,

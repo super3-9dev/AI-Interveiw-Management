@@ -224,15 +224,42 @@ namespace InterviewBot.Pages
             }
         }
 
-        private Task LoadInterviewHistoryAsync()
+        private async Task LoadInterviewHistoryAsync()
         {
             if (string.IsNullOrEmpty(InterviewId))
-                return Task.CompletedTask;
+                return;
 
-            // In a real implementation, you'd load from InterviewSessions table
-            // For now, we'll use a simple in-memory approach
-            InterviewHistory = new List<InterviewHistoryItem>();
-            return Task.CompletedTask;
+            try
+            {
+                var userId = GetCurrentUserId();
+                if (userId == null)
+                    return;
+
+                // Load chat messages from database
+                var chatMessages = await _interviewService.GetChatMessagesAsync(userId.Value, InterviewId);
+                
+                // Convert chat messages to interview history
+                InterviewHistory = new List<InterviewHistoryItem>();
+                var messages = chatMessages.ToList();
+                
+                for (int i = 0; i < messages.Count; i += 2)
+                {
+                    if (i + 1 < messages.Count)
+                    {
+                        InterviewHistory.Add(new InterviewHistoryItem
+                        {
+                            Question = messages[i].Content, // AI question
+                            Answer = messages[i + 1].Content, // User answer
+                            Timestamp = messages[i + 1].Timestamp
+                        });
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error loading interview history: {ex.Message}");
+                InterviewHistory = new List<InterviewHistoryItem>();
+            }
         }
 
         private async Task SubmitAnswerAsync(int userId)
@@ -240,8 +267,25 @@ namespace InterviewBot.Pages
             if (string.IsNullOrEmpty(UserAnswer))
                 return;
 
-            // In a real implementation, you'd save the answer to the database
-            // For now, we'll add it to the history
+            // Save the question and answer to chat messages
+            try
+            {
+                Console.WriteLine($"Saving chat messages - UserId: {userId}, InterviewId: '{InterviewId}', Question: '{CurrentQuestion}'");
+                
+                // Save the AI question
+                await _interviewService.SaveChatMessageAsync(userId, InterviewId, null, CurrentQuestion);
+                
+                // Save the user's answer
+                await _interviewService.SaveChatMessageAsync(userId, InterviewId, CurrentQuestion, UserAnswer);
+                
+                Console.WriteLine($"Chat messages saved successfully for InterviewId: '{InterviewId}'");
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error saving chat messages: {ex.Message}");
+            }
+
+            // Add to local history for display
             InterviewHistory.Add(new InterviewHistoryItem
             {
                 Question = CurrentQuestion,
@@ -328,6 +372,24 @@ namespace InterviewBot.Pages
                 );
 
                 Console.WriteLine($"AI Response generated: {aiResponse}");
+
+                // Save chat messages to database
+                try
+                {
+                    Console.WriteLine($"Saving OpenAI chat messages - UserId: {userId.Value}, InterviewId: '{InterviewId}', UserMessage: '{request.Message}'");
+                    
+                    // Save the user's message
+                    await _interviewService.SaveChatMessageAsync(userId.Value, InterviewId, null, request.Message);
+                    
+                    // Save the AI's response
+                    await _interviewService.SaveChatMessageAsync(userId.Value, InterviewId, request.Message, aiResponse);
+                    
+                    Console.WriteLine($"OpenAI chat messages saved successfully for InterviewId: '{InterviewId}'");
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine($"Error saving chat messages: {ex.Message}");
+                }
 
                 // Check if AI response indicates interview completion (only after 5+ questions)
                 if (currentCount >= 5 && (aiResponse.Contains("interview complete") || aiResponse.Contains("enough information") ||

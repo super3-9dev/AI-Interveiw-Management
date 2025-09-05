@@ -18,6 +18,8 @@ namespace InterviewBot.Services
         Task<IEnumerable<InterviewSession>> GetUserInterviewSessionsAsync(int userId);
         Task<IEnumerable<InterviewCatalog>> GetUserInterviewCatalogsAsync(int userId);
         Task<IEnumerable<CustomInterview>> GetUserCustomInterviewsAsync(int userId);
+        Task<bool> SaveChatMessageAsync(int userId, string interviewId, string? question, string content);
+        Task<IEnumerable<ChatMessage>> GetChatMessagesAsync(int userId, string interviewId);
     }
 
     public class InterviewService : IInterviewService
@@ -515,6 +517,57 @@ namespace InterviewBot.Services
                 .ToListAsync();
         }
 
+        public async Task<bool> SaveChatMessageAsync(int userId, string interviewId, string? question, string content)
+        {
+            try
+            {
+                Console.WriteLine($"InterviewService.SaveChatMessageAsync called - UserId: {userId}, InterviewId: '{interviewId}', Question: '{question}', Content: '{content?.Substring(0, Math.Min(50, content?.Length ?? 0))}...'");
+                
+                _logger.LogInformation("Saving chat message for user {UserId}, interview {InterviewId}", userId, interviewId);
 
+                var chatMessage = new ChatMessage
+                {
+                    UserId = userId,
+                    InterviewId = interviewId,
+                    Question = question,
+                    Content = content,
+                    Timestamp = DateTime.UtcNow
+                };
+
+                _dbContext.ChatMessages.Add(chatMessage);
+                await _dbContext.SaveChangesAsync();
+
+                Console.WriteLine($"Chat message saved to database - ID: {chatMessage.Id}, InterviewId: '{chatMessage.InterviewId}'");
+                _logger.LogInformation("Chat message saved successfully with ID {MessageId}", chatMessage.Id);
+                return true;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error saving chat message: {ex.Message}");
+                _logger.LogError(ex, "Error saving chat message for user {UserId}, interview {InterviewId}", userId, interviewId);
+                return false;
+            }
+        }
+
+        public async Task<IEnumerable<ChatMessage>> GetChatMessagesAsync(int userId, string interviewId)
+        {
+            try
+            {
+                _logger.LogInformation("Retrieving chat messages for user {UserId}, interview {InterviewId}", userId, interviewId);
+
+                var messages = await _dbContext.ChatMessages
+                    .Where(m => m.UserId == userId && m.InterviewId == interviewId)
+                    .OrderBy(m => m.Timestamp)
+                    .ToListAsync();
+
+                _logger.LogInformation("Retrieved {Count} chat messages", messages.Count);
+                return messages;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error retrieving chat messages for user {UserId}, interview {InterviewId}", userId, interviewId);
+                return new List<ChatMessage>();
+            }
+        }
     }
 }
