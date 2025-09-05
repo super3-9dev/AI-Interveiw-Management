@@ -867,6 +867,70 @@ Format the response as JSON with these exact keys: briefIntroduction, possibleJo
             return markdown.ToString();
         }
 
+        public async Task<Profile> UpdateProfileFromApiResponseAsync(Profile existingProfile, string apiResponse, bool isFallback = false)
+        {
+            try
+            {
+                _logger.LogInformation("Updating existing profile {ProfileId} from API response for user {UserId}, isFallback: {IsFallback}", 
+                    existingProfile.Id, existingProfile.UserId, isFallback);
+
+                // Update the profile fields
+                existingProfile.Status = "Completed";
+                existingProfile.Progress = 100;
+                existingProfile.UpdatedAt = DateTime.UtcNow;
+
+                // Validate and parse the JSON response
+                if (string.IsNullOrWhiteSpace(apiResponse))
+                {
+                    _logger.LogError("API response is empty or null for user {UserId}", existingProfile.UserId);
+                    throw new ArgumentException("API response cannot be empty or null", nameof(apiResponse));
+                }
+
+                using var jsonDocument = JsonDocument.Parse(apiResponse);
+                var root = jsonDocument.RootElement;
+
+                // Map API response fields to profile properties
+                if (root.TryGetProperty("possibleJobs", out var possibleJobs))
+                    existingProfile.PossibleJobs = possibleJobs.GetString() ?? string.Empty;
+
+                if (root.TryGetProperty("mbaSubjectsToReinforce", out var mbaSubjects))
+                    existingProfile.MbaSubjectsToReinforce = mbaSubjects.GetString() ?? string.Empty;
+
+                if (root.TryGetProperty("briefIntroduction", out var briefIntro))
+                    existingProfile.BriefIntroduction = briefIntro.GetString() ?? string.Empty;
+
+                if (root.TryGetProperty("currentActivities", out var currentActivities))
+                    existingProfile.CurrentActivities = currentActivities.GetString() ?? string.Empty;
+
+                if (root.TryGetProperty("motivations", out var motivations))
+                    existingProfile.Motivations = motivations.GetString() ?? string.Empty;
+
+                if (root.TryGetProperty("futureCareerGoals", out var careerGoals))
+                    existingProfile.FutureCareerGoals = careerGoals.GetString() ?? string.Empty;
+
+                if (root.TryGetProperty("strengths", out var strengths))
+                    existingProfile.Strengths = strengths.GetString() ?? string.Empty;
+
+                if (root.TryGetProperty("weaknesses", out var weaknesses))
+                    existingProfile.Weaknesses = weaknesses.GetString() ?? string.Empty;
+
+                if (root.TryGetProperty("potentialCareerPaths", out var careerPaths))
+                    existingProfile.Interests = careerPaths.GetString() ?? string.Empty;
+
+                await _dbContext.SaveChangesAsync();
+
+                _logger.LogInformation("Profile {ProfileId} updated successfully from API response for user {UserId}", 
+                    existingProfile.Id, existingProfile.UserId);
+                return existingProfile;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error updating profile {ProfileId} from API response for user {UserId}", 
+                    existingProfile.Id, existingProfile.UserId);
+                throw;
+            }
+        }
+
         private string GetFallbackApiResponse()
         {
             return @"{

@@ -41,11 +41,11 @@
         <form method="post" enctype="multipart/form-data" class="analysis-form">
             <!-- Input Method Tabs -->
             <div class="input-tabs">
-                <button type="button" class="tab-button @(Model.HasExistingProfile ? "disabled" : "active")" data-tab="upload">
+                <button type="button" class="tab-button active" data-tab="upload">
                     <i class="bi bi-file-earmark-arrow-up"></i>
                     @Localizer["Upload Resume"]
                 </button>
-                <button type="button" class="tab-button @(Model.HasExistingProfile ? "active" : "")" data-tab="describe">
+                <button type="button" class="tab-button" data-tab="describe">
                     <i class="bi bi-pencil-square"></i>
                     @Localizer["Describe Yourself"]
                 </button>
@@ -54,79 +54,42 @@
             <!-- Tab Content -->
             <div class="tab-content">
                 <!-- Upload Resume Tab -->
-                <div class="tab-pane @(Model.HasExistingProfile ? "" : "active")" id="upload-tab">
-                    @if (Model.HasExistingProfile)
-                    {
-                        <!-- Alert for existing profile -->
-                        <div class="alert alert-warning" role="alert">
-                            <div class="alert-content">
-                                <i class="bi bi-exclamation-triangle-fill alert-icon"></i>
-                                <div class="alert-text">
-                                    <h4 class="alert-title">@Localizer["Resume Already Uploaded"]</h4>
-                                    <p class="alert-message">
-                                        @Localizer["You have already uploaded a resume and completed the analysis. You can only upload one resume per account. If you need to update your profile information, please use the \"Update Profile\" feature in your dashboard."]
-                                    </p>
-                                </div>
-                            </div>
+                <div class="tab-pane active" id="upload-tab">
+                    <!-- Normal upload area -->
+                    <div class="upload-area" id="uploadArea">
+                        <div class="upload-content">
+                            <i class="bi bi-file-earmark-pdf upload-icon"></i>
+                            <p class="upload-text">@Localizer["Click to upload or drag and drop"]</p>
+                            <p class="upload-subtext">@Localizer["PDF files only (MAX. 10MB)"]</p>
+                            <p class="upload-hint">@Localizer["We'll analyze your resume and provide career insights"]</p>
                         </div>
+                        <input type="file" id="resumeFile" name="ResumeFile" accept=".pdf" class="file-input" />
+                    </div>
 
-                        <!-- Disabled upload area -->
-                        <div class="upload-area disabled" id="uploadArea">
-                            <div class="upload-content">
-                                <i class="bi bi-file-earmark-pdf upload-icon disabled"></i>
-                                <p class="upload-text disabled">@Localizer["Upload Disabled"]</p>
-                                <p class="upload-subtext disabled">@Localizer["You have already completed your resume analysis"]</p>
-                                <p class="upload-hint disabled">@Localizer["Visit your dashboard to view your analysis results"]</p>
+                    <div id="filePreview" class="file-preview" style="display: none;">
+                        <div class="file-info">
+                            <i class="bi bi-file-earmark-pdf file-icon"></i>
+                            <div class="file-details">
+                                <span class="file-name" id="fileName"></span>
+                                <span class="file-size" id="fileSize"></span>
                             </div>
-                            <input type="file" id="resumeFile" name="ResumeFile" accept=".pdf" class="file-input" disabled />
-                        </div>
-
-                        <!-- Disabled submit button -->
-                        <div class="form-actions">
-                            <button type="button" class="start-analysis-btn disabled" id="submitBtn" disabled>
-                                <i class="bi bi-play-circle"></i>
-                                @Localizer["File Analysis (Disabled)"]
+                            <button type="button" class="remove-file-btn" onclick="removeFile()">
+                                <i class="bi bi-x-circle"></i>
                             </button>
                         </div>
-                    }
-                    else
-                    {
-                        <!-- Normal upload area -->
-                        <div class="upload-area" id="uploadArea">
-                            <div class="upload-content">
-                                <i class="bi bi-file-earmark-pdf upload-icon"></i>
-                                <p class="upload-text">@Localizer["Click to upload or drag and drop"]</p>
-                                <p class="upload-subtext">@Localizer["PDF files only (MAX. 10MB)"]</p>
-                                <p class="upload-hint">@Localizer["We'll analyze your resume and provide career insights"]</p>
-                            </div>
-                            <input type="file" id="resumeFile" name="ResumeFile" accept=".pdf" class="file-input" />
-                        </div>
+                    </div>
 
-                        <div id="filePreview" class="file-preview" style="display: none;">
-                            <div class="file-info">
-                                <i class="bi bi-file-earmark-pdf file-icon"></i>
-                                <div class="file-details">
-                                    <span class="file-name" id="fileName"></span>
-                                    <span class="file-size" id="fileSize"></span>
-                                </div>
-                                <button type="button" class="remove-file-btn" onclick="removeFile()">
-                                    <i class="bi bi-x-circle"></i>
-                                </button>
-                            </div>
-                        </div>
-
-                        <!-- Submit Button -->
-                        <div class="form-actions">
-                            <button type="submit" class="start-analysis-btn" id="submitBtn" disabled>
-                                <i class="bi bi-play-circle"></i>
-                                @Localizer["File Analysis"]
-                            </button>
-                        </div>
-                    }
+                    <!-- Submit Button -->
+                    <div class="form-actions">
+                        <button type="submit" class="start-analysis-btn" id="submitBtn" disabled>
+                            <i class="bi bi-play-circle"></i>
+                            @Localizer["File Analysis"]
+                        </button>
+                    </div>
                 </div>
 
                 <!-- Describe Yourself Tab -->
-                <div class="tab-pane @(Model.HasExistingProfile ? "active" : "")" id="describe-tab">
+                <div class="tab-pane" id="describe-tab">
                     <div class="form-fields">
                         <div class="form-group">
                             <label for="briefIntroduction" class="form-label">@Localizer["Brief introduction about yourself"]</label>

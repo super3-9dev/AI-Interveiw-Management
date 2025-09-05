@@ -53,8 +53,8 @@ namespace InterviewBot.Pages
             var userId = GetCurrentUserId();
             if (userId != null)
             {
-                // Check if user already has a completed profile
-                HasExistingProfile = await _profileService.HasCompletedProfileAsync(userId.Value);
+                // Always allow resume uploads - set HasExistingProfile to false
+                HasExistingProfile = false;
 
                 // Get user's latest profile to populate form fields
                 var userProfiles = await _profileService.GetUserProfilesAsync(userId.Value);
@@ -89,14 +89,12 @@ namespace InterviewBot.Pages
 
                 // Check if user already has a completed profile
                 var hasExistingProfile = await _profileService.HasCompletedProfileAsync(userId.Value);
+                Profile? existingProfile = null;
                 if (hasExistingProfile)
                 {
-                    if (Request.Headers["X-Requested-With"] == "XMLHttpRequest")
-                    {
-                        return new JsonResult(new { success = false, message = "You have already uploaded a resume and completed the analysis. You can only upload one resume per account." });
-                    }
-                    ErrorMessage = "You have already uploaded a resume and completed the analysis. You can only upload one resume per account.";
-                    return Page();
+                    // Get the existing profile to update it
+                    var userProfiles = await _profileService.GetUserProfilesAsync(userId.Value);
+                    existingProfile = userProfiles.FirstOrDefault();
                 }
 
                 // Validate file if uploaded
@@ -141,7 +139,17 @@ namespace InterviewBot.Pages
                         {
                             // API call successful and returned valid content - use the real response
                             responseToStore = apiResponse!;
-                            profile = await _profileService.CreateProfileFromApiResponseAsync(apiResponse!, userId.Value, false);
+                            
+                            if (existingProfile != null)
+                            {
+                                // Update existing profile with new API response
+                                profile = await _profileService.UpdateProfileFromApiResponseAsync(existingProfile, apiResponse!, false);
+                            }
+                            else
+                            {
+                                // Create new profile
+                                profile = await _profileService.CreateProfileFromApiResponseAsync(apiResponse!, userId.Value, false);
+                            }
                             
                             // Store the API response in TempData to display it
                             TempData["ApiResult"] = apiResponse;
@@ -153,29 +161,42 @@ namespace InterviewBot.Pages
                             _logger.LogWarning("{Reason}. Using fallback data for user {UserId}", reason, userId.Value);
                             var fallbackResponse = GetFallbackApiResponse();
                             responseToStore = fallbackResponse;
-                            profile = await _profileService.CreateProfileFromApiResponseAsync(fallbackResponse, userId.Value, true);
+                            
+                            if (existingProfile != null)
+                            {
+                                // Update existing profile with fallback data
+                                profile = await _profileService.UpdateProfileFromApiResponseAsync(existingProfile, fallbackResponse, true);
+                            }
+                            else
+                            {
+                                // Create new profile with fallback data
+                                profile = await _profileService.CreateProfileFromApiResponseAsync(fallbackResponse, userId.Value, true);
+                            }
                             isFallback = true;
                             
                             // Store the fallback response in TempData to display it
                             TempData["ApiResult"] = fallbackResponse;
                         }
 
+                        var actionType = existingProfile != null ? "updated" : "created";
+                        
                         if (Request.Headers["X-Requested-With"] == "XMLHttpRequest")
                         {
                             return new JsonResult(new
                             {
                                 success = true,
                                 message = isFallback 
-                                    ? $"Resume '{ResumeFile.FileName}' processed using fallback data due to API issues." 
-                                    : $"Resume '{ResumeFile.FileName}' analyzed successfully!",
+                                    ? $"Resume '{ResumeFile.FileName}' processed using fallback data due to API issues. Profile {actionType} successfully!" 
+                                    : $"Resume '{ResumeFile.FileName}' analyzed successfully! Profile {actionType}.",
                                 apiResponse = responseToStore,
-                                isFallback = isFallback
+                                isFallback = isFallback,
+                                actionType = actionType
                             });
                         }
 
                         SuccessMessage = isFallback 
-                            ? $"Resume '{ResumeFile.FileName}' processed using fallback data due to API issues. The analysis has been completed with sample data." 
-                            : $"Resume '{ResumeFile.FileName}' analyzed successfully!";
+                            ? $"Resume '{ResumeFile.FileName}' processed using fallback data due to API issues. Profile {actionType} successfully with sample data." 
+                            : $"Resume '{ResumeFile.FileName}' analyzed successfully! Profile {actionType}.";
 
                         // Redirect to a results page or dashboard
                         return RedirectToPage("/ResumeAnalysisResults", new { id = profile.Id });
