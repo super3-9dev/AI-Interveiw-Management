@@ -1,0 +1,132 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+    <xsd:element name="root" msdata:IsDataSet="true">
+      <xsd:complexType>
+        <xsd:choice maxOccurs="unbounded">
+          <xsd:element name="data">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" />
+                <xsd:element name="comment" type="xsd:string" minOccurs="0" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" />
+              <xsd:attribute name="type" type="xsd:string" />
+              <xsd:attribute name="mimetype" type="xsd:string" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="resheader">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" />
+            </xsd:complexType>
+          </xsd:element>
+        </xsd:choice>
+      </xsd:complexType>
+    </xsd:element>
+  </xsd:schema>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="Account">
+    <value>Account</value>
+  </data>
+  <data name="Account &amp; Profile Management">
+    <value>Account &amp; Profile Management</value>
+  </data>
+  <data name="Manage your account information and profile details.">
+    <value>Manage your account information and profile details.</value>
+  </data>
+  <data name="User Information">
+    <value>User Information</value>
+  </data>
+  <data name="Email">
+    <value>Email</value>
+  </data>
+  <data name="Enter your email">
+    <value>Enter your email</value>
+  </data>
+  <data name="Full Name">
+    <value>Full Name</value>
+  </data>
+  <data name="Enter your full name">
+    <value>Enter your full name</value>
+  </data>
+  <data name="Update User Information">
+    <value>Update User Information</value>
+  </data>
+  <data name="Password Information">
+    <value>Password Information</value>
+  </data>
+  <data name="Current Password">
+    <value>Current Password</value>
+  </data>
+  <data name="Enter current password">
+    <value>Enter current password</value>
+  </data>
+  <data name="Required to change password">
+    <value>Required to change password</value>
+  </data>
+  <data name="New Password">
+    <value>New Password</value>
+  </data>
+  <data name="Enter new password">
+    <value>Enter new password</value>
+  </data>
+  <data name="Leave blank to keep current password">
+    <value>Leave blank to keep current password</value>
+  </data>
+  <data name="Confirm New Password">
+    <value>Confirm New Password</value>
+  </data>
+  <data name="Must match new password">
+    <value>Must match new password</value>
+  </data>
+  <data name="Update Password">
+    <value>Update Password</value>
+  </data>
+  <data name="Profile Information">
+    <value>Profile Information</value>
+  </data>
+  <data name="Strengths">
+    <value>Strengths</value>
+  </data>
+  <data name="Describe your key strengths and skills">
+    <value>Describe your key strengths and skills</value>
+  </data>
+  <data name="Areas for Improvement">
+    <value>Areas for Improvement</value>
+  </data>
+  <data name="Describe areas you'd like to improve">
+    <value>Describe areas you'd like to improve</value>
+  </data>
+  <data name="Career Goals">
+    <value>Career Goals</value>
+  </data>
+  <data name="Describe your career aspirations and goals">
+    <value>Describe your career aspirations and goals</value>
+  </data>
+  <data name="Professional Interests">
+    <value>Professional Interests</value>
+  </data>
+  <data name="Describe your professional interests and passions">
+    <value>Describe your professional interests and passions</value>
+  </data>
+  <data name="Update Profile Information">
+    <value>Update Profile Information</value>
+  </data>
+  <data name="Back to Dashboard">
+    <value>Back to Dashboard</value>
+  </data>
+</root>
