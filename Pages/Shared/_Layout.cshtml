@@ -70,8 +70,21 @@
         </header>
 
         <div class="content-wrapper">
+            <!-- Mobile Menu Button -->
+            <button class="mobile-menu-btn" id="mobileMenuBtn" type="button">
+                <i class="bi bi-list"></i>
+            </button>
+            
+            <!-- Mobile Overlay -->
+            <div class="mobile-overlay" id="mobileOverlay"></div>
+            
             <!-- Left Sidebar -->
-            <aside class="sidebar">
+            <aside class="sidebar" id="sidebar">
+                <!-- Mobile Close Button -->
+                <button class="mobile-close-btn" id="mobileCloseBtn" type="button">
+                    <i class="bi bi-x-lg"></i>
+                </button>
+                
                 <nav class="sidebar-nav">
                     <ul class="nav-list">
                         <li class="nav-item">
@@ -372,6 +385,85 @@
             overflow-y: auto;
         }
 
+        /* Mobile Menu Button */
+        .mobile-menu-btn {
+            display: none;
+            position: fixed;
+            top: 5rem;
+            left: 0;
+            z-index: 1001;
+            background-color: #4285f4;
+            color: white;
+            border: none;
+            border-radius: 0 1rem 1rem 0;
+            padding: 0.55rem;
+            font-size: 1.2rem;
+            cursor: pointer;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+            transition: all 0.3s ease;
+            min-width: 28px;
+            min-height: 28px;
+        }
+
+        .mobile-menu-btn:hover {
+            background-color: #3367d6;
+            transform: scale(1.05);
+        }
+
+        .mobile-menu-btn:active {
+            transform: scale(0.95);
+        }
+
+        /* Mobile Overlay */
+        .mobile-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 999;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .mobile-overlay.show {
+            display: block;
+        }
+
+        .mobile-overlay.active {
+            opacity: 1;
+        }
+
+        /* Mobile Close Button */
+        .mobile-close-btn {
+            display: none;
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            z-index: 1002;
+            background-color: #dc3545;
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 2.5rem;
+            height: 2.5rem;
+            font-size: 1rem;
+            cursor: pointer;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+            transition: all 0.3s ease;
+        }
+
+        .mobile-close-btn:hover {
+            background-color: #c82333;
+            transform: scale(1.1);
+        }
+
+        .mobile-close-btn:active {
+            transform: scale(0.9);
+        }
+
         /* Responsive Design */
         @@media (max-width: 1024px) {
             .sidebar {
@@ -381,19 +473,58 @@
         }
 
         @@media (max-width: 768px) {
+            .mobile-menu-btn {
+                display: block !important;
+            }
+            
+            .mobile-close-btn {
+                display: block !important;
+            }
+            
             .content-wrapper {
                 flex-direction: column;
             }
             
             .sidebar {
-                width: 100%;
-                min-width: 100%;
-                height: auto;
+                position: fixed !important;
+                top: 0 !important;
+                left: -100% !important;
+                width: 280px !important;
+                min-width: 280px !important;
+                height: 100vh !important;
+                z-index: 1000 !important;
+                transition: left 0.3s ease !important;
+                box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1) !important;
+            }
+            
+            .sidebar.open {
+                left: 0 !important;
+            }
+            
+            /* Hide hamburger button when sidebar is open */
+            .content-wrapper.sidebar-open .mobile-menu-btn {
+                display: none !important;
+            }
+            
+            .sidebar-nav {
+                padding: 4rem 0 1rem 0;
+            }
+            
+            .nav-link {
+                padding: 1rem 1.5rem;
+                font-size: 1rem;
+            }
+            
+            .nav-link i {
+                font-size: 1.2rem;
+                width: 24px;
             }
             
             .main-content {
                 margin: 0;
                 border-radius: 0;
+                margin-left: 0;
+                padding-top: 1rem;
             }
             
             .top-bar {
@@ -421,6 +552,75 @@
             document.querySelectorAll('form').forEach(form => {
                 if (!form.querySelector('input[name="__RequestVerificationToken"]')) {
                     form.appendChild(antiforgery.cloneNode(true));
+                }
+            });
+
+            // Mobile sidebar functionality
+            const mobileMenuBtn = document.getElementById('mobileMenuBtn');
+            const mobileCloseBtn = document.getElementById('mobileCloseBtn');
+            const sidebar = document.getElementById('sidebar');
+            const mobileOverlay = document.getElementById('mobileOverlay');
+            const contentWrapper = document.querySelector('.content-wrapper');
+
+            console.log('Mobile menu button:', mobileMenuBtn);
+            console.log('Sidebar:', sidebar);
+            console.log('Mobile overlay:', mobileOverlay);
+
+            function toggleSidebar() {
+                console.log('Toggle sidebar clicked');
+                console.log('Sidebar element:', sidebar);
+                console.log('Mobile overlay element:', mobileOverlay);
+                
+                sidebar.classList.toggle('open');
+                mobileOverlay.classList.toggle('show');
+                mobileOverlay.classList.toggle('active');
+                contentWrapper.classList.toggle('sidebar-open');
+                
+                console.log('Sidebar classes:', sidebar.className);
+                console.log('Overlay classes:', mobileOverlay.className);
+                console.log('Content wrapper classes:', contentWrapper.className);
+            }
+
+            function closeSidebar() {
+                sidebar.classList.remove('open');
+                mobileOverlay.classList.remove('show');
+                mobileOverlay.classList.remove('active');
+                contentWrapper.classList.remove('sidebar-open');
+            }
+
+            // Event listeners
+            if (mobileMenuBtn) {
+                console.log('Adding click listener to mobile menu button');
+                mobileMenuBtn.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    console.log('Mobile menu button clicked!');
+                    toggleSidebar();
+                });
+            } else {
+                console.error('Mobile menu button not found!');
+            }
+
+            if (mobileCloseBtn) {
+                mobileCloseBtn.addEventListener('click', closeSidebar);
+            }
+
+            if (mobileOverlay) {
+                mobileOverlay.addEventListener('click', closeSidebar);
+            }
+
+            // Close sidebar when clicking on nav links (mobile)
+            document.querySelectorAll('.nav-link').forEach(link => {
+                link.addEventListener('click', () => {
+                    if (window.innerWidth <= 768) {
+                        closeSidebar();
+                    }
+                });
+            });
+
+            // Close sidebar on window resize if screen becomes larger
+            window.addEventListener('resize', () => {
+                if (window.innerWidth > 768) {
+                    closeSidebar();
                 }
             });
 
