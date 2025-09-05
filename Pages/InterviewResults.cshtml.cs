@@ -7,6 +7,7 @@ using InterviewBot.Data;
 using Microsoft.EntityFrameworkCore;
 using System.Security.Claims;
 using System.ComponentModel.DataAnnotations;
+using System.Text.Json;
 
 namespace InterviewBot.Pages
 {
@@ -16,12 +17,14 @@ namespace InterviewBot.Pages
         private readonly IInterviewService _interviewService;
         private readonly AppDbContext _dbContext;
         private readonly IInterviewCatalogService _interviewCatalogService;
+        private readonly IInterviewAnalysisService _analysisService;
 
-        public InterviewResultsModel(IInterviewService interviewService, AppDbContext dbContext, IInterviewCatalogService interviewCatalogService)
+        public InterviewResultsModel(IInterviewService interviewService, AppDbContext dbContext, IInterviewCatalogService interviewCatalogService, IInterviewAnalysisService analysisService)
         {
             _interviewService = interviewService;
             _dbContext = dbContext;
             _interviewCatalogService = interviewCatalogService;
+            _analysisService = analysisService;
         }
 
         [BindProperty(SupportsGet = true)]
@@ -38,6 +41,16 @@ namespace InterviewBot.Pages
         public string InterviewIntroduction { get; set; } = string.Empty;
         public string InterviewSummary { get; set; } = string.Empty;
         public DateTime? CompleteDate { get; set; }
+
+        // Analysis results properties
+        public InterviewAnalysisResult? AnalysisResult { get; set; }
+        public string Recommendations { get; set; } = string.Empty;
+        public string MBAFocusArea { get; set; } = string.Empty;
+        public int ClarityScore { get; set; }
+        public List<string> ShortTermRoadmap { get; set; } = new();
+        public List<string> MediumTermRoadmap { get; set; } = new();
+        public List<string> LongTermRoadmap { get; set; } = new();
+        public List<string> AdditionalTips { get; set; } = new();
 
         public string? ErrorMessage { get; set; }
 
@@ -58,43 +71,49 @@ namespace InterviewBot.Pages
                     return RedirectToPage("/Account/Login");
                 }
 
-                // Try to load stored interview results first
-                bool hasStoredResults = await LoadStoredInterviewResultAsync(userId.Value);
+                // Try to load analysis results first
+                bool hasAnalysisResults = await LoadAnalysisResultsAsync(userId.Value);
 
-                if (!hasStoredResults)
+                if (!hasAnalysisResults)
                 {
-                    // If no stored results, load from catalog and save new results
-                    await LoadInterviewContentAsync();
+                    // If no analysis results, try to load stored interview results
+                    bool hasStoredResults = await LoadStoredInterviewResultAsync(userId.Value);
 
-                    if (string.IsNullOrEmpty(InterviewTopic))
+                    if (!hasStoredResults)
                     {
-                        ErrorMessage = "Interview not found or access denied.";
-                        return RedirectToPage("/Dashboard");
-                    }
+                        // If no stored results, load from catalog and save new results
+                        await LoadInterviewContentAsync();
 
-                    // Set the interview summary from query parameter
-                    if (!string.IsNullOrEmpty(Summary))
-                    {
-                        InterviewSummary = Summary;
-                    }
-                    else
-                    {
-                        // Generate default summary for voice interviews
-                        InterviewSummary = GenerateContent();
-                    }
+                        if (string.IsNullOrEmpty(InterviewTopic))
+                        {
+                            ErrorMessage = "Interview not found or access denied.";
+                            return RedirectToPage("/Dashboard");
+                        }
 
-                    // Set question count for voice interviews
-                    QuestionCount = 10;
+                        // Set the interview summary from query parameter
+                        if (!string.IsNullOrEmpty(Summary))
+                        {
+                            InterviewSummary = Summary;
+                        }
+                        else
+                        {
+                            // Generate default summary for voice interviews
+                            InterviewSummary = GenerateContent();
+                        }
 
-                    // Update interview status to "Completed" when results page loads
-                    if (int.TryParse(InterviewId, out int catalogId))
-                    {
-                        Console.WriteLine($"Updating interview catalog {catalogId} status to Completed");
-                        var result = await _interviewCatalogService.UpdateInterviewCatalogStatusAsync(catalogId, "Completed");
-                        Console.WriteLine($"Status update result: {result}");
+                        // Set question count for voice interviews
+                        QuestionCount = 10;
 
-                        // Save interview results to database
-                        await SaveInterviewResultsAsync(catalogId);
+                        // Update interview status to "Completed" when results page loads
+                        if (int.TryParse(InterviewId, out int catalogId))
+                        {
+                            Console.WriteLine($"Updating interview catalog {catalogId} status to Completed");
+                            var result = await _interviewCatalogService.UpdateInterviewCatalogStatusAsync(catalogId, "Completed");
+                            Console.WriteLine($"Status update result: {result}");
+
+                            // Save interview results to database
+                            await SaveInterviewResultsAsync(catalogId);
+                        }
                     }
                 }
 
@@ -104,6 +123,81 @@ namespace InterviewBot.Pages
             {
                 ErrorMessage = "Error loading interview results: " + ex.Message;
                 return RedirectToPage("/Dashboard");
+            }
+        }
+
+        private async Task<bool> LoadAnalysisResultsAsync(int userId)
+        {
+            try
+            {
+                Console.WriteLine($"Loading analysis results for user {userId} and InterviewId {InterviewId}");
+
+                if (int.TryParse(InterviewId, out int sessionId))
+                {
+                    // Try to find analysis result by session ID
+                    AnalysisResult = await _analysisService.GetInterviewAnalysisResultAsync(sessionId);
+
+                    if (AnalysisResult != null)
+                    {
+                        Console.WriteLine($"Found analysis result: SessionId={AnalysisResult.InterviewSessionId}, Summary={AnalysisResult.Summary?.Substring(0, Math.Min(50, AnalysisResult.Summary?.Length ?? 0))}...");
+
+                        // Load analysis data
+                        Summary = AnalysisResult.Summary ?? "No summary available";
+                        Recommendations = AnalysisResult.Recommendations ?? "No recommendations available";
+                        MBAFocusArea = AnalysisResult.MBAFocusArea ?? "Not specified";
+                        ClarityScore = AnalysisResult.ClarityScore;
+
+                        // Parse roadmaps from JSON
+                        if (!string.IsNullOrEmpty(AnalysisResult.ShortTermRoadmap))
+                        {
+                            ShortTermRoadmap = JsonSerializer.Deserialize<List<string>>(AnalysisResult.ShortTermRoadmap) ?? new List<string>();
+                        }
+                        if (!string.IsNullOrEmpty(AnalysisResult.MediumTermRoadmap))
+                        {
+                            MediumTermRoadmap = JsonSerializer.Deserialize<List<string>>(AnalysisResult.MediumTermRoadmap) ?? new List<string>();
+                        }
+                        if (!string.IsNullOrEmpty(AnalysisResult.LongTermRoadmap))
+                        {
+                            LongTermRoadmap = JsonSerializer.Deserialize<List<string>>(AnalysisResult.LongTermRoadmap) ?? new List<string>();
+                        }
+                        if (!string.IsNullOrEmpty(AnalysisResult.AdditionalTips))
+                        {
+                            AdditionalTips = JsonSerializer.Deserialize<List<string>>(AnalysisResult.AdditionalTips) ?? new List<string>();
+                        }
+
+                        // Set interview topic from session
+                        var session = await _dbContext.InterviewSessions
+                            .Include(s => s.InterviewCatalog)
+                            .FirstOrDefaultAsync(s => s.Id == sessionId);
+                        
+                        if (session?.InterviewCatalog != null)
+                        {
+                            InterviewTopic = session.InterviewCatalog.Topic;
+                        }
+
+                        CompleteDate = AnalysisResult.CreatedAt;
+                        QuestionCount = 10; // Default for analysis results
+
+                        Console.WriteLine($"Loaded analysis result: {InterviewTopic}");
+                        return true;
+                    }
+                    else
+                    {
+                        Console.WriteLine("No analysis result found for this session ID");
+                        return false;
+                    }
+                }
+                else
+                {
+                    Console.WriteLine("Invalid InterviewId format for analysis results");
+                    return false;
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error loading analysis results: {ex.Message}");
+                Console.WriteLine($"Exception details: {ex}");
+                return false;
             }
         }
 

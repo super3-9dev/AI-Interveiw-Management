@@ -13,6 +13,7 @@ namespace InterviewBot.Services
         Task<bool> PauseInterviewAsync(int sessionId, string reason);
         Task<bool> ResumeInterviewAsync(int sessionId, string notes);
         Task<bool> CompleteInterviewAsync(int sessionId);
+        Task<bool> CompleteInterviewWithAnalysisAsync(int sessionId);
         Task<InterviewResult> GenerateInterviewAnalysisAsync(int sessionId);
         Task<bool> UpdateInterviewCatalogStatusAsync(int catalogId, string status);
         Task<bool> StartInterviewCatalogAsync(int catalogId, int userId);

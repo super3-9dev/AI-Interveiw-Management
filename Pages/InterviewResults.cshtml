@@ -3,7 +3,7 @@
 @using Microsoft.AspNetCore.Mvc.Localization
 @inject IViewLocalizer Localizer
 @{
-    ViewData["Title"] = Localizer["Interview Results"];
+    ViewData["Title"] = Localizer["Your Personalized Career Guidance"];
     var currentCulture = HttpContext.Request.Query["culture"].ToString();
     if (string.IsNullOrEmpty(currentCulture))
     {
@@ -11,309 +11,429 @@
     }
 }
 
-<div class="interview-results-container">
-    <!-- Results Header -->
-    <div class="results-header">
-        <div class="header-content">
-            <div class="results-info">
-                <h1 class="results-title">
-                    <i class="bi bi-check-circle-fill"></i>
-                    @Localizer["Interview Complete"]
-                </h1>
-                <p class="results-subtitle">@Localizer["Your interview results and analysis"]</p>
+<div class="career-guidance-container">
+    <!-- Header -->
+    <div class="career-header">
+        <h1 class="career-title">@Localizer["Your Personalized Career Guidance"]</h1>
+        <p class="career-subtitle">@Localizer["Based on your profile and interview, here are your tailored insights and potential career roadmaps."]</p>
+    </div>
+
+    <!-- Main Content Grid -->
+    <div class="career-content">
+        <div class="career-card-flex">
+           <!-- Interview Summary Card -->
+            <div class="career-card interview-summary-card">
+                <h2 class="card-title">@Localizer["Interview Summary"]</h2>
+                <div class="summary-content">
+                    <div class="summary-section">
+                        <h3>@Localizer["Summary:"]</h3>
+                        <p>@(string.IsNullOrEmpty(Model.Summary) ? "This is a mock summary of the interview. You demonstrated strong problem-solving skills and a clear passion for technology. Your answers were well-articulated and thoughtful." : Model.Summary)</p>
+                    </div>
+                    <div class="recommendations-section">
+                        <h3>@Localizer["Recommendations:"]</h3>
+                        <p>@(string.IsNullOrEmpty(Model.Recommendations) ? "To further improve, consider gaining more hands-on experience with cloud technologies like AWS or Google Cloud. Participating in a team-based project could also enhance your collaboration skills." : Model.Recommendations)</p>
+                    </div>
+                </div>
             </div>
-            <div class="results-status">
-                <span class="status-badge status-complete">@Localizer["Completed"]</span>
-                <span class="question-count">@Model.QuestionCount @Localizer["Questions Asked"]</span>
+
+            <!-- MBA Focus Area Card -->
+            <div class="career-card mba-card">
+                <h2 class="card-title">
+                    <i class="bi bi-book"></i>
+                    @Localizer["MBA Focus Area"]
+                </h2>
+                <p>@(string.IsNullOrEmpty(Model.MBAFocusArea) ? "Given your analytical skills and interest in business, focusing on 'Business Analytics' or 'Technology Management' would be a great fit." : Model.MBAFocusArea)</p>
+            </div>
+
+            <!-- Additional Tips Card -->
+            <div class="career-card tips-card">
+                <h2 class="card-title">
+                    <i class="bi bi-lightbulb"></i>
+                    @Localizer["Additional Tips"]
+                </h2>
+                <p>@(Model.AdditionalTips.Any() ? string.Join(" ", Model.AdditionalTips) : "Practice your public speaking by joining a club like Toastmasters. Seek informational interviews with professionals in roles you admire to gain more industry insight.")</p>
+            </div>
+        </div>              
+
+        
+        <!-- Career Roadmaps Card -->
+        <div class="career-card roadmaps-card">
+            <h2 class="card-title">@Localizer["Your Career Roadmaps"]</h2>
+            <p class="card-subtitle">@Localizer["Actionable next steps for your professional journey."]</p>
+            
+            <div class="roadmap-accordion">
+                <!-- Short-Term Roadmap -->
+                <div class="roadmap-item">
+                    <div class="roadmap-header" onclick="toggleRoadmap('short-term')">
+                        <div class="roadmap-title-section">
+                            <i class="bi bi-link-45deg roadmap-icon"></i>
+                            <h3>@Localizer["Short-Term Roadmap (1-2 years)"]</h3>
+                        </div>
+                        <i class="bi bi-chevron-down" id="short-term-arrow"></i>
+                    </div>
+                    <div class="roadmap-content" id="short-term-content">
+                        <ol class="roadmap-steps">
+                            @if (Model.ShortTermRoadmap.Any())
+                            {
+                                @foreach (var step in Model.ShortTermRoadmap)
+                                {
+                                    <li>@step</li>
+                                }
+                            }
+                            else
+                            {
+                                <li>@Localizer["Complete a certification in a relevant technology (e.g., AWS Certified Cloud Practitioner)."]</li>
+                                <li>@Localizer["Contribute to an open-source project to build your portfolio."]</li>
+                                <li>@Localizer["Network with at least 5 professionals in your target industry."]</li>
+                            }
+                        </ol>
+                    </div>
+                </div>
+
+                <!-- Medium-Term Roadmap -->
+                <div class="roadmap-item">
+                    <div class="roadmap-header" onclick="toggleRoadmap('medium-term')">
+                        <div class="roadmap-title-section">
+                            <i class="bi bi-arrow-up-circle roadmap-icon"></i>
+                            <h3>@Localizer["Medium-Term Roadmap (3-5 years)"]</h3>
+                        </div>
+                        <i class="bi bi-chevron-down" id="medium-term-arrow"></i>
+                    </div>
+                    <div class="roadmap-content" id="medium-term-content">
+                        <ol class="roadmap-steps">
+                            @if (Model.MediumTermRoadmap.Any())
+                            {
+                                @foreach (var step in Model.MediumTermRoadmap)
+                                {
+                                    <li>@step</li>
+                                }
+                            }
+                            else
+                            {
+                                <li>@Localizer["Gain practical experience through internships in data roles"]</li>
+                                <li>@Localizer["Deepen industry knowledge through research and articles"]</li>
+                                <li>@Localizer["Participate in relevant projects within current job"]</li>
+                                <li>@Localizer["Build relationships with mentors in the field"]</li>
+                            }
+                        </ol>
+                    </div>
+                </div>
+
+                <!-- Long-Term Roadmap -->
+                <div class="roadmap-item">
+                    <div class="roadmap-header" onclick="toggleRoadmap('long-term')">
+                        <div class="roadmap-title-section">
+                            <i class="bi bi-book roadmap-icon"></i>
+                            <h3>@Localizer["Long-Term Roadmap (5+ years)"]</h3>
+                        </div>
+                        <i class="bi bi-chevron-down" id="long-term-arrow"></i>
+                    </div>
+                    <div class="roadmap-content" id="long-term-content">
+                        <ol class="roadmap-steps">
+                            @if (Model.LongTermRoadmap.Any())
+                            {
+                                @foreach (var step in Model.LongTermRoadmap)
+                                {
+                                    <li>@step</li>
+                                }
+                            }
+                            else
+                            {
+                                <li>@Localizer["Aim for a management role in data analytics or project management"]</li>
+                                <li>@Localizer["Lead innovative projects to further develop leadership skills"]</li>
+                                <li>@Localizer["Continuously update skills with advanced courses"]</li>
+                                <li>@Localizer["Contribute to professional communities through speaking or publications"]</li>
+                            }
+                        </ol>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
 
-    <!-- Interview Summary -->
-    <div class="results-content">
-        <div class="summary-section">
-            <div class="section-header">
-                <h2><i class="bi bi-clipboard-data"></i> @Localizer["Interview Summary"]</h2>
-            </div>
-            <div class="summary-content">
-                <div class="interview-details">
-                    <div class="detail-item">
-                        <span class="detail-label">@Localizer["Topic:"]</span>
-                        <span class="detail-value">@Model.InterviewTopic</span>
-                    </div>
-                    <div class="detail-item">
-                        <span class="detail-label">@Localizer["Questions Asked:"]</span>
-                        <span class="detail-value">@Model.QuestionCount</span>
-                    </div>
-                    <div class="detail-item">
-                        <span class="detail-label">@Localizer["Completed:"]</span>
-                        <span class="detail-value">@(Model.CompleteDate?.ToString("MMM dd, yyyy 'at' h:mm tt") ??
-                                                        DateTime.Now.ToString("MMM dd, yyyy 'at' h:mm tt"))</span>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- AI Analysis -->
-        <div class="analysis-section">
-            <div class="section-header">
-                <h2><i class="bi bi-robot"></i> @Localizer["AI Analysis & Recommendations"]</h2>
-            </div>
-            <div class="analysis-content">
-                <div class="analysis-text">
-                    @Html.Raw(Model.InterviewSummary.Replace("\n", "<br/>"))
-                </div>
-            </div>
-        </div>
-
-        <!-- Action Buttons -->
-        <div class="action-section">
-            <div class="action-buttons">
-                <a href="/Dashboard@(!string.IsNullOrEmpty(currentCulture) ? $"?culture={currentCulture}" : "")"
-                    class="btn btn-primary action-btn">
-                    <i class="bi bi-house"></i>
-                    @Localizer["Back to Dashboard"]
-                </a>
-                <button class="btn btn-success action-btn" onclick="downloadResults()">
-                    <i class="bi bi-download"></i>
-                    @Localizer["Download Results"]
-                </button>
-                <a href="/CustomInterview@(!string.IsNullOrEmpty(currentCulture) ? $"?culture={currentCulture}" : "")"
-                    class="btn btn-outline-primary action-btn">
-                    <i class="bi bi-plus-circle"></i>
-                    @Localizer["Start New Interview"]
-                </a>
-            </div>
-        </div>
+    <!-- Action Buttons -->
+    <div class="action-buttons">
+        <a href="/Dashboard@(!string.IsNullOrEmpty(currentCulture) ? $"?culture={currentCulture}" : "")" class="btn btn-outline">
+            @Localizer["Back to Dashboard"]
+        </a>
+        <a href="/NewAnalysis@(!string.IsNullOrEmpty(currentCulture) ? $"?culture={currentCulture}" : "")" class="btn btn-primary">
+            @Localizer["Start New Analysis"]
+        </a>
     </div>
 </div>
 
 <style>
-    .interview-results-container {
+    .career-guidance-container {
         min-height: 100vh;
-        background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+        background: #f5f5f5;
         padding: 2rem 0;
     }
 
-    /* Results Header */
-    .results-header {
-        background: linear-gradient(135deg, #10b981 0%, #059669 100%);
-        color: white;
-        padding: 3rem 2rem;
-        box-shadow: 0 4px 20px rgba(16, 185, 129, 0.3);
+    /* Header */
+    .career-header {
+        text-align: center;
+        margin-bottom: 3rem;
+        padding: 0 2rem;
     }
 
-    .header-content {
-        max-width: 1200px;
-        margin: 0 auto;
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-    }
-
-    .results-info h1 {
-        margin: 0;
+    .career-title {
         font-size: 2.5rem;
         font-weight: 700;
-        display: flex;
-        align-items: center;
-        gap: 1rem;
+        color: #1a1a1a;
+        margin: 0 0 1rem 0;
     }
 
-    .results-subtitle {
-        margin: 0.5rem 0 0 0;
-        opacity: 0.9;
+    .career-subtitle {
         font-size: 1.2rem;
-    }
-
-    .results-status {
-        display: flex;
-        flex-direction: column;
-        gap: 1rem;
-        align-items: flex-end;
-    }
-
-    .status-badge {
-        padding: 0.75rem 1.5rem;
-        border-radius: 2rem;
-        font-size: 1rem;
-        font-weight: 600;
-        text-align: center;
-    }
-
-    .status-complete {
-        background-color: rgba(255, 255, 255, 0.2);
-        color: white;
-        border: 2px solid rgba(255, 255, 255, 0.3);
-    }
-
-    .question-count {
-        background-color: rgba(255, 255, 255, 0.15);
-        color: white;
-        padding: 0.5rem 1rem;
-        border-radius: 1.5rem;
-        font-size: 0.9rem;
-        font-weight: 500;
-    }
-
-    /* Results Content */
-    .results-content {
-        max-width: 1200px;
+        color: #666;
+        margin: 0;
+        max-width: 600px;
         margin: 0 auto;
-        padding: 2rem;
+    }
+
+    .career-card-flex {
         display: flex;
         flex-direction: column;
         gap: 2rem;
     }
 
-    /* Summary Section */
-    .summary-section {
+    /* Main Content Grid */
+    .career-content {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 0 2rem;
+        display: grid;
+        align-items: flex-start;
+        grid-template-columns: 1fr 1fr;
+        gap: 2rem;
+        margin-bottom: 3rem;
+    }
+
+    /* Career Cards */
+    .career-card {
         background: white;
-        border-radius: 1rem;
+        border-radius: 12px;
         padding: 2rem;
-        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
-        border-left: 4px solid #10b981;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        border: 1px solid #e0e0e0;
     }
 
-    .section-header {
-        margin-bottom: 1.5rem;
-    }
-
-    .section-header h2 {
-        margin: 0;
+    .card-title {
         font-size: 1.5rem;
         font-weight: 600;
-        color: #1f2937;
+        color: #1a1a1a;
+        margin: 0 0 1rem 0;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .card-subtitle {
+        color: #666;
+        margin: 0 0 1.5rem 0;
+        font-size: 1rem;
+    }
+
+    /* Interview Summary Card */
+    .interview-summary-card {
+        grid-column: 1;
+        grid-row: 1;
+    }
+
+    .summary-content h3 {
+        font-size: 1.1rem;
+        font-weight: 600;
+        color: #1a1a1a;
+        margin: 0 0 0.5rem 0;
+    }
+
+    .summary-content p {
+        color: #666;
+        line-height: 1.6;
+        margin: 0 0 1.5rem 0;
+    }
+
+    .summary-content p:last-child {
+        margin-bottom: 0;
+    }
+
+    /* Roadmaps Card */
+    .roadmaps-card {
+        grid-column: 2;
+        grid-row: 1;
+    }
+
+    .roadmap-accordion {
+        margin-top: 1rem;
+    }
+
+    .roadmap-item {
+        border-bottom: 1px solid #e0e0e0;
+    }
+
+    .roadmap-item:last-child {
+        border-bottom: none;
+    }
+
+    .roadmap-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 1rem 0;
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+
+    .roadmap-header:hover {
+        background-color: #f8f9fa;
+        margin: 0 -2rem;
+        padding: 1rem 2rem;
+        border-radius: 8px;
+    }
+
+    .roadmap-title-section {
         display: flex;
         align-items: center;
         gap: 0.75rem;
     }
 
-    .interview-details {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-        gap: 1rem;
-    }
-
-    .detail-item {
+    .roadmap-icon {
+        font-size: 1.2rem;
+        color: #4285f4;
+        width: 20px;
+        height: 20px;
         display: flex;
-        flex-direction: column;
-        gap: 0.5rem;
-        padding: 1rem;
-        background-color: #f8f9fa;
-        border-radius: 0.5rem;
+        align-items: center;
+        justify-content: center;
     }
 
-    .detail-label {
+    .roadmap-header h3 {
+        font-size: 1rem;
         font-weight: 600;
-        color: #6b7280;
-        font-size: 0.875rem;
-        text-transform: uppercase;
-        letter-spacing: 0.05em;
+        color: #1a1a1a;
+        margin: 0;
     }
 
-    .detail-value {
-        font-weight: 500;
-        color: #1f2937;
-        font-size: 1rem;
+    .roadmap-header i {
+        font-size: 1.2rem;
+        color: #666;
+        transition: transform 0.3s ease;
     }
 
-    /* Analysis Section */
-    .analysis-section {
-        background: white;
-        border-radius: 1rem;
-        padding: 2rem;
-        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
-        border-left: 4px solid #3b82f6;
+    .roadmap-content {
+        max-height: 0;
+        overflow: hidden;
+        transition: max-height 0.3s ease;
     }
 
-    .analysis-content {
-        margin-top: 1rem;
+    .roadmap-content.expanded {
+        max-height: 500px;
     }
 
-    .analysis-text {
-        line-height: 1.8;
-        color: #374151;
-        font-size: 1rem;
-        white-space: pre-line;
+    .roadmap-steps {
+        padding: 1rem 0;
+        margin: 0;
+        padding-left: 1.5rem;
     }
 
-    /* Action Section */
-    .action-section {
-        background: white;
-        border-radius: 1rem;
-        padding: 2rem;
-        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
-        text-align: center;
+    .roadmap-steps li {
+        color: #666;
+        line-height: 1.6;
+        margin-bottom: 0.5rem;
     }
 
+    .roadmap-steps li:last-child {
+        margin-bottom: 0;
+    }
+
+    /* MBA Focus Area Card */
+    .mba-card {
+        grid-column: 1;
+        grid-row: 2;
+    }
+
+    .mba-card p {
+        color: #666;
+        line-height: 1.6;
+        margin: 0;
+    }
+
+    /* Additional Tips Card */
+    .tips-card {
+        grid-column: 2;
+        grid-row: 2;
+    }
+
+    .tips-card p {
+        color: #666;
+        line-height: 1.6;
+        margin: 0;
+    }
+
+    /* Action Buttons */
     .action-buttons {
         display: flex;
         justify-content: center;
         gap: 1rem;
-        flex-wrap: wrap;
+        margin-top: 2rem;
     }
 
-    .action-btn {
+    .btn {
         padding: 1rem 2rem;
-        border-radius: 0.75rem;
+        border-radius: 8px;
         font-weight: 600;
-        display: flex;
-        align-items: center;
-        gap: 0.75rem;
-        transition: all 0.3s ease;
         text-decoration: none;
+        transition: all 0.3s ease;
         border: none;
         cursor: pointer;
         font-size: 1rem;
     }
 
-    .action-btn:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+    .btn-outline {
+        background: white;
+        color: #666;
+        border: 2px solid #e0e0e0;
+    }
+
+    .btn-outline:hover {
+        background: #f8f9fa;
+        color: #1a1a1a;
         text-decoration: none;
     }
 
     .btn-primary {
-        background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+        background: #4285f4;
         color: white;
     }
 
-    .btn-success {
-        background: linear-gradient(135deg, #10b981 0%, #059669 100%);
-        color: white;
-    }
-
-    .btn-outline-primary {
-        background: transparent;
-        color: #3b82f6;
-        border: 2px solid #3b82f6;
-    }
-
-    .btn-outline-primary:hover {
-        background: #3b82f6;
-        color: white;
+    .btn-primary:hover {
+        background: #3367d6;
+        text-decoration: none;
     }
 
     /* Responsive Design */
     @@media (max-width: 768px) {
-        .header-content {
-            flex-direction: column;
-            gap: 2rem;
-            text-align: center;
+        .career-content {
+            grid-template-columns: 1fr;
+            padding: 0 1rem;
         }
 
-        .results-info h1 {
+        .interview-summary-card,
+        .roadmaps-card,
+        .mba-card,
+        .tips-card {
+            grid-column: 1;
+        }
+
+        .career-title {
             font-size: 2rem;
         }
 
-        .results-content {
-            padding: 1rem;
+        .career-subtitle {
+            font-size: 1rem;
         }
 
-        .summary-section,
-        .analysis-section,
-        .action-section {
+        .career-card {
             padding: 1.5rem;
         }
 
@@ -322,42 +442,89 @@
             align-items: center;
         }
 
-        .action-btn {
+        .btn {
             width: 100%;
             max-width: 300px;
-            justify-content: center;
         }
     }
 
     @@media (max-width: 480px) {
-        .results-header {
-            padding: 2rem 1rem;
+        .career-header {
+            padding: 0 1rem;
         }
 
-        .results-info h1 {
+        .career-title {
             font-size: 1.75rem;
         }
 
-        .interview-details {
-            grid-template-columns: 1fr;
+        .career-card {
+            padding: 1rem;
         }
     }
 </style>
 
 <script>
+    // Accordion functionality for roadmaps
+    function toggleRoadmap(roadmapType) {
+        const content = document.getElementById(roadmapType + '-content');
+        const arrow = document.getElementById(roadmapType + '-arrow');
+        
+        if (content.classList.contains('expanded')) {
+            content.classList.remove('expanded');
+            arrow.style.transform = 'rotate(0deg)';
+        } else {
+            // Close all other roadmaps
+            const allContents = document.querySelectorAll('.roadmap-content');
+            const allArrows = document.querySelectorAll('.roadmap-header i');
+            
+            allContents.forEach(c => c.classList.remove('expanded'));
+            allArrows.forEach(a => a.style.transform = 'rotate(0deg)');
+            
+            // Open the selected roadmap
+            content.classList.add('expanded');
+            arrow.style.transform = 'rotate(180deg)';
+        }
+    }
+
+    // Initialize with short-term roadmap expanded
+    document.addEventListener('DOMContentLoaded', function() {
+        const shortTermContent = document.getElementById('short-term-content');
+        const shortTermArrow = document.getElementById('short-term-arrow');
+        
+        if (shortTermContent) {
+            shortTermContent.classList.add('expanded');
+            shortTermArrow.style.transform = 'rotate(180deg)';
+        }
+    });
+
     function downloadResults() {
-        // Create a text file with the interview results
-        const content = `Interview Results
-================
+        // Create a text file with the career guidance results
+        const content = `Your Personalized Career Guidance
+===============================
 
-Topic: @Model.InterviewTopic
-Questions Asked: @Model.QuestionCount
-Completed: @DateTime.Now.ToString("MMM dd, yyyy 'at' h:mm tt")
+Interview Summary:
+${document.querySelector('.summary-content p').textContent}
 
-AI Analysis & Recommendations:
-=============================
+Recommendations:
+${document.querySelector('.recommendations-section p').textContent}
 
-@Model.InterviewSummary
+Career Roadmaps:
+===============
+
+Short-Term (1-2 years):
+${Array.from(document.querySelectorAll('#short-term-content li')).map(li => li.textContent).join('\n')}
+
+Medium-Term (3-5 years):
+${Array.from(document.querySelectorAll('#medium-term-content li')).map(li => li.textContent).join('\n')}
+
+Long-Term (5+ years):
+${Array.from(document.querySelectorAll('#long-term-content li')).map(li => li.textContent).join('\n')}
+
+MBA Focus Area:
+${document.querySelector('.mba-card p').textContent}
+
+Additional Tips:
+${document.querySelector('.tips-card p').textContent}
 
 ---
 Generated by AI Interview Management System
@@ -367,7 +534,7 @@ Generated by AI Interview Management System
         const url = window.URL.createObjectURL(blob);
         const a = document.createElement('a');
         a.href = url;
-        a.download = `interview-results-${new Date().toISOString().split('T')[0]}.txt`;
+        a.download = `career-guidance-${new Date().toISOString().split('T')[0]}.txt`;
         document.body.appendChild(a);
         a.click();
         document.body.removeChild(a);

@@ -1,16 +1,23 @@
 using InterviewBot.Data;
 using InterviewBot.Models;
 using Microsoft.EntityFrameworkCore;
+using System.Text.Json;
 
 namespace InterviewBot.Services
 {
     public class InterviewCatalogService : IInterviewCatalogService
     {
         private readonly AppDbContext _context;
+        private readonly IInterviewAnalysisService _analysisService;
+        private readonly IProfileService _profileService;
+        private readonly ILogger<InterviewCatalogService> _logger;
 
-        public InterviewCatalogService(AppDbContext context)
+        public InterviewCatalogService(AppDbContext context, IInterviewAnalysisService analysisService, IProfileService profileService, ILogger<InterviewCatalogService> logger)
         {
             _context = context;
+            _analysisService = analysisService;
+            _profileService = profileService;
+            _logger = logger;
         }
 
         public async Task<List<InterviewCatalog>> GenerateInterviewCatalogsAsync(int userId, int profileId, Dictionary<string, object>? apiResponseData = null)
@@ -189,6 +196,112 @@ namespace InterviewBot.Services
 
             await _context.SaveChangesAsync();
             return true;
+        }
+
+        public async Task<bool> CompleteInterviewWithAnalysisAsync(int sessionId)
+        {
+            try
+            {
+                _logger.LogInformation("Starting interview completion with analysis for session {SessionId}", sessionId);
+
+                // Get the interview session with related data
+                var session = await _context.InterviewSessions
+                    .Include(s => s.InterviewCatalog)
+                    .Include(s => s.CustomInterview)
+                    .FirstOrDefaultAsync(s => s.Id == sessionId);
+
+                if (session == null)
+                {
+                    _logger.LogWarning("Interview session {SessionId} not found", sessionId);
+                    return false;
+                }
+
+                if (session.UserId == null)
+                {
+                    _logger.LogWarning("User ID is null for session {SessionId}", sessionId);
+                    return false;
+                }
+
+                // Get user profile for analysis
+                var profile = await _context.Profiles
+                    .FirstOrDefaultAsync(p => p.UserId == session.UserId);
+
+                if (profile == null)
+                {
+                    _logger.LogWarning("Profile not found for user {UserId}", session.UserId);
+                    return false;
+                }
+
+                // Get chat messages for the interview
+                var chatMessages = await _context.ChatMessages
+                    .Where(m => m.InterviewId == sessionId.ToString())
+                    .OrderBy(m => m.Timestamp)
+                    .ToListAsync();
+
+                if (!chatMessages.Any())
+                {
+                    _logger.LogWarning("No chat messages found for session {SessionId}", sessionId);
+                    return false;
+                }
+
+                // Build conversation array
+                var conversation = new List<InterviewConversation>();
+                for (int i = 0; i < chatMessages.Count; i += 2)
+                {
+                    if (i + 1 < chatMessages.Count)
+                    {
+                        conversation.Add(new InterviewConversation
+                        {
+                            Question = chatMessages[i].Content,
+                            Answer = chatMessages[i + 1].Content
+                        });
+                    }
+                }
+
+                // Create analysis request
+                var analysisRequest = new InterviewAnalysisRequest
+                {
+                    Purpose = session.InterviewCatalog?.InterviewType ?? "Career Counselling",
+                    ResponseLanguage = "en",
+                    InterviewName = session.InterviewCatalog?.Topic ?? "Interview",
+                    InterviewObjective = $"Assess {session.InterviewCatalog?.InterviewType?.ToLower() ?? "career"} potential and skills",
+                    UserProfileBrief = profile.BriefIntroduction ?? "Professional with relevant experience",
+                    UserProfileStrength = profile.Strengths ?? "Strong analytical and communication skills",
+                    UserProfileWeakness = profile.Weaknesses ?? "Areas for improvement in specific skills",
+                    UserProfileFutureCareerGoal = profile.FutureCareerGoals ?? "Advance career in chosen field",
+                    UserProfileMotivation = profile.Motivations ?? "Driven by professional growth and impact",
+                    InterviewConversation = conversation
+                };
+
+                // Call analysis API
+                var (success, analysisResponse, errorMessage) = await _analysisService.CallInterviewAnalysisAPIAsync(analysisRequest);
+
+                if (success && analysisResponse != null)
+                {
+                    // Save analysis result
+                    await _analysisService.SaveInterviewAnalysisResultAsync(sessionId, session.UserId.Value, analysisResponse);
+                    _logger.LogInformation("Successfully saved interview analysis for session {SessionId}", sessionId);
+                }
+                else
+                {
+                    _logger.LogError("Failed to get interview analysis for session {SessionId}: {Error}", sessionId, errorMessage);
+                }
+
+                // Complete the interview
+                session.Status = InterviewStatus.Completed;
+                session.EndTime = DateTime.UtcNow;
+                session.IsCompleted = true;
+
+                await _context.SaveChangesAsync();
+
+                _logger.LogInformation("Successfully completed interview with analysis for session {SessionId}", sessionId);
+                return true;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error completing interview with analysis for session {SessionId}", sessionId);
+                return false;
+            }
         }
 
         public async Task<InterviewResult> GenerateInterviewAnalysisAsync(int sessionId)

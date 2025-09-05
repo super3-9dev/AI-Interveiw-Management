@@ -18,6 +18,7 @@ namespace InterviewBot.Data
         public DbSet<InterviewCatalog> InterviewCatalogs { get; set; }
         public DbSet<CustomInterview> CustomInterviews { get; set; }
         public DbSet<InterviewCatalogItem> InterviewCatalogItems { get; set; }
+        public DbSet<InterviewAnalysisResult> InterviewAnalysisResults { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -134,6 +135,32 @@ namespace InterviewBot.Data
                 .WithMany()
                 .HasForeignKey(s => s.AIAgentRoleId)
                 .OnDelete(DeleteBehavior.SetNull);
+
+            // Configure InterviewAnalysisResult relationships
+            modelBuilder.Entity<InterviewAnalysisResult>()
+                .HasOne(ar => ar.InterviewSession)
+                .WithMany()
+                .HasForeignKey(ar => ar.InterviewSessionId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            modelBuilder.Entity<InterviewAnalysisResult>()
+                .HasOne(ar => ar.User)
+                .WithMany()
+                .HasForeignKey(ar => ar.UserId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            // Configure string field lengths for InterviewAnalysisResult
+            modelBuilder.Entity<InterviewAnalysisResult>()
+                .Property(ar => ar.Summary)
+                .HasMaxLength(2000);
+
+            modelBuilder.Entity<InterviewAnalysisResult>()
+                .Property(ar => ar.Recommendations)
+                .HasMaxLength(2000);
+
+            modelBuilder.Entity<InterviewAnalysisResult>()
+                .Property(ar => ar.MBAFocusArea)
+                .HasMaxLength(100);
         }
     }
 }
