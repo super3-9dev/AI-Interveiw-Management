@@ -116,30 +116,63 @@ namespace InterviewBot.Services
 
         public async Task<List<InterviewCatalog>> GetUserInterviewCatalogsAsync(int userId)
         {
-            return await _context.InterviewCatalogs
-                .Where(ic => ic.UserId == userId && ic.IsActive)
-                .ToListAsync();
+            try
+            {
+                return await _context.InterviewCatalogs
+                    .Where(ic => ic.UserId == userId && ic.IsActive)
+                    .ToListAsync();
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error retrieving interview catalogs for user {UserId}. Table may not exist.", userId);
+                return new List<InterviewCatalog>(); // Return empty list if table doesn't exist
+            }
         }
 
         public async Task<List<CustomInterview>> GetUserCustomInterviewsAsync(int userId)
         {
-            return await _context.CustomInterviews
-                .Where(ci => ci.UserId == userId && ci.IsActive)
-                .ToListAsync();
+            try
+            {
+                return await _context.CustomInterviews
+                    .Where(ci => ci.UserId == userId && ci.IsActive)
+                    .ToListAsync();
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error retrieving custom interviews for user {UserId}. Table may not exist.", userId);
+                return new List<CustomInterview>(); // Return empty list if table doesn't exist
+            }
         }
 
         public async Task<List<InterviewCatalogItem>> GetUserInterviewCatalogItemsAsync(int userId)
         {
-            return await _context.InterviewCatalogItems
-                .Where(ici => ici.UserId == userId && ici.IsActive)
-                .OrderByDescending(ici => ici.CreatedAt)
-                .ToListAsync();
+            try
+            {
+                return await _context.InterviewCatalogItems
+                    .Where(ici => ici.UserId == userId && ici.IsActive)
+                    .OrderByDescending(ici => ici.CreatedAt)
+                    .ToListAsync();
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error retrieving interview catalog items for user {UserId}. Table may not exist.", userId);
+                return new List<InterviewCatalogItem>(); // Return empty list if table doesn't exist
+            }
         }
 
         public async Task<InterviewSession> StartInterviewAsync(int catalogId, int userId, InterviewType type)
         {
-            var catalog = await _context.InterviewCatalogs
-                .FirstOrDefaultAsync(ic => ic.Id == catalogId && ic.UserId == userId);
+            InterviewCatalog? catalog;
+            try
+            {
+                catalog = await _context.InterviewCatalogs
+                    .FirstOrDefaultAsync(ic => ic.Id == catalogId && ic.UserId == userId);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error retrieving interview catalog {CatalogId} for user {UserId}. Table may not exist.", catalogId, userId);
+                throw new InvalidOperationException("Database error: InterviewCatalogs table may not exist");
+            }
 
             if (catalog == null)
                 throw new InvalidOperationException("Interview catalog not found");
@@ -161,41 +194,65 @@ namespace InterviewBot.Services
 
         public async Task<bool> PauseInterviewAsync(int sessionId, string reason)
         {
-            var session = await _context.InterviewSessions.FindAsync(sessionId);
-            if (session == null) return false;
+            try
+            {
+                var session = await _context.InterviewSessions.FindAsync(sessionId);
+                if (session == null) return false;
 
-            session.Status = InterviewStatus.Paused;
-            session.PausedAt = DateTime.UtcNow;
-            session.PauseReason = reason;
+                session.Status = InterviewStatus.Paused;
+                session.PausedAt = DateTime.UtcNow;
+                session.PauseReason = reason;
 
-            await _context.SaveChangesAsync();
-            return true;
+                await _context.SaveChangesAsync();
+                return true;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error pausing interview session {SessionId}. Table may not exist.", sessionId);
+                return false;
+            }
         }
 
         public async Task<bool> ResumeInterviewAsync(int sessionId, string notes)
         {
-            var session = await _context.InterviewSessions.FindAsync(sessionId);
-            if (session == null) return false;
+            try
+            {
+                var session = await _context.InterviewSessions.FindAsync(sessionId);
+                if (session == null) return false;
 
-            session.Status = InterviewStatus.InProgress;
-            session.ResumedAt = DateTime.UtcNow;
-            session.ResumeNotes = notes;
+                session.Status = InterviewStatus.InProgress;
+                session.ResumedAt = DateTime.UtcNow;
+                session.ResumeNotes = notes;
 
-            await _context.SaveChangesAsync();
-            return true;
+                await _context.SaveChangesAsync();
+                return true;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error resuming interview session {SessionId}. Table may not exist.", sessionId);
+                return false;
+            }
         }
 
         public async Task<bool> CompleteInterviewAsync(int sessionId)
         {
-            var session = await _context.InterviewSessions.FindAsync(sessionId);
-            if (session == null) return false;
+            try
+            {
+                var session = await _context.InterviewSessions.FindAsync(sessionId);
+                if (session == null) return false;
 
-            session.Status = InterviewStatus.Completed;
-            session.EndTime = DateTime.UtcNow;
-            session.IsCompleted = true;
+                session.Status = InterviewStatus.Completed;
+                session.EndTime = DateTime.UtcNow;
+                session.IsCompleted = true;
 
-            await _context.SaveChangesAsync();
-            return true;
+                await _context.SaveChangesAsync();
+                return true;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error completing interview session {SessionId}. Table may not exist.", sessionId);
+                return false;
+            }
         }
 
         public async Task<bool> CompleteInterviewWithAnalysisAsync(int sessionId)
@@ -205,10 +262,19 @@ namespace InterviewBot.Services
                 _logger.LogInformation("Starting interview completion with analysis for session {SessionId}", sessionId);
 
                 // Get the interview session with related data
-                var session = await _context.InterviewSessions
-                    .Include(s => s.InterviewCatalog)
-                    .Include(s => s.CustomInterview)
-                    .FirstOrDefaultAsync(s => s.Id == sessionId);
+                InterviewSession? session;
+                try
+                {
+                    session = await _context.InterviewSessions
+                        .Include(s => s.InterviewCatalog)
+                        .Include(s => s.CustomInterview)
+                        .FirstOrDefaultAsync(s => s.Id == sessionId);
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogError(ex, "Error retrieving interview session {SessionId}. Table may not exist.", sessionId);
+                    return false; // Return false if table doesn't exist
+                }
 
                 if (session == null)
                 {
@@ -306,9 +372,18 @@ namespace InterviewBot.Services
 
         public async Task<InterviewResult> GenerateInterviewAnalysisAsync(int sessionId)
         {
-            var session = await _context.InterviewSessions
-                .Include(s => s.AIAgentRole)
-                .FirstOrDefaultAsync(s => s.Id == sessionId);
+            InterviewSession? session;
+            try
+            {
+                session = await _context.InterviewSessions
+                    .Include(s => s.AIAgentRole)
+                    .FirstOrDefaultAsync(s => s.Id == sessionId);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error retrieving interview session {SessionId}. Table may not exist.", sessionId);
+                throw new InvalidOperationException("Database error: InterviewSessions table may not exist");
+            }
 
             if (session == null)
                 throw new InvalidOperationException("Interview session not found");

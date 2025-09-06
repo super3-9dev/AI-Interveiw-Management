@@ -484,21 +484,37 @@ namespace InterviewBot.Services
 
         public async Task<InterviewSession?> GetInterviewSessionAsync(int sessionId, int userId)
         {
-            return await _dbContext.InterviewSessions
-                .Include(s => s.InterviewCatalog)
-                .Include(s => s.CustomInterview)
-                .Include(s => s.AIAgentRole)
-                .FirstOrDefaultAsync(s => s.Id == sessionId && s.UserId == userId);
+            try
+            {
+                return await _dbContext.InterviewSessions
+                    .Include(s => s.InterviewCatalog)
+                    .Include(s => s.CustomInterview)
+                    .Include(s => s.AIAgentRole)
+                    .FirstOrDefaultAsync(s => s.Id == sessionId && s.UserId == userId);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error retrieving interview session {SessionId} for user {UserId}. Table may not exist.", sessionId, userId);
+                return null; // Return null if table doesn't exist
+            }
         }
 
         public async Task<IEnumerable<InterviewSession>> GetUserInterviewSessionsAsync(int userId)
         {
-            return await _dbContext.InterviewSessions
-                .Include(s => s.InterviewCatalog)
-                .Include(s => s.CustomInterview)
-                .Where(s => s.UserId == userId)
-                .OrderByDescending(s => s.StartTime)
-                .ToListAsync();
+            try
+            {
+                return await _dbContext.InterviewSessions
+                    .Include(s => s.InterviewCatalog)
+                    .Include(s => s.CustomInterview)
+                    .Where(s => s.UserId == userId)
+                    .OrderByDescending(s => s.StartTime)
+                    .ToListAsync();
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error retrieving interview sessions for user {UserId}. Table may not exist.", userId);
+                return new List<InterviewSession>(); // Return empty list if table doesn't exist
+            }
         }
 
         public async Task<IEnumerable<InterviewCatalog>> GetUserInterviewCatalogsAsync(int userId)
@@ -511,10 +527,18 @@ namespace InterviewBot.Services
 
         public async Task<IEnumerable<CustomInterview>> GetUserCustomInterviewsAsync(int userId)
         {
-            return await _dbContext.CustomInterviews
-                .Where(c => c.UserId == userId && c.IsActive)
-                .OrderByDescending(c => c.CreatedAt)
-                .ToListAsync();
+            try
+            {
+                return await _dbContext.CustomInterviews
+                    .Where(c => c.UserId == userId && c.IsActive)
+                    .OrderByDescending(c => c.CreatedAt)
+                    .ToListAsync();
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error retrieving custom interviews for user {UserId}. Table may not exist.", userId);
+                return new List<CustomInterview>(); // Return empty list if table doesn't exist
+            }
         }
 
         public async Task<bool> SaveChatMessageAsync(int userId, string interviewId, string? question, string content)
