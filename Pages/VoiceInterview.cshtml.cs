@@ -7,6 +7,8 @@ using InterviewBot.Data;
 using Microsoft.EntityFrameworkCore;
 using System.Security.Claims;
 using System.ComponentModel.DataAnnotations;
+using System.Text.Json;
+using System.Text.Json.Serialization;
 
 namespace InterviewBot.Pages
 {
@@ -17,13 +19,15 @@ namespace InterviewBot.Pages
         private readonly AppDbContext _dbContext;
         private readonly IInterviewCatalogService _interviewCatalogService;
         private readonly IInterviewCompletionService _interviewCompletionService;
+        private readonly IOpenAIService _openAIService;
 
-        public VoiceInterviewModel(IInterviewService interviewService, AppDbContext dbContext, IInterviewCatalogService interviewCatalogService, IInterviewCompletionService interviewCompletionService)
+        public VoiceInterviewModel(IInterviewService interviewService, AppDbContext dbContext, IInterviewCatalogService interviewCatalogService, IInterviewCompletionService interviewCompletionService, IOpenAIService openAIService)
         {
             _interviewService = interviewService;
             _dbContext = dbContext;
             _interviewCatalogService = interviewCatalogService;
             _interviewCompletionService = interviewCompletionService;
+            _openAIService = openAIService;
         }
 
         [BindProperty(SupportsGet = true)]
@@ -46,12 +50,21 @@ namespace InterviewBot.Pages
         public string? ErrorMessage { get; set; }
         public string? SuccessMessage { get; set; }
 
-        public async Task<IActionResult> OnGetAsync()
+        public async Task<IActionResult> OnGetAsync(string interviewId)
         {
             try
             {
+                // Get interviewId from query parameter if not already set
+                if (!string.IsNullOrEmpty(interviewId))
+                {
+                    InterviewId = interviewId;
+                }
+
+                Console.WriteLine($"VoiceInterview OnGetAsync - InterviewId: '{InterviewId}'");
+
                 if (string.IsNullOrEmpty(InterviewId))
                 {
+                    Console.WriteLine("InterviewId is empty, redirecting to Dashboard");
                     ErrorMessage = "Interview ID is required.";
                     return RedirectToPage("/Dashboard");
                 }
@@ -112,7 +125,10 @@ namespace InterviewBot.Pages
         {
             try
             {
-                if (!ModelState.IsValid)
+                Console.WriteLine($"VoiceInterview OnPostAsync - Handler====================>: '{handler}'");
+                
+                // Skip ModelState validation for VoiceChat handler since it uses JSON body
+                if (handler != "VoiceChat" && !ModelState.IsValid)
                 {
                     await LoadInterviewContentAsync();
                     return Page();
@@ -135,6 +151,8 @@ namespace InterviewBot.Pages
                         break;
                     case "CompleteInterview":
                         return await OnPostCompleteInterviewAsync();
+                    case "VoiceChat":
+                        return await OnPostVoiceChatAsync();
                     default:
                         ErrorMessage = "Invalid action.";
                         break;
@@ -446,6 +464,142 @@ namespace InterviewBot.Pages
             return "Please elaborate on your previous answer with more specific examples.";
         }
 
+        public async Task<IActionResult> OnPostVoiceChatAsync()
+        {
+            try
+            {
+                Console.WriteLine("Voice Chat endpoint called");
+                Console.WriteLine($"Request method: {Request.Method}");
+                Console.WriteLine($"Content-Type: {Request.ContentType}");
+                Console.WriteLine($"Content-Length: {Request.ContentLength}");
+
+                var requestBody = await new StreamReader(Request.Body).ReadToEndAsync();
+                Console.WriteLine($"Request body: {requestBody}");
+
+                if (string.IsNullOrEmpty(requestBody))
+                {
+                    Console.WriteLine("Request body is empty");
+                    return BadRequest(new { error = "Request body is empty" });
+                }
+
+                // Try to parse the JSON manually to debug the issue
+                var jsonOptions = new JsonSerializerOptions
+                {
+                    PropertyNameCaseInsensitive = true
+                };
+
+                VoiceChatRequest request;
+                try
+                {
+                    request = JsonSerializer.Deserialize<VoiceChatRequest>(requestBody, jsonOptions);
+                    Console.WriteLine($"Deserialized request object: {request != null}");
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine($"Error deserializing JSON: {ex.Message}");
+                    return BadRequest(new { error = "Invalid JSON format" });
+                }
+
+                Console.WriteLine($"Message property value: '{request?.Message}'");
+                Console.WriteLine($"Message length: {request?.Message?.Length ?? 0}");
+                Console.WriteLine($"InterviewId from request: '{request?.InterviewId}'");
+
+                if (request == null || string.IsNullOrEmpty(request.Message))
+                {
+                    Console.WriteLine("Invalid request - missing message");
+                    return BadRequest(new { error = "Invalid request - message is required" });
+                }
+
+                // Use interviewId from request if provided, otherwise use the page property
+                if (!string.IsNullOrEmpty(request.InterviewId))
+                {
+                    InterviewId = request.InterviewId;
+                    Console.WriteLine($"Using InterviewId from request: '{InterviewId}'");
+                }
+
+                // Load interview content to ensure InterviewTopic is set
+                await LoadInterviewContentAsync();
+                Console.WriteLine($"InterviewTopic after loading: '{InterviewTopic}'");
+
+                // Get interview catalog with agent instructions
+                Console.WriteLine($"VoiceInterview - InterviewId===================>: {InterviewId}");
+                var interviewCatalog = await _dbContext.InterviewCatalogs
+                    .FirstOrDefaultAsync(c => c.Id.ToString() == InterviewId);
+                Console.WriteLine($"VoiceInterview - Agent Instructions: {interviewCatalog?.AgentInstructions ?? "Not found"}");
+
+                var userId = GetCurrentUserId();
+                Console.WriteLine($"User ID: {userId}");
+
+                if (userId == null)
+                {
+                    Console.WriteLine("User not authenticated");
+                    return Unauthorized();
+                }
+
+                Console.WriteLine($"InterviewTopic: '{InterviewTopic}'");
+                Console.WriteLine($"Generating AI response for topic: {InterviewTopic ?? "Career Interview"}");
+                Console.WriteLine($"User message: {request.Message}");
+                Console.WriteLine($"Message with instructions: {request.Message}\n\nAgent Instructions: {interviewCatalog?.AgentInstructions ?? ""}");
+
+                // Prepare the message with agent instructions
+                var messageWithInstructions = $"{request.Message}\n\nAgent Instructions: {interviewCatalog?.AgentInstructions ?? ""}";
+                
+                // Ensure we have a valid topic
+                var interviewTopic = !string.IsNullOrEmpty(InterviewTopic) ? InterviewTopic : "Career Interview";
+                Console.WriteLine($"Final interview topic: '{interviewTopic}'");
+                
+                Console.WriteLine("Calling OpenAI service...");
+                Console.WriteLine($"Message to send to OpenAI: '{messageWithInstructions}'");
+                Console.WriteLine($"Interview topic: '{interviewTopic}'");
+                
+                string aiResponse;
+                try
+                {
+                    // Generate AI response using OpenAI service
+                    aiResponse = await _openAIService.GenerateInterviewResponseAsync(
+                        messageWithInstructions,
+                        interviewTopic
+                    );
+                    Console.WriteLine("OpenAI service call completed successfully.");
+                    Console.WriteLine($"Raw AI response: '{aiResponse}'");
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine($"Error calling OpenAI service: {ex.Message}");
+                    Console.WriteLine($"Stack trace: {ex.StackTrace}");
+                    aiResponse = "I'm sorry, I'm having trouble processing your request right now. Please try again.";
+                }
+
+                Console.WriteLine($"AI Response generated: {aiResponse}");
+
+                // Save chat messages to database
+                try
+                {
+                    Console.WriteLine($"Saving Voice chat messages - UserId: {userId.Value}, InterviewId: '{InterviewId}', UserMessage: '{request.Message}'");
+                    
+                    // Save the user's original message (without agent instructions)
+                    await _interviewService.SaveChatMessageAsync(userId.Value, InterviewId, null, request.Message);
+                    
+                    // Save the AI's response
+                    await _interviewService.SaveChatMessageAsync(userId.Value, InterviewId, request.Message, aiResponse);
+                    
+                    Console.WriteLine($"Voice chat messages saved successfully for InterviewId: '{InterviewId}'");
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine($"Error saving chat messages: {ex.Message}");
+                }
+
+                return new JsonResult(new { response = aiResponse, isComplete = false });
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error in Voice chat: {ex.Message}");
+                Console.WriteLine($"Stack trace: {ex.StackTrace}");
+                return StatusCode(500, new { error = "Internal server error: " + ex.Message });
+            }
+        }
+
         private int? GetCurrentUserId()
         {
             var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier);
@@ -457,5 +611,12 @@ namespace InterviewBot.Pages
         }
     }
 
+    public class VoiceChatRequest
+    {
+        [JsonPropertyName("message")]
+        public string Message { get; set; } = string.Empty;
 
+        [JsonPropertyName("interviewId")]
+        public string InterviewId { get; set; } = string.Empty;
+    }
 }

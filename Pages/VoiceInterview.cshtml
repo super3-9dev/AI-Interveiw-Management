@@ -11,6 +11,11 @@
     }
 }
 
+<script>
+    // Make interviewId available to JavaScript
+    window.interviewId = '@Model.InterviewId';
+</script>
+
 <div class="voice-interview-container">
     <!-- Interview Header -->
     <div class="interview-header">
@@ -64,7 +69,7 @@
 
             <div class="voice-transcription">
                 <textarea id="transcriptionArea" class="transcription-textarea"
-                    placeholder="@Localizer["Your voice will be transcribed here..."]" readonly></textarea>
+                    placeholder="@Localizer["Your voice will be transcribed here..."]"></textarea>
                 <div class="transcription-actions">
                     <button class="btn btn-primary" id="sendVoiceBtn" onclick="sendVoiceMessage()">
                         <i class="bi bi-send"></i>
@@ -633,18 +638,7 @@
     let interviewConversation = []; // Store the full conversation for analysis
 
     // Interview questions
-    const interviewQuestions = [
-        "Hello! I'm your AI career coach. Let's start with the first question: Can you tell me about yourself and your professional background?",
-        "That's great! Now, what are your key strengths and how do they contribute to your work?",
-        "Excellent! Can you describe a challenging project you've worked on and how you overcame the difficulties?",
-        "Very interesting! How do you stay updated with the latest trends and technologies in your field?",
-        "That's impressive! Tell me about a time when you had to work with a difficult team member. How did you handle it?",
-        "Good approach! What motivates you most in your professional development?",
-        "Great perspective! Can you share an example of how you've mentored or helped a colleague grow?",
-        "That's wonderful! How do you handle working under pressure and tight deadlines?",
-        "Excellent! What are your career goals for the next 3-5 years?",
-        "Perfect! Finally, do you have any questions for me about the role or the company?"
-    ];
+    // Static questions removed - now using AI-generated questions
 
     // Initialize current time
     document.addEventListener('DOMContentLoaded', function () {
@@ -1155,7 +1149,7 @@
     }
 
     // Start the interview
-    function startInterview() {
+    async function startInterview() {
         if (isInterviewStarted) return;
         
         isInterviewStarted = true;
@@ -1164,40 +1158,68 @@
         
         addSystemMessage("Interview started! The AI will ask you questions. Please answer each question thoroughly.");
         
-        // Ask the first question
-        askNextQuestion();
+        // Display the greeting message directly (don't send to AI)
+        const greetingMessage = "Hello! I'm your AI career coach. We're going to have a practice interview. Let's start with the first question. Say hello to start the interview!";
+        
+        // Add AI greeting to chat
+        addAIVoiceMessage(greetingMessage);
+        
+        // Speak the greeting
+        speakAIMessage(greetingMessage);
+        
+        // Update status
+        updateUserStatus('listening', 0);
+        
+        // Enable send button
+        updateSendAvailability();
     }
 
     // Ask the next question
-    function askNextQuestion() {
-        if (currentQuestionNumber >= maxQuestions || currentQuestionNumber >= interviewQuestions.length) {
+    async function askNextQuestion() {
+        if (currentQuestionNumber >= maxQuestions) {
             completeInterview();
             return;
         }
 
-        const question = interviewQuestions[currentQuestionNumber];
-        currentQuestionNumber++;
-        isWaitingForUserResponse = true;
+        try {
+            // Generate AI question based on conversation context
+            const aiResponse = await getVoiceAIResponse("Please ask the next interview question based on our conversation so far.");
+            
+            if (aiResponse) {
+                currentQuestionNumber++;
+                isWaitingForUserResponse = true;
 
-        // Add AI question to chat
-        addAIMessage(question);
-        
-        // Speak the question
-        speakAIMessage(question);
-        
-        // Update status
-        updateUserStatus('listening', 0);
+                // Add AI question to chat
+                addAIVoiceMessage(aiResponse);
+                
+                // Speak the question
+                speakAIMessage(aiResponse);
+                
+                // Update status
+                updateUserStatus('listening', 0);
 
-        // Focus the text input for chat answers and enable send when typing
-        const transcriptionArea = document.getElementById('transcriptionArea');
-        const sendBtn = document.getElementById('sendVoiceBtn');
-        if (transcriptionArea && sendBtn) {
-            transcriptionArea.readOnly = false;
-            transcriptionArea.focus();
-            // Reset value if some browsers keep previous content on reload
-            if (!isWaitingForUserResponse) {
-                transcriptionArea.value = '';
+                // Focus the text input for chat answers and enable send when typing
+                const transcriptionArea = document.getElementById('transcriptionArea');
+                const sendBtn = document.getElementById('sendVoiceBtn');
+                if (transcriptionArea && sendBtn) {
+                    transcriptionArea.readOnly = false;
+                    transcriptionArea.focus();
+                    // Reset value if some browsers keep previous content on reload
+                    if (!isWaitingForUserResponse) {
+                        transcriptionArea.value = '';
+                    }
+                    updateSendAvailability();
+                }
+            } else {
+                // Fallback if AI doesn't respond
+                addSystemMessage("I'm ready for your next response. Please continue.");
+                isWaitingForUserResponse = true;
+                updateSendAvailability();
             }
+        } catch (error) {
+            console.error('Error generating next question:', error);
+            addSystemMessage("I'm ready for your next response. Please continue.");
+            isWaitingForUserResponse = true;
             updateSendAvailability();
         }
     }
@@ -1318,7 +1340,7 @@
         }, 3000); // 3 second delay to let user see the completion message
     }
 
-    function sendVoiceMessage() {
+    async function sendVoiceMessage() {
         try {
             const area = document.getElementById('transcriptionArea');
             if (!area) {
@@ -1339,23 +1361,38 @@
             // Clear transcription
             clearTranscription();
 
-            // Check if we're waiting for user response
-            if (isWaitingForUserResponse) {
-                isWaitingForUserResponse = false;
-                
-                // Acknowledge the answer and ask next question
-                setTimeout(() => {
-                    acknowledgeAnswerAndAskNext(transcription);
-                }, 500);
-            } else {
-                // If flow got out of sync, continue by asking the next question
-                setTimeout(() => {
-                    askNextQuestion();
-                }, 500);
+            // Disable send button while processing
+            const sendBtn = document.getElementById('sendVoiceBtn');
+            if (sendBtn) {
+                sendBtn.disabled = true;
+                sendBtn.innerHTML = '<i class="bi bi-hourglass-split"></i>';
             }
 
-            // Disable send until next question
-            updateSendAvailability();
+            try {
+                // Call the Voice Chat API to get AI response
+                console.log('Getting AI response for:', transcription);
+                const aiResponse = await getVoiceAIResponse(transcription);
+                
+                if (aiResponse) {
+                    // Add AI response to chat
+                    addAIVoiceMessage(aiResponse);
+                    
+                    // Speak the AI response
+                    speakAIMessage(aiResponse);
+                } else {
+                    addSystemMessage('Sorry, I could not process your message. Please try again.');
+                }
+            } catch (error) {
+                console.error('Error getting AI response:', error);
+                addSystemMessage('Sorry, there was an error processing your message. Please try again.');
+            } finally {
+                // Re-enable send button
+                if (sendBtn) {
+                    sendBtn.disabled = false;
+                    sendBtn.innerHTML = '<i class="bi bi-send"></i>';
+                }
+            }
+
         } catch (err) {
             console.error('sendVoiceMessage fatal error:', err);
             addSystemMessage('Could not send your message. Please try again.');
@@ -1394,10 +1431,42 @@
         });
     }
 
+    function addAIVoiceMessage(text) {
+        const voiceMessages = document.getElementById('voiceMessages');
+        const messageDiv = document.createElement('div');
+        messageDiv.className = 'voice-message ai-voice-message';
+
+        const now = new Date();
+        const timeString = now.toLocaleTimeString();
+
+        messageDiv.innerHTML = `
+            <div class="voice-avatar">
+                <i class="bi bi-robot"></i>
+            </div>
+            <div class="voice-content">
+                <div class="voice-header">
+                    <span class="voice-sender">AI Career Coach</span>
+                    <span class="voice-time">${timeString}</span>
+                </div>
+                <div class="voice-text">${text}</div>
+            </div>
+        `;
+
+        voiceMessages.appendChild(messageDiv);
+        scrollToBottom();
+
+        // Store AI message in conversation
+        interviewConversation.push({
+            type: 'ai',
+            message: text,
+            timestamp: timeString
+        });
+    }
+
     // Acknowledge user answer and ask next question
-    function acknowledgeAnswerAndAskNext(userAnswer) {
+    async function acknowledgeAnswerAndAskNext(userAnswer) {
         // Check if this was the last question
-        if (currentQuestionNumber >= maxQuestions || currentQuestionNumber >= interviewQuestions.length) {
+        if (currentQuestionNumber >= maxQuestions) {
             // This was the last question, go directly to completion
             completeInterview();
             return;
@@ -1406,10 +1475,30 @@
         // Update status to processing
         updateUserStatus('processing', 0);
 
-        // Go directly to the next question without acknowledgment
-        setTimeout(() => {
-            askNextQuestion();
-        }, 1000);
+        try {
+            // Call the Voice Chat API to get AI response
+            console.log('Getting AI response for:', userAnswer);
+            const aiResponse = await getVoiceAIResponse(userAnswer);
+            
+            if (aiResponse) {
+                // Add AI response to chat
+                addAIVoiceMessage(aiResponse);
+                
+                // Speak the AI response
+                speakAIMessage(aiResponse);
+            } else {
+                // Fallback message if AI doesn't respond
+                addSystemMessage("I'm ready for your next response. Please continue.");
+                isWaitingForUserResponse = true;
+                updateSendAvailability();
+            }
+        } catch (error) {
+            console.error('Error getting AI response:', error);
+            // Fallback message if API fails
+            addSystemMessage("I'm ready for your next response. Please continue.");
+            isWaitingForUserResponse = true;
+            updateSendAvailability();
+        }
     }
 
     async function generateAIVoiceResponse(userMessage) {
@@ -1443,6 +1532,52 @@
     function scrollToBottom() {
         const chatContainer = document.querySelector('.voice-chat-container');
         chatContainer.scrollTop = chatContainer.scrollHeight;
+    }
+
+    async function getVoiceAIResponse(userMessage) {
+        try {
+            // Call the Voice Chat API endpoint
+            console.log('Sending request to Voice Chat API...');
+            console.log('User message:', userMessage);
+            console.log('InterviewId:', window.interviewId);
+            
+            const requestBody = {
+                message: userMessage,
+                interviewId: window.interviewId
+            };
+            console.log('Request body:', JSON.stringify(requestBody));
+            
+            const response = await fetch('/VoiceInterview?handler=VoiceChat', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'RequestVerificationToken': document.querySelector('input[name="__RequestVerificationToken"]')?.value || 'CfDJ8LZPG4pc7zhKjJ9DJPf3Am8D4nO6e4G4X3W262UA-IIUkD4HP_5XXMWyO09kg-9s3OMpWcpWTdjKuJVZ5XuhiCphqHIk8Fw1d4SInpPwnauZ1cIbUtHrJoj-V_duOZYaRTAYkuXgM_QBhb_CqI5YZMpWV5b4xM2s6hI9fZGb26_4ZNm9yWP8rV9pdL-umqMd1A'
+                },
+                body: JSON.stringify(requestBody)
+            });
+
+            console.log('Response status:', response.status);
+            console.log('Response headers:', response.headers);
+
+            if (!response.ok) {
+                const errorText = await response.text();
+                console.error('Response error text:', errorText);
+                throw new Error(`HTTP error! status: ${response.status}, message: ${errorText}`);
+            }
+
+            const data = await response.json();
+            console.log('Voice AI Response received:', data);
+
+            if (data.response) {
+                return data.response;
+            } else {
+                console.error('No response field in data:', data);
+                throw new Error('No response from AI');
+            }
+        } catch (error) {
+            console.error('Error getting Voice AI response:', error);
+            return "I'm sorry, I couldn't process your response. Please try again.";
+        }
     }
 
     function addSystemMessage(text) {

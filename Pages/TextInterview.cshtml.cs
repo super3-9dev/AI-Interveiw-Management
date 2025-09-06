@@ -42,6 +42,7 @@ namespace InterviewBot.Pages
         // Interview content properties
         public string InterviewTopic { get; set; } = string.Empty;
         public string InterviewIntroduction { get; set; } = string.Empty;
+        public string AgentInstructions { get; set; } = string.Empty;
         public string CurrentQuestion { get; set; } = string.Empty;
         public List<InterviewHistoryItem> InterviewHistory { get; set; } = new List<InterviewHistoryItem>();
 
@@ -56,12 +57,21 @@ namespace InterviewBot.Pages
         public string? ErrorMessage { get; set; }
         public string? SuccessMessage { get; set; }
 
-        public async Task<IActionResult> OnGetAsync()
+        public async Task<IActionResult> OnGetAsync(string interviewId)
         {
             try
             {
+                // Get interviewId from query parameter if not already set
+                if (!string.IsNullOrEmpty(interviewId))
+                {
+                    InterviewId = interviewId;
+                }
+
+                Console.WriteLine($"TextInterview OnGetAsync - InterviewId: '{InterviewId}'");
+
                 if (string.IsNullOrEmpty(InterviewId))
                 {
+                    Console.WriteLine("InterviewId is empty, redirecting to Dashboard");
                     ErrorMessage = "Interview ID is required.";
                     return RedirectToPage("/Dashboard");
                 }
@@ -193,9 +203,7 @@ namespace InterviewBot.Pages
                 {
                     InterviewTopic = interviewCatalog.Topic;
                     InterviewIntroduction = interviewCatalog.Introduction;
-
-                    // For now, use the description as the first question
-                    // In a real implementation, you'd have a separate questions table
+                    AgentInstructions = interviewCatalog.AgentInstructions;
                     CurrentQuestion = interviewCatalog.Introduction;
                 }
             }
@@ -348,11 +356,22 @@ namespace InterviewBot.Pages
                 Console.WriteLine($"Deserialized request object: {request != null}");
                 Console.WriteLine($"Message property value: '{request?.Message}'");
                 Console.WriteLine($"Message length: {request?.Message?.Length ?? 0}");
+                Console.WriteLine($"InterviewId from request: '{request?.InterviewId}'");
 
+                var interviewCatalog = await _dbContext.InterviewCatalogs
+                    .FirstOrDefaultAsync(c => c.Id.ToString() == request.InterviewId);
+                Console.WriteLine($"InterviewCatalog================================>: {interviewCatalog?.AgentInstructions ?? "Not found"}");
                 if (request == null || string.IsNullOrEmpty(request.Message))
                 {
                     Console.WriteLine("Invalid request - missing message");
                     return BadRequest(new { error = "Invalid request - message is required" });
+                }
+
+                // Use interviewId from request if provided, otherwise use the page property
+                if (!string.IsNullOrEmpty(request.InterviewId))
+                {
+                    InterviewId = request.InterviewId;
+                    Console.WriteLine($"Using InterviewId from request: '{InterviewId}'");
                 }
 
                 var userId = GetCurrentUserId();
@@ -393,6 +412,8 @@ namespace InterviewBot.Pages
                     });
                 }
 
+                Console.WriteLine($"Agent Instruction =========================> s: {AgentInstructions}");
+                Console.WriteLine($"Interview Topic =========================> s: {InterviewTopic}");
                 // Generate AI response using OpenAI service
                 var aiResponse = await _openAIService.GenerateInterviewResponseAsync(
                     request.Message,
@@ -652,5 +673,8 @@ namespace InterviewBot.Pages
     {
         [JsonPropertyName("message")]
         public string Message { get; set; } = string.Empty;
+
+        [JsonPropertyName("interviewId")]
+        public string InterviewId { get; set; } = string.Empty;
     }
 }

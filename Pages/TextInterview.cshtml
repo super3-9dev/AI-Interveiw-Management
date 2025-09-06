@@ -11,6 +11,11 @@
     }
 }
 
+<script>
+    // Make interviewId available to JavaScript
+    window.interviewId = '@Model.InterviewId';
+</script>
+
 <div class="text-interview-container">
     <!-- Interview Header -->
     <div class="interview-header">
@@ -729,7 +734,8 @@
                     'RequestVerificationToken': document.querySelector('input[name="__RequestVerificationToken"]')?.value || ''
                 },
                 body: JSON.stringify({
-                    message: userMessage
+                    message: userMessage,
+                    interviewId: window.interviewId
                 })
             });
 
