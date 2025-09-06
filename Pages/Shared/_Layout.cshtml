@@ -30,9 +30,25 @@
         <header class="top-bar">
             <div class="top-bar-left">
                 <div class="logo">
-                    <svg class="logo-svg" viewBox="0 0 48 48" width="24" height="24">
-                        <circle cx="24" cy="24" r="15" fill="none" stroke="#4285f4" stroke-width="2.5"/>
-                        <path d="M16 24 Q20 16 24 20 Q28 24 32 20" fill="none" stroke="#4285f4" stroke-width="2.5" stroke-linecap="round"/>
+                    <svg class="logo-svg" viewBox="0 0 48 48" width="48" height="48" xmlns="http://www.w3.org/2000/svg">
+                        <!-- Blue circular border -->
+                        <circle cx="24" cy="24" r="18" fill="none" stroke="#4285f4" stroke-width="4" />
+                        <!-- Blue diamond/compass shape in the center -->
+                        <polygon 
+                            points="24,14 34,24 24,34 14,24" 
+                            fill="none" 
+                            stroke="#4285f4" 
+                            stroke-width="4" 
+                            stroke-linejoin="round"
+                        />
+                        <!-- Inner diamond for the hollow effect -->
+                        <polygon 
+                            points="24,19 29,24 24,29 19,24" 
+                            fill="none" 
+                            stroke="#4285f4" 
+                            stroke-width="2.5" 
+                            stroke-linejoin="round"
+                        />
                     </svg>
                     <span class="logo-text">Intrevidor Guiado</span>
                 </div>
@@ -120,12 +136,12 @@
                     </ul>
                     
                     <ul class="nav-list bottom-nav">
-                        <li class="nav-item">
+                        <!-- <li class="nav-item">
                             <a href="/Settings@(!string.IsNullOrEmpty(currentCulture) ? $"?culture={currentCulture}" : "")" class="nav-link" id="nav-settings">
                                 <i class="bi bi-gear"></i>
                                 <span>@Localizer["Settings"]</span>
                             </a>
-                        </li>
+                        </li> -->
                         <li class="nav-item">
                             <a href="/Account@(!string.IsNullOrEmpty(currentCulture) ? $"?culture={currentCulture}" : "")" class="nav-link" id="nav-account">
                                 <i class="bi bi-person"></i>
@@ -229,7 +245,7 @@
             display: none;
             position: absolute;
             right: 0;
-            top: 100%;
+            top: 30px;
             background-color: #fff;
             min-width: 120px;
             box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);

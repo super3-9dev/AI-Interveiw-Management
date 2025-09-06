@@ -41,11 +41,11 @@
         <form method="post" enctype="multipart/form-data" class="analysis-form">
             <!-- Input Method Tabs -->
             <div class="input-tabs">
-                <button type="button" class="tab-button active" data-tab="upload">
+                <button type="button" class="tab-button @(Model.ActiveTab == "upload" ? "active" : "")" data-tab="upload">
                     <i class="bi bi-file-earmark-arrow-up"></i>
                     @Localizer["Upload Resume"]
                 </button>
-                <button type="button" class="tab-button" data-tab="describe">
+                <button type="button" class="tab-button @(Model.ActiveTab == "describe" ? "active" : "")" data-tab="describe">
                     <i class="bi bi-pencil-square"></i>
                     @Localizer["Describe Yourself"]
                 </button>
@@ -54,7 +54,7 @@
             <!-- Tab Content -->
             <div class="tab-content">
                 <!-- Upload Resume Tab -->
-                <div class="tab-pane active" id="upload-tab">
+                <div class="tab-pane @(Model.ActiveTab == "upload" ? "active" : "")" id="upload-tab">
                     <!-- Normal upload area -->
                     <div class="upload-area" id="uploadArea">
                         <div class="upload-content">
@@ -89,7 +89,7 @@
                 </div>
 
                 <!-- Describe Yourself Tab -->
-                <div class="tab-pane" id="describe-tab">
+                <div class="tab-pane @(Model.ActiveTab == "describe" ? "active" : "")" id="describe-tab">
                     <div class="form-fields">
                         <div class="form-group">
                             <label for="briefIntroduction" class="form-label">@Localizer["Brief introduction about yourself"]</label>
@@ -711,6 +711,21 @@
         const fileNameSpan = document.getElementById('fileName');
         const fileSizeSpan = document.getElementById('fileSize');
         const submitBtn = document.getElementById('submitBtn');
+
+        // Set initial active tab based on server-side ActiveTab property
+        const activeTab = '@Model.ActiveTab';
+        if (activeTab) {
+            // Remove active class from all tabs and panes
+            tabButtons.forEach(btn => btn.classList.remove('active'));
+            tabPanes.forEach(pane => pane.classList.remove('active'));
+            
+            // Add active class to the correct tab and pane
+            const activeButton = document.querySelector(`[data-tab="${activeTab}"]`);
+            const activePane = document.getElementById(`${activeTab}-tab`);
+            
+            if (activeButton) activeButton.classList.add('active');
+            if (activePane) activePane.classList.add('active');
+        }
 
         // Handle tab switching
         tabButtons.forEach(button => {

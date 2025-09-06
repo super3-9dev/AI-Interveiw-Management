@@ -554,7 +554,7 @@ namespace InterviewBot.Services
                     UserId = userId,
                     InterviewId = interviewId,
                     Question = question,
-                    Content = content,
+                    Content = content ?? "",
                     Timestamp = DateTime.UtcNow
                 };
 

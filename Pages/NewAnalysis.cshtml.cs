@@ -34,6 +34,7 @@ namespace InterviewBot.Pages
         public string? SuccessMessage { get; set; }
         public bool HasExistingProfile { get; set; } = false;
         public string? ApiResult { get; set; }
+        public string ActiveTab { get; set; } = "upload"; // Default to upload tab
 
         private readonly IExternalAPIService _externalAPIService;
         private readonly IInterviewCatalogService _interviewCatalogService;
@@ -47,14 +48,15 @@ namespace InterviewBot.Pages
             _logger = logger;
         }
 
-        public async Task OnGetAsync()
+        public async Task OnGetAsync(string? tab = null)
         {
             // Get current user ID
             var userId = GetCurrentUserId();
             if (userId != null)
             {
-                // Always allow resume uploads - set HasExistingProfile to false
-                HasExistingProfile = false;
+                // Check if user has an existing profile
+                var hasExistingProfile = await _profileService.HasCompletedProfileAsync(userId.Value);
+                HasExistingProfile = hasExistingProfile;
 
                 // Get user's latest profile to populate form fields
                 var userProfiles = await _profileService.GetUserProfilesAsync(userId.Value);
@@ -67,6 +69,25 @@ namespace InterviewBot.Pages
                     FutureCareerGoals = latestProfile.FutureCareerGoals;
                     CurrentActivity = latestProfile.CurrentActivities;
                     Motivations = latestProfile.Motivations;
+                }
+
+                // Determine active tab based on priority:
+                // 1. URL parameter (tab)
+                // 2. Existing profile
+                // 3. Default to upload
+                if (!string.IsNullOrEmpty(tab) && (tab == "describe" || tab == "upload"))
+                {
+                    ActiveTab = tab;
+                }
+                else if (hasExistingProfile)
+                {
+                    // If user has existing profile, activate the "Describe Yourself" tab
+                    ActiveTab = "describe";
+                }
+                else
+                {
+                    // If no existing profile, keep the upload tab active
+                    ActiveTab = "upload";
                 }
             }
         }
@@ -197,8 +218,11 @@ namespace InterviewBot.Pages
                             ? $"Resume '{ResumeFile.FileName}' processed using fallback data due to API issues. Profile {actionType} successfully with sample data." 
                             : $"Resume '{ResumeFile.FileName}' analyzed successfully! Profile {actionType}.";
 
-                        // Redirect to a results page or dashboard
-                        return RedirectToPage("/ResumeAnalysisResults", new { id = profile.Id });
+                        // Set active tab to "describe" after successful resume analysis
+                        ActiveTab = "describe";
+                        
+                        // Redirect back to NewAnalysis page with describe tab active
+                        return RedirectToPage("/NewAnalysis", new { tab = "describe" });
                     }
                     catch (Exception ex)
                     {
