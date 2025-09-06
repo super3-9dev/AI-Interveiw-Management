@@ -450,10 +450,10 @@
                     🌐
                 </button>
                 <div class="language-dropdown-content">
-                    <a href="?culture=es"
-                        class="language-option @(HttpContext.Request.Query["culture"] == "es" ? "active" : "")">Español</a>
                     <a href="?culture=en"
                         class="language-option @(string.IsNullOrEmpty(HttpContext.Request.Query["culture"]) || HttpContext.Request.Query["culture"] == "en" ? "active" : "")">English</a>
+                    <a href="?culture=es"
+                        class="language-option @(HttpContext.Request.Query["culture"] == "es" ? "active" : "")">Español</a>
                 </div>
             </div>
         </div>

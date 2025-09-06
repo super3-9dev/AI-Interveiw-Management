@@ -70,13 +70,18 @@
             </div>
 
             <div class="voice-transcription">
-                <textarea id="transcriptionArea" class="transcription-textarea"
-                    placeholder="@Localizer["Your voice will be transcribed here..."]"></textarea>
-                <div class="transcription-actions">
-                    <button class="btn btn-primary" id="sendVoiceBtn" onclick="sendVoiceMessage()">
-                        <i class="bi bi-send"></i>
-                    </button>
-                </div>
+                <form method="post" class="voice-form" id="voiceForm">
+                    @Html.AntiForgeryToken()
+                    <input type="hidden" asp-for="InterviewId" />
+                    <div class="input-group">
+                        <textarea asp-for="UserAnswer" id="transcriptionArea" class="transcription-textarea"
+                            placeholder="@Localizer["Your voice will be transcribed here..."]" rows="3"></textarea>
+                        <button type="button" class="btn btn-primary" id="sendVoiceBtn" onclick="sendVoiceMessage()">
+                            <i class="bi bi-send"></i>
+                        </button>
+                    </div>
+                    <span asp-validation-for="UserAnswer" class="text-danger"></span>
+                </form>
             </div>
         </div>
     </div>
@@ -457,15 +462,37 @@
 
     .voice-transcription {
         display: flex;
+        flex-direction: column;
+        gap: 1rem;
+    }
+
+    .voice-form {
+        width: 100%;
+    }
+
+    .input-group {
+        display: flex;
         flex-direction: row;
         gap: 1rem;
         align-items: flex-end;
+        flex-wrap: unset !important;
     }
 
     #sendVoiceBtn {
         width: 50px;
         height: 50px;
-        border-radius: 0 50% 50% 50%;
+        border-radius: 0 50% 50% 50% !important;
+        flex-shrink: 0;
+        transition: all 0.2s ease;
+    }
+
+    #sendVoiceBtn.disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+    }
+
+    #sendVoiceBtn:not(.disabled):hover {
+        transform: scale(1.05);
     }
 
     .transcription-textarea {
@@ -473,7 +500,7 @@
         min-height: 100px;
         padding: 1rem;
         border: 2px solid #e9ecef;
-        border-radius: 0.75rem;
+        border-radius: 0.75rem !important;
         font-size: 1rem;
         line-height: 1.5;
         resize: vertical;
@@ -707,7 +734,9 @@
         const area = document.getElementById('transcriptionArea');
         const sendBtn = document.getElementById('sendVoiceBtn');
         if (!area || !sendBtn) return;
+        
         const hasText = area.value.trim().length > 0;
+        const shouldEnable = hasText && isWaitingForUserResponse;
     }
 
     function updateCurrentTime() {
@@ -1390,10 +1419,12 @@
 
     async function sendVoiceMessage() {
         try {
+            const form = document.getElementById('voiceForm');
             const area = document.getElementById('transcriptionArea');
-            if (!area) {
-                console.error('transcriptionArea not found');
-                addSystemMessage('Input box not ready. Please reload this page.');
+            
+            if (!form || !area) {
+                console.error('Form or transcriptionArea not found');
+                addSystemMessage('Input form not ready. Please reload this page.');
                 return;
             }
 
@@ -1582,7 +1613,10 @@
     }
 
     function clearTranscription() {
-        document.getElementById('transcriptionArea').value = '';
+        const area = document.getElementById('transcriptionArea');
+        if (area) {
+            area.value = '';
+        }
         // Only disable send button if interview is not started or completed
         if (!isInterviewStarted || !isWaitingForUserResponse) {
             updateSendAvailability();
