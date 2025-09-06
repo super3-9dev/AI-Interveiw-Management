@@ -109,9 +109,7 @@ namespace InterviewBot.Services
                     Recommendations = summary.Recommendations,
                     MBAFocusArea = catalog.MBAFocusArea,
                     ClarityScore = catalog.ClarityScore,
-                    ShortTermRoadmap = shortTermRoadmap != null ? JsonSerializer.Serialize(shortTermRoadmap) : null,
-                    MediumTermRoadmap = mediumTermRoadmap != null ? JsonSerializer.Serialize(mediumTermRoadmap) : null,
-                    LongTermRoadmap = longTermRoadmap != null ? JsonSerializer.Serialize(longTermRoadmap) : null,
+                    YourCareerRoadmaps = catalog.YourCareerRoadmaps.Any() ? JsonSerializer.Serialize(catalog.YourCareerRoadmaps) : null,
                     AdditionalTips = catalog.AdditionalTips.Any() ? JsonSerializer.Serialize(catalog.AdditionalTips) : null,
                     RawApiResponse = JsonSerializer.Serialize(apiResponse),
                     CreatedAt = DateTime.UtcNow

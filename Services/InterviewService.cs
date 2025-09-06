@@ -310,8 +310,6 @@ namespace InterviewBot.Services
             }
         }
 
-
-
         public async Task<InterviewCatalog> CreateCustomInterviewAsync(string title, string description, string customQuestions, string focusAreas, string difficultyLevel, string interviewDuration, int userId)
         {
             try

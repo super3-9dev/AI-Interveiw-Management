@@ -12,8 +12,8 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace InterviewBot.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20250905191238_AddInterviewAnalysisResult")]
-    partial class AddInterviewAnalysisResult
+    [Migration("20250906163459_AddAgentInstructionsToInterviewCatalog")]
+    partial class AddAgentInstructionsToInterviewCatalog
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -167,18 +167,12 @@ namespace InterviewBot.Migrations
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("timestamp with time zone");
 
-                    b.Property<int>("InterviewSessionId")
+                    b.Property<int?>("InterviewSessionId")
                         .HasColumnType("integer");
-
-                    b.Property<string>("LongTermRoadmap")
-                        .HasColumnType("text");
 
                     b.Property<string>("MBAFocusArea")
                         .HasMaxLength(100)
                         .HasColumnType("character varying(100)");
-
-                    b.Property<string>("MediumTermRoadmap")
-                        .HasColumnType("text");
 
                     b.Property<string>("RawApiResponse")
                         .HasColumnType("text");
@@ -186,9 +180,6 @@ namespace InterviewBot.Migrations
                     b.Property<string>("Recommendations")
                         .HasMaxLength(2000)
                         .HasColumnType("character varying(2000)");
-
-                    b.Property<string>("ShortTermRoadmap")
-                        .HasColumnType("text");
 
                     b.Property<string>("Summary")
                         .HasMaxLength(2000)
@@ -199,6 +190,9 @@ namespace InterviewBot.Migrations
 
                     b.Property<int>("UserId")
                         .HasColumnType("integer");
+
+                    b.Property<string>("YourCareerRoadmaps")
+                        .HasColumnType("text");
 
                     b.HasKey("Id");
 
@@ -216,6 +210,11 @@ namespace InterviewBot.Migrations
                         .HasColumnType("integer");
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("AgentInstructions")
+                        .IsRequired()
+                        .HasMaxLength(2000)
+                        .HasColumnType("character varying(2000)");
 
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("timestamp with time zone");
@@ -621,9 +620,7 @@ namespace InterviewBot.Migrations
                 {
                     b.HasOne("InterviewBot.Models.InterviewSession", "InterviewSession")
                         .WithMany()
-                        .HasForeignKey("InterviewSessionId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .HasForeignKey("InterviewSessionId");
 
                     b.HasOne("InterviewBot.Models.User", "User")
                         .WithMany()

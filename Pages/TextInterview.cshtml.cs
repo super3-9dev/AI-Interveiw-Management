@@ -20,13 +20,15 @@ namespace InterviewBot.Pages
         private readonly AppDbContext _dbContext;
         private readonly IOpenAIService _openAIService;
         private readonly IInterviewCatalogService _interviewCatalogService;
+        private readonly IInterviewCompletionService _interviewCompletionService;
 
-        public TextInterviewModel(IInterviewService interviewService, AppDbContext dbContext, IOpenAIService openAIService, IInterviewCatalogService interviewCatalogService)
+        public TextInterviewModel(IInterviewService interviewService, AppDbContext dbContext, IOpenAIService openAIService, IInterviewCatalogService interviewCatalogService, IInterviewCompletionService interviewCompletionService)
         {
             _interviewService = interviewService;
             _dbContext = dbContext;
             _openAIService = openAIService;
             _interviewCatalogService = interviewCatalogService;
+            _interviewCompletionService = interviewCompletionService;
         }
 
         [BindProperty(SupportsGet = true)]
@@ -242,16 +244,29 @@ namespace InterviewBot.Pages
                 InterviewHistory = new List<InterviewHistoryItem>();
                 var messages = chatMessages.ToList();
                 
-                for (int i = 0; i < messages.Count; i += 2)
+                // If no existing messages, add greeting message
+                if (messages.Count == 0)
                 {
-                    if (i + 1 < messages.Count)
+                    InterviewHistory.Add(new InterviewHistoryItem
                     {
-                        InterviewHistory.Add(new InterviewHistoryItem
+                        Question = "Hello! I'm your AI career coach. We're going to have a practice interview. Let's start with the first question. say hello to start the interview!.\n\nSay hello to start the interview!",
+                        Answer = "",
+                        Timestamp = DateTime.UtcNow
+                    });
+                }
+                else
+                {
+                    for (int i = 0; i < messages.Count; i += 2)
+                    {
+                        if (i + 1 < messages.Count)
                         {
-                            Question = messages[i].Content, // AI question
-                            Answer = messages[i + 1].Content, // User answer
-                            Timestamp = messages[i + 1].Timestamp
-                        });
+                            InterviewHistory.Add(new InterviewHistoryItem
+                            {
+                                Question = messages[i].Content, // AI question
+                                Answer = messages[i + 1].Content, // User answer
+                                Timestamp = messages[i + 1].Timestamp
+                            });
+                        }
                     }
                 }
             }
@@ -266,6 +281,11 @@ namespace InterviewBot.Pages
         {
             if (string.IsNullOrEmpty(UserAnswer))
                 return;
+
+            // Check if this is a response to the greeting
+            bool isGreetingResponse = InterviewHistory.Count == 1 && 
+                                    InterviewHistory[0].Question.Contains("Say hello to start the interview") && 
+                                    InterviewHistory[0].Answer == "";
 
             // Save the question and answer to chat messages
             try
@@ -296,8 +316,16 @@ namespace InterviewBot.Pages
             SuccessMessage = "Answer submitted successfully!";
             UserAnswer = string.Empty;
 
-            // Move to next question
-            await MoveToNextQuestionAsync(userId);
+            // If this was a greeting response, generate the first real interview question
+            if (isGreetingResponse)
+            {
+                CurrentQuestion = GenerateNextQuestion();
+            }
+            else
+            {
+                // Move to next question
+                await MoveToNextQuestionAsync(userId);
+            }
         }
 
         // API endpoint for OpenAI chat
@@ -525,9 +553,43 @@ namespace InterviewBot.Pages
                     Console.WriteLine($"Failed to parse InterviewId: {InterviewId}");
                 }
 
-                // Generate interview summary
-                var summary = await GenerateInterviewSummaryAsync();
-                Console.WriteLine($"Generated summary: {summary?.Substring(0, Math.Min(100, summary?.Length ?? 0))}...");
+                // Get chat messages for analysis
+                var chatMessages = await _interviewService.GetChatMessagesAsync(userId.Value, InterviewId);
+                Console.WriteLine($"Retrieved {chatMessages.Count()} chat messages for analysis");
+
+                // Get user profile
+                var userProfile = await _dbContext.Profiles.FirstOrDefaultAsync(p => p.UserId == userId.Value);
+                if (userProfile == null)
+                {
+                    Console.WriteLine("User profile not found, cannot complete analysis");
+                    ErrorMessage = "User profile not found. Please complete your profile first.";
+                    return Page();
+                }
+
+                // Get interview catalog details
+                var interviewCatalog = await _dbContext.InterviewCatalogs.FirstOrDefaultAsync(ic => ic.Id.ToString() == InterviewId);
+                var interviewName = interviewCatalog?.Topic ?? "Interview";
+                var interviewObjective = interviewCatalog?.Introduction ?? "General interview assessment";
+
+                // Call analysis API
+                Console.WriteLine("Calling analysis API...");
+                var analysisSuccess = await _interviewCompletionService.CompleteInterviewWithAnalysisAsync(
+                    userId.Value, 
+                    InterviewId, 
+                    interviewName, 
+                    interviewObjective, 
+                    chatMessages.ToList(), 
+                    userProfile
+                );
+
+                if (analysisSuccess)
+                {
+                    Console.WriteLine("Analysis completed successfully");
+                }
+                else
+                {
+                    Console.WriteLine("Analysis failed, but continuing with interview completion");
+                }
 
                 // Redirect to dashboard page
                 Console.WriteLine("Redirecting to Dashboard page");

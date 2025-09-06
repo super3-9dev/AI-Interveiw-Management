@@ -73,11 +73,14 @@
                     </div>
                     <div class="roadmap-content" id="short-term-content">
                         <ol class="roadmap-steps">
-                            @if (Model.ShortTermRoadmap.Any())
+                            @if (Model.YourCareerRoadmaps.Any())
                             {
-                                @foreach (var step in Model.ShortTermRoadmap)
+                                @foreach (var roadmap in Model.YourCareerRoadmaps.Where(r => r.Title.Contains("Short-Term")))
                                 {
-                                    <li>@step</li>
+                                    @foreach (var step in roadmap.Steps)
+                                    {
+                                        <li>@step</li>
+                                    }
                                 }
                             }
                             else
@@ -101,11 +104,14 @@
                     </div>
                     <div class="roadmap-content" id="medium-term-content">
                         <ol class="roadmap-steps">
-                            @if (Model.MediumTermRoadmap.Any())
+                            @if (Model.YourCareerRoadmaps.Any())
                             {
-                                @foreach (var step in Model.MediumTermRoadmap)
+                                @foreach (var roadmap in Model.YourCareerRoadmaps.Where(r => r.Title.Contains("Medium-Term")))
                                 {
-                                    <li>@step</li>
+                                    @foreach (var step in roadmap.Steps)
+                                    {
+                                        <li>@step</li>
+                                    }
                                 }
                             }
                             else
@@ -130,11 +136,14 @@
                     </div>
                     <div class="roadmap-content" id="long-term-content">
                         <ol class="roadmap-steps">
-                            @if (Model.LongTermRoadmap.Any())
+                            @if (Model.YourCareerRoadmaps.Any())
                             {
-                                @foreach (var step in Model.LongTermRoadmap)
+                                @foreach (var roadmap in Model.YourCareerRoadmaps.Where(r => r.Title.Contains("Long-Term")))
                                 {
-                                    <li>@step</li>
+                                    @foreach (var step in roadmap.Steps)
+                                    {
+                                        <li>@step</li>
+                                    }
                                 }
                             }
                             else

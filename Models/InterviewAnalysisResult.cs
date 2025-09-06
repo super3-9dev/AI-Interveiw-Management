@@ -6,9 +6,8 @@ namespace InterviewBot.Models
     {
         public int Id { get; set; }
 
-        [Required]
-        public int InterviewSessionId { get; set; }
-        public InterviewSession InterviewSession { get; set; } = null!;
+        public int? InterviewSessionId { get; set; }
+        public InterviewSession? InterviewSession { get; set; }
 
         [Required]
         public int UserId { get; set; }
@@ -27,9 +26,7 @@ namespace InterviewBot.Models
         public int ClarityScore { get; set; }
 
         // Career Roadmaps (stored as JSON)
-        public string? ShortTermRoadmap { get; set; }
-        public string? MediumTermRoadmap { get; set; }
-        public string? LongTermRoadmap { get; set; }
+        public string? YourCareerRoadmaps { get; set; }
 
         // Additional Tips (stored as JSON)
         public string? AdditionalTips { get; set; }

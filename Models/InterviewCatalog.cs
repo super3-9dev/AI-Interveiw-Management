@@ -17,6 +17,9 @@ namespace InterviewBot.Models
         [MaxLength(1000)]
         public string Introduction { get; set; } = string.Empty;
 
+        [MaxLength(2000)]
+        public string AgentInstructions { get; set; } = string.Empty;
+
         [Required]
         [MaxLength(50)]
         public string InterviewType { get; set; } = string.Empty; // "Career Counselling" or "Purpose Discovery"

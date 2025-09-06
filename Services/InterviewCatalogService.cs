@@ -52,6 +52,7 @@ namespace InterviewBot.Services
                                 UserId = userId,
                                 Topic = catalogData.GetValueOrDefault("topic")?.ToString() ?? "Interview Topic",
                                 Introduction = catalogData.GetValueOrDefault("instruction")?.ToString() ?? "AI-generated interview catalog based on your profile analysis",
+                                AgentInstructions = catalogData.GetValueOrDefault("agentInstructions")?.ToString() ?? "",
                                 InterviewType = "AI Generated"
                             };
                             catalogs.Add(catalog);

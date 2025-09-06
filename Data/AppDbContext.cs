@@ -138,12 +138,6 @@ namespace InterviewBot.Data
 
             // Configure InterviewAnalysisResult relationships
             modelBuilder.Entity<InterviewAnalysisResult>()
-                .HasOne(ar => ar.InterviewSession)
-                .WithMany()
-                .HasForeignKey(ar => ar.InterviewSessionId)
-                .OnDelete(DeleteBehavior.Cascade);
-
-            modelBuilder.Entity<InterviewAnalysisResult>()
                 .HasOne(ar => ar.User)
                 .WithMany()
                 .HasForeignKey(ar => ar.UserId)

@@ -156,7 +156,8 @@ namespace InterviewBot.Services
                             { "parsedCatalogs", specificResponse.Response.Catalog.Select(item => new Dictionary<string, object>
                                 {
                                     { "topic", item.Topic },
-                                    { "instruction", item.Instruction }
+                                    { "instruction", item.Instruction },
+                                    { "agentInstructions", item.AgentInstructions }
                                 }).ToArray()
                             }
                         };
@@ -247,5 +248,8 @@ namespace InterviewBot.Services
 
         [JsonPropertyName("instruction")]
         public string Instruction { get; set; } = string.Empty;
+
+        [JsonPropertyName("agentInstructions")]
+        public string AgentInstructions { get; set; } = string.Empty;
     }
 }

@@ -51,7 +51,7 @@
   <data name="AI Career Coach">
     <value>Coach de Carrera IA</value>
   </data>
-  <data name="Hello! I'm your AI career coach. We're going to have a practice interview. Let's start with the first question:">
+  <data name="Hello! I'm your AI career coach. We're going to have a practice interview. Let's start with the first question. say hello to start the interview!">
     <value>¡Hola! Soy tu coach de carrera IA. Vamos a tener una entrevista de práctica. Comencemos con la primera pregunta:</value>
   </data>
   <data name="Type your answer here...">

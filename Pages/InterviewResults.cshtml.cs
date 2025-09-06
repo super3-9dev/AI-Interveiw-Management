@@ -47,9 +47,7 @@ namespace InterviewBot.Pages
         public string Recommendations { get; set; } = string.Empty;
         public string MBAFocusArea { get; set; } = string.Empty;
         public int ClarityScore { get; set; }
-        public List<string> ShortTermRoadmap { get; set; } = new();
-        public List<string> MediumTermRoadmap { get; set; } = new();
-        public List<string> LongTermRoadmap { get; set; } = new();
+        public List<CareerRoadmapItem> YourCareerRoadmaps { get; set; } = new();
         public List<string> AdditionalTips { get; set; } = new();
 
         public string? ErrorMessage { get; set; }
@@ -148,17 +146,9 @@ namespace InterviewBot.Pages
                         ClarityScore = AnalysisResult.ClarityScore;
 
                         // Parse roadmaps from JSON
-                        if (!string.IsNullOrEmpty(AnalysisResult.ShortTermRoadmap))
+                        if (!string.IsNullOrEmpty(AnalysisResult.YourCareerRoadmaps))
                         {
-                            ShortTermRoadmap = JsonSerializer.Deserialize<List<string>>(AnalysisResult.ShortTermRoadmap) ?? new List<string>();
-                        }
-                        if (!string.IsNullOrEmpty(AnalysisResult.MediumTermRoadmap))
-                        {
-                            MediumTermRoadmap = JsonSerializer.Deserialize<List<string>>(AnalysisResult.MediumTermRoadmap) ?? new List<string>();
-                        }
-                        if (!string.IsNullOrEmpty(AnalysisResult.LongTermRoadmap))
-                        {
-                            LongTermRoadmap = JsonSerializer.Deserialize<List<string>>(AnalysisResult.LongTermRoadmap) ?? new List<string>();
+                            YourCareerRoadmaps = JsonSerializer.Deserialize<List<CareerRoadmapItem>>(AnalysisResult.YourCareerRoadmaps) ?? new List<CareerRoadmapItem>();
                         }
                         if (!string.IsNullOrEmpty(AnalysisResult.AdditionalTips))
                         {
@@ -360,5 +350,11 @@ namespace InterviewBot.Pages
             }
             return null;
         }
+    }
+
+    public class CareerRoadmapItem
+    {
+        public string Title { get; set; } = string.Empty;
+        public List<string> Steps { get; set; } = new();
     }
 }

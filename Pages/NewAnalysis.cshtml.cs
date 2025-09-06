@@ -353,7 +353,7 @@ namespace InterviewBot.Pages
                     success = true,
                     message = "Interview catalogs generated successfully!",
                     catalogCount = catalogs.Count,
-                    redirectUrl = "/Dashboard"
+                    redirectUrl = "/Dashboard?culture=en"
                 });
             }
             catch (Exception ex)

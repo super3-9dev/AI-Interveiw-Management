@@ -39,8 +39,12 @@ namespace InterviewBot.Services
                 ApiKey = config["OpenAI:ApiKey"] ?? string.Empty,
                 Model = config["OpenAI:Model"] ?? "gpt-4",
                 MaxTokens = int.TryParse(config["OpenAI:MaxTokens"], out var maxTokens) ? maxTokens : 2000,
-                Temperature = double.TryParse(config["OpenAI:Temperature"], out var temp) ? temp : 0.7
+                Temperature = double.TryParse(config["OpenAI:Temperature"], out var temp) ? Math.Min(Math.Max(temp, 0.0), 2.0) : 0.7
             };
+            
+            // Debug logging for configuration
+            _logger.LogInformation("OpenAI Configuration loaded - Model: {Model}, MaxTokens: {MaxTokens}, Temperature: {Temperature}", 
+                _config.Model, _config.MaxTokens, _config.Temperature);
 
             if (string.IsNullOrEmpty(_config.ApiKey))
             {
@@ -63,6 +67,14 @@ namespace InterviewBot.Services
                     _logger.LogInformation("Generating interview response (attempt {Attempt}/{MaxRetries})", attempt, maxRetries);
 
                     var systemPrompt = GetInterviewSystemPrompt(interviewContext);
+                    
+                    // Debug logging for temperature
+                    _logger.LogInformation("Using temperature: {Temperature}", _config.Temperature);
+                    
+                    // Ensure temperature is within valid range
+                    var validTemperature = Math.Min(Math.Max(_config.Temperature, 0.0), 2.0);
+                    _logger.LogInformation("Validated temperature: {Temperature}", validTemperature);
+                    
                     var requestBody = new
                     {
                         model = _config.Model,
@@ -72,7 +84,7 @@ namespace InterviewBot.Services
                             new { role = "user", content = userMessage }
                         },
                         max_tokens = _config.MaxTokens,
-                        temperature = _config.Temperature
+                        temperature = validTemperature
                     };
 
                     var json = JsonSerializer.Serialize(requestBody);
