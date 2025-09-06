@@ -82,8 +82,10 @@
                     <!-- Submit Button -->
                     <div class="form-actions">
                         <button type="submit" class="start-analysis-btn" id="submitBtn" disabled>
-                            <i class="bi bi-play-circle"></i>
-                            @Localizer["File Analysis"]
+                            <i class="bi bi-play-circle" id="submitIcon"></i>
+                            <span id="submitText">@Localizer["File Analysis"]</span>
+                            <span id="loadingSpinner" class="loading-spinner" style="display: none;">
+                            </span>
                         </button>
                     </div>
                 </div>
@@ -699,6 +701,40 @@
         max-height: 400px;
         overflow-y: auto;
     }
+
+    /* Loading spinner styles */
+    .loading-spinner {
+        margin-left: 8px;
+    }
+
+    .loading-spinner .spin {
+        animation: spin 1s linear infinite;
+    }
+
+    @@keyframes spin {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
+    }
+
+    .start-analysis-btn:disabled {
+        opacity: 0.7;
+        cursor: not-allowed;
+    }
+
+    /* Remove file icon rotation animation */
+    .remove-file-btn .bi-x-circle {
+        transition: transform 0.3s ease-in-out;
+    }
+
+    .remove-file-btn .bi-x-circle.rotate {
+        animation: rotateIcon 0.5s ease-in-out;
+    }
+
+    @@keyframes rotateIcon {
+        0% { transform: rotate(0deg); }
+        50% { transform: rotate(180deg); }
+        100% { transform: rotate(360deg); }
+    }
 </style>
 
 <script>
@@ -768,6 +804,16 @@
                 fileSizeSpan.textContent = `${(file.size / 1024 / 1024).toFixed(2)} MB`;
                 filePreview.style.display = 'flex';
                 submitBtn.disabled = false;
+                
+                // Trigger rotation animation on the remove file icon
+                const removeIcon = document.querySelector('.remove-file-btn .bi-x-circle');
+                if (removeIcon) {
+                    removeIcon.classList.add('rotate');
+                    // Remove the animation class after animation completes
+                    setTimeout(() => {
+                        removeIcon.classList.remove('rotate');
+                    }, 500);
+                }
             } else {
                 filePreview.style.display = 'none';
                 fileNameSpan.textContent = '';
@@ -822,7 +868,16 @@
             if (!filePreview.style.display) { // Check if file is selected
                 e.preventDefault();
                 alert('Please upload a resume file to start the analysis.');
+                return;
             }
+
+            // Show loading state
+            showLoadingState();
+            
+            // Set a timeout to hide loading state in case of errors
+            setTimeout(() => {
+                hideLoadingState();
+            }, 30000); // 30 seconds timeout
         });
 
         // Handle Description Analysis button click
@@ -888,9 +943,48 @@
                 }
             });
         }
+
+        // Loading state functions
+        function showLoadingState() {
+            const submitBtn = document.getElementById('submitBtn');
+            const submitIcon = document.getElementById('submitIcon');
+            const submitText = document.getElementById('submitText');
+            const loadingSpinner = document.getElementById('loadingSpinner');
+
+            if (submitBtn && submitIcon && submitText && loadingSpinner) {
+                submitBtn.disabled = true;
+                submitIcon.style.display = 'none';
+                submitText.textContent = 'Analyzing...';
+                loadingSpinner.style.display = 'inline';
+            }
+        }
+
+        function hideLoadingState() {
+            const submitBtn = document.getElementById('submitBtn');
+            const submitIcon = document.getElementById('submitIcon');
+            const submitText = document.getElementById('submitText');
+            const loadingSpinner = document.getElementById('loadingSpinner');
+
+            if (submitBtn && submitIcon && submitText && loadingSpinner) {
+                submitBtn.disabled = false;
+                submitIcon.style.display = 'inline';
+                submitText.textContent = '@Localizer["File Analysis"]';
+                loadingSpinner.style.display = 'none';
+            }
+        }
     });
 
     function removeFile() {
+        // Trigger rotation animation before removing file
+        const removeIcon = document.querySelector('.remove-file-btn .bi-x-circle');
+        if (removeIcon) {
+            removeIcon.classList.add('rotate');
+            // Remove the animation class after animation completes
+            setTimeout(() => {
+                removeIcon.classList.remove('rotate');
+            }, 500);
+        }
+        
         fileInput.value = ''; // Clear the file input
         fileNameSpan.textContent = '';
         fileSizeSpan.textContent = '';

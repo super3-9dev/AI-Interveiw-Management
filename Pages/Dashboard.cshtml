@@ -158,7 +158,7 @@
                                                 @Localizer["Completed"]
                                             </span>
                                         </div>
-                                        <a href="/Results@(!string.IsNullOrEmpty(currentCulture) ? $"?culture={currentCulture}" : "")"
+                                        <a href="/InterviewResults?interviewId=@catalog.Id@(!string.IsNullOrEmpty(currentCulture) ? $"&culture={currentCulture}" : "")"
                                             class="btn btn-primary interview-btn view-results-btn">
                                             <i class="bi bi-arrow-right"></i>
                                             @Localizer["View Results"]

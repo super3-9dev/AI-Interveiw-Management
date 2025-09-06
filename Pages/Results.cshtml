@@ -26,8 +26,8 @@
         .page-title {
             font-size: 2.5rem;
             font-weight: 700;
-            color: #1e40af;
-            margin-bottom: 0.5rem;
+            color: #1f2937;
+            margin-bottom: 1rem;
         }
 
         .page-subtitle {
@@ -92,6 +92,9 @@
         }
 
         .result-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
             border: 1px solid #e2e8f0;
             border-radius: 0.75rem;
             padding: 1.5rem;
@@ -171,14 +174,11 @@
         }
 
         .btn-primary {
-            background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
             color: white;
         }
 
         .btn-primary:hover {
-            background: linear-gradient(135deg, #2563eb 0%, #1e40af 100%);
             transform: translateY(-1px);
-            box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
         }
 
         .btn-secondary {
@@ -365,11 +365,8 @@
 
         .bottom-actions {
             text-align: center;
-            margin-top: 3rem;
-            padding: 2rem;
             background: white;
             border-radius: 1rem;
-            box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1);
         }
 
         .bottom-actions h3 {
@@ -385,15 +382,14 @@
         }
 
         .btn-outline {
-            background: transparent;
-            color: #3b82f6;
-            border: 2px solid #3b82f6;
-            padding: 0.75rem 1.5rem;
+            background: white;
+            color: #666;
+            border: 2px solid #e0e0e0;
         }
 
         .btn-outline:hover {
-            background: #3b82f6;
-            color: white;
+            background: #f8f9fa;
+            color: #1a1a1a;
             transform: translateY(-1px);
         }
 
@@ -441,29 +437,21 @@
             <!-- Interview Results -->
             <div class="results-section">
                 <div class="section-header">
-                    <div class="section-icon">📋</div>
                     <h2 class="section-title">@Localizer["Interview Results"]</h2>
                 </div>
                 <ul class="results-list">
                     @foreach (var result in Model.InterviewResults)
                     {
                         <li class="result-item">
-                            <div class="result-title">@result.Topic</div>
-                            <div class="result-meta">
-                                <span>@result.CompleteDate.ToString("MMM dd, yyyy 'at' h:mm tt")</span>
-                                <span class="result-status status-completed">@Localizer["Completed"]</span>
+                            <div class="result-info-header">
+                                <div class="result-title">@result.Topic</div>
+                                <div class="result-meta">
+                                    <span>@result.CompleteDate.ToString("MMM dd, yyyy 'at' h:mm tt")</span>
+                                    <span class="result-status status-completed">@Localizer["Completed"]</span>
+                                </div>
                             </div>
-                            <div class="result-description">
-                                @if (!string.IsNullOrEmpty(result.Content))
-                                {
-                                    @(result.Content.Length > 150 ? result.Content.Substring(0, 150) + "..." : result.Content)
-                                }
-                                else
-                                {
-                                    <span class="summary-placeholder">@Localizer["Interview completed successfully. Click \"View Result\" to see detailed analysis."]</span>
-                                }
-                            </div>
-                            <div class="result-actions">
+
+                            <div>
                                 <a href="/InterviewResults?interviewId=@result.InterviewId" class="btn btn-primary">@Localizer["View Result"]</a>
                             </div>
                         </li>
@@ -487,7 +475,6 @@
 
     <!-- Bottom Action Buttons -->
     <div class="bottom-actions">
-        <h3>@Localizer["Ready for More?"]</h3>
         <div class="bottom-buttons">
             <a href="/Dashboard" class="btn btn-outline">@Localizer["Back to Dashboard"]</a>
             <a href="/NewAnalysis" class="btn btn-primary">@Localizer["Start New Analysis"]</a>
