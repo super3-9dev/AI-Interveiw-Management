@@ -16,11 +16,11 @@ namespace InterviewBot.Models
         [Required]
         public string InterviewId { get; set; } = null!;
         
-        [MaxLength(2000)]
+        [MaxLength(10000)]
         public string? Question { get; set; }
         
         [Required]
-        [MaxLength(2000)]
+        [MaxLength(10000)]
         public string Content { get; set; } = null!;
         
         public DateTime Timestamp { get; set; } = DateTime.UtcNow;

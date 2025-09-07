@@ -45,6 +45,7 @@ namespace InterviewBot.Pages
         public string AgentInstructions { get; set; } = string.Empty;
         public string CurrentQuestion { get; set; } = string.Empty;
         public List<InterviewHistoryItem> InterviewHistory { get; set; } = new List<InterviewHistoryItem>();
+        public string GreetingMessage { get; set; } = string.Empty;
 
         // Interview completion tracking
         public int QuestionCount { get; set; } = 0;
@@ -65,6 +66,19 @@ namespace InterviewBot.Pages
                 currentCulture = HttpContext.Request.Cookies["culture"] ?? "en";
             }
             return currentCulture;
+        }
+
+        private string GetGreetingMessage()
+        {
+            var culture = GetCurrentCulture();
+            if (culture == "es")
+            {
+                return "¡Hola! Soy tu coach de carrera con IA. Vamos a tener una entrevista de práctica. Comencemos con la primera pregunta. ¡Di hola para comenzar la entrevista!";
+            }
+            else
+            {
+                return "Hello! I'm your AI career coach. We're going to have a practice interview. Let's start with the first question. Say hello to start the interview!";
+            }
         }
 
         public async Task<IActionResult> OnGetAsync(string interviewId)
@@ -115,6 +129,9 @@ namespace InterviewBot.Pages
                     SetQuestionCount(0);
                 }
                 QuestionCount = currentCount;
+
+                // Set greeting message based on culture
+                GreetingMessage = GetGreetingMessage();
 
                 return Page();
             }
@@ -267,7 +284,7 @@ namespace InterviewBot.Pages
                 {
                     InterviewHistory.Add(new InterviewHistoryItem
                     {
-                        Question = "Hello! I'm your AI career coach. We're going to have a practice interview. Let's start with the first question. say hello to start the interview!.\n\nSay hello to start the interview!",
+                        Question = GetGreetingMessage(),
                         Answer = "",
                         Timestamp = DateTime.UtcNow
                     });
@@ -370,7 +387,7 @@ namespace InterviewBot.Pages
 
                 var interviewCatalog = await _dbContext.InterviewCatalogs
                     .FirstOrDefaultAsync(c => c.Id.ToString() == request.InterviewId);
-                Console.WriteLine($"InterviewCatalog================================>: {interviewCatalog?.AgentInstructions ?? "Not found"}");
+                
                 if (request == null || string.IsNullOrEmpty(request.Message))
                 {
                     Console.WriteLine("Invalid request - missing message");
@@ -424,10 +441,12 @@ namespace InterviewBot.Pages
 
                 Console.WriteLine($"Agent Instruction =========================> s: {AgentInstructions}");
                 Console.WriteLine($"Interview Topic =========================> s: {InterviewTopic}");
+                Console.WriteLine($"Culture======================>: {HttpContext.Request.Query["culture"].ToString()}");
                 // Generate AI response using OpenAI service
                 var aiResponse = await _openAIService.GenerateInterviewResponseAsync(
                     request.Message,
-                    InterviewTopic ?? "Career Interview"
+                    InterviewTopic ?? "Career Interview",
+                    HttpContext.Request.Query["culture"].ToString()
                 );
 
                 Console.WriteLine($"AI Response generated: {aiResponse}");
@@ -504,6 +523,7 @@ namespace InterviewBot.Pages
             try
             {
                 Console.WriteLine("Generating interview summary...");
+                Console.WriteLine($"Culture======================>: {HttpContext.Request.Query["culture"].ToString()}");
 
                 var summaryPrompt = $@"
                 Based on the interview conversation, provide a comprehensive summary and analysis.
@@ -527,7 +547,8 @@ namespace InterviewBot.Pages
 
                 var summary = await _openAIService.GenerateInterviewResponseAsync(
                     summaryPrompt,
-                    "Interview Summary Generation"
+                    "Interview Summary Generation",
+                    HttpContext.Request.Query["culture"].ToString()
                 );
 
                 Console.WriteLine($"Interview summary generated successfully");

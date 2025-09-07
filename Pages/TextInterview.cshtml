@@ -47,7 +47,7 @@
                         <span class="message-time" id="currentTime"></span>
                     </div>
                     <div class="message-text">
-                        @Localizer["Hello! I'm your AI career coach. We're going to have a practice interview. Let's start with the first question. say hello to start the interview!"] @Model.CurrentQuestion
+                        @Model.GreetingMessage @Model.CurrentQuestion
                     </div>
                 </div>
             </div>
@@ -524,7 +524,7 @@
         // Add initial AI message to history
         messageHistory.push({
             type: 'ai',
-            text: 'Hello! I\'m your AI career coach. We\'re going to have a practice interview. Let\'s start with the first question: @Model.CurrentQuestion',
+            text: '@Model.GreetingMessage @Model.CurrentQuestion',
             timestamp: new Date()
         });
 
@@ -726,9 +726,10 @@
 
     async function getOpenAIResponse(userMessage) {
         try {
+            const currentCulture = new URLSearchParams(window.location.search).get('culture') || 'en';
             // Call the OpenAI API endpoint
             console.log('Sending request to OpenAI API...');
-            const response = await fetch('/TextInterview?handler=OpenAIChat', {
+            const response = await fetch('/TextInterview?handler=OpenAIChat&culture=' + currentCulture, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',

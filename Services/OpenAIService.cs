@@ -7,7 +7,7 @@ namespace InterviewBot.Services
 {
     public interface IOpenAIService
     {
-        Task<string> GenerateInterviewResponseAsync(string userMessage, string interviewContext);
+        Task<string> GenerateInterviewResponseAsync(string userMessage, string interviewContext, string culture = "en");
         Task<string> TranscribeAudioAsync(byte[] audioData, string fileName);
         Task<byte[]> GenerateSpeechAsync(string text);
         Task<string> GenerateFollowUpQuestionAsync(string userResponse, string currentQuestion, string interviewType);
@@ -56,7 +56,7 @@ namespace InterviewBot.Services
             _logger.LogInformation("OpenAI service initialized with model: {Model}", _config.Model);
         }
 
-        public async Task<string> GenerateInterviewResponseAsync(string userMessage, string interviewContext)
+        public async Task<string> GenerateInterviewResponseAsync(string userMessage, string interviewContext, string culture = "en")
         {
             const int maxRetries = 3;
 
@@ -66,7 +66,7 @@ namespace InterviewBot.Services
                 {
                     _logger.LogInformation("Generating interview response (attempt {Attempt}/{MaxRetries})", attempt, maxRetries);
 
-                    var systemPrompt = GetInterviewSystemPrompt(interviewContext);
+                    var systemPrompt = GetInterviewSystemPrompt(interviewContext, culture);
                     
                     // Debug logging for temperature
                     _logger.LogInformation("Using temperature: {Temperature}", _config.Temperature);
@@ -342,9 +342,37 @@ namespace InterviewBot.Services
             }
         }
 
-        private string GetInterviewSystemPrompt(string interviewContext)
+        private string GetInterviewSystemPrompt(string interviewContext, string culture = "en")
         {
-            return $@"You are an expert career coach conducting a {interviewContext} interview. 
+            if (culture == "es")
+            {
+                return $@"Eres un coach de carrera experto que está realizando una entrevista de {interviewContext}. 
+
+IMPORTANTE: Haz preguntas CORTAS y DIRECTAS únicamente. Cada pregunta debe ser de máximo 1-2 oraciones.
+
+Ejemplos de buenas preguntas:
+- ¿Por qué estás interesado en consultoría?
+- ¿Qué experiencia de liderazgo tienes?
+- ¿Cuáles son tus mayores debilidades?
+- ¿Dónde te ves en 5-7 años?
+- Cuéntame sobre un proyecto desafiante en el que trabajaste.
+- ¿Qué te motiva en tu carrera?
+
+Tu rol:
+1. Haz una pregunta corta y directa a la vez
+2. Mantén las preguntas conversacionales y profesionales
+3. Enfócate en carrera, habilidades, experiencia y objetivos
+4. NO proporciones explicaciones largas o múltiples preguntas
+5. NO des consejos o retroalimentación - solo haz preguntas
+6. Siempre termina con una sola pregunta
+
+Contexto actual de la entrevista: {interviewContext}
+
+Haz tu primera pregunta ahora:";
+            }
+            else
+            {
+                return $@"You are an expert career coach conducting a {interviewContext} interview. 
 
 IMPORTANT: Ask SHORT, DIRECT questions only. Each question should be 1-2 sentences maximum.
 
@@ -367,6 +395,7 @@ Your role:
 Current interview context: {interviewContext}
 
 Ask your first question now:";
+            }
         }
 
         // Response classes for OpenAI API

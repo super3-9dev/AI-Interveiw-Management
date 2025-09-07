@@ -32,6 +32,9 @@ namespace InterviewBot.Pages
         [BindProperty]
         public string InterviewDuration { get; set; } = string.Empty;
 
+        [BindProperty]
+        public string Culture { get; set; } = string.Empty;
+
         public IEnumerable<InterviewCatalog> InterviewCatalogs { get; set; } = new List<InterviewCatalog>();
         public IEnumerable<InterviewSession> ActiveInterviewSessions { get; set; } = new List<InterviewSession>();
         public IEnumerable<CustomInterview> CustomInterviews { get; set; } = new List<CustomInterview>();
@@ -135,7 +138,7 @@ namespace InterviewBot.Pages
             }
         }
 
-        public async Task<IActionResult> OnPostContinueInterviewAsync(int interviewId)
+        public async Task<IActionResult> OnPostContinueInterviewAsync(int interviewId, string culture)
         {
             try
             {
@@ -154,7 +157,7 @@ namespace InterviewBot.Pages
                 }
 
                 // Get current culture
-                var currentCulture = HttpContext.Request.Query["culture"].ToString();
+                var currentCulture = !string.IsNullOrEmpty(Culture) ? Culture : HttpContext.Request.Query["culture"].ToString();
                 if (string.IsNullOrEmpty(currentCulture))
                 {
                     currentCulture = HttpContext.Request.Cookies["culture"] ?? "en";

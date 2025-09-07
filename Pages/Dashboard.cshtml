@@ -124,6 +124,7 @@
                                         </div>
                                         <form method="post" asp-page-handler="ContinueInterview" style="display: inline;">
                                             <input type="hidden" name="interviewId" value="@catalog.Id" />
+                                            <input type="hidden" name="culture" value="@HttpContext.Request.Query["culture"].ToString()" />
                                             <button type="submit" class="btn btn-primary interview-btn continue-btn">
                                                 <i class="bi bi-arrow-right"></i>
                                                 @Localizer["Continue Interview"]

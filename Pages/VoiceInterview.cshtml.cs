@@ -46,6 +46,7 @@ namespace InterviewBot.Pages
         public string InterviewIntroduction { get; set; } = string.Empty;
         public string CurrentQuestion { get; set; } = string.Empty;
         public List<InterviewHistoryItem> InterviewHistory { get; set; } = new List<InterviewHistoryItem>();
+        public string GreetingMessage { get; set; } = string.Empty;
 
         public string? ErrorMessage { get; set; }
         public string? SuccessMessage { get; set; }
@@ -58,6 +59,19 @@ namespace InterviewBot.Pages
                 currentCulture = HttpContext.Request.Cookies["culture"] ?? "en";
             }
             return currentCulture;
+        }
+
+        private string GetGreetingMessage()
+        {
+            var culture = GetCurrentCulture();
+            if (culture == "es")
+            {
+                return "¡Hola! Soy tu coach de carrera con IA. Vamos a tener una entrevista de práctica. Comencemos con la primera pregunta. ¡Di hola para comenzar la entrevista!";
+            }
+            else
+            {
+                return "Hello! I'm your AI career coach. We're going to have a practice interview. Let's start with the first question. Say hello to start the interview!";
+            }
         }
 
         public async Task<IActionResult> OnGetAsync(string interviewId)
@@ -99,6 +113,9 @@ namespace InterviewBot.Pages
                     ErrorMessage = "Interview not found or access denied.";
                     return RedirectToPage("/Dashboard", new { culture = GetCurrentCulture() });
                 }
+
+                // Set greeting message based on culture
+                GreetingMessage = GetGreetingMessage();
 
                 return Page();
             }
@@ -257,7 +274,7 @@ namespace InterviewBot.Pages
                 {
                     InterviewHistory.Add(new InterviewHistoryItem
                     {
-                        Question = "Hello! I'm your AI career coach. We're going to have a practice interview. Let's start with the first question. say hello to start the interview!.\n\nSay hello to start the interview!",
+                        Question = GetGreetingMessage(),
                         Answer = "",
                         Timestamp = DateTime.UtcNow
                     });
@@ -561,6 +578,7 @@ namespace InterviewBot.Pages
                 Console.WriteLine("Calling OpenAI service...");
                 Console.WriteLine($"Message to send to OpenAI: '{messageWithInstructions}'");
                 Console.WriteLine($"Interview topic: '{interviewTopic}'");
+                Console.WriteLine($"Culture======================>: {HttpContext.Request.Query["culture"].ToString()}");
                 
                 string aiResponse;
                 try
@@ -568,7 +586,8 @@ namespace InterviewBot.Pages
                     // Generate AI response using OpenAI service
                     aiResponse = await _openAIService.GenerateInterviewResponseAsync(
                         messageWithInstructions,
-                        interviewTopic
+                        interviewTopic,
+                        HttpContext.Request.Query["culture"].ToString()
                     );
                     Console.WriteLine("OpenAI service call completed successfully.");
                     Console.WriteLine($"Raw AI response: '{aiResponse}'");

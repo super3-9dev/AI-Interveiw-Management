@@ -547,12 +547,16 @@ namespace InterviewBot.Services
                 
                 _logger.LogInformation("Saving chat message for user {UserId}, interview {InterviewId}", userId, interviewId);
 
+                // Truncate content if it's too long (safety measure)
+                var truncatedContent = (content ?? "").Length > 10000 ? (content ?? "").Substring(0, 10000) : (content ?? "");
+                var truncatedQuestion = (question ?? "").Length > 10000 ? (question ?? "").Substring(0, 10000) : (question ?? "");
+
                 var chatMessage = new ChatMessage
                 {
                     UserId = userId,
                     InterviewId = interviewId,
-                    Question = question,
-                    Content = content ?? "",
+                    Question = truncatedQuestion,
+                    Content = truncatedContent,
                     Timestamp = DateTime.UtcNow
                 };
 

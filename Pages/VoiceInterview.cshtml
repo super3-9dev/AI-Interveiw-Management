@@ -1238,7 +1238,7 @@
         addSystemMessage("Interview started! The AI will ask you questions. Please answer each question thoroughly.");
         
         // Display the greeting message directly (don't send to AI)
-        const greetingMessage = "Hello! I'm your AI career coach. We're going to have a practice interview. Let's start with the first question. Say hello to start the interview!";
+        const greetingMessage = '@Model.GreetingMessage';
         
         // Add AI greeting to chat
         addAIVoiceMessage(greetingMessage);
@@ -1389,7 +1389,7 @@
                 const formData = new FormData();
                 formData.append('handler', 'CompleteInterview');
                 
-                const response = await fetch(window.location.pathname, {
+                const response = await fetch(window.location.pathname + '?culture=' + currentCulture, {
                     method: 'POST',
                     body: formData
                 });
@@ -1631,6 +1631,8 @@
     async function getVoiceAIResponse(userMessage) {
         try {
             // Call the Voice Chat API endpoint
+            const currentCulture = new URLSearchParams(window.location.search).get('culture') || 'en';
+
             console.log('Sending request to Voice Chat API...');
             console.log('User message:', userMessage);
             console.log('InterviewId:', window.interviewId);
@@ -1641,7 +1643,7 @@
             };
             console.log('Request body:', JSON.stringify(requestBody));
             
-            const response = await fetch('/VoiceInterview?handler=VoiceChat', {
+            const response = await fetch('/VoiceInterview?handler=VoiceChat&culture=' + currentCulture, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
