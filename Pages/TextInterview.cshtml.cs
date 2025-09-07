@@ -8,6 +8,7 @@ using Microsoft.EntityFrameworkCore;
 using System.Security.Claims;
 using System.ComponentModel.DataAnnotations;
 using System.Text.Json;
+using System.Text;
 using System.Text.Json.Serialization;
 using System.IO;
 
@@ -452,11 +453,15 @@ namespace InterviewBot.Pages
                     });
                 }
 
+                // Build conversation context for AI
+                var conversationContext = BuildConversationContext(request.Message);
+                Console.WriteLine($"Conversation context========================>s: {interviewCatalog?.AgentInstructions}");
                 // Generate AI response using OpenAI service
                 var aiResponse = await _openAIService.GenerateInterviewResponseAsync(
-                    request.Message,
-                    AgentInstructions ?? "Career Interview",
-                    HttpContext.Request.Query["culture"].ToString()
+                    conversationContext,
+                    interviewCatalog?.AgentInstructions ?? "Career Interview",
+                    HttpContext.Request.Query["culture"].ToString(),
+                    interviewCatalog?.InterviewType ?? "text"
                 );
 
                 if (aiResponse.Contains("Thank you"))
@@ -573,6 +578,46 @@ namespace InterviewBot.Pages
         {
             HttpContext.Session.Remove(QuestionCountKey);
             QuestionCount = 0;
+        }
+
+        private string BuildConversationContext(string currentMessage)
+        {
+            var context = new StringBuilder();
+            
+            // Add conversation history
+            if (InterviewHistory != null && InterviewHistory.Count > 0)
+            {
+                context.AppendLine("CONVERSATION HISTORY:");
+                context.AppendLine("===================");
+                
+                foreach (var item in InterviewHistory)
+                {
+                    if (!string.IsNullOrEmpty(item.Question))
+                    {
+                        context.AppendLine($"AI: {item.Question}");
+                    }
+                    if (!string.IsNullOrEmpty(item.Answer))
+                    {
+                        context.AppendLine($"User: {item.Answer}");
+                    }
+                }
+                context.AppendLine();
+            }
+            
+            // Add current user message
+            context.AppendLine("CURRENT USER MESSAGE:");
+            context.AppendLine("====================");
+            context.AppendLine(currentMessage);
+            context.AppendLine();
+            
+            // Add instructions for AI
+            context.AppendLine("INSTRUCTIONS:");
+            context.AppendLine("=============");
+            context.AppendLine("Based on the conversation history above, ask a NEW question that you haven't asked before.");
+            context.AppendLine("Do NOT repeat any questions that are already in the conversation history.");
+            context.AppendLine("Ask a different, relevant follow-up question based on the user's response.");
+            
+            return context.ToString();
         }
 
         private async Task<InterviewResult> CallAnalysisApiAndStoreResultAsync(string interviewId, string culture)

@@ -9,6 +9,7 @@ using System.Security.Claims;
 using System.ComponentModel.DataAnnotations;
 using System.Text.Json;
 using System.Text.Json.Serialization;
+using System.Text;
 
 namespace InterviewBot.Pages
 {
@@ -93,6 +94,47 @@ namespace InterviewBot.Pages
         private void ClearQuestionCount()
         {
             HttpContext.Session.Remove("VoiceQuestionCount");
+        }
+
+        private string BuildConversationContext(string currentMessage)
+        {
+            var context = new StringBuilder();
+            
+            // Add conversation history
+            if (InterviewHistory != null && InterviewHistory.Count > 0)
+            {
+                context.AppendLine("CONVERSATION HISTORY:");
+                context.AppendLine("===================");
+                
+                foreach (var item in InterviewHistory)
+                {
+                    if (!string.IsNullOrEmpty(item.Question))
+                    {
+                        context.AppendLine($"AI: {item.Question}");
+                    }
+                    if (!string.IsNullOrEmpty(item.Answer))
+                    {
+                        context.AppendLine($"User: {item.Answer}");
+                    }
+                }
+                context.AppendLine();
+            }
+            
+            // Add current user message
+            context.AppendLine("CURRENT USER MESSAGE:");
+            context.AppendLine("====================");
+            context.AppendLine(currentMessage);
+            context.AppendLine();
+            
+            // Add instructions for AI
+            context.AppendLine("INSTRUCTIONS:");
+            context.AppendLine("=============");
+            context.AppendLine("Based on the conversation history above, ask a NEW question that you haven't asked before.");
+            context.AppendLine("Do NOT repeat any questions that are already in the conversation history.");
+            context.AppendLine("Ask a different, relevant follow-up question based on the user's response.");
+            context.AppendLine("Speak naturally and conversationally for voice interview.");
+            
+            return context.ToString();
         }
 
         private async Task<InterviewResult> CallAnalysisApiAndStoreResultAsync(string interviewId, string culture)
@@ -731,13 +773,16 @@ namespace InterviewBot.Pages
                 bool isTerminated = false;
                 try
                 {
-                    // Generate AI response using OpenAI service
-                    aiResponse = await _openAIService.GenerateInterviewResponseAsync(
-                        messageWithInstructions,
-                        interviewTopic,
-                        HttpContext.Request.Query["culture"].ToString(),
-                        "voice"
-                    );
+                // Build conversation context for AI
+                var conversationContext = BuildConversationContext(messageWithInstructions);
+                
+                // Generate AI response using OpenAI service
+                aiResponse = await _openAIService.GenerateInterviewResponseAsync(
+                    conversationContext,
+                    interviewTopic,
+                    HttpContext.Request.Query["culture"].ToString(),
+                    "voice"
+                );
                     Console.WriteLine("OpenAI service call completed successfully.");
                     Console.WriteLine($"Raw AI response: '{aiResponse}'");
                     
