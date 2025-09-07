@@ -29,6 +29,7 @@ namespace InterviewBot.Pages
 
         [BindProperty]
         public string? Motivations { get; set; }
+        public string? Culture { get; set; }
 
         public string? ErrorMessage { get; set; }
         public string? SuccessMessage { get; set; }
@@ -220,9 +221,8 @@ namespace InterviewBot.Pages
 
                         // Set active tab to "describe" after successful resume analysis
                         ActiveTab = "describe";
-                        
                         // Redirect back to NewAnalysis page with describe tab active
-                        return RedirectToPage("/NewAnalysis", new { tab = "describe" });
+                        return RedirectToPage("/NewAnalysis", new { tab = "describe", culture = HttpContext.Request.Query["culture"].ToString() });
                     }
                     catch (Exception ex)
                     {
@@ -271,7 +271,7 @@ namespace InterviewBot.Pages
                         SuccessMessage = "Profile created successfully! AI analysis is in progress.";
 
                         // Redirect to results page
-                        return RedirectToPage("/ResumeAnalysisResults", new { id = profile.Id });
+                        return RedirectToPage("/ResumeAnalysisResults", new { id = profile.Id, culture = Culture });
                     }
                     catch (Exception ex)
                     {
@@ -301,6 +301,7 @@ namespace InterviewBot.Pages
         {
             try
             {
+                var culture = HttpContext.Request.Query["culture"].ToString();
                 // Get current user ID
                 var userId = GetCurrentUserId();
                 if (userId == null)
@@ -328,6 +329,11 @@ namespace InterviewBot.Pages
                     motivations = Motivations
                 };
 
+                Console.WriteLine("Culture=============>: " + BriefIntroduction);
+                Console.WriteLine("Culture=============>: " + FutureCareerGoals);
+                Console.WriteLine("Culture=============>: " + CurrentActivity);
+                Console.WriteLine("Culture=============>: " + Motivations);
+
                 // Call the external API
                 var apiResponse = await _externalAPIService.SendInterviewCatalogRequestAsync(interviewCatalogRequest);
 
@@ -353,7 +359,7 @@ namespace InterviewBot.Pages
                     success = true,
                     message = "Interview catalogs generated successfully!",
                     catalogCount = catalogs.Count,
-                    redirectUrl = "/Dashboard?culture=en"
+                    redirectUrl = $"/Dashboard?culture={culture}"
                 });
             }
             catch (Exception ex)

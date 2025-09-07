@@ -52,6 +52,16 @@ namespace InterviewBot.Pages
 
         public string? ErrorMessage { get; set; }
 
+        private string GetCurrentCulture()
+        {
+            var currentCulture = HttpContext.Request.Query["culture"].ToString();
+            if (string.IsNullOrEmpty(currentCulture))
+            {
+                currentCulture = HttpContext.Request.Cookies["culture"] ?? "en";
+            }
+            return currentCulture;
+        }
+
         public async Task<IActionResult> OnGetAsync()
         {
             try
@@ -59,14 +69,14 @@ namespace InterviewBot.Pages
                 if (string.IsNullOrEmpty(InterviewId))
                 {
                     ErrorMessage = "Interview ID is required.";
-                    return RedirectToPage("/Dashboard");
+                    return RedirectToPage("/Dashboard", new { culture = GetCurrentCulture() });
                 }
 
                 var userId = GetCurrentUserId();
                 if (userId == null)
                 {
                     ErrorMessage = "User not authenticated.";
-                    return RedirectToPage("/Account/Login");
+                    return RedirectToPage("/Account/Login", new { culture = GetCurrentCulture() });
                 }
 
                 // Try to load analysis results first
@@ -85,7 +95,7 @@ namespace InterviewBot.Pages
                         if (string.IsNullOrEmpty(InterviewTopic))
                         {
                             ErrorMessage = "Interview not found or access denied.";
-                            return RedirectToPage("/Dashboard");
+                            return RedirectToPage("/Dashboard", new { culture = GetCurrentCulture() });
                         }
 
                         // Set the interview summary from query parameter
@@ -120,7 +130,7 @@ namespace InterviewBot.Pages
             catch (Exception ex)
             {
                 ErrorMessage = "Error loading interview results: " + ex.Message;
-                return RedirectToPage("/Dashboard");
+                return RedirectToPage("/Dashboard", new { culture = GetCurrentCulture() });
             }
         }
 

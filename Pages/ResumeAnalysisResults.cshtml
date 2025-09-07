@@ -507,7 +507,8 @@
 
         // Show completion message and redirect
         function showCompletionMessage() {
-            window.location.href = `/NewAnalysis?culture=en`;
+            const currentCulture = new URLSearchParams(window.location.search).get('culture') || 'en';
+            window.location.href = `/NewAnalysis?culture=${currentCulture}`;
         }
 
         // Manual redirect to results

@@ -907,6 +907,7 @@
                 this.disabled = true;
 
                 try {
+                    const currentCulture = new URLSearchParams(window.location.search).get('culture') || 'en';
                     // Prepare form data
                     const formData = new FormData();
                     formData.append('BriefIntroduction', briefIntroduction);
@@ -915,7 +916,7 @@
                     formData.append('Motivations', motivations);
 
                     // Make API call
-                    const response = await fetch('/NewAnalysis?handler=DescriptionAnalysis', {
+                    const response = await fetch('/NewAnalysis?handler=DescriptionAnalysis&culture=' + currentCulture, {
                         method: 'POST',
                         body: formData,
                         headers: {

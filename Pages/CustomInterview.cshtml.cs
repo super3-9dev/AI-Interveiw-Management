@@ -32,6 +32,16 @@ namespace InterviewBot.Pages
         public string? ErrorMessage { get; set; }
         public string? SuccessMessage { get; set; }
 
+        private string GetCurrentCulture()
+        {
+            var currentCulture = HttpContext.Request.Query["culture"].ToString();
+            if (string.IsNullOrEmpty(currentCulture))
+            {
+                currentCulture = HttpContext.Request.Cookies["culture"] ?? "en";
+            }
+            return currentCulture;
+        }
+
         public void OnGet()
         {
             // Initialize with default values if needed
@@ -78,7 +88,7 @@ namespace InterviewBot.Pages
                 Description = string.Empty;
 
                 // Redirect to dashboard after a short delay to show the success message
-                return RedirectToPage("/Dashboard");
+                return RedirectToPage("/Dashboard", new { culture = GetCurrentCulture() });
             }
             catch (Exception ex)
             {

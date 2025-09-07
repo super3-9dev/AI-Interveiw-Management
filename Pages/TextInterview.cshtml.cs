@@ -57,6 +57,16 @@ namespace InterviewBot.Pages
         public string? ErrorMessage { get; set; }
         public string? SuccessMessage { get; set; }
 
+        private string GetCurrentCulture()
+        {
+            var currentCulture = HttpContext.Request.Query["culture"].ToString();
+            if (string.IsNullOrEmpty(currentCulture))
+            {
+                currentCulture = HttpContext.Request.Cookies["culture"] ?? "en";
+            }
+            return currentCulture;
+        }
+
         public async Task<IActionResult> OnGetAsync(string interviewId)
         {
             try
@@ -73,7 +83,7 @@ namespace InterviewBot.Pages
                 {
                     Console.WriteLine("InterviewId is empty, redirecting to Dashboard");
                     ErrorMessage = "Interview ID is required.";
-                    return RedirectToPage("/Dashboard");
+                    return RedirectToPage("/Dashboard", new { culture = GetCurrentCulture() });
                 }
 
                 // Set status to "InProgress" when user starts the interview
@@ -94,7 +104,7 @@ namespace InterviewBot.Pages
                 if (string.IsNullOrEmpty(InterviewTopic))
                 {
                     ErrorMessage = "Interview not found or access denied.";
-                    return RedirectToPage("/Dashboard");
+                    return RedirectToPage("/Dashboard", new { culture = GetCurrentCulture() });
                 }
 
                 // Load question count from session (reset if starting new interview)
@@ -111,7 +121,7 @@ namespace InterviewBot.Pages
             catch (Exception ex)
             {
                 ErrorMessage = "Error loading interview: " + ex.Message;
-                return RedirectToPage("/Dashboard");
+                return RedirectToPage("/Dashboard", new { culture = GetCurrentCulture() });
             }
         }
 
@@ -128,12 +138,12 @@ namespace InterviewBot.Pages
                         await _interviewCatalogService.UpdateInterviewCatalogStatusAsync(catalogId, "InProgress");
                     }
                 }
-                return RedirectToPage("/Dashboard");
+                return RedirectToPage("/Dashboard", new { culture = GetCurrentCulture() });
             }
             catch (Exception)
             {
                 // If there's an error, still redirect to dashboard
-                return RedirectToPage("/Dashboard");
+                return RedirectToPage("/Dashboard", new { culture = GetCurrentCulture() });
             }
         }
 
@@ -151,7 +161,7 @@ namespace InterviewBot.Pages
                 if (userId == null)
                 {
                     ErrorMessage = "User not authenticated. Please log in again.";
-                    return RedirectToPage("/Login");
+                    return RedirectToPage("/Account/Login", new { culture = GetCurrentCulture() });
                 }
 
                 switch (handler)
@@ -557,7 +567,7 @@ namespace InterviewBot.Pages
                 if (userId == null)
                 {
                     Console.WriteLine("User not authenticated, redirecting to login");
-                    return RedirectToPage("/Account/Login");
+                    return RedirectToPage("/Account/Login", new { culture = GetCurrentCulture() });
                 }
 
                 Console.WriteLine($"User ID: {userId}");
@@ -614,7 +624,7 @@ namespace InterviewBot.Pages
 
                 // Redirect to dashboard page
                 Console.WriteLine("Redirecting to Dashboard page");
-                return RedirectToPage("/Dashboard");
+                return RedirectToPage("/Dashboard", new { culture = GetCurrentCulture() });
             }
             catch (Exception ex)
             {
