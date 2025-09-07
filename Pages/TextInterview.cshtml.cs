@@ -21,14 +21,16 @@ namespace InterviewBot.Pages
         private readonly IOpenAIService _openAIService;
         private readonly IInterviewCatalogService _interviewCatalogService;
         private readonly IInterviewCompletionService _interviewCompletionService;
+        private readonly IInterviewAnalysisService _interviewAnalysisService;
 
-        public TextInterviewModel(IInterviewService interviewService, AppDbContext dbContext, IOpenAIService openAIService, IInterviewCatalogService interviewCatalogService, IInterviewCompletionService interviewCompletionService)
+        public TextInterviewModel(IInterviewService interviewService, AppDbContext dbContext, IOpenAIService openAIService, IInterviewCatalogService interviewCatalogService, IInterviewCompletionService interviewCompletionService, IInterviewAnalysisService interviewAnalysisService)
         {
             _interviewService = interviewService;
             _dbContext = dbContext;
             _openAIService = openAIService;
             _interviewCatalogService = interviewCatalogService;
             _interviewCompletionService = interviewCompletionService;
+            _interviewAnalysisService = interviewAnalysisService;
         }
 
         [BindProperty(SupportsGet = true)]
@@ -417,7 +419,7 @@ namespace InterviewBot.Pages
                 currentCount++;
                 SetQuestionCount(currentCount);
                 Console.WriteLine($"Question count: {currentCount}");
-
+                
                 // Check if interview should end (limit to 10 questions)
                 if (currentCount >= 10)
                 {
@@ -428,6 +430,18 @@ namespace InterviewBot.Pages
 
                     // Clear the question count for next interview
                     ClearQuestionCount();
+
+                    // Call analysis API and store result
+                    try
+                    {
+                        await CallAnalysisApiAndStoreResultAsync(InterviewId, GetCurrentCulture());
+                        Console.WriteLine("Analysis API called successfully for interview: " + InterviewId);
+                    }
+                    catch (Exception ex)
+                    {
+                        Console.WriteLine($"Error calling analysis API: {ex.Message}");
+                        // Continue with interview completion even if API call fails
+                    }
 
                     return new JsonResult(new
                     {
@@ -445,7 +459,42 @@ namespace InterviewBot.Pages
                     HttpContext.Request.Query["culture"].ToString()
                 );
 
+                if (aiResponse.Contains("Thank you"))
+                {
+                    // Call analysis API and store result
+                    try
+                    {
+                        await CallAnalysisApiAndStoreResultAsync(InterviewId, GetCurrentCulture());
+                        Console.WriteLine("Analysis API called successfully for terminated interview: " + InterviewId);
+                    }
+                    catch (Exception ex)
+                    {
+                        Console.WriteLine($"Error calling analysis API: {ex.Message}");
+                        // Continue with interview completion even if API call fails
+                    }
+                }
+
+
                 Console.WriteLine($"AI Response generated: {aiResponse}");
+
+                // Check if AI wants to terminate the interview
+                bool isTerminated = false;
+                string finalResponse = aiResponse;
+                
+                if (aiResponse.Contains("INTERVIEW_TERMINATED:"))
+                {
+                    isTerminated = true;
+                    // Extract the termination message
+                    var parts = aiResponse.Split("INTERVIEW_TERMINATED:", 2);
+                    if (parts.Length > 1)
+                    {
+                        finalResponse = parts[1].Trim();
+                    }
+                    
+                    // Mark interview as complete
+                    SetQuestionCount(1000); // Set high number to indicate termination
+                    Console.WriteLine("Interview terminated by AI due to inadequate responses");
+                }
 
                 // Save chat messages to database
                 try
@@ -455,8 +504,8 @@ namespace InterviewBot.Pages
                     // Save the user's message
                     await _interviewService.SaveChatMessageAsync(userId.Value, InterviewId, null, request.Message);
                     
-                    // Save the AI's response
-                    await _interviewService.SaveChatMessageAsync(userId.Value, InterviewId, request.Message, aiResponse);
+                    // Save the AI's response (use finalResponse which may be cleaned up)
+                    await _interviewService.SaveChatMessageAsync(userId.Value, InterviewId, request.Message, finalResponse);
                     
                     Console.WriteLine($"OpenAI chat messages saved successfully for InterviewId: '{InterviewId}'");
                 }
@@ -467,7 +516,7 @@ namespace InterviewBot.Pages
 
                 // Check if AI response indicates interview completion (only after 5+ questions)
                 if (currentCount >= 5 && (aiResponse.Contains("interview complete") || aiResponse.Contains("enough information") ||
-                    aiResponse.Contains("thank you")))
+                    aiResponse.Contains("Thank you")))
                 {
                     Console.WriteLine("AI indicates interview should end");
                     var summaryResponse = await GenerateInterviewSummaryAsync();
@@ -486,7 +535,11 @@ namespace InterviewBot.Pages
                     });
                 }
 
-                return new JsonResult(new { response = aiResponse, isComplete = false });
+                return new JsonResult(new { 
+                    response = finalResponse, 
+                    isComplete = false,
+                    isTerminated = isTerminated
+                });
             }
             catch (Exception ex)
             {
@@ -512,6 +565,103 @@ namespace InterviewBot.Pages
         {
             HttpContext.Session.Remove(QuestionCountKey);
             QuestionCount = 0;
+        }
+
+        private async Task<InterviewResult> CallAnalysisApiAndStoreResultAsync(string interviewId, string culture)
+        {
+            try
+            {
+                // Get interview catalog and user profile
+                Console.WriteLine($"InterviewId==========================>: {interviewId}");
+                Console.WriteLine($"Culture==========================>: {culture}");
+                var interviewCatalog = await _dbContext.InterviewCatalogs
+                    .FirstOrDefaultAsync(c => c.Id.ToString() == interviewId);
+                
+                var userId = GetCurrentUserId();
+                var user = await _dbContext.Users.FindAsync(userId);
+                var profile = await _dbContext.Profiles.FirstOrDefaultAsync(p => p.UserId == userId);
+
+                if (interviewCatalog == null || user == null)
+                {
+                    throw new Exception("Interview catalog or user not found");
+                }
+
+                // Build conversation history
+                var conversation = new List<InterviewConversation>();
+                var chatMessages = await _dbContext.ChatMessages
+                    .Where(m => m.InterviewId == interviewId)
+                    .OrderBy(m => m.Timestamp)
+                    .ToListAsync();
+
+                for (int i = 0; i < chatMessages.Count; i += 2)
+                {
+                    if (i + 1 < chatMessages.Count)
+                    {
+                        conversation.Add(new InterviewConversation
+                        {
+                            Question = chatMessages[i].Content,
+                            Answer = chatMessages[i + 1].Content
+                        });
+                    }
+                }
+
+                // Create API request
+                var apiRequest = new InterviewAnalysisRequest
+                {
+                    Purpose = "Career Counselling",
+                    ResponseLanguage = culture == "es" ? "es" : "en",
+                    InterviewName = interviewCatalog.Topic,
+                    InterviewObjective = interviewCatalog.Introduction ?? "Assess candidate's skills and experience",
+                    UserProfileBrief = profile?.BriefIntroduction ?? "Candidate profile information",
+                    UserProfileStrength = profile?.Strengths ?? "Candidate strengths",
+                    UserProfileWeakness = profile?.Weaknesses ?? "Areas for improvement",
+                    UserProfileFutureCareerGoal = profile?.FutureCareerGoals ?? "Career aspirations",
+                    UserProfileMotivation = profile?.Motivations ?? "Career motivation",
+                    InterviewConversation = conversation,
+                    InterviewId = interviewId
+                };
+
+                // Call the analysis API
+                var (success, apiResponse, errorMessage) = await _interviewAnalysisService.CallInterviewAnalysisAPIAsync(apiRequest);
+                Console.WriteLine($"Analysis API response==========================>: {apiResponse}");
+                Console.WriteLine($"Analysis API error message==========================>: {errorMessage}");
+                Console.WriteLine($"Analysis API success==========================>: {success}");
+                // Create or update InterviewResult
+                var interviewResult = await _dbContext.InterviewResults
+                    .FirstOrDefaultAsync(r => r.InterviewId == interviewId);
+
+                if (interviewResult == null)
+                {
+                    interviewResult = new InterviewResult
+                    {
+                        UserId = userId ?? 0,
+                        InterviewId = interviewId,
+                        Topic = interviewCatalog.Topic,
+                        Question = "Interview Analysis",
+                        Content = "Interview completed and analyzed",
+                        CompleteDate = DateTime.UtcNow,
+                        CreatedAt = DateTime.UtcNow
+                    };
+                    _dbContext.InterviewResults.Add(interviewResult);
+                }
+
+                // Store API response
+                interviewResult.ApiRequestPayload = JsonSerializer.Serialize(apiRequest, new JsonSerializerOptions { WriteIndented = true });
+                interviewResult.ApiResponse = apiResponse != null ? JsonSerializer.Serialize(apiResponse, new JsonSerializerOptions { WriteIndented = true }) : null;
+                interviewResult.ApiCallDate = DateTime.UtcNow;
+                interviewResult.ApiCallSuccessful = success;
+                interviewResult.ApiErrorMessage = errorMessage;
+                interviewResult.UpdatedAt = DateTime.UtcNow;
+
+                await _dbContext.SaveChangesAsync();
+
+                return interviewResult;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error calling analysis API: {ex.Message}");
+                throw;
+            }
         }
 
         private async Task<string> GenerateInterviewSummaryAsync()

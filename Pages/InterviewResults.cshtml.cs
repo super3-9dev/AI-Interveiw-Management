@@ -225,6 +225,13 @@ namespace InterviewBot.Pages
                         QuestionCount = 10; // Voice interviews always have 10 questions
                         CompleteDate = storedResult.CompleteDate;
 
+                        // Check if we have API response data
+                        if (!string.IsNullOrEmpty(storedResult.ApiResponse) && storedResult.ApiCallSuccessful)
+                        {
+                            Console.WriteLine("Found API response data, parsing...");
+                            await ParseApiResponseAsync(storedResult.ApiResponse);
+                        }
+
                         Console.WriteLine($"Loaded interview result: {InterviewTopic}");
                         return true;
                     }
@@ -349,6 +356,186 @@ namespace InterviewBot.Pages
             return $"1. Summary of Key Points: The interview covered the candidate's experience, skills, achievements, and career goals, highlighting their background in {InterviewTopic} and passion for innovation.\n\n" +
                    $"2. Assessment of Responses: The candidate articulated their experiences effectively, showcasing a blend of technical expertise and leadership qualities. Their passion for driving innovation was evident throughout the conversation.\n\n" +
                    $"3. Key Strengths: The candidate demonstrated strong project management skills, a proactive approach to problem-solving, and a clear enthusiasm for embracing new technologies and methodologies in their field.";
+        }
+
+        private Task ParseApiResponseAsync(string apiResponseJson)
+        {
+            try
+            {
+                Console.WriteLine($"Parsing API response: {apiResponseJson?.Substring(0, Math.Min(200, apiResponseJson?.Length ?? 0))}...");
+
+                if (string.IsNullOrEmpty(apiResponseJson))
+                {
+                    Console.WriteLine("API response is empty, skipping parsing");
+                    return Task.CompletedTask;
+                }
+
+                // Parse the JSON response
+                var apiResponse = JsonSerializer.Deserialize<JsonElement>(apiResponseJson);
+                
+                // Extract the response data
+                if (apiResponse.TryGetProperty("response", out var responseElement))
+                {
+                    if (responseElement.TryGetProperty("catalog", out var catalogElement))
+                    {
+                        if (catalogElement.TryGetProperty("InterviewSummary", out var catalogIdElement))
+                        {
+                            // Parse summary
+                            if (catalogIdElement.TryGetProperty("Summary", out var summaryElement))
+                            {
+                                Summary = summaryElement.GetString() ?? "";
+                                Console.WriteLine($"Parsed summary: {Summary?.Substring(0, Math.Min(100, Summary?.Length ?? 0))}...");
+                            }
+
+                            // Parse recommendations
+                            if (catalogIdElement.TryGetProperty("Recommendations", out var recommendationsElement))
+                            {
+                                Recommendations = recommendationsElement.GetString() ?? "";
+                                Console.WriteLine($"Parsed recommendations: {Recommendations?.Substring(0, Math.Min(100, Recommendations?.Length ?? 0))}...");
+                            }
+                        }
+                        if (catalogElement.TryGetProperty("MBAFocusArea", out var mbaFocusAreaElement))
+                        {
+                            MBAFocusArea = mbaFocusAreaElement.GetString() ?? "";
+                            Console.WriteLine($"Parsed MBA focus area: {MBAFocusArea}");
+                        }
+                        if (catalogElement.TryGetProperty("YourCareerRoadmaps", out var yourCareerRoadmapsElement))
+                        {
+                            YourCareerRoadmaps = ParseCareerRoadmaps(yourCareerRoadmapsElement);
+                            Console.WriteLine($"Parsed {YourCareerRoadmaps.Count} career roadmaps");
+                        }
+                        if (catalogElement.TryGetProperty("AdditionalTips", out var additionalTipsElement))
+                        {
+                            AdditionalTips = ParseAdditionalTips(additionalTipsElement);
+                            Console.WriteLine($"Parsed {AdditionalTips.Count} additional tips");
+                        }
+                    }
+
+                    
+
+                    // Parse MBA focus area
+                    if (responseElement.TryGetProperty("mbaFocusArea", out var mbaFocusElement))
+                    {
+                        MBAFocusArea = mbaFocusElement.GetString() ?? "";
+                        Console.WriteLine($"Parsed MBA focus area: {MBAFocusArea}");
+                    }
+
+                    // Parse clarity score
+                    if (responseElement.TryGetProperty("clarityScore", out var clarityScoreElement))
+                    {
+                        if (clarityScoreElement.ValueKind == JsonValueKind.Number)
+                        {
+                            ClarityScore = clarityScoreElement.GetInt32();
+                            Console.WriteLine($"Parsed clarity score: {ClarityScore}");
+                        }
+                    }
+
+                    // Parse career roadmaps
+                    if (responseElement.TryGetProperty("yourCareerRoadmaps", out var roadmapsElement))
+                    {
+                        YourCareerRoadmaps = ParseCareerRoadmaps(roadmapsElement);
+                        Console.WriteLine($"Parsed {YourCareerRoadmaps.Count} career roadmaps");
+                    }
+
+                    // Parse additional tips
+                    if (responseElement.TryGetProperty("additionalTips", out var tipsElement))
+                    {
+                        AdditionalTips = ParseAdditionalTips(tipsElement);
+                        Console.WriteLine($"Parsed {AdditionalTips.Count} additional tips");
+                    }
+                }
+                else
+                {
+                    Console.WriteLine("No 'response' property found in API response");
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error parsing API response: {ex.Message}");
+                Console.WriteLine($"Exception details: {ex}");
+            }
+            
+            return Task.CompletedTask;
+        }
+
+        private List<CareerRoadmapItem> ParseCareerRoadmaps(JsonElement roadmapsElement)
+        {
+            var roadmaps = new List<CareerRoadmapItem>();
+
+            try
+            {
+                if (roadmapsElement.ValueKind == JsonValueKind.Array)
+                {
+                    foreach (var roadmapElement in roadmapsElement.EnumerateArray())
+                    {
+                        var roadmap = new CareerRoadmapItem();
+                        
+                        if (roadmapElement.TryGetProperty("title", out var titleElement))
+                        {
+                            roadmap.Title = titleElement.GetString() ?? "";
+                        }
+                        
+                        if (roadmapElement.TryGetProperty("steps", out var stepsElement) && stepsElement.ValueKind == JsonValueKind.Array)
+                        {
+                            foreach (var stepElement in stepsElement.EnumerateArray())
+                            {
+                                roadmap.Steps.Add(stepElement.GetString() ?? "");
+                            }
+                        }
+                        
+                        if (!string.IsNullOrEmpty(roadmap.Title) && roadmap.Steps.Any())
+                        {
+                            roadmaps.Add(roadmap);
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error parsing career roadmaps: {ex.Message}");
+            }
+
+            return roadmaps;
+        }
+
+        private List<string> ParseAdditionalTips(JsonElement tipsElement)
+        {
+            var tips = new List<string>();
+
+            try
+            {
+                if (tipsElement.ValueKind == JsonValueKind.Array)
+                {
+                    foreach (var tipElement in tipsElement.EnumerateArray())
+                    {
+                        tips.Add(tipElement.GetString() ?? "");
+                    }
+                }
+                else if (tipsElement.ValueKind == JsonValueKind.String)
+                {
+                    // If it's a single string, split by common delimiters
+                    var tipText = tipsElement.GetString() ?? "";
+                    if (!string.IsNullOrEmpty(tipText))
+                    {
+                        // Split by common delimiters and clean up
+                        var splitTips = tipText.Split(new[] { '\n', '.', ';' }, StringSplitOptions.RemoveEmptyEntries);
+                        foreach (var tip in splitTips)
+                        {
+                            var cleanTip = tip.Trim();
+                            if (!string.IsNullOrEmpty(cleanTip))
+                            {
+                                tips.Add(cleanTip);
+                            }
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error parsing additional tips: {ex.Message}");
+            }
+
+            return tips;
         }
 
         private int? GetCurrentUserId()

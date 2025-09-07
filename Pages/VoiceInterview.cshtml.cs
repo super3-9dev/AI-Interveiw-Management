@@ -20,14 +20,16 @@ namespace InterviewBot.Pages
         private readonly IInterviewCatalogService _interviewCatalogService;
         private readonly IInterviewCompletionService _interviewCompletionService;
         private readonly IOpenAIService _openAIService;
+        private readonly IInterviewAnalysisService _interviewAnalysisService;
 
-        public VoiceInterviewModel(IInterviewService interviewService, AppDbContext dbContext, IInterviewCatalogService interviewCatalogService, IInterviewCompletionService interviewCompletionService, IOpenAIService openAIService)
+        public VoiceInterviewModel(IInterviewService interviewService, AppDbContext dbContext, IInterviewCatalogService interviewCatalogService, IInterviewCompletionService interviewCompletionService, IOpenAIService openAIService, IInterviewAnalysisService interviewAnalysisService)
         {
             _interviewService = interviewService;
             _dbContext = dbContext;
             _interviewCatalogService = interviewCatalogService;
             _interviewCompletionService = interviewCompletionService;
             _openAIService = openAIService;
+            _interviewAnalysisService = interviewAnalysisService;
         }
 
         [BindProperty(SupportsGet = true)]
@@ -47,6 +49,10 @@ namespace InterviewBot.Pages
         public string CurrentQuestion { get; set; } = string.Empty;
         public List<InterviewHistoryItem> InterviewHistory { get; set; } = new List<InterviewHistoryItem>();
         public string GreetingMessage { get; set; } = string.Empty;
+
+        // Interview completion tracking
+        public int QuestionCount { get; set; } = 0;
+        public bool IsInterviewComplete { get; set; } = false;
 
         public string? ErrorMessage { get; set; }
         public string? SuccessMessage { get; set; }
@@ -71,6 +77,114 @@ namespace InterviewBot.Pages
             else
             {
                 return "Hello! I am your AI career coach. We are going to have a practice interview. Let us start with the first question. Say hello to start the interview!";
+            }
+        }
+
+        private void SetQuestionCount(int count)
+        {
+            HttpContext.Session.SetInt32("VoiceQuestionCount", count);
+        }
+
+        private int GetQuestionCount()
+        {
+            return HttpContext.Session.GetInt32("VoiceQuestionCount") ?? 0;
+        }
+
+        private void ClearQuestionCount()
+        {
+            HttpContext.Session.Remove("VoiceQuestionCount");
+        }
+
+        private async Task<InterviewResult> CallAnalysisApiAndStoreResultAsync(string interviewId, string culture)
+        {
+            try
+            {
+                // Get interview catalog and user profile
+                var interviewCatalog = await _dbContext.InterviewCatalogs
+                    .FirstOrDefaultAsync(c => c.Id.ToString() == interviewId);
+                
+                var userId = GetCurrentUserId();
+                var user = await _dbContext.Users.FindAsync(userId);
+                var profile = await _dbContext.Profiles.FirstOrDefaultAsync(p => p.UserId == userId);
+
+                if (interviewCatalog == null || user == null)
+                {
+                    throw new Exception("Interview catalog or user not found");
+                }
+
+                // Build conversation history
+                var conversation = new List<InterviewConversation>();
+                var chatMessages = await _dbContext.ChatMessages
+                    .Where(m => m.InterviewId == interviewId)
+                    .OrderBy(m => m.Timestamp)
+                    .ToListAsync();
+
+                for (int i = 0; i < chatMessages.Count; i += 2)
+                {
+                    if (i + 1 < chatMessages.Count)
+                    {
+                        conversation.Add(new InterviewConversation
+                        {
+                            Question = chatMessages[i].Content,
+                            Answer = chatMessages[i + 1].Content
+                        });
+                    }
+                }
+
+                // Create API request
+                var apiRequest = new InterviewAnalysisRequest
+                {
+                    Purpose = "Career Counselling",
+                    ResponseLanguage = culture == "es" ? "es" : "en",
+                    InterviewName = interviewCatalog.Topic,
+                    InterviewObjective = interviewCatalog.Introduction ?? "Assess candidate's skills and experience",
+                    UserProfileBrief = profile?.BriefIntroduction ?? "Candidate profile information",
+                    UserProfileStrength = profile?.Strengths ?? "Candidate strengths",
+                    UserProfileWeakness = profile?.Weaknesses ?? "Areas for improvement",
+                    UserProfileFutureCareerGoal = profile?.FutureCareerGoals ?? "Career aspirations",
+                    UserProfileMotivation = profile?.Motivations ?? "Career motivation",
+                    InterviewConversation = conversation,
+                    InterviewId = interviewId
+                };
+
+                // Call the analysis API
+                var (success, apiResponse, errorMessage) = await _interviewAnalysisService.CallInterviewAnalysisAPIAsync(apiRequest);
+
+                // Create or update InterviewResult
+                var interviewResult = await _dbContext.InterviewResults
+                    .FirstOrDefaultAsync(r => r.InterviewId == interviewId);
+
+                if (interviewResult == null)
+                {
+                    interviewResult = new InterviewResult
+                    {
+                        UserId = userId ?? 0,
+                        InterviewId = interviewId,
+                        Topic = interviewCatalog.Topic,
+                        Question = "Interview Analysis",
+                        Content = "Interview completed and analyzed",
+                        CompleteDate = DateTime.UtcNow,
+                        CreatedAt = DateTime.UtcNow
+                    };
+                    _dbContext.InterviewResults.Add(interviewResult);
+                }
+
+                // Store API response
+                interviewResult.ApiRequestPayload = JsonSerializer.Serialize(apiRequest, new JsonSerializerOptions { WriteIndented = true });
+                interviewResult.ApiResponse = apiResponse != null ? JsonSerializer.Serialize(apiResponse, new JsonSerializerOptions { WriteIndented = true }) : null;
+                interviewResult.ApiCallDate = DateTime.UtcNow;
+                interviewResult.ApiCallSuccessful = success;
+                interviewResult.ApiErrorMessage = errorMessage;
+                interviewResult.UpdatedAt = DateTime.UtcNow;
+
+                await _dbContext.SaveChangesAsync();
+
+                return interviewResult;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error calling analysis API: {ex.Message}");
+                throw;
             }
         }
 
@@ -116,6 +230,15 @@ namespace InterviewBot.Pages
 
                 // Set greeting message based on culture
                 GreetingMessage = GetGreetingMessage();
+
+                // Initialize question count
+                var currentCount = GetQuestionCount();
+                if (currentCount == 0)
+                {
+                    // This is a new interview, ensure count starts at 0
+                    SetQuestionCount(0);
+                }
+                QuestionCount = currentCount;
 
                 return Page();
             }
@@ -575,12 +698,40 @@ namespace InterviewBot.Pages
                 var interviewTopic = !string.IsNullOrEmpty(InterviewTopic) ? InterviewTopic : "Career Interview";
                 Console.WriteLine($"Final interview topic: '{interviewTopic}'");
                 
+                // Check question count and limit
+                var currentCount = GetQuestionCount();
+                const int maxQuestions = 6; // Limit to 6 questions
+                
+                if (currentCount >= maxQuestions)
+                {
+                    Console.WriteLine($"Interview completed - reached maximum questions ({maxQuestions})");
+                    
+                    // Call analysis API and store result
+                    try
+                    {
+                        await CallAnalysisApiAndStoreResultAsync(InterviewId, GetCurrentCulture());
+                        Console.WriteLine("Analysis API called successfully for voice interview: " + InterviewId);
+                    }
+                    catch (Exception ex)
+                    {
+                        Console.WriteLine($"Error calling analysis API: {ex.Message}");
+                        // Continue with interview completion even if API call fails
+                    }
+                    
+                    return new JsonResult(new { 
+                        response = "Thank you for your responses. I have enough information to provide you with a comprehensive analysis. Let me generate your interview summary...", 
+                        isComplete = true,
+                        questionCount = currentCount
+                    });
+                }
+                
                 Console.WriteLine("Calling OpenAI service...");
                 Console.WriteLine($"Message to send to OpenAI: '{messageWithInstructions}'");
                 Console.WriteLine($"Interview topic: '{interviewTopic}'");
                 Console.WriteLine($"Culture======================>: {HttpContext.Request.Query["culture"].ToString()}");
                 
                 string aiResponse;
+                bool isTerminated = false;
                 try
                 {
                     // Generate AI response using OpenAI service
@@ -591,6 +742,28 @@ namespace InterviewBot.Pages
                     );
                     Console.WriteLine("OpenAI service call completed successfully.");
                     Console.WriteLine($"Raw AI response: '{aiResponse}'");
+                    
+                    // Check if AI wants to terminate the interview
+                    string finalResponse = aiResponse;
+                    
+                    if (aiResponse.Contains("INTERVIEW_TERMINATED:"))
+                    {
+                        isTerminated = true;
+                        // Extract the termination message
+                        var parts = aiResponse.Split("INTERVIEW_TERMINATED:", 2);
+                        if (parts.Length > 1)
+                        {
+                            finalResponse = parts[1].Trim();
+                        }
+                        
+                        Console.WriteLine("Interview terminated by AI due to inadequate responses");
+                    }
+                    
+                    aiResponse = finalResponse;
+                    
+                    // Increment question count
+                    SetQuestionCount(currentCount + 1);
+                    Console.WriteLine($"Question count incremented to: {currentCount + 1}");
                 }
                 catch (Exception ex)
                 {
@@ -619,7 +792,11 @@ namespace InterviewBot.Pages
                     Console.WriteLine($"Error saving chat messages: {ex.Message}");
                 }
 
-                return new JsonResult(new { response = aiResponse, isComplete = false });
+                return new JsonResult(new { 
+                    response = aiResponse, 
+                    isComplete = false,
+                    isTerminated = isTerminated
+                });
             }
             catch (Exception ex)
             {

@@ -661,7 +661,7 @@
 
     // Interview flow variables
     let currentQuestionNumber = 0;
-    let maxQuestions = 10;
+    let maxQuestions = 6; // Reduced from 10 to 6 questions
     let isInterviewStarted = false;
     let isWaitingForUserResponse = false;
     let interviewConversation = []; // Store the full conversation for analysis
@@ -1694,6 +1694,16 @@
             console.log('Voice AI Response received:', data);
 
             if (data.response) {
+                // Check if interview is complete
+                if (data.isComplete) {
+                    console.log('Interview completed - reached question limit');
+                    // Redirect to results page after a short delay
+                    setTimeout(() => {
+                        const currentCulture = new URLSearchParams(window.location.search).get('culture') || 'en';
+                        const resultsUrl = `/InterviewResults?InterviewId=${window.interviewId}&Summary=${encodeURIComponent(data.summary || '')}&QuestionCount=${data.questionCount || 6}&culture=${currentCulture}`;
+                        window.location.href = resultsUrl;
+                    }, 3000);
+                }
                 return data.response;
             } else {
                 console.error('No response field in data:', data);

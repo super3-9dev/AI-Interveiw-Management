@@ -573,8 +573,8 @@
             // Remove typing indicator
             hideTypingIndicator();
 
-            // Check if interview is complete
-            if (response.isComplete) {
+            // Check if interview is complete or terminated
+            if (response.isComplete || response.isTerminated) {
                 // Add AI response to chat
                 addAIMessage(response.response);
 
@@ -583,7 +583,7 @@
                     const currentCulture = new URLSearchParams(window.location.search).get('culture') || 'en';
                     const resultsUrl = `/InterviewResults?InterviewId=@Model.InterviewId&Summary=${encodeURIComponent(response.summary)}&QuestionCount=${response.questionCount || 10}&culture=${currentCulture}`;
                     window.location.href = resultsUrl;
-                }, 2000);
+                }, 4000);
 
                 // Disable input
                 setSendButtonState(false);

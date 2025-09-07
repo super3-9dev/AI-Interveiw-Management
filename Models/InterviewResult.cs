@@ -37,6 +37,20 @@ namespace InterviewBot.Models
         [MaxLength(5000)]
         public string Content { get; set; } = string.Empty;
 
+        // API Analysis fields
+        [MaxLength(10000)]
+        public string? ApiRequestPayload { get; set; }
+
+        [MaxLength(10000)]
+        public string? ApiResponse { get; set; }
+
+        public DateTime? ApiCallDate { get; set; }
+
+        public bool ApiCallSuccessful { get; set; } = false;
+
+        [MaxLength(1000)]
+        public string? ApiErrorMessage { get; set; }
+
         // Timestamps
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 

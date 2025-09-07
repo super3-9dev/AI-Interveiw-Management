@@ -1,8 +1,8 @@
-using InterviewBot.Data;
-using InterviewBot.Models;
-using Microsoft.EntityFrameworkCore;
 using System.Text;
 using System.Text.Json;
+using InterviewBot.Models;
+using InterviewBot.Data;
+using Microsoft.EntityFrameworkCore;
 
 namespace InterviewBot.Services
 {
@@ -23,41 +23,27 @@ namespace InterviewBot.Services
         {
             try
             {
-                _logger.LogInformation("Calling interview analysis API for interview: {InterviewName}", request.InterviewName);
+                _logger.LogInformation("Calling analysis API for interview: {InterviewId}", request.InterviewId);
 
                 var json = JsonSerializer.Serialize(request, new JsonSerializerOptions
                 {
-                    PropertyNamingPolicy = JsonNamingPolicy.CamelCase
+                    PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
+                    WriteIndented = true
                 });
 
+                _logger.LogInformation("API Request Payload: {Payload}", json);
+
                 var content = new StringContent(json, Encoding.UTF8, "application/json");
-
-                _logger.LogInformation("Sending request to API endpoint: https://plataform.arandutechia.com/webhook/getAnalysisResult");
-                _logger.LogInformation("Request content: {Content}", json);
-
+                
                 var response = await _httpClient.PostAsync("https://plataform.arandutechia.com/webhook/getAnalysisResult", content);
+                
                 var responseContent = await response.Content.ReadAsStringAsync();
-
-                _logger.LogInformation("Interview analysis API response status: {StatusCode}", response.StatusCode);
-                _logger.LogInformation("Interview analysis API response content length: {Length}", responseContent.Length);
-                _logger.LogInformation("Interview analysis API response content: {Content}", responseContent);
+                
+                _logger.LogInformation("API Response Status: {StatusCode}", response.StatusCode);
+                _logger.LogInformation("API Response Content: {Content}", responseContent);
 
                 if (response.IsSuccessStatusCode)
                 {
-                    if (string.IsNullOrWhiteSpace(responseContent))
-                    {
-                        _logger.LogWarning("API returned empty response despite success status");
-                        return (false, null, "API returned empty response");
-                    }
-
-                    // Validate that the response is JSON
-                    if (responseContent.TrimStart().StartsWith("<!DOCTYPE") || responseContent.TrimStart().StartsWith("<html"))
-                    {
-                        _logger.LogError("API returned HTML instead of JSON. Content: {Content}", responseContent);
-                        return (false, null, "API returned HTML instead of JSON. This might be an error page.");
-                    }
-
-                    // Parse the JSON response
                     try
                     {
                         var analysisResponse = JsonSerializer.Deserialize<InterviewAnalysisResponse>(responseContent, new JsonSerializerOptions
@@ -65,24 +51,22 @@ namespace InterviewBot.Services
                             PropertyNamingPolicy = JsonNamingPolicy.CamelCase
                         });
 
-                        _logger.LogInformation("Successfully parsed interview analysis response");
                         return (true, analysisResponse, null);
                     }
                     catch (JsonException ex)
                     {
-                        _logger.LogError("API returned invalid JSON. Content: {Content}, Error: {Error}", responseContent, ex.Message);
-                        return (false, null, $"API returned invalid JSON: {ex.Message}");
+                        _logger.LogError(ex, "Failed to deserialize API response");
+                        return (false, null, $"Failed to parse API response: {ex.Message}");
                     }
                 }
                 else
                 {
-                    _logger.LogError("Interview analysis API failed with status: {StatusCode}, content: {Content}", response.StatusCode, responseContent);
-                    return (false, null, $"API call failed with status {response.StatusCode}: {responseContent}");
+                    return (false, null, $"API call failed with status: {response.StatusCode}");
                 }
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error calling interview analysis API");
+                _logger.LogError(ex, "Error calling analysis API for interview: {InterviewId}", request.InterviewId);
                 return (false, null, ex.Message);
             }
         }
@@ -91,35 +75,18 @@ namespace InterviewBot.Services
         {
             try
             {
-                _logger.LogInformation("Saving interview analysis result for session {SessionId} and user {UserId}", interviewSessionId, userId);
-
-                var catalog = apiResponse.Response.Catalog;
-                var summary = catalog.InterviewSummary;
-
-                // Serialize roadmaps and tips to JSON
-                var shortTermRoadmap = catalog.YourCareerRoadmaps.FirstOrDefault(r => r.Title.Contains("Short-Term"))?.Steps;
-                var mediumTermRoadmap = catalog.YourCareerRoadmaps.FirstOrDefault(r => r.Title.Contains("Medium-Term"))?.Steps;
-                var longTermRoadmap = catalog.YourCareerRoadmaps.FirstOrDefault(r => r.Title.Contains("Long-Term"))?.Steps;
-
-                var analysisResult = new InterviewAnalysisResult
+                var result = new InterviewAnalysisResult
                 {
                     InterviewSessionId = interviewSessionId,
                     UserId = userId,
-                    Summary = summary.Summary,
-                    Recommendations = summary.Recommendations,
-                    MBAFocusArea = catalog.MBAFocusArea,
-                    ClarityScore = catalog.ClarityScore,
-                    YourCareerRoadmaps = catalog.YourCareerRoadmaps.Any() ? JsonSerializer.Serialize(catalog.YourCareerRoadmaps) : null,
-                    AdditionalTips = catalog.AdditionalTips.Any() ? JsonSerializer.Serialize(catalog.AdditionalTips) : null,
-                    RawApiResponse = JsonSerializer.Serialize(apiResponse),
+                    RawApiResponse = JsonSerializer.Serialize(apiResponse, new JsonSerializerOptions { WriteIndented = true }),
                     CreatedAt = DateTime.UtcNow
                 };
 
-                _dbContext.InterviewAnalysisResults.Add(analysisResult);
+                _dbContext.InterviewAnalysisResults.Add(result);
                 await _dbContext.SaveChangesAsync();
 
-                _logger.LogInformation("Successfully saved interview analysis result with ID {ResultId}", analysisResult.Id);
-                return analysisResult;
+                return result;
             }
             catch (Exception ex)
             {
@@ -130,16 +97,32 @@ namespace InterviewBot.Services
 
         public async Task<InterviewAnalysisResult?> GetInterviewAnalysisResultAsync(int interviewSessionId)
         {
-            return await _dbContext.InterviewAnalysisResults
-                .FirstOrDefaultAsync(ar => ar.InterviewSessionId == interviewSessionId);
+            try
+            {
+                return await _dbContext.InterviewAnalysisResults
+                    .FirstOrDefaultAsync(r => r.InterviewSessionId == interviewSessionId);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error getting interview analysis result for session: {SessionId}", interviewSessionId);
+                return null;
+            }
         }
 
         public async Task<List<InterviewAnalysisResult>> GetUserInterviewAnalysisResultsAsync(int userId)
         {
-            return await _dbContext.InterviewAnalysisResults
-                .Where(ar => ar.UserId == userId)
-                .OrderByDescending(ar => ar.CreatedAt)
-                .ToListAsync();
+            try
+            {
+                return await _dbContext.InterviewAnalysisResults
+                    .Where(r => r.UserId == userId)
+                    .OrderByDescending(r => r.CreatedAt)
+                    .ToListAsync();
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error getting user interview analysis results for user: {UserId}", userId);
+                return new List<InterviewAnalysisResult>();
+            }
         }
     }
 }

@@ -33,6 +33,9 @@ namespace InterviewBot.Models
 
         [JsonPropertyName("interviewConversation")]
         public List<InterviewConversation> InterviewConversation { get; set; } = new();
+
+        [JsonPropertyName("InterviewId")]
+        public string InterviewId { get; set; } = string.Empty;
     }
 
     public class InterviewConversation
