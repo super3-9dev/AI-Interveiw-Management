@@ -611,11 +611,35 @@ namespace InterviewBot.Pages
             context.AppendLine();
             
             // Add instructions for AI
-            context.AppendLine("INSTRUCTIONS:");
-            context.AppendLine("=============");
-            context.AppendLine("Based on the conversation history above, ask a NEW question that you haven't asked before.");
-            context.AppendLine("Do NOT repeat any questions that are already in the conversation history.");
-            context.AppendLine("Ask a different, relevant follow-up question based on the user's response.");
+            var currentCulture = HttpContext.Request.Query["culture"].ToString();
+            if (currentCulture == "es")
+            {
+                context.AppendLine("INSTRUCCIONES:");
+                context.AppendLine("==============");
+                context.AppendLine("Basándote en el historial de conversación anterior, haz una pregunta NUEVA que no hayas hecho antes.");
+                context.AppendLine("NO repitas ninguna pregunta que ya esté en el historial de conversación.");
+                context.AppendLine("Haz una pregunta de seguimiento diferente y relevante basada en la respuesta del usuario.");
+                context.AppendLine("IMPORTANTE: Responde ÚNICAMENTE en español. NUNCA mezcles inglés con español.");
+                context.AppendLine("CRÍTICO: Si el usuario dice 'Hola', 'Hello', 'Sí', 'No', o respuestas cortas similares,");
+                context.AppendLine("NO termines la entrevista. En su lugar, haz una pregunta de seguimiento amigable.");
+                context.AppendLine("NUNCA uses 'INTERVIEW_TERMINATED:' para respuestas cortas o saludos.");
+                context.AppendLine("Solo termina la entrevista si el usuario da respuestas completamente sin sentido después de múltiples intentos.");
+                context.AppendLine("EJEMPLO: Si el usuario dice 'Hola', responde: '¡Hola! Me da mucho gusto conocerte. Comencemos con la entrevista. Cuéntame, ¿cuál es tu experiencia profesional más relevante?'");
+            }
+            else
+            {
+                context.AppendLine("INSTRUCTIONS:");
+                context.AppendLine("=============");
+                context.AppendLine("Based on the conversation history above, ask a NEW question that you haven't asked before.");
+                context.AppendLine("Do NOT repeat any questions that are already in the conversation history.");
+                context.AppendLine("Ask a different, relevant follow-up question based on the user's response.");
+                context.AppendLine("IMPORTANT: Respond ONLY in English. Do NOT mix languages.");
+                context.AppendLine("CRITICAL: If the user says 'Hello', 'Hi', 'Yes', 'No', or similar short responses,");
+                context.AppendLine("Do NOT terminate the interview. Instead, ask a friendly follow-up question.");
+                context.AppendLine("NEVER use 'INTERVIEW_TERMINATED:' for short responses or greetings.");
+                context.AppendLine("Only terminate the interview if the user gives completely nonsensical responses after multiple attempts.");
+                context.AppendLine("EXAMPLE: If the user says 'Hello', respond: 'Hello! Nice to meet you. Let's start the interview. Tell me, what's your most relevant professional experience?'");
+            }
             
             return context.ToString();
         }

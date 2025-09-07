@@ -469,13 +469,12 @@ namespace InterviewBot.Pages
                     foreach (var roadmapElement in roadmapsElement.EnumerateArray())
                     {
                         var roadmap = new CareerRoadmapItem();
-                        
                         if (roadmapElement.TryGetProperty("title", out var titleElement))
                         {
                             roadmap.Title = titleElement.GetString() ?? "";
                         }
                         
-                        if (roadmapElement.TryGetProperty("steps", out var stepsElement) && stepsElement.ValueKind == JsonValueKind.Array)
+                        if (roadmapElement.TryGetProperty("steps", out var stepsElement))
                         {
                             foreach (var stepElement in stepsElement.EnumerateArray())
                             {

@@ -67,7 +67,7 @@
                     <div class="roadmap-header" onclick="toggleRoadmap('short-term')">
                         <div class="roadmap-title-section">
                             <i class="bi bi-link-45deg roadmap-icon"></i>
-                            <h3>@Localizer["Short-Term Roadmap (1-2 years)"]</h3>
+                            <h3>@Model.YourCareerRoadmaps.FirstOrDefault(r => r.Title.Contains("Short-Term") || r.Title.Contains("Corto Plazo"))?.Title</h3>
                         </div>
                         <i class="bi bi-chevron-down" id="short-term-arrow"></i>
                     </div>
@@ -75,7 +75,7 @@
                         <ol class="roadmap-steps">
                             @if (Model.YourCareerRoadmaps.Any())
                             {
-                                @foreach (var roadmap in Model.YourCareerRoadmaps.Where(r => r.Title.Contains("Short-Term")))
+                                @foreach (var roadmap in Model.YourCareerRoadmaps.Where(r => r.Title.Contains("Short-Term") || r.Title.Contains("Corto Plazo")))
                                 {
                                     @foreach (var step in roadmap.Steps)
                                     {
@@ -98,15 +98,15 @@
                     <div class="roadmap-header" onclick="toggleRoadmap('medium-term')">
                         <div class="roadmap-title-section">
                             <i class="bi bi-arrow-up-circle roadmap-icon"></i>
-                            <h3>@Localizer["Medium-Term Roadmap (3-5 years)"]</h3>
+                            <h3>@Model.YourCareerRoadmaps.FirstOrDefault(r => r.Title.Contains("Medium-Term") || r.Title.Contains("Mediano Plazo"))?.Title</h3>
                         </div>
-                        <i class="bi bi-chevron-down" id="medium-term-arrow"></i>
+                        <i class="bi bi-chevron-down" id="medium-term-arrow"></i>   
                     </div>
                     <div class="roadmap-content" id="medium-term-content">
                         <ol class="roadmap-steps">
                             @if (Model.YourCareerRoadmaps.Any())
                             {
-                                @foreach (var roadmap in Model.YourCareerRoadmaps.Where(r => r.Title.Contains("Medium-Term")))
+                                @foreach (var roadmap in Model.YourCareerRoadmaps.Where(r => r.Title.Contains("Medium-Term") || r.Title.Contains("Mediano Plazo")))
                                 {
                                     @foreach (var step in roadmap.Steps)
                                     {
@@ -130,7 +130,7 @@
                     <div class="roadmap-header" onclick="toggleRoadmap('long-term')">
                         <div class="roadmap-title-section">
                             <i class="bi bi-book roadmap-icon"></i>
-                            <h3>@Localizer["Long-Term Roadmap (5+ years)"]</h3>
+                            <h3>@Model.YourCareerRoadmaps.FirstOrDefault(r => r.Title.Contains("Long-Term") || r.Title.Contains("Largo Plazo"))?.Title</h3>
                         </div>
                         <i class="bi bi-chevron-down" id="long-term-arrow"></i>
                     </div>
@@ -138,7 +138,7 @@
                         <ol class="roadmap-steps">
                             @if (Model.YourCareerRoadmaps.Any())
                             {
-                                @foreach (var roadmap in Model.YourCareerRoadmaps.Where(r => r.Title.Contains("Long-Term")))
+                                @foreach (var roadmap in Model.YourCareerRoadmaps.Where(r => r.Title.Contains("Long-Term") || r.Title.Contains("Largo Plazo")))
                                 {
                                     @foreach (var step in roadmap.Steps)
                                     {

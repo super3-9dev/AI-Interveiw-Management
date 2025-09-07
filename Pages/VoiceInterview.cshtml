@@ -67,6 +67,10 @@
                     <div class="status-dot" id="micStatusDot"></div>
                     <span id="micStatusText">@Localizer["Checking microphone..."]</span>
                 </div>
+                
+                <button class="btn btn-sm btn-outline-secondary" id="reinitSpeechBtn" onclick="reinitializeSpeechRecognition()" style="display: none;">
+                    <i class="bi bi-arrow-clockwise"></i> @Localizer["Reinitialize Speech Recognition"]
+                </button>
             </div>
 
             <div class="voice-transcription">
@@ -985,6 +989,23 @@
         }
     }
 
+    // Reinitialize speech recognition with correct language
+    function reinitializeSpeechRecognition() {
+        console.log('Reinitializing speech recognition...');
+        if (speechRecognition) {
+            try {
+                speechRecognition.stop();
+            } catch (error) {
+                console.error('Error stopping speech recognition:', error);
+            }
+        }
+        
+        // Wait a bit before reinitializing
+        setTimeout(() => {
+            initializeSpeechRecognition();
+        }, 500);
+    }
+
     // Initialize speech recognition
     function initializeSpeechRecognition() {
         try {
@@ -996,16 +1017,35 @@
                 speechRecognition = new SpeechRecognition();
                 speechRecognition.continuous = true;
                 speechRecognition.interimResults = true;
-                speechRecognition.lang = 'en-US'; // Can be made dynamic based on culture
+                
+                // Set language based on current culture
+                const currentCulture = new URLSearchParams(window.location.search).get('culture') || 'en';
+                speechRecognition.lang = currentCulture === 'es' ? 'es-ES' : 'en-US';
+                
+                // Additional settings for better recognition
+                if (speechRecognition.maxAlternatives) {
+                    speechRecognition.maxAlternatives = 3; // Get more alternatives for better accuracy
+                }
+                
+                console.log('Speech recognition language set to:', speechRecognition.lang);
+                console.log('Speech recognition culture:', currentCulture);
                 console.log('Speech recognition object created:', speechRecognition);
                 
                 speechRecognition.onresult = function(event) {
                     let finalTranscript = '';
                     let interimTranscript = '';
                     
+                    console.log('Speech recognition result event:', event);
+                    console.log('Number of results:', event.results.length);
+                    
                     for (let i = event.resultIndex; i < event.results.length; i++) {
-                        const transcript = event.results[i][0].transcript;
-                        if (event.results[i].isFinal) {
+                        const result = event.results[i];
+                        const transcript = result[0].transcript;
+                        const confidence = result[0].confidence;
+                        
+                        console.log(`Result ${i}: "${transcript}" (confidence: ${confidence}, isFinal: ${result.isFinal})`);
+                        
+                        if (result.isFinal) {
                             finalTranscript += transcript;
                         } else {
                             interimTranscript += transcript;
@@ -1014,12 +1054,14 @@
                     
                     // Update transcription area with interim results
                     if (interimTranscript) {
+                        console.log('Interim transcript:', interimTranscript);
                         document.getElementById('transcriptionArea').value = interimTranscript;
                     }
                     
                     // If we have a final result, automatically send the message
                     if (finalTranscript.trim()) {
                         console.log('Final transcript:', finalTranscript);
+                        console.log('Final transcript length:', finalTranscript.length);
                         document.getElementById('transcriptionArea').value = finalTranscript.trim();
                         
                         // Automatically send the message if we're waiting for user response
@@ -1035,15 +1077,33 @@
                 
                 speechRecognition.onerror = function(event) {
                     console.error('Speech recognition error:', event.error);
+                    console.error('Error details:', event);
+                    
                     if (event.error === 'no-speech') {
+                        console.log('No speech detected, restarting...');
                         // Restart listening if no speech detected
                         if (isListening && isVoiceActive) {
                             setTimeout(() => {
                                 if (isListening && isVoiceActive) {
-                                    speechRecognition.start();
+                                    try {
+                                        speechRecognition.start();
+                                        console.log('Speech recognition restarted after no-speech error');
+                                    } catch (error) {
+                                        console.error('Error restarting speech recognition:', error);
+                                    }
                                 }
                             }, 1000);
                         }
+                    } else if (event.error === 'language-not-supported') {
+                        console.error('Language not supported, falling back to default');
+                        // Fallback to default language
+                        speechRecognition.lang = 'en-US';
+                    } else if (event.error === 'not-allowed') {
+                        console.error('Speech recognition not allowed');
+                        addSystemMessage("Microphone access denied. Please allow microphone access for voice interview.");
+                    } else if (event.error === 'network') {
+                        console.error('Network error in speech recognition');
+                        addSystemMessage("Network error in speech recognition. Please check your connection.");
                     }
                 };
                 
@@ -1058,11 +1118,46 @@
                     }
                 };
                 console.log('=== SPEECH RECOGNITION INITIALIZATION COMPLETE ===');
+                
+                // Test speech recognition with a short test
+                setTimeout(() => {
+                    testSpeechRecognition();
+                }, 1000);
             } else {
                 console.error('Speech recognition not supported in this browser');
+                addSystemMessage("Speech recognition not supported in this browser. Please use text input instead.");
             }
         } catch (error) {
             console.error('Speech recognition initialization error:', error);
+            addSystemMessage("Error initializing speech recognition. Please use text input instead.");
+        }
+    }
+
+    // Test speech recognition functionality
+    function testSpeechRecognition() {
+        if (!speechRecognition) return;
+        
+        console.log('Testing speech recognition...');
+        const currentCulture = new URLSearchParams(window.location.search).get('culture') || 'en';
+        const expectedLanguage = currentCulture === 'es' ? 'es-ES' : 'en-US';
+        
+        if (speechRecognition.lang !== expectedLanguage) {
+            console.warn(`Language mismatch: expected ${expectedLanguage}, got ${speechRecognition.lang}`);
+            addSystemMessage(`Speech recognition language set to ${speechRecognition.lang}. If you're speaking Spanish, please ensure the page language is set to Spanish.`);
+            
+            // Show reinitialize button
+            const reinitBtn = document.getElementById('reinitSpeechBtn');
+            if (reinitBtn) {
+                reinitBtn.style.display = 'inline-block';
+            }
+        } else {
+            console.log(`Speech recognition language correctly set to ${speechRecognition.lang}`);
+            
+            // Hide reinitialize button
+            const reinitBtn = document.getElementById('reinitSpeechBtn');
+            if (reinitBtn) {
+                reinitBtn.style.display = 'none';
+            }
         }
     }
 
