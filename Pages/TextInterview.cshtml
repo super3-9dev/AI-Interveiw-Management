@@ -580,7 +580,8 @@
 
                 // Redirect to results page after a short delay
                 setTimeout(() => {
-                    const resultsUrl = `/InterviewResults?InterviewId=@Model.InterviewId&Summary=${encodeURIComponent(response.summary)}&QuestionCount=${response.questionCount || 10}`;
+                    const currentCulture = new URLSearchParams(window.location.search).get('culture') || 'en';
+                    const resultsUrl = `/InterviewResults?InterviewId=@Model.InterviewId&Summary=${encodeURIComponent(response.summary)}&QuestionCount=${response.questionCount || 10}&culture=${currentCulture}`;
                     window.location.href = resultsUrl;
                 }, 2000);
 
@@ -814,7 +815,8 @@
         if (confirm('Are you sure you want to finish this interview? This action cannot be undone.')) {
             // In real implementation, this would save the interview results to database
             alert('Interview finished! Redirecting to dashboard...');
-            window.location.href = '/Dashboard';
+            const currentCulture = new URLSearchParams(window.location.search).get('culture') || 'en';
+            window.location.href = `/Dashboard?culture=${currentCulture}`;
         }
     }
 </script>

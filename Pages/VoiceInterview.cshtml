@@ -1710,7 +1710,8 @@
             }
 
             alert('Interview finished! Redirecting to dashboard...');
-            window.location.href = '/Dashboard';
+            const currentCulture = new URLSearchParams(window.location.search).get('culture') || 'en';
+            window.location.href = `/Dashboard?culture=${currentCulture}`;
         }
     }
 

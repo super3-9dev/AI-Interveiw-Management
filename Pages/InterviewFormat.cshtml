@@ -47,6 +47,7 @@
                     </div>
                     <form method="post" asp-page-handler="StartTextInterview" style="display: inline;">
                         <input type="hidden" name="InterviewId" value="@Model.InterviewId" />
+                        <input type="hidden" name="Culture" value="@HttpContext.Request.Query["culture"].ToString()" />
                         <button type="submit" class="btn btn-primary format-btn">
                             <i class="bi bi-chat-text"></i>
                             @Localizer["Start Text Interview"]
@@ -81,6 +82,7 @@
                     </div>
                     <form method="post" asp-page-handler="StartVoiceInterview" style="display: inline;">
                         <input type="hidden" name="InterviewId" value="@Model.InterviewId" />
+                        <input type="hidden" name="Culture" value="@HttpContext.Request.Query["culture"].ToString()" />
                         <button type="submit" class="btn btn-success format-btn">
                             <i class="bi bi-mic"></i>
                             @Localizer["Start Voice Interview"]
