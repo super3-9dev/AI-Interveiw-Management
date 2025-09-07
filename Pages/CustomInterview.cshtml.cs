@@ -32,6 +32,11 @@ namespace InterviewBot.Pages
         public string? ErrorMessage { get; set; }
         public string? SuccessMessage { get; set; }
 
+        [BindProperty]
+        [Required(ErrorMessage = "Instructions are required")]
+        [StringLength(2000, ErrorMessage = "Instructions cannot exceed 2000 characters")]
+        public string Instructions { get; set; } = string.Empty;
+
         private string GetCurrentCulture()
         {
             var currentCulture = HttpContext.Request.Query["culture"].ToString();
@@ -69,6 +74,7 @@ namespace InterviewBot.Pages
                     UserId = userId.Value,
                     Topic = InterviewTopic,
                     Introduction = Description,
+                    AgentInstructions = Instructions,
                     InterviewType = "Custom",
                     IsActive = true,
                     CreatedAt = DateTime.UtcNow
@@ -86,7 +92,7 @@ namespace InterviewBot.Pages
                 // Clear the form
                 InterviewTopic = string.Empty;
                 Description = string.Empty;
-
+                Instructions = string.Empty;
                 // Redirect to dashboard after a short delay to show the success message
                 return RedirectToPage("/Dashboard", new { culture = GetCurrentCulture() });
             }

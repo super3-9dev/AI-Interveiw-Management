@@ -61,9 +61,9 @@
                             <span class="language-text">@(isEnglish ? "English" : "Español")</span>
                         </button>
                         <div class="language-dropdown-content">
-                            <a href="?culture=en"
+                            <a href="javascript:void(0)" onclick="switchLanguage('en')"
                                 class="language-option @(isEnglish ? "active" : "")">English</a>
-                            <a href="?culture=es"
+                            <a href="javascript:void(0)" onclick="switchLanguage('es')"
                                 class="language-option @(isSpanish ? "active" : "")">Español</a>
                         </div>
                     </div>

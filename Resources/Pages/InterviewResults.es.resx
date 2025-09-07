@@ -78,4 +78,73 @@
   <data name="Start New Interview">
     <value>Iniciar Nueva Entrevista</value>
   </data>
+  <data name="Your Personalized Career Guidance">
+    <value>Tu Orientación Profesional Personalizada</value>
+  </data>
+  <data name="Based on your profile and interview, here are your tailored insights and potential career roadmaps.">
+    <value>Basado en tu perfil y entrevista, aquí tienes tus perspectivas personalizadas y posibles rutas profesionales.</value>
+  </data>
+  <data name="Summary:">
+    <value>Resumen:</value>
+  </data>
+  <data name="Recommendations:">
+    <value>Recomendaciones:</value>
+  </data>
+  <data name="MBA Focus Area">
+    <value>Área de Enfoque MBA</value>
+  </data>
+  <data name="Additional Tips">
+    <value>Consejos Adicionales</value>
+  </data>
+  <data name="Your Career Roadmaps">
+    <value>Tus Rutas Profesionales</value>
+  </data>
+  <data name="Actionable next steps for your professional journey.">
+    <value>Próximos pasos accionables para tu viaje profesional.</value>
+  </data>
+  <data name="Short-Term Roadmap (1-2 years)">
+    <value>Ruta a Corto Plazo (1-2 años)</value>
+  </data>
+  <data name="Medium-Term Roadmap (3-5 years)">
+    <value>Ruta a Mediano Plazo (3-5 años)</value>
+  </data>
+  <data name="Long-Term Roadmap (5+ years)">
+    <value>Ruta a Largo Plazo (5+ años)</value>
+  </data>
+  <data name="Complete a certification in a relevant technology (e.g., AWS Certified Cloud Practitioner).">
+    <value>Completa una certificación en una tecnología relevante (ej., AWS Certified Cloud Practitioner).</value>
+  </data>
+  <data name="Contribute to an open-source project to build your portfolio.">
+    <value>Contribuye a un proyecto de código abierto para construir tu portafolio.</value>
+  </data>
+  <data name="Network with at least 5 professionals in your target industry.">
+    <value>Conecta con al menos 5 profesionales en tu industria objetivo.</value>
+  </data>
+  <data name="Gain practical experience through internships in data roles">
+    <value>Obtén experiencia práctica a través de pasantías en roles de datos</value>
+  </data>
+  <data name="Deepen industry knowledge through research and articles">
+    <value>Profundiza el conocimiento de la industria a través de investigación y artículos</value>
+  </data>
+  <data name="Participate in relevant projects within current job">
+    <value>Participa en proyectos relevantes dentro del trabajo actual</value>
+  </data>
+  <data name="Build relationships with mentors in the field">
+    <value>Construye relaciones con mentores en el campo</value>
+  </data>
+  <data name="Aim for a management role in data analytics or project management">
+    <value>Apunta a un rol de gestión en análisis de datos o gestión de proyectos</value>
+  </data>
+  <data name="Lead innovative projects to further develop leadership skills">
+    <value>Lidera proyectos innovadores para desarrollar aún más las habilidades de liderazgo</value>
+  </data>
+  <data name="Continuously update skills with advanced courses">
+    <value>Actualiza continuamente las habilidades con cursos avanzados</value>
+  </data>
+  <data name="Contribute to professional communities through speaking or publications">
+    <value>Contribuye a comunidades profesionales a través de charlas o publicaciones</value>
+  </data>
+  <data name="Start New Analysis">
+    <value>Iniciar Nuevo Análisis</value>
+  </data>
 </root>

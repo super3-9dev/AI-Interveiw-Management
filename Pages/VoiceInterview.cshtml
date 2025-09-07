@@ -661,7 +661,7 @@
 
     // Interview flow variables
     let currentQuestionNumber = 0;
-    let maxQuestions = 6; // Reduced from 10 to 6 questions
+    let maxQuestions = 10; // Set to 10 questions
     let isInterviewStarted = false;
     let isWaitingForUserResponse = false;
     let interviewConversation = []; // Store the full conversation for analysis
@@ -1181,6 +1181,36 @@
         }
     }
 
+    // Clean text for speech synthesis
+    function cleanTextForSpeech(text) {
+        if (!text) return '';
+        
+        // Remove special characters and formatting that TTS shouldn't read
+        let cleaned = text
+            // Remove markdown formatting
+            .replace(/\*\*(.*?)\*\*/g, '$1')  // Bold
+            .replace(/\*(.*?)\*/g, '$1')      // Italic
+            .replace(/`(.*?)`/g, '$1')        // Code
+            .replace(/```[\s\S]*?```/g, '')   // Code blocks
+            .replace(/`[\s\S]*?`/g, '')       // Inline code
+            // Remove HTML tags
+            .replace(/<[^>]*>/g, '')
+            // Remove special characters that TTS reads literally
+            .replace(/[{}[\]()]/g, '')        // Brackets and parentheses
+            .replace(/[#]/g, '')              // Special symbols
+            .replace(/[<>]/g, '')             // Angle brackets
+            .replace(/[!?]{2,}/g, '?')        // Multiple punctuation to single
+            .replace(/\.{2,}/g, '.')          // Multiple dots to single
+            // Clean up quotes
+            .replace(/[""]/g, '"')            // Smart quotes to regular quotes
+            .replace(/['']/g, "'")            // Smart apostrophes to regular
+            // Remove extra whitespace
+            .replace(/\s+/g, ' ')
+            .trim();
+            
+        return cleaned;
+    }
+
     // Speak AI message
     function speakAIMessage(message) {
         if (!isAIVoiceEnabled || !speechSynthesis) return;
@@ -1190,15 +1220,19 @@
             speechSynthesis.cancel();
         }
 
+        // Clean the message for natural speech
+        const cleanedMessage = cleanTextForSpeech(message);
+        if (!cleanedMessage) return;
+
         // Get current culture from URL
         const currentCulture = new URLSearchParams(window.location.search).get('culture') || 'en';
         const targetLanguage = currentCulture === 'es' ? 'es' : 'en';
 
         // Create new utterance
-        currentUtterance = new SpeechSynthesisUtterance(message);
-        currentUtterance.rate = 0.9; // Slightly slower
-        currentUtterance.pitch = 1.0;
-        currentUtterance.volume = 0.8;
+        currentUtterance = new SpeechSynthesisUtterance(cleanedMessage);
+        currentUtterance.rate = 0.85; // Slower, more natural pace
+        currentUtterance.pitch = 1.1; // Slightly higher pitch for more human-like sound
+        currentUtterance.volume = 0.9; // Higher volume for clarity
         currentUtterance.lang = targetLanguage === 'es' ? 'es-ES' : 'en-US';
 
         // Try to get a good voice for the target language
@@ -1206,20 +1240,28 @@
         let preferredVoice;
         
         if (targetLanguage === 'es') {
-            // For Spanish, try to find Spanish voices
+            // For Spanish, try to find natural-sounding Spanish voices
             preferredVoice = voices.find(voice => 
-                voice.lang.includes('es') && voice.name.includes('Google')
+                voice.lang.includes('es') && (voice.name.includes('Google') || voice.name.includes('Microsoft'))
             ) || voices.find(voice => 
-                voice.lang.includes('es')
+                voice.lang.includes('es') && voice.name.includes('Natural')
             ) || voices.find(voice => 
                 voice.lang.includes('es-ES')
             ) || voices.find(voice => 
                 voice.lang.includes('es-MX')
+            ) || voices.find(voice => 
+                voice.lang.includes('es')
             );
         } else {
-            // For English, try to find English voices
+            // For English, try to find natural-sounding English voices
             preferredVoice = voices.find(voice => 
-                voice.lang.includes('en') && voice.name.includes('Google')
+                voice.lang.includes('en') && (voice.name.includes('Google') || voice.name.includes('Microsoft'))
+            ) || voices.find(voice => 
+                voice.lang.includes('en') && voice.name.includes('Natural')
+            ) || voices.find(voice => 
+                voice.lang.includes('en-US') && voice.name.includes('Female')
+            ) || voices.find(voice => 
+                voice.lang.includes('en-US') && voice.name.includes('Male')
             ) || voices.find(voice => 
                 voice.lang.includes('en')
             );

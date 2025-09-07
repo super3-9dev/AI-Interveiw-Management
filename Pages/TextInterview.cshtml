@@ -47,7 +47,7 @@
                         <span class="message-time" id="currentTime"></span>
                     </div>
                     <div class="message-text">
-                        @Model.GreetingMessage @Model.CurrentQuestion
+                        @(string.IsNullOrEmpty(Model.GreetingMessage) ? Model.CurrentQuestion : Model.GreetingMessage)
                     </div>
                 </div>
             </div>
@@ -524,7 +524,7 @@
         // Add initial AI message to history
         messageHistory.push({
             type: 'ai',
-            text: '@Model.GreetingMessage @Model.CurrentQuestion',
+            text: '@Model.CurrentQuestion',
             timestamp: new Date()
         });
 

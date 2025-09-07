@@ -78,4 +78,73 @@
   <data name="Start New Interview">
     <value>Start New Interview</value>
   </data>
+  <data name="Your Personalized Career Guidance">
+    <value>Your Personalized Career Guidance</value>
+  </data>
+  <data name="Based on your profile and interview, here are your tailored insights and potential career roadmaps.">
+    <value>Based on your profile and interview, here are your tailored insights and potential career roadmaps.</value>
+  </data>
+  <data name="Summary:">
+    <value>Summary:</value>
+  </data>
+  <data name="Recommendations:">
+    <value>Recommendations:</value>
+  </data>
+  <data name="MBA Focus Area">
+    <value>MBA Focus Area</value>
+  </data>
+  <data name="Additional Tips">
+    <value>Additional Tips</value>
+  </data>
+  <data name="Your Career Roadmaps">
+    <value>Your Career Roadmaps</value>
+  </data>
+  <data name="Actionable next steps for your professional journey.">
+    <value>Actionable next steps for your professional journey.</value>
+  </data>
+  <data name="Short-Term Roadmap (1-2 years)">
+    <value>Short-Term Roadmap (1-2 years)</value>
+  </data>
+  <data name="Medium-Term Roadmap (3-5 years)">
+    <value>Medium-Term Roadmap (3-5 years)</value>
+  </data>
+  <data name="Long-Term Roadmap (5+ years)">
+    <value>Long-Term Roadmap (5+ years)</value>
+  </data>
+  <data name="Complete a certification in a relevant technology (e.g., AWS Certified Cloud Practitioner).">
+    <value>Complete a certification in a relevant technology (e.g., AWS Certified Cloud Practitioner).</value>
+  </data>
+  <data name="Contribute to an open-source project to build your portfolio.">
+    <value>Contribute to an open-source project to build your portfolio.</value>
+  </data>
+  <data name="Network with at least 5 professionals in your target industry.">
+    <value>Network with at least 5 professionals in your target industry.</value>
+  </data>
+  <data name="Gain practical experience through internships in data roles">
+    <value>Gain practical experience through internships in data roles</value>
+  </data>
+  <data name="Deepen industry knowledge through research and articles">
+    <value>Deepen industry knowledge through research and articles</value>
+  </data>
+  <data name="Participate in relevant projects within current job">
+    <value>Participate in relevant projects within current job</value>
+  </data>
+  <data name="Build relationships with mentors in the field">
+    <value>Build relationships with mentors in the field</value>
+  </data>
+  <data name="Aim for a management role in data analytics or project management">
+    <value>Aim for a management role in data analytics or project management</value>
+  </data>
+  <data name="Lead innovative projects to further develop leadership skills">
+    <value>Lead innovative projects to further develop leadership skills</value>
+  </data>
+  <data name="Continuously update skills with advanced courses">
+    <value>Continuously update skills with advanced courses</value>
+  </data>
+  <data name="Contribute to professional communities through speaking or publications">
+    <value>Contribute to professional communities through speaking or publications</value>
+  </data>
+  <data name="Start New Analysis">
+    <value>Start New Analysis</value>
+  </data>
 </root>

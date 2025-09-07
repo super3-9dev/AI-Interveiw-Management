@@ -299,8 +299,8 @@ namespace InterviewBot.Pages
                         {
                             InterviewHistory.Add(new InterviewHistoryItem
                             {
-                                Question = messages[i].Content, // AI question
-                                Answer = messages[i + 1].Content, // User answer
+                                Question = messages[i + 1].Content, // AI question
+                                Answer = messages[i].Content, // User answer
                                 Timestamp = messages[i + 1].Timestamp
                             });
                         }
@@ -466,6 +466,14 @@ namespace InterviewBot.Pages
                     {
                         await CallAnalysisApiAndStoreResultAsync(InterviewId, GetCurrentCulture());
                         Console.WriteLine("Analysis API called successfully for terminated interview: " + InterviewId);
+                        ClearQuestionCount();
+                        return new JsonResult(new
+                        {
+                            response = aiResponse,
+                            isComplete = true,
+                            summary = aiResponse,
+                            questionCount = currentCount
+                        });
                     }
                     catch (Exception ex)
                     {
@@ -572,11 +580,10 @@ namespace InterviewBot.Pages
             try
             {
                 // Get interview catalog and user profile
-                Console.WriteLine($"InterviewId==========================>: {interviewId}");
-                Console.WriteLine($"Culture==========================>: {culture}");
                 var interviewCatalog = await _dbContext.InterviewCatalogs
                     .FirstOrDefaultAsync(c => c.Id.ToString() == interviewId);
-                
+                interviewCatalog.Status = "Completed";
+                await _dbContext.SaveChangesAsync();
                 var userId = GetCurrentUserId();
                 var user = await _dbContext.Users.FindAsync(userId);
                 var profile = await _dbContext.Profiles.FirstOrDefaultAsync(p => p.UserId == userId);
@@ -592,15 +599,14 @@ namespace InterviewBot.Pages
                     .Where(m => m.InterviewId == interviewId)
                     .OrderBy(m => m.Timestamp)
                     .ToListAsync();
-
                 for (int i = 0; i < chatMessages.Count; i += 2)
                 {
                     if (i + 1 < chatMessages.Count)
                     {
                         conversation.Add(new InterviewConversation
                         {
-                            Question = chatMessages[i].Content,
-                            Answer = chatMessages[i + 1].Content
+                            Question = chatMessages[i + 1].Content,
+                            Answer = chatMessages[i].Content
                         });
                     }
                 }
@@ -623,9 +629,6 @@ namespace InterviewBot.Pages
 
                 // Call the analysis API
                 var (success, apiResponse, errorMessage) = await _interviewAnalysisService.CallInterviewAnalysisAPIAsync(apiRequest);
-                Console.WriteLine($"Analysis API response==========================>: {apiResponse}");
-                Console.WriteLine($"Analysis API error message==========================>: {errorMessage}");
-                Console.WriteLine($"Analysis API success==========================>: {success}");
                 // Create or update InterviewResult
                 var interviewResult = await _dbContext.InterviewResults
                     .FirstOrDefaultAsync(r => r.InterviewId == interviewId);
@@ -668,8 +671,6 @@ namespace InterviewBot.Pages
         {
             try
             {
-                Console.WriteLine("Generating interview summary...");
-                Console.WriteLine($"Culture======================>: {HttpContext.Request.Query["culture"].ToString()}");
 
                 var summaryPrompt = $@"
                 Based on the interview conversation, provide a comprehensive summary and analysis.
@@ -697,7 +698,6 @@ namespace InterviewBot.Pages
                     HttpContext.Request.Query["culture"].ToString()
                 );
 
-                Console.WriteLine($"Interview summary generated successfully");
                 return summary;
             }
             catch (Exception ex)

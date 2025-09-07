@@ -5,6 +5,11 @@
 @inject IViewLocalizer Localizer
 @{
     ViewData["Title"] = Localizer["Your Personalized Career Guidance"];
+    var currentCulture = HttpContext.Request.Query["culture"].ToString();
+    if (string.IsNullOrEmpty(currentCulture))
+    {
+        currentCulture = HttpContext.Request.Cookies["culture"] ?? "en";
+    }
 }
 
 @section Styles {
@@ -452,7 +457,7 @@
                             </div>
 
                             <div>
-                                <a href="/InterviewResults?interviewId=@result.InterviewId" class="btn btn-primary">@Localizer["View Result"]</a>
+                                <a href="/InterviewResults?interviewId=@result.InterviewId&culture=@currentCulture" class="btn btn-primary">@Localizer["View Result"]</a>
                             </div>
                         </li>
                     }

@@ -72,7 +72,7 @@ namespace InterviewBot.Pages
             var culture = GetCurrentCulture();
             if (culture == "es")
             {
-                return "¡Hola! Soy tu coach de carrera con IA. Vamos a tener una entrevista de práctica. Comencemos con la primera pregunta. ¡Di hola para comenzar la entrevista!";
+                return "Hola! Soy tu coach de carrera con IA. Vamos a tener una entrevista de práctica. Comencemos con la primera pregunta. Di hola para comenzar la entrevista!";
             }
             else
             {
@@ -103,6 +103,8 @@ namespace InterviewBot.Pages
                 var interviewCatalog = await _dbContext.InterviewCatalogs
                     .FirstOrDefaultAsync(c => c.Id.ToString() == interviewId);
                 
+                interviewCatalog.Status = "Completed";
+                await _dbContext.SaveChangesAsync();
                 var userId = GetCurrentUserId();
                 var user = await _dbContext.Users.FindAsync(userId);
                 var profile = await _dbContext.Profiles.FirstOrDefaultAsync(p => p.UserId == userId);
@@ -125,8 +127,8 @@ namespace InterviewBot.Pages
                     {
                         conversation.Add(new InterviewConversation
                         {
-                            Question = chatMessages[i].Content,
-                            Answer = chatMessages[i + 1].Content
+                            Question =  chatMessages[i + 1].Content,
+                            Answer = chatMessages[i].Content,
                         });
                     }
                 }
@@ -410,8 +412,8 @@ namespace InterviewBot.Pages
                         {
                             InterviewHistory.Add(new InterviewHistoryItem
                             {
-                                Question = messages[i].Content, // AI question
-                                Answer = messages[i + 1].Content, // User answer
+                                Question = messages[i + 1].Content, // AI question
+                                Answer = messages[i].Content, // User answer
                                 Timestamp = messages[i + 1].Timestamp
                             });
                         }
@@ -700,7 +702,7 @@ namespace InterviewBot.Pages
                 
                 // Check question count and limit
                 var currentCount = GetQuestionCount();
-                const int maxQuestions = 6; // Limit to 6 questions
+                const int maxQuestions = 10; // Limit to 10 questions
                 
                 if (currentCount >= maxQuestions)
                 {
@@ -725,11 +727,6 @@ namespace InterviewBot.Pages
                     });
                 }
                 
-                Console.WriteLine("Calling OpenAI service...");
-                Console.WriteLine($"Message to send to OpenAI: '{messageWithInstructions}'");
-                Console.WriteLine($"Interview topic: '{interviewTopic}'");
-                Console.WriteLine($"Culture======================>: {HttpContext.Request.Query["culture"].ToString()}");
-                
                 string aiResponse;
                 bool isTerminated = false;
                 try
@@ -738,7 +735,8 @@ namespace InterviewBot.Pages
                     aiResponse = await _openAIService.GenerateInterviewResponseAsync(
                         messageWithInstructions,
                         interviewTopic,
-                        HttpContext.Request.Query["culture"].ToString()
+                        HttpContext.Request.Query["culture"].ToString(),
+                        "voice"
                     );
                     Console.WriteLine("OpenAI service call completed successfully.");
                     Console.WriteLine($"Raw AI response: '{aiResponse}'");
