@@ -70,7 +70,7 @@ namespace InterviewBot.Pages
             }
             else
             {
-                return "Hello! I'm your AI career coach. We're going to have a practice interview. Let's start with the first question. Say hello to start the interview!";
+                return "Hello! I am your AI career coach. We are going to have a practice interview. Let us start with the first question. Say hello to start the interview!";
             }
         }
 

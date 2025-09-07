@@ -387,7 +387,6 @@ namespace InterviewBot.Pages
 
                 var interviewCatalog = await _dbContext.InterviewCatalogs
                     .FirstOrDefaultAsync(c => c.Id.ToString() == request.InterviewId);
-                
                 if (request == null || string.IsNullOrEmpty(request.Message))
                 {
                     Console.WriteLine("Invalid request - missing message");
@@ -439,13 +438,10 @@ namespace InterviewBot.Pages
                     });
                 }
 
-                Console.WriteLine($"Agent Instruction =========================> s: {AgentInstructions}");
-                Console.WriteLine($"Interview Topic =========================> s: {InterviewTopic}");
-                Console.WriteLine($"Culture======================>: {HttpContext.Request.Query["culture"].ToString()}");
                 // Generate AI response using OpenAI service
                 var aiResponse = await _openAIService.GenerateInterviewResponseAsync(
                     request.Message,
-                    InterviewTopic ?? "Career Interview",
+                    AgentInstructions ?? "Career Interview",
                     HttpContext.Request.Query["culture"].ToString()
                 );
 

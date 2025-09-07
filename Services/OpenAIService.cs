@@ -39,7 +39,7 @@ namespace InterviewBot.Services
                 ApiKey = config["OpenAI:ApiKey"] ?? string.Empty,
                 Model = config["OpenAI:Model"] ?? "gpt-4",
                 MaxTokens = int.TryParse(config["OpenAI:MaxTokens"], out var maxTokens) ? maxTokens : 2000,
-                Temperature = double.TryParse(config["OpenAI:Temperature"], out var temp) ? Math.Min(Math.Max(temp, 0.0), 2.0) : 0.7
+                Temperature = 0.7
             };
             
             // Debug logging for configuration
@@ -67,13 +67,12 @@ namespace InterviewBot.Services
                     _logger.LogInformation("Generating interview response (attempt {Attempt}/{MaxRetries})", attempt, maxRetries);
 
                     var systemPrompt = GetInterviewSystemPrompt(interviewContext, culture);
-                    
                     // Debug logging for temperature
-                    _logger.LogInformation("Using temperature: {Temperature}", _config.Temperature);
+                    // _logger.LogInformation("Using temperature: {Temperature}", _config.Temperature);
                     
                     // Ensure temperature is within valid range
                     var validTemperature = Math.Min(Math.Max(_config.Temperature, 0.0), 2.0);
-                    _logger.LogInformation("Validated temperature: {Temperature}", validTemperature);
+                    // _logger.LogInformation("Validated temperature: {Temperature}", validTemperature);
                     
                     var requestBody = new
                     {
@@ -92,6 +91,7 @@ namespace InterviewBot.Services
 
                     var response = await _httpClient.PostAsync(_baseUrl, content);
                     var responseContent = await response.Content.ReadAsStringAsync();
+                    Console.WriteLine("Response======================>: " + responseContent);
 
                     if (!response.IsSuccessStatusCode)
                     {

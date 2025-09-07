@@ -1190,22 +1190,51 @@
             speechSynthesis.cancel();
         }
 
+        // Get current culture from URL
+        const currentCulture = new URLSearchParams(window.location.search).get('culture') || 'en';
+        const targetLanguage = currentCulture === 'es' ? 'es' : 'en';
+
         // Create new utterance
         currentUtterance = new SpeechSynthesisUtterance(message);
         currentUtterance.rate = 0.9; // Slightly slower
         currentUtterance.pitch = 1.0;
         currentUtterance.volume = 0.8;
+        currentUtterance.lang = targetLanguage === 'es' ? 'es-ES' : 'en-US';
 
-        // Try to get a good voice
+        // Try to get a good voice for the target language
         const voices = speechSynthesis.getVoices();
-        const preferredVoice = voices.find(voice => 
-            voice.lang.includes('en') && voice.name.includes('Google')
-        ) || voices.find(voice => 
-            voice.lang.includes('en')
-        ) || voices[0];
+        let preferredVoice;
+        
+        if (targetLanguage === 'es') {
+            // For Spanish, try to find Spanish voices
+            preferredVoice = voices.find(voice => 
+                voice.lang.includes('es') && voice.name.includes('Google')
+            ) || voices.find(voice => 
+                voice.lang.includes('es')
+            ) || voices.find(voice => 
+                voice.lang.includes('es-ES')
+            ) || voices.find(voice => 
+                voice.lang.includes('es-MX')
+            );
+        } else {
+            // For English, try to find English voices
+            preferredVoice = voices.find(voice => 
+                voice.lang.includes('en') && voice.name.includes('Google')
+            ) || voices.find(voice => 
+                voice.lang.includes('en')
+            );
+        }
+        
+        // Fallback to any available voice
+        if (!preferredVoice) {
+            preferredVoice = voices[0];
+        }
 
         if (preferredVoice) {
             currentUtterance.voice = preferredVoice;
+            console.log(`Using voice: ${preferredVoice.name} (${preferredVoice.lang}) for language: ${targetLanguage}`);
+        } else {
+            console.log(`No preferred voice found for language: ${targetLanguage}, using default`);
         }
 
         // Handle speech events
@@ -1721,7 +1750,18 @@
     function initializeVoices() {
         if (speechSynthesis.onvoiceschanged !== undefined) {
             speechSynthesis.onvoiceschanged = () => {
-                console.log('Voices loaded:', speechSynthesis.getVoices().length);
+                const voices = speechSynthesis.getVoices();
+                console.log('Voices loaded:', voices.length);
+                
+                // Log available languages
+                const languages = [...new Set(voices.map(v => v.lang))];
+                console.log('Available languages:', languages);
+                
+                // Log Spanish and English voices specifically
+                const spanishVoices = voices.filter(v => v.lang.includes('es'));
+                const englishVoices = voices.filter(v => v.lang.includes('en'));
+                console.log('Spanish voices:', spanishVoices.map(v => `${v.name} (${v.lang})`));
+                console.log('English voices:', englishVoices.map(v => `${v.name} (${v.lang})`));
             };
         }
     }
