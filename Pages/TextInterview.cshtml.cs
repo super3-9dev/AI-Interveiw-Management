@@ -457,6 +457,7 @@ namespace InterviewBot.Pages
                 var conversationContext = BuildConversationContext(request.Message);
                 Console.WriteLine($"Conversation context========================>s: {interviewCatalog?.AgentInstructions}");
                 // Generate AI response using OpenAI service
+                // Pass the actual user message, not the conversation context
                 var aiResponse = await _openAIService.GenerateInterviewResponseAsync(
                     conversationContext,
                     interviewCatalog?.AgentInstructions ?? "Career Interview",
@@ -611,7 +612,7 @@ namespace InterviewBot.Pages
             context.AppendLine();
             
             // Add instructions for AI
-            var currentCulture = HttpContext.Request.Query["culture"].ToString();
+            var currentCulture = GetCurrentCulture();
             if (currentCulture == "es")
             {
                 context.AppendLine("INSTRUCCIONES:");
@@ -764,7 +765,7 @@ namespace InterviewBot.Pages
                 var summary = await _openAIService.GenerateInterviewResponseAsync(
                     summaryPrompt,
                     "Interview Summary Generation",
-                    HttpContext.Request.Query["culture"].ToString()
+                    GetCurrentCulture()
                 );
 
                 return summary;

@@ -67,10 +67,7 @@ namespace InterviewBot.Services
                     _logger.LogInformation("Generating interview response (attempt {Attempt}/{MaxRetries})", attempt, maxRetries);
 
                     var systemPrompt = GetInterviewSystemPrompt(interviewContext, culture, interviewType);
-                    // Debug logging for temperature
-                    // _logger.LogInformation("Using temperature: {Temperature}", _config.Temperature);
                     
-                    // Ensure temperature is within valid range
                     var validTemperature = Math.Min(Math.Max(_config.Temperature, 0.0), 2.0);
                     // _logger.LogInformation("Validated temperature: {Temperature}", validTemperature);
                     
@@ -373,8 +370,9 @@ ANÁLISIS DE RESPUESTAS:
 CRITERIOS PARA TERMINAR LA ENTREVISTA:
 - Solo termina si el candidato da respuestas completamente sin sentido después de múltiples intentos
 - Solo termina si el candidato claramente no se involucra después de 5+ intentos
-- NO termines por respuestas cortas como ""Hola"", ""Hello"", ""Sí"", ""No"" - haz preguntas de seguimiento en su lugar
+- NUNCA termines por respuestas cortas como ""Hola"", ""Hello"", ""Sí"", ""No"", ""Buenos días"", ""Buenas tardes""
 - Las respuestas de saludo son normales y esperadas - continúa con la entrevista normalmente
+- NUNCA uses la frase ""INTERVIEW_TERMINATED:"" para respuestas cortas o saludos
 
 EJEMPLOS DE MANEJO DE SALUDOS:
 - Usuario dice ""Hola"" → Responde: ""¡Hola! Me da mucho gusto conocerte. Comencemos con la entrevista. Cuéntame, ¿cuál es tu experiencia profesional más relevante?""

@@ -1618,7 +1618,6 @@
 
             try {
                 // Call the Voice Chat API to get AI response
-                console.log('Getting AI response for:', transcription);
                 const aiResponse = await getVoiceAIResponse(transcription);
                 
                 if (aiResponse) {
@@ -1734,9 +1733,8 @@
 
         try {
             // Call the Voice Chat API to get AI response
-            console.log('Getting AI response for:', userAnswer);
             const aiResponse = await getVoiceAIResponse(userAnswer);
-            
+            console.log('AI response=========================>:', aiResponse);
             if (aiResponse) {
                 // Add AI response to chat
                 addAIVoiceMessage(aiResponse);

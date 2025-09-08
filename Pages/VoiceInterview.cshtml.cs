@@ -127,7 +127,7 @@ namespace InterviewBot.Pages
             context.AppendLine();
             
             // Add instructions for AI
-            var currentCulture = HttpContext.Request.Query["culture"].ToString();
+            var currentCulture = GetCurrentCulture();
             if (currentCulture == "es")
             {
                 context.AppendLine("INSTRUCCIONES:");
@@ -687,17 +687,10 @@ namespace InterviewBot.Pages
         {
             try
             {
-                Console.WriteLine("Voice Chat endpoint called");
-                Console.WriteLine($"Request method: {Request.Method}");
-                Console.WriteLine($"Content-Type: {Request.ContentType}");
-                Console.WriteLine($"Content-Length: {Request.ContentLength}");
-
                 var requestBody = await new StreamReader(Request.Body).ReadToEndAsync();
-                Console.WriteLine($"Request body: {requestBody}");
 
                 if (string.IsNullOrEmpty(requestBody))
                 {
-                    Console.WriteLine("Request body is empty");
                     return BadRequest(new { error = "Request body is empty" });
                 }
 
@@ -711,21 +704,14 @@ namespace InterviewBot.Pages
                 try
                 {
                     request = JsonSerializer.Deserialize<VoiceChatRequest>(requestBody, jsonOptions);
-                    Console.WriteLine($"Deserialized request object: {request != null}");
                 }
                 catch (Exception ex)
                 {
-                    Console.WriteLine($"Error deserializing JSON: {ex.Message}");
                     return BadRequest(new { error = "Invalid JSON format" });
                 }
 
-                Console.WriteLine($"Message property value: '{request?.Message}'");
-                Console.WriteLine($"Message length: {request?.Message?.Length ?? 0}");
-                Console.WriteLine($"InterviewId from request: '{request?.InterviewId}'");
-
                 if (request == null || string.IsNullOrEmpty(request.Message))
                 {
-                    Console.WriteLine("Invalid request - missing message");
                     return BadRequest(new { error = "Invalid request - message is required" });
                 }
 
@@ -738,13 +724,10 @@ namespace InterviewBot.Pages
 
                 // Load interview content to ensure InterviewTopic is set
                 await LoadInterviewContentAsync();
-                Console.WriteLine($"InterviewTopic after loading: '{InterviewTopic}'");
 
                 // Get interview catalog with agent instructions
-                Console.WriteLine($"VoiceInterview - InterviewId===================>: {InterviewId}");
                 var interviewCatalog = await _dbContext.InterviewCatalogs
                     .FirstOrDefaultAsync(c => c.Id.ToString() == InterviewId);
-                Console.WriteLine($"VoiceInterview - Agent Instructions: {interviewCatalog?.AgentInstructions ?? "Not found"}");
 
                 var userId = GetCurrentUserId();
                 Console.WriteLine($"User ID: {userId}");
@@ -755,30 +738,23 @@ namespace InterviewBot.Pages
                     return Unauthorized();
                 }
 
-                Console.WriteLine($"InterviewTopic: '{InterviewTopic}'");
-                Console.WriteLine($"Generating AI response for topic: {InterviewTopic ?? "Career Interview"}");
-                Console.WriteLine($"User message: {request.Message}");
-                Console.WriteLine($"Message with instructions: {request.Message}\n\nAgent Instructions: {interviewCatalog?.AgentInstructions ?? ""}");
-
                 // Prepare the message with agent instructions
                 var messageWithInstructions = $"{request.Message}\n\nAgent Instructions: {interviewCatalog?.AgentInstructions ?? ""}";
                 
                 // Ensure we have a valid topic
                 var interviewTopic = !string.IsNullOrEmpty(InterviewTopic) ? InterviewTopic : "Career Interview";
-                Console.WriteLine($"Final interview topic: '{interviewTopic}'");
                 
                 // Check question count and limit
                 var currentCount = GetQuestionCount();
                 const int maxQuestions = 10; // Limit to 10 questions
-                
+                Console.WriteLine($"Current question count===================>: {currentCount}");
                 if (currentCount >= maxQuestions)
                 {
-                    Console.WriteLine($"Interview completed - reached maximum questions ({maxQuestions})");
-                    
                     // Call analysis API and store result
                     try
                     {
                         await CallAnalysisApiAndStoreResultAsync(InterviewId, GetCurrentCulture());
+                        ClearQuestionCount();
                         Console.WriteLine("Analysis API called successfully for voice interview: " + InterviewId);
                     }
                     catch (Exception ex)
@@ -800,11 +776,6 @@ namespace InterviewBot.Pages
                 {
                 // Build conversation context for AI
                 var conversationContext = BuildConversationContext(messageWithInstructions);
-                
-                // Debug: Log the conversation context being sent to AI
-                Console.WriteLine("=== CONVERSATION CONTEXT SENT TO AI ===");
-                Console.WriteLine(conversationContext);
-                Console.WriteLine("=== END CONVERSATION CONTEXT ===");
                 
                 // Generate AI response using OpenAI service
                 aiResponse = await _openAIService.GenerateInterviewResponseAsync(
