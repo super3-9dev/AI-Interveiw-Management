@@ -62,100 +62,89 @@
             <p class="card-subtitle">@Localizer["Actionable next steps for your professional journey."]</p>
             
             <div class="roadmap-accordion">
-                <!-- Short-Term Roadmap -->
-                <div class="roadmap-item">
-                    <div class="roadmap-header" onclick="toggleRoadmap('short-term')">
-                        <div class="roadmap-title-section">
-                            <i class="bi bi-link-45deg roadmap-icon"></i>
-                            <h3>@Model.YourCareerRoadmaps.FirstOrDefault(r => r.Title.Contains("Short-Term") || r.Title.Contains("Corto Plazo"))?.Title</h3>
-                        </div>
-                        <i class="bi bi-chevron-down" id="short-term-arrow"></i>
-                    </div>
-                    <div class="roadmap-content" id="short-term-content">
-                        <ol class="roadmap-steps">
-                            @if (Model.YourCareerRoadmaps.Any())
-                            {
-                                @foreach (var roadmap in Model.YourCareerRoadmaps.Where(r => r.Title.Contains("Short-Term") || r.Title.Contains("Corto Plazo")))
-                                {
+                @if (Model.YourCareerRoadmaps.Any())
+                {
+                    @for (int i = 0; i < Model.YourCareerRoadmaps.Count; i++)
+                    {
+                        var roadmap = Model.YourCareerRoadmaps[i];
+                        var roadmapId = $"roadmap-{i}";
+                        var iconClass = Model.GetRoadmapIcon(i);
+                        
+                        <div class="roadmap-item">
+                            <div class="roadmap-header" onclick="toggleRoadmap('@roadmapId')">
+                                <div class="roadmap-title-section">
+                                    <i class="@iconClass roadmap-icon"></i>
+                                    <h3>@roadmap.Title</h3>
+                                </div>
+                                <i class="bi bi-chevron-down" id="@roadmapId-arrow"></i>
+                            </div>
+                            <div class="roadmap-content" id="@roadmapId-content">
+                                <ol class="roadmap-steps">
                                     @foreach (var step in roadmap.Steps)
                                     {
                                         <li>@step</li>
                                     }
-                                }
-                            }
-                            else
-                            {
+                                </ol>
+                            </div>
+                        </div>
+                    }
+                }
+                else
+                {
+                    <!-- Default roadmaps when no data is available -->
+                    <div class="roadmap-item">
+                        <div class="roadmap-header" onclick="toggleRoadmap('short-term')">
+                            <div class="roadmap-title-section">
+                                <i class="bi bi-link-45deg roadmap-icon"></i>
+                                <h3>@Localizer["Short-Term Goals"]</h3>
+                            </div>
+                            <i class="bi bi-chevron-down" id="short-term-arrow"></i>
+                        </div>
+                        <div class="roadmap-content" id="short-term-content">
+                            <ol class="roadmap-steps">
                                 <li>@Localizer["Complete a certification in a relevant technology (e.g., AWS Certified Cloud Practitioner)."]</li>
                                 <li>@Localizer["Contribute to an open-source project to build your portfolio."]</li>
                                 <li>@Localizer["Network with at least 5 professionals in your target industry."]</li>
-                            }
-                        </ol>
-                    </div>
-                </div>
-
-                <!-- Medium-Term Roadmap -->
-                <div class="roadmap-item">
-                    <div class="roadmap-header" onclick="toggleRoadmap('medium-term')">
-                        <div class="roadmap-title-section">
-                            <i class="bi bi-arrow-up-circle roadmap-icon"></i>
-                            <h3>@Model.YourCareerRoadmaps.FirstOrDefault(r => r.Title.Contains("Medium-Term") || r.Title.Contains("Mediano Plazo") || r.Title.Contains("Medio Plazo"))?.Title</h3>
+                            </ol>
                         </div>
-                        <i class="bi bi-chevron-down" id="medium-term-arrow"></i>   
                     </div>
-                    <div class="roadmap-content" id="medium-term-content">
-                        <ol class="roadmap-steps">
-                            @if (Model.YourCareerRoadmaps.Any())
-                            {
-                                @foreach (var roadmap in Model.YourCareerRoadmaps.Where(r => r.Title.Contains("Medium-Term") || r.Title.Contains("Mediano Plazo") || r.Title.Contains("Medio Plazo")))
-                                {
-                                    @foreach (var step in roadmap.Steps)
-                                    {
-                                        <li>@step</li>
-                                    }
-                                }
-                            }
-                            else
-                            {
+
+                    <div class="roadmap-item">
+                        <div class="roadmap-header" onclick="toggleRoadmap('medium-term')">
+                            <div class="roadmap-title-section">
+                                <i class="bi bi-arrow-up-circle roadmap-icon"></i>
+                                <h3>@Localizer["Medium-Term Goals"]</h3>
+                            </div>
+                            <i class="bi bi-chevron-down" id="medium-term-arrow"></i>   
+                        </div>
+                        <div class="roadmap-content" id="medium-term-content">
+                            <ol class="roadmap-steps">
                                 <li>@Localizer["Gain practical experience through internships in data roles"]</li>
                                 <li>@Localizer["Deepen industry knowledge through research and articles"]</li>
                                 <li>@Localizer["Participate in relevant projects within current job"]</li>
                                 <li>@Localizer["Build relationships with mentors in the field"]</li>
-                            }
-                        </ol>
-                    </div>
-                </div>
-
-                <!-- Long-Term Roadmap -->
-                <div class="roadmap-item">
-                    <div class="roadmap-header" onclick="toggleRoadmap('long-term')">
-                        <div class="roadmap-title-section">
-                            <i class="bi bi-book roadmap-icon"></i>
-                            <h3>@Model.YourCareerRoadmaps.FirstOrDefault(r => r.Title.Contains("Long-Term") || r.Title.Contains("Largo Plazo"))?.Title</h3>
+                            </ol>
                         </div>
-                        <i class="bi bi-chevron-down" id="long-term-arrow"></i>
                     </div>
-                    <div class="roadmap-content" id="long-term-content">
-                        <ol class="roadmap-steps">
-                            @if (Model.YourCareerRoadmaps.Any())
-                            {
-                                @foreach (var roadmap in Model.YourCareerRoadmaps.Where(r => r.Title.Contains("Long-Term") || r.Title.Contains("Largo Plazo")))
-                                {
-                                    @foreach (var step in roadmap.Steps)
-                                    {
-                                        <li>@step</li>
-                                    }
-                                }
-                            }
-                            else
-                            {
+
+                    <div class="roadmap-item">
+                        <div class="roadmap-header" onclick="toggleRoadmap('long-term')">
+                            <div class="roadmap-title-section">
+                                <i class="bi bi-book roadmap-icon"></i>
+                                <h3>@Localizer["Long-Term Goals"]</h3>
+                            </div>
+                            <i class="bi bi-chevron-down" id="long-term-arrow"></i>
+                        </div>
+                        <div class="roadmap-content" id="long-term-content">
+                            <ol class="roadmap-steps">
                                 <li>@Localizer["Aim for a management role in data analytics or project management"]</li>
                                 <li>@Localizer["Lead innovative projects to further develop leadership skills"]</li>
                                 <li>@Localizer["Continuously update skills with advanced courses"]</li>
                                 <li>@Localizer["Contribute to professional communities through speaking or publications"]</li>
-                            }
-                        </ol>
+                            </ol>
+                        </div>
                     </div>
-                </div>
+                }
             </div>
         </div>
     </div>
@@ -495,14 +484,25 @@
         }
     }
 
-    // Initialize with short-term roadmap expanded
+    // Initialize with first roadmap expanded
     document.addEventListener('DOMContentLoaded', function() {
-        const shortTermContent = document.getElementById('short-term-content');
-        const shortTermArrow = document.getElementById('short-term-arrow');
+        // Try to find the first dynamic roadmap
+        const firstRoadmapContent = document.querySelector('.roadmap-content');
+        const firstRoadmapArrow = document.querySelector('.roadmap-header i[id$="-arrow"]');
         
-        if (shortTermContent) {
-            shortTermContent.classList.add('expanded');
-            shortTermArrow.style.transform = 'rotate(180deg)';
+        if (firstRoadmapContent && firstRoadmapArrow) {
+            firstRoadmapContent.classList.add('expanded');
+            firstRoadmapArrow.style.transform = 'rotate(180deg)';
+        }
+        // Fallback to short-term if no dynamic roadmaps exist
+        else {
+            const shortTermContent = document.getElementById('short-term-content');
+            const shortTermArrow = document.getElementById('short-term-arrow');
+            
+            if (shortTermContent) {
+                shortTermContent.classList.add('expanded');
+                shortTermArrow.style.transform = 'rotate(180deg)';
+            }
         }
     });
 

@@ -169,7 +169,7 @@ namespace InterviewBot.Pages
                         var session = await _dbContext.InterviewSessions
                             .Include(s => s.InterviewCatalog)
                             .FirstOrDefaultAsync(s => s.Id == sessionId);
-                        
+
                         if (session?.InterviewCatalog != null)
                         {
                             InterviewTopic = session.InterviewCatalog.Topic;
@@ -372,7 +372,7 @@ namespace InterviewBot.Pages
 
                 // Parse the JSON response
                 var apiResponse = JsonSerializer.Deserialize<JsonElement>(apiResponseJson);
-                
+
                 // Extract the response data
                 if (apiResponse.TryGetProperty("response", out var responseElement))
                 {
@@ -411,7 +411,7 @@ namespace InterviewBot.Pages
                         }
                     }
 
-                    
+
 
                     // Parse MBA focus area
                     if (responseElement.TryGetProperty("mbaFocusArea", out var mbaFocusElement))
@@ -454,7 +454,7 @@ namespace InterviewBot.Pages
                 Console.WriteLine($"Error parsing API response: {ex.Message}");
                 Console.WriteLine($"Exception details: {ex}");
             }
-            
+
             return Task.CompletedTask;
         }
 
@@ -473,7 +473,7 @@ namespace InterviewBot.Pages
                         {
                             roadmap.Title = titleElement.GetString() ?? "";
                         }
-                        
+
                         if (roadmapElement.TryGetProperty("steps", out var stepsElement))
                         {
                             foreach (var stepElement in stepsElement.EnumerateArray())
@@ -481,7 +481,7 @@ namespace InterviewBot.Pages
                                 roadmap.Steps.Add(stepElement.GetString() ?? "");
                             }
                         }
-                        
+
                         if (!string.IsNullOrEmpty(roadmap.Title) && roadmap.Steps.Any())
                         {
                             roadmaps.Add(roadmap);
@@ -545,6 +545,25 @@ namespace InterviewBot.Pages
                 return userId;
             }
             return null;
+        }
+
+        public string GetRoadmapIcon(int index)
+        {
+            var icons = new[]
+            {
+                "bi bi-link-45deg",
+                "bi bi-arrow-up-circle",
+                "bi bi-book",
+                "bi bi-graph-up",
+                "bi bi-trophy",
+                "bi bi-star",
+                "bi bi-lightbulb",
+                "bi bi-people",
+                "bi bi-gear",
+                "bi bi-target"
+            };
+
+            return icons[index % icons.Length];
         }
     }
 

@@ -277,11 +277,11 @@ namespace InterviewBot.Pages
 
                 // Load chat messages from database
                 var chatMessages = await _interviewService.GetChatMessagesAsync(userId.Value, InterviewId);
-                
+
                 // Convert chat messages to interview history
                 InterviewHistory = new List<InterviewHistoryItem>();
                 var messages = chatMessages.ToList();
-                
+
                 // If no existing messages, add greeting message
                 if (messages.Count == 0)
                 {
@@ -321,21 +321,21 @@ namespace InterviewBot.Pages
                 return;
 
             // Check if this is a response to the greeting
-            bool isGreetingResponse = InterviewHistory.Count == 1 && 
-                                    InterviewHistory[0].Question.Contains("Say hello to start the interview") && 
+            bool isGreetingResponse = InterviewHistory.Count == 1 &&
+                                    InterviewHistory[0].Question.Contains("Say hello to start the interview") &&
                                     InterviewHistory[0].Answer == "";
 
             // Save the question and answer to chat messages
             try
             {
                 Console.WriteLine($"Saving chat messages - UserId: {userId}, InterviewId: '{InterviewId}', Question: '{CurrentQuestion}'");
-                
+
                 // Save the AI question
                 await _interviewService.SaveChatMessageAsync(userId, InterviewId, null, CurrentQuestion);
-                
+
                 // Save the user's answer
                 await _interviewService.SaveChatMessageAsync(userId, InterviewId, CurrentQuestion, UserAnswer);
-                
+
                 Console.WriteLine($"Chat messages saved successfully for InterviewId: '{InterviewId}'");
             }
             catch (Exception ex)
@@ -388,13 +388,14 @@ namespace InterviewBot.Pages
                 Console.WriteLine($"Message length: {request?.Message?.Length ?? 0}");
                 Console.WriteLine($"InterviewId from request: '{request?.InterviewId}'");
 
-                var interviewCatalog = await _dbContext.InterviewCatalogs
-                    .FirstOrDefaultAsync(c => c.Id.ToString() == request.InterviewId);
                 if (request == null || string.IsNullOrEmpty(request.Message))
                 {
                     Console.WriteLine("Invalid request - missing message");
                     return BadRequest(new { error = "Invalid request - message is required" });
                 }
+
+                var interviewCatalog = await _dbContext.InterviewCatalogs
+                    .FirstOrDefaultAsync(c => c.Id.ToString() == request.InterviewId);
 
                 // Use interviewId from request if provided, otherwise use the page property
                 if (!string.IsNullOrEmpty(request.InterviewId))
@@ -420,7 +421,7 @@ namespace InterviewBot.Pages
                 currentCount++;
                 SetQuestionCount(currentCount);
                 Console.WriteLine($"Question count: {currentCount}");
-                
+
                 // Check if interview should end (limit to 6 questions)
                 if (currentCount >= 6)
                 {
@@ -445,13 +446,16 @@ namespace InterviewBot.Pages
                     }
                     if (GetCurrentCulture() == "es")
                     {
-                        return new JsonResult(new { 
-                            response = "Gracias por tus respuestas. Ya tengo suficiente información para proporcionarte un análisis completo. Deja que generemos tu resumen de la entrevista...", 
+                        return new JsonResult(new
+                        {
+                            response = "Gracias por tus respuestas. Ya tengo suficiente información para proporcionarte un análisis completo. Deja que generemos tu resumen de la entrevista...",
                             isComplete = true,
                             summary = summaryResponse,
                             questionCount = currentCount
                         });
-                    } else {
+                    }
+                    else
+                    {
                         return new JsonResult(new
                         {
                             response = "Thank you for your responses. I have enough information to provide you with a comprehensive analysis. Let me generate your interview summary...",
@@ -502,7 +506,7 @@ namespace InterviewBot.Pages
                 // Check if AI wants to terminate the interview
                 bool isTerminated = false;
                 string finalResponse = aiResponse;
-                
+
                 if (aiResponse.Contains("INTERVIEW_TERMINATED:"))
                 {
                     isTerminated = true;
@@ -512,7 +516,7 @@ namespace InterviewBot.Pages
                     {
                         finalResponse = parts[1].Trim();
                     }
-                    
+
                     // Mark interview as complete
                     SetQuestionCount(1000); // Set high number to indicate termination
                     Console.WriteLine("Interview terminated by AI due to inadequate responses");
@@ -522,13 +526,13 @@ namespace InterviewBot.Pages
                 try
                 {
                     Console.WriteLine($"Saving OpenAI chat messages - UserId: {userId.Value}, InterviewId: '{InterviewId}', UserMessage: '{request.Message}'");
-                    
+
                     // Save the user's message
                     await _interviewService.SaveChatMessageAsync(userId.Value, InterviewId, null, request.Message);
-                    
+
                     // Save the AI's response (use finalResponse which may be cleaned up)
                     await _interviewService.SaveChatMessageAsync(userId.Value, InterviewId, request.Message, finalResponse);
-                    
+
                     Console.WriteLine($"OpenAI chat messages saved successfully for InterviewId: '{InterviewId}'");
                 }
                 catch (Exception ex)
@@ -557,8 +561,9 @@ namespace InterviewBot.Pages
                     });
                 }
 
-                return new JsonResult(new { 
-                    response = finalResponse, 
+                return new JsonResult(new
+                {
+                    response = finalResponse,
                     isComplete = false,
                     isTerminated = isTerminated
                 });
@@ -592,13 +597,13 @@ namespace InterviewBot.Pages
         private string BuildConversationContext(string currentMessage)
         {
             var context = new StringBuilder();
-            
+
             // Add conversation history
             if (InterviewHistory != null && InterviewHistory.Count > 0)
             {
                 context.AppendLine("CONVERSATION HISTORY:");
                 context.AppendLine("===================");
-                
+
                 foreach (var item in InterviewHistory)
                 {
                     if (!string.IsNullOrEmpty(item.Question))
@@ -612,13 +617,13 @@ namespace InterviewBot.Pages
                 }
                 context.AppendLine();
             }
-            
+
             // Add current user message
             context.AppendLine("CURRENT USER MESSAGE:");
             context.AppendLine("====================");
             context.AppendLine(currentMessage);
             context.AppendLine();
-            
+
             // Add instructions for AI
             var currentCulture = GetCurrentCulture();
             if (currentCulture == "es")
@@ -653,7 +658,7 @@ namespace InterviewBot.Pages
                 context.AppendLine("USE 'INTERVIEW_TERMINATED:' ONLY when you have successfully completed the interview objective.");
                 context.AppendLine("EXAMPLE: If the user says 'Hello', respond: 'Hello! Nice to meet you. Let's start the interview. Tell me, what's your most relevant professional experience?'");
             }
-            
+
             return context.ToString();
         }
 
@@ -664,8 +669,11 @@ namespace InterviewBot.Pages
                 // Get interview catalog and user profile
                 var interviewCatalog = await _dbContext.InterviewCatalogs
                     .FirstOrDefaultAsync(c => c.Id.ToString() == interviewId);
-                interviewCatalog.Status = "Completed";
-                await _dbContext.SaveChangesAsync();
+                if (interviewCatalog != null)
+                {
+                    interviewCatalog.Status = "Completed";
+                    await _dbContext.SaveChangesAsync();
+                }
                 var userId = GetCurrentUserId();
                 var user = await _dbContext.Users.FindAsync(userId);
                 var profile = await _dbContext.Profiles.FirstOrDefaultAsync(p => p.UserId == userId);
@@ -854,11 +862,11 @@ namespace InterviewBot.Pages
                 // Call analysis API
                 Console.WriteLine("Calling analysis API...");
                 var analysisSuccess = await _interviewCompletionService.CompleteInterviewWithAnalysisAsync(
-                    userId.Value, 
-                    InterviewId, 
-                    interviewName, 
-                    interviewObjective, 
-                    chatMessages.ToList(), 
+                    userId.Value,
+                    InterviewId,
+                    interviewName,
+                    interviewObjective,
+                    chatMessages.ToList(),
                     userProfile
                 );
 
