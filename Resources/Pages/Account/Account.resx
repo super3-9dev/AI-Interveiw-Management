@@ -126,6 +126,30 @@
   <data name="Update Profile Information">
     <value>Update Profile Information</value>
   </data>
+  <data name="Update User">
+    <value>Update User</value>
+  </data>
+  <data name="Update Profile">
+    <value>Update Profile</value>
+  </data>
+  <data name="← Back to Dashboard">
+    <value>← Back to Dashboard</value>
+  </data>
+  <data name="No strengths information available.">
+    <value>No strengths information available.</value>
+  </data>
+  <data name="No areas for improvement information available.">
+    <value>No areas for improvement information available.</value>
+  </data>
+  <data name="No career goals information available.">
+    <value>No career goals information available.</value>
+  </data>
+  <data name="Future Career Goals">
+    <value>Future Career Goals</value>
+  </data>
+  <data name="Cancel">
+    <value>Cancel</value>
+  </data>
   <data name="Back to Dashboard">
     <value>Back to Dashboard</value>
   </data>

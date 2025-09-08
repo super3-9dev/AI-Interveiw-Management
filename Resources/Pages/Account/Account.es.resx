@@ -126,6 +126,30 @@
   <data name="Update Profile Information">
     <value>Actualizar Información del Perfil</value>
   </data>
+  <data name="Update User">
+    <value>Actualizar Usuario</value>
+  </data>
+  <data name="Update Profile">
+    <value>Actualizar Perfil</value>
+  </data>
+  <data name="← Back to Dashboard">
+    <value>← Volver al Panel</value>
+  </data>
+  <data name="No strengths information available.">
+    <value>No hay información de fortalezas disponible.</value>
+  </data>
+  <data name="No areas for improvement information available.">
+    <value>No hay información de áreas de mejora disponible.</value>
+  </data>
+  <data name="No career goals information available.">
+    <value>No hay información de objetivos profesionales disponible.</value>
+  </data>
+  <data name="Future Career Goals">
+    <value>Objetivos Profesionales Futuros</value>
+  </data>
+  <data name="Cancel">
+    <value>Cancelar</value>
+  </data>
   <data name="Back to Dashboard">
     <value>Volver al Panel</value>
   </data>

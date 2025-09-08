@@ -11,70 +11,70 @@
     }
 }
 
-<div class="update-profile-container">
-    <div class="update-profile-card">
-        <div class="card-header">
-            <h2 class="card-title">@Localizer["Account & Profile Management"]</h2>
-            <p class="card-subtitle">@Localizer["Manage your account information and profile details."]</p>
+<div class="account-page-container">
+    <div class="page-header">
+        <h1 class="page-title">@Localizer["Account & Profile Management"]</h1>
+        <p class="page-subtitle">@Localizer["Manage your account information and profile details."]</p>
+    </div>
+
+    @if (!string.IsNullOrEmpty(Model.SuccessMessage))
+    {
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            <i class="bi bi-check-circle"></i>
+            @Model.SuccessMessage
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
         </div>
+    }
 
-        <div class="card-body">
-            @if (!string.IsNullOrEmpty(Model.SuccessMessage))
-            {
-                <div class="alert alert-success alert-dismissible fade show" role="alert">
-                    <i class="bi bi-check-circle"></i>
-                    @Model.SuccessMessage
-                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    @if (!string.IsNullOrEmpty(Model.ErrorMessage))
+    {
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            <i class="bi bi-exclamation-triangle"></i>
+            @Model.ErrorMessage
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    }
+
+    <div class="account-content">
+        <!-- Left Column -->
+        <div class="left-column">
+            <!-- User Information Card -->
+            <div class="info-card">
+                <div class="card-header">
+                    <h3 class="card-title">
+                        <i class="bi bi-person"></i>
+                        @Localizer["User Information"]
+                    </h3>
                 </div>
-            }
-
-            @if (!string.IsNullOrEmpty(Model.ErrorMessage))
-            {
-                <div class="alert alert-danger alert-dismissible fade show" role="alert">
-                    <i class="bi bi-exclamation-triangle"></i>
-                    @Model.ErrorMessage
-                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                </div>
-            }
-
-            <!-- User Information Section -->
-            <div class="form-section">
-                <h4 class="section-title">
-                    <i class="bi bi-person-circle"></i>
-                    @Localizer["User Information"]
-                </h4>
-                <form method="post" asp-page-handler="UpdateUserInfo" class="update-form">
-                    <div class="form-row">
-                        <div class="form-group" style="width: 48%;">
-                            <label asp-for="Email" class="form-label">@Localizer["Email"]</label>
-                            <input asp-for="Email" class="form-control" placeholder="@Localizer["Enter your email"]" />
-                            <span asp-validation-for="Email" class="text-danger"></span>
-                        </div>
-
-                        <div class="form-group" style="width: 48%;">
+                <div class="card-body">
+                    <form method="post" asp-page-handler="UpdateUserInfo" class="update-form">
+                        <input asp-for="Email" type="hidden" />
+                        <div class="form-group">
                             <label asp-for="FullName" class="form-label">@Localizer["Full Name"]</label>
-                            <input asp-for="FullName" class="form-control" placeholder="@Localizer["Enter your full name"]" />
+                            <input asp-for="FullName" name="FullName" class="form-control" placeholder="@Localizer["Enter your full name"]" />
                             <span asp-validation-for="FullName" class="text-danger"></span>
                         </div>
-                    </div>
-                    <div class="form-actions">
-                        <button type="submit" class="btn btn-primary">
-                            <i class="bi bi-check-lg"></i>
-                            @Localizer["Update User Information"]
-                        </button>
-                    </div>
-                </form>
+                        <div class="form-actions">
+                            <button type="submit" class="btn btn-primary">
+                                <i class="bi bi-check-lg"></i>
+                                @Localizer["Update User"]
+                            </button>
+                        </div>
+                    </form>
+                </div>
             </div>
 
-            <!-- Password Information Section -->
-            <div class="form-section">
-                <h4 class="section-title">
-                    <i class="bi bi-shield-lock"></i>
-                    @Localizer["Password Information"]
-                </h4>
-                <form method="post" asp-page-handler="UpdatePassword" class="update-form">
-                    <div class="form-row">
-                        <div class="form-group" style="width: 48%;">
+            <!-- Password Information Card -->
+            <div class="info-card">
+                <div class="card-header">
+                    <h3 class="card-title">
+                        <i class="bi bi-shield-lock"></i>
+                        @Localizer["Password Information"]
+                    </h3>
+                </div>
+                <div class="card-body">
+                    <form method="post" asp-page-handler="UpdatePassword" class="update-form">
+                        <div class="form-group">
                             <label asp-for="CurrentPassword" class="form-label">@Localizer["Current Password"]</label>
                             <input asp-for="CurrentPassword" type="password" class="form-control"
                                 placeholder="@Localizer["Enter current password"]" />
@@ -85,7 +85,7 @@
                             }
                         </div>
 
-                        <div class="form-group" style="width: 48%;">
+                        <div class="form-group">
                             <label asp-for="NewPassword" class="form-label">@Localizer["New Password"]</label>
                             <input asp-for="NewPassword" type="password" class="form-control"
                                 placeholder="@Localizer["Enter new password"]" />
@@ -95,9 +95,8 @@
                                 <div class="text-danger small">@ViewData["NewPasswordError"]</div>
                             }
                         </div>
-                    </div>
-                    <div class="form-row">
-                        <div class="form-group" style="width: 48%;">
+
+                        <div class="form-group">
                             <label asp-for="ConfirmPassword" class="form-label">@Localizer["Confirm New Password"]</label>
                             <input asp-for="ConfirmPassword" type="password" class="form-control"
                                 placeholder="@Localizer["Confirm new password"]" />
@@ -107,50 +106,122 @@
                                 <div class="text-danger small">@ViewData["ConfirmPasswordError"]</div>
                             }
                         </div>
+
+                        <div class="form-actions">
+                            <button type="submit" class="btn btn-primary">
+                                <i class="bi bi-shield-check"></i>
+                                @Localizer["Update Password"]
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- Right Column -->
+        <div class="right-column">
+            <!-- Profile Information Card -->
+            <div class="info-card profile-card">
+                <div class="card-header">
+                    <h3 class="card-title">
+                        <i class="bi bi-file-person"></i>
+                        @Localizer["Profile Information"]
+                    </h3>
+                </div>
+                <div class="card-body">
+                    <div class="profile-section">
+                        <h4 class="profile-section-title">@Localizer["Strengths"]</h4>
+                        <div class="profile-content">
+                            @if (!string.IsNullOrEmpty(Model.Strengths))
+                            {
+                                <p>@Model.Strengths</p>
+                            }
+                            else
+                            {
+                                <p class="text-muted">@Localizer["No strengths information available."]</p>
+                            }
+                        </div>
                     </div>
+
+                    <div class="profile-section">
+                        <h4 class="profile-section-title">@Localizer["Areas for Improvement"]</h4>
+                        <div class="profile-content">
+                            @if (!string.IsNullOrEmpty(Model.Weaknesses))
+                            {
+                                <p>@Model.Weaknesses</p>
+                            }
+                            else
+                            {
+                                <p class="text-muted">@Localizer["No areas for improvement information available."]</p>
+                            }
+                        </div>
+                    </div>
+
+                    <div class="profile-section">
+                        <h4 class="profile-section-title">@Localizer["Future Career Goals"]</h4>
+                        <div class="profile-content">
+                            @if (!string.IsNullOrEmpty(Model.FutureCareerGoals))
+                            {
+                                <p>@Model.FutureCareerGoals</p>
+                            }
+                            else
+                            {
+                                <p class="text-muted">@Localizer["No career goals information available."]</p>
+                            }
+                        </div>
+                    </div>
+
                     <div class="form-actions">
-                        <button type="submit" class="btn btn-primary">
-                            <i class="bi bi-shield-check"></i>
-                            @Localizer["Update Password"]
+                        <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#profileModal">
+                            <i class="bi bi-person-check"></i>
+                            @Localizer["Update Profile"]
                         </button>
                     </div>
-                </form>
+                </div>
             </div>
+        </div>
+    </div>
 
-            <!-- Profile Information Section -->
-            <div class="form-section">
-                <h4 class="section-title">
-                    <i class="bi bi-file-person"></i>
-                    @Localizer["Profile Information"]
-                </h4>
+    <!-- Back to Dashboard -->
+    <div class="back-to-dashboard">
+        <a href="/Dashboard@(!string.IsNullOrEmpty(currentCulture) ? $"?culture={currentCulture}" : "")"
+            class="btn btn-outline-secondary">
+            <i class="bi bi-arrow-left"></i>
+            @Localizer["← Back to Dashboard"]
+        </a>
+    </div>
+</div>
+
+<!-- Profile Update Modal -->
+<div class="modal fade" id="profileModal" tabindex="-1" aria-labelledby="profileModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="profileModalLabel">@Localizer["Update Profile Information"]</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
                 <form method="post" asp-page-handler="UpdateProfile" class="update-form">
-                    <div class="form-row">
-                        <div class="form-group" style="width: 48%;">
-                            <label asp-for="Strengths" class="form-label">@Localizer["Strengths"]</label>
-                            <textarea asp-for="Strengths" class="form-control" rows="3"
-                                placeholder="@Localizer["Describe your key strengths and skills"]"></textarea>
-                        </div>
-
-                        <div class="form-group" style="width: 48%;">
-                            <label asp-for="Weaknesses" class="form-label">@Localizer["Areas for Improvement"]</label>
-                            <textarea asp-for="Weaknesses" class="form-control" rows="3"
-                                placeholder="@Localizer["Describe areas you'd like to improve"]"></textarea>
-                        </div>
+                    <div class="form-group">
+                        <label asp-for="Strengths" class="form-label">@Localizer["Strengths"]</label>
+                        <textarea asp-for="Strengths" class="form-control" rows="4"
+                            placeholder="@Localizer["Describe your key strengths and skills"]"></textarea>
                     </div>
-                    <div class="form-row">
-                        <div class="form-group" style="width: 48%;">
-                            <label asp-for="FutureCareerGoals" class="form-label">@Localizer["Future Career Goals"]</label>
-                            <textarea asp-for="FutureCareerGoals" class="form-control" rows="3"
-                                placeholder="@Localizer["Describe your career aspirations and goals"]"></textarea>
-                        </div>
 
-                        <div class="form-group" style="width: 48%;">
-                            <label asp-for="Interests" class="form-label">@Localizer["Professional Interests"]</label>
-                            <textarea asp-for="Interests" class="form-control" rows="3"
-                                placeholder="@Localizer["Describe your professional interests and passions"]"></textarea>
-                        </div>
+                    <div class="form-group">
+                        <label asp-for="Weaknesses" class="form-label">@Localizer["Areas for Improvement"]</label>
+                        <textarea asp-for="Weaknesses" class="form-control" rows="4"
+                            placeholder="@Localizer["Describe areas you'd like to improve"]"></textarea>
                     </div>
-                    <div class="form-actions">
+
+                    <div class="form-group">
+                        <label asp-for="FutureCareerGoals" class="form-label">@Localizer["Future Career Goals"]</label>
+                        <textarea asp-for="FutureCareerGoals" class="form-control" rows="4"
+                            placeholder="@Localizer["Describe your career aspirations and goals"]"></textarea>
+                    </div>
+
+                    <div class="form-actions" style="gap: 10px">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">@Localizer["Cancel"]</button>
                         <button type="submit" class="btn btn-primary">
                             <i class="bi bi-person-check"></i>
                             @Localizer["Update Profile Information"]
@@ -158,118 +229,121 @@
                     </div>
                 </form>
             </div>
-
-            <!-- Navigation -->
-            <div class="form-actions navigation-actions">
-                <a href="/Dashboard@(!string.IsNullOrEmpty(currentCulture) ? $"?culture={currentCulture}" : "")"
-                    class="btn btn-outline-secondary">
-                    <i class="bi bi-arrow-left"></i>
-                    @Localizer["Back to Dashboard"]
-                </a>
-            </div>
         </div>
     </div>
 </div>
 
 <style>
-    .update-profile-container {
+    .account-page-container {
         padding: 2rem;
+        min-height: 100vh;
     }
 
-    .update-profile-card {
-        background: white;
-        border-radius: 1rem;
-        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-        overflow: hidden;
-    }
-
-    .form-row {
-        display: flex;
-        flex-direction: row;
-        gap: 1rem;
-        margin-bottom: 1rem;
-    }
-
-    .card-header {
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-        color: white;
-        padding: 2rem;
+    .page-header {
+        margin-bottom: 2rem;
         text-align: center;
     }
 
-    .card-title {
-        font-size: 2rem;
+    .page-title {
+        font-size: 2.5rem;
         font-weight: 700;
+        color: #333;
         margin-bottom: 0.5rem;
     }
 
-    .card-subtitle {
+    .page-subtitle {
         font-size: 1.1rem;
-        opacity: 0.9;
+        color: #666;
         margin: 0;
     }
 
-    .card-body {
-        padding: 2rem;
+    .account-content {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 2rem;
+        max-width: 1200px;
+        margin: 0 auto;
     }
 
-    .form-section {
-        margin-bottom: 2.5rem;
-        padding: 1.5rem;
-        background-color: #f8f9fa;
+    .left-column {
+        display: flex;
+        flex-direction: column;
+        gap: 1.5rem;
+    }
+
+    .right-column {
+        display: flex;
+        flex-direction: column;
+    }
+
+    .info-card {
+        background: white;
         border-radius: 0.75rem;
-        border-left: 4px solid #667eea;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        overflow: hidden;
     }
 
-    .section-title {
-        color: #495057;
+    .info-card .card-header {
+        background: white;
+        padding: 1.5rem;
+        border-bottom: 1px solid #e9ecef;
+    }
+
+    .info-card .card-title {
         font-size: 1.25rem;
         font-weight: 600;
-        margin-bottom: 1.5rem;
+        color: #333;
+        margin: 0;
         display: flex;
         align-items: center;
         gap: 0.5rem;
     }
 
-    .section-title i {
-        color: #667eea;
+    .info-card .card-title i {
+        color: #6c757d;
+    }
+
+    .info-card .card-body {
+        padding: 1.5rem;
     }
 
     .form-group {
-        margin-bottom: 1rem;
+        margin-bottom: 1.5rem;
     }
 
     .form-label {
         font-weight: 600;
-        color: #495057;
+        color: #333;
         margin-bottom: 0.5rem;
         display: block;
+        font-size: 0.9rem;
     }
 
     .form-control {
-        border: 2px solid #e9ecef;
+        border: 1px solid #ddd;
         border-radius: 0.5rem;
         padding: 0.75rem;
         font-size: 1rem;
         transition: all 0.2s ease;
         width: 100%;
+        background-color: #fff;
     }
 
     .form-control:focus {
-        border-color: #667eea;
-        box-shadow: 0 0 0 0.2rem rgba(102, 126, 234, 0.25);
+        border-color: #6f42c1;
+        box-shadow: 0 0 0 0.2rem rgba(111, 66, 193, 0.25);
         outline: none;
     }
 
     .form-text {
-        font-size: 0.875rem;
+        font-size: 0.8rem;
         color: #6c757d;
         margin-top: 0.25rem;
     }
 
     .text-danger {
         color: #dc3545;
-        font-size: 0.875rem;
+        font-size: 0.8rem;
         margin-top: 0.25rem;
         display: block;
     }
@@ -278,17 +352,9 @@
         display: flex;
         justify-content: flex-end;
         align-items: center;
-        gap: 1rem;
         margin-top: 1.5rem;
         padding-top: 1rem;
         border-top: 1px solid #e9ecef;
-    }
-
-    .navigation-actions {
-        justify-content: center;
-        border-top: 2px solid #e9ecef;
-        margin-top: 2rem;
-        padding-top: 1.5rem;
     }
 
     .btn {
@@ -302,29 +368,82 @@
         transition: all 0.2s ease;
         border: none;
         cursor: pointer;
+        font-size: 0.9rem;
     }
 
     .btn-outline-secondary {
         background-color: transparent;
-        border: 2px solid #6c757d;
+        border: 1px solid #6c757d;
         color: #6c757d;
     }
 
     .btn-outline-secondary:hover {
         background-color: #6c757d;
         color: white;
-        transform: translateY(-1px);
     }
 
     .btn-primary {
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        background-color: #3b82f6;
         color: white;
         border: none;
     }
 
     .btn-primary:hover {
+        background-color: #2563eb;
         transform: translateY(-1px);
-        box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+    }
+
+    .btn-secondary {
+        background-color: #6c757d;
+        color: white;
+        border: none;
+    }
+
+    .btn-secondary:hover {
+        background-color: #5a6268;
+    }
+
+    .profile-card {
+        height: fit-content;
+    }
+
+    .profile-section {
+        margin-bottom: 1.5rem;
+    }
+
+    .profile-section:last-of-type {
+        margin-bottom: 0;
+    }
+
+    .profile-section-title {
+        font-size: 1rem;
+        font-weight: 600;
+        color: #333;
+        margin-bottom: 0.75rem;
+    }
+
+    .profile-content {
+        padding: 1rem;
+        border-radius: 0.5rem;
+        border: 1px solid #ceccd1;
+        height: 180px;
+        overflow: auto;
+    }
+
+    .profile-content p {
+        margin: 0;
+        line-height: 1.5;
+        color: #555;
+    }
+
+    .text-muted {
+        color: #6c757d !important;
+        font-style: italic;
+    }
+
+    .back-to-dashboard {
+        text-align: center;
+        margin-top: 2rem;
     }
 
     .alert {
@@ -370,30 +489,45 @@
         opacity: 1;
     }
 
+    /* Modal Styles */
+    .modal-content {
+        border-radius: 0.75rem;
+        border: none;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+    }
+
+    .modal-header {
+        border-bottom: 1px solid #e9ecef;
+        padding: 1.5rem;
+    }
+
+    .modal-title {
+        font-weight: 600;
+        color: #333;
+    }
+
+    .modal-body {
+        padding: 1.5rem;
+    }
+
     /* Responsive Design */
     @@media (max-width: 768px) {
-        .update-profile-container {
+        .account-page-container {
             padding: 1rem;
         }
 
-        .card-header {
-            padding: 1.5rem;
+        .account-content {
+            grid-template-columns: 1fr;
+            gap: 1.5rem;
         }
 
-        .card-title {
-            font-size: 1.75rem;
+        .page-title {
+            font-size: 2rem;
         }
 
-        .card-body {
-            padding: 1.5rem;
-        }
-
-        .form-row {
-            flex-direction: column;
-        }
-
-        .form-group {
-            width: 100% !important;
+        .info-card .card-header,
+        .info-card .card-body {
+            padding: 1rem;
         }
 
         .form-actions {
@@ -408,12 +542,12 @@
     }
 
     @@media (max-width: 480px) {
-        .card-title {
-            font-size: 1.5rem;
+        .page-title {
+            font-size: 1.75rem;
         }
 
-        .form-section {
-            padding: 1rem;
+        .account-page-container {
+            padding: 0.5rem;
         }
     }
 </style>
