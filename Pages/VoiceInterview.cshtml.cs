@@ -763,12 +763,20 @@ namespace InterviewBot.Pages
                     {
                         Console.WriteLine($"Error calling analysis API: {ex.Message}");
                     }
-                    
-                    return new JsonResult(new { 
-                        response = "Thank you for your responses. I have enough information to provide you with a comprehensive analysis. Let me generate your interview summary...", 
-                        isComplete = true,
-                        questionCount = currentCount
-                    });
+                    if (GetCurrentCulture() == "es")
+                    {
+                        return new JsonResult(new { 
+                            response = "Gracias por tus respuestas. Ya tengo suficiente información para proporcionarte un análisis completo. Deja que generemos tu resumen de la entrevista...", 
+                            isComplete = true,
+                            questionCount = currentCount
+                        });
+                    } else {
+                        return new JsonResult(new { 
+                            response = "Thank you for your responses. I have enough information to provide you with a comprehensive analysis. Let me generate your interview summary...", 
+                            isComplete = true,
+                            questionCount = currentCount
+                        });
+                    }
                 }
                 
                 string aiResponse;

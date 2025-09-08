@@ -443,19 +443,27 @@ namespace InterviewBot.Pages
                         Console.WriteLine($"Error calling analysis API: {ex.Message}");
                         // Continue with interview completion even if API call fails
                     }
-
-                    return new JsonResult(new
+                    if (GetCurrentCulture() == "es")
                     {
-                        response = "Thank you for your responses. I have enough information to provide you with a comprehensive analysis. Let me generate your interview summary...",
-                        isComplete = true,
-                        summary = summaryResponse,
-                        questionCount = currentCount
-                    });
+                        return new JsonResult(new { 
+                            response = "Gracias por tus respuestas. Ya tengo suficiente información para proporcionarte un análisis completo. Deja que generemos tu resumen de la entrevista...", 
+                            isComplete = true,
+                            summary = summaryResponse,
+                            questionCount = currentCount
+                        });
+                    } else {
+                        return new JsonResult(new
+                        {
+                            response = "Thank you for your responses. I have enough information to provide you with a comprehensive analysis. Let me generate your interview summary...",
+                            isComplete = true,
+                            summary = summaryResponse,
+                            questionCount = currentCount
+                        });
+                    }
                 }
 
                 // Build conversation context for AI
                 var conversationContext = BuildConversationContext(request.Message);
-                Console.WriteLine($"Conversation context========================>s: {interviewCatalog?.AgentInstructions}");
                 // Generate AI response using OpenAI service
                 // Pass the actual user message, not the conversation context
                 var aiResponse = await _openAIService.GenerateInterviewResponseAsync(
