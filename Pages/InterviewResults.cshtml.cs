@@ -222,7 +222,7 @@ namespace InterviewBot.Pages
 
                         InterviewTopic = storedResult.Topic;
                         InterviewSummary = storedResult.Content ?? "No content available";
-                        QuestionCount = 10; // Voice interviews always have 10 questions
+                        QuestionCount = 6; // Voice interviews now have 6 questions
                         CompleteDate = storedResult.CompleteDate;
 
                         // Check if we have API response data

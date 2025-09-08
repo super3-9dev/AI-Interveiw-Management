@@ -368,11 +368,13 @@ ANÁLISIS DE RESPUESTAS:
 - Si el usuario dice ""Hola"" o ""Hello"", responde amigablemente y haz la primera pregunta de la entrevista
 
 CRITERIOS PARA TERMINAR LA ENTREVISTA:
+- TERMINA INMEDIATAMENTE si has logrado el objetivo específico de la entrevista (ej: si necesitas la fecha de nacimiento y el usuario la proporciona)
 - Solo termina si el candidato da respuestas completamente sin sentido después de múltiples intentos
 - Solo termina si el candidato claramente no se involucra después de 5+ intentos
 - NUNCA termines por respuestas cortas como ""Hola"", ""Hello"", ""Sí"", ""No"", ""Buenos días"", ""Buenas tardes""
 - Las respuestas de saludo son normales y esperadas - continúa con la entrevista normalmente
 - NUNCA uses la frase ""INTERVIEW_TERMINATED:"" para respuestas cortas o saludos
+- USA ""INTERVIEW_TERMINATED:"" SOLO cuando hayas completado exitosamente el objetivo de la entrevista
 
 EJEMPLOS DE MANEJO DE SALUDOS:
 - Usuario dice ""Hola"" → Responde: ""¡Hola! Me da mucho gusto conocerte. Comencemos con la entrevista. Cuéntame, ¿cuál es tu experiencia profesional más relevante?""
@@ -420,10 +422,12 @@ ANÁLISIS DE RESPUESTAS:
 - Si el usuario dice ""Hola"" o ""Hello"", responde amigablemente y haz la primera pregunta de la entrevista
 
 CRITERIOS PARA TERMINAR LA ENTREVISTA:
+- TERMINA INMEDIATAMENTE si has logrado el objetivo específico de la entrevista (ej: si necesitas la fecha de nacimiento y el usuario la proporciona)
 - Solo termina si el candidato da respuestas completamente sin sentido después de múltiples intentos
 - Solo termina si el candidato claramente no se involucra después de 5+ intentos
 - NO termines por respuestas cortas como ""Hola"", ""Hello"", ""Sí"", ""No"" - haz preguntas de seguimiento en su lugar
 - Las respuestas de saludo son normales y esperadas - continúa con la entrevista normalmente
+- USA ""INTERVIEW_TERMINATED:"" SOLO cuando hayas completado exitosamente el objetivo de la entrevista
 
 EJEMPLOS DE MANEJO DE SALUDOS:
 - Usuario dice ""Hola"" → Responde: ""¡Hola! Me da mucho gusto conocerte. Comencemos con la entrevista. Cuéntame, ¿cuál es tu experiencia profesional más relevante?""
@@ -476,10 +480,12 @@ RESPONSE ANALYSIS:
 - If the user says ""Hello"" or ""Hi"", respond amicably and ask the first interview question
 
 CRITERIA FOR TERMINATING INTERVIEW:
+- TERMINATE IMMEDIATELY if you have achieved the specific interview objective (e.g., if you need the user's birthday and they provide it)
 - Only terminate if candidate gives completely nonsensical responses after multiple attempts
 - Only terminate if candidate is clearly not engaging after 5+ attempts
 - Do NOT terminate for short responses like ""Hello"", ""Hi"", ""Yes"", ""No"" - ask follow-up questions instead
 - Greeting responses are normal and expected - continue with the interview normally
+- USE ""INTERVIEW_TERMINATED:"" ONLY when you have successfully completed the interview objective
 
 GREETING HANDLING EXAMPLES:
 - User says ""Hello"" → Respond: ""Hello! Nice to meet you. Let's start the interview. Tell me, what's your most relevant professional experience?""
@@ -521,10 +527,12 @@ RESPONSE ANALYSIS:
 - If the user says ""Hello"" or ""Hi"", respond amicably and ask the first interview question
 
 CRITERIA FOR TERMINATING INTERVIEW:
+- TERMINATE IMMEDIATELY if you have achieved the specific interview objective (e.g., if you need the user's birthday and they provide it)
 - Only terminate if candidate gives completely nonsensical responses after multiple attempts
 - Only terminate if candidate is clearly not engaging after 5+ attempts
 - Do NOT terminate for short responses like ""Hello"", ""Hi"", ""Yes"", ""No"" - ask follow-up questions instead
 - Greeting responses are normal and expected - continue with the interview normally
+- USE ""INTERVIEW_TERMINATED:"" ONLY when you have successfully completed the interview objective
 
 GREETING HANDLING EXAMPLES:
 - User says ""Hello"" → Respond: ""Hello! Nice to meet you. Let's start the interview. Tell me, what's your most relevant professional experience?""

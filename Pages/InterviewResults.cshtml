@@ -98,7 +98,7 @@
                     <div class="roadmap-header" onclick="toggleRoadmap('medium-term')">
                         <div class="roadmap-title-section">
                             <i class="bi bi-arrow-up-circle roadmap-icon"></i>
-                            <h3>@Model.YourCareerRoadmaps.FirstOrDefault(r => r.Title.Contains("Medium-Term") || r.Title.Contains("Mediano Plazo"))?.Title</h3>
+                            <h3>@Model.YourCareerRoadmaps.FirstOrDefault(r => r.Title.Contains("Medium-Term") || r.Title.Contains("Mediano Plazo") || r.Title.Contains("Medio Plazo"))?.Title</h3>
                         </div>
                         <i class="bi bi-chevron-down" id="medium-term-arrow"></i>   
                     </div>
@@ -106,7 +106,7 @@
                         <ol class="roadmap-steps">
                             @if (Model.YourCareerRoadmaps.Any())
                             {
-                                @foreach (var roadmap in Model.YourCareerRoadmaps.Where(r => r.Title.Contains("Medium-Term") || r.Title.Contains("Mediano Plazo")))
+                                @foreach (var roadmap in Model.YourCareerRoadmaps.Where(r => r.Title.Contains("Medium-Term") || r.Title.Contains("Mediano Plazo") || r.Title.Contains("Medio Plazo")))
                                 {
                                     @foreach (var step in roadmap.Steps)
                                     {

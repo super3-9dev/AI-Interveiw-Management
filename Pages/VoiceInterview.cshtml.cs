@@ -141,6 +141,8 @@ namespace InterviewBot.Pages
                 context.AppendLine("NO termines la entrevista. En su lugar, haz una pregunta de seguimiento amigable.");
                 context.AppendLine("NUNCA uses 'INTERVIEW_TERMINATED:' para respuestas cortas o saludos.");
                 context.AppendLine("Solo termina la entrevista si el usuario da respuestas completamente sin sentido después de múltiples intentos.");
+                context.AppendLine("TERMINA INMEDIATAMENTE si has logrado el objetivo específico de la entrevista (ej: si necesitas la fecha de nacimiento y el usuario la proporciona).");
+                context.AppendLine("USA 'INTERVIEW_TERMINATED:' SOLO cuando hayas completado exitosamente el objetivo de la entrevista.");
                 context.AppendLine("EJEMPLO: Si el usuario dice 'Hola', responde: '¡Hola! Me da mucho gusto conocerte. Comencemos con la entrevista. Cuéntame, ¿cuál es tu experiencia profesional más relevante?'");
             }
             else
@@ -156,6 +158,8 @@ namespace InterviewBot.Pages
                 context.AppendLine("Do NOT terminate the interview. Instead, ask a friendly follow-up question.");
                 context.AppendLine("NEVER use 'INTERVIEW_TERMINATED:' for short responses or greetings.");
                 context.AppendLine("Only terminate the interview if the user gives completely nonsensical responses after multiple attempts.");
+                context.AppendLine("TERMINATE IMMEDIATELY if you have achieved the specific interview objective (e.g., if you need the user's birthday and they provide it).");
+                context.AppendLine("USE 'INTERVIEW_TERMINATED:' ONLY when you have successfully completed the interview objective.");
                 context.AppendLine("EXAMPLE: If the user says 'Hello', respond: 'Hello! Nice to meet you. Let's start the interview. Tell me, what's your most relevant professional experience?'");
             }
             
@@ -746,8 +750,7 @@ namespace InterviewBot.Pages
                 
                 // Check question count and limit
                 var currentCount = GetQuestionCount();
-                const int maxQuestions = 10; // Limit to 10 questions
-                Console.WriteLine($"Current question count===================>: {currentCount}");
+                const int maxQuestions = 6; // Limit to 6 questions
                 if (currentCount >= maxQuestions)
                 {
                     // Call analysis API and store result
@@ -755,12 +758,10 @@ namespace InterviewBot.Pages
                     {
                         await CallAnalysisApiAndStoreResultAsync(InterviewId, GetCurrentCulture());
                         ClearQuestionCount();
-                        Console.WriteLine("Analysis API called successfully for voice interview: " + InterviewId);
                     }
                     catch (Exception ex)
                     {
                         Console.WriteLine($"Error calling analysis API: {ex.Message}");
-                        // Continue with interview completion even if API call fails
                     }
                     
                     return new JsonResult(new { 
