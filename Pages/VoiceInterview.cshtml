@@ -1892,11 +1892,11 @@
                 }
             }
 
+            console.log('Calling CompleteInterview API...========================>');
             // Disconnect voice monitoring
-            if (microphone && voiceMonitorDestination) {
+            @* if (microphone && voiceMonitorDestination) {
                 microphone.disconnect(voiceMonitorDestination);
-            }
-
+            } *@
             // Call the CompleteInterview API
             fetch('/VoiceInterview?handler=CompleteInterview&interviewId=' + interviewId, {
                 method: 'POST',
