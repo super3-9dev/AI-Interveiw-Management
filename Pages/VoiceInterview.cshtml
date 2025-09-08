@@ -57,18 +57,19 @@
                 <button class="voice-record-btn" id="recordButton" onclick="toggleRecording()">
                     <i class="bi bi-mic-fill"></i>
                 </button>
-                
+
                 <div class="recording-indicator" id="recordingIndicator" style="display: none;">
                     <div class="pulse-dot"></div>
                     <span>@Localizer["Listening..."]</span>
                 </div>
-                
+
                 <div class="mic-status-indicator" id="micStatusIndicator">
                     <div class="status-dot" id="micStatusDot"></div>
                     <span id="micStatusText">@Localizer["Checking microphone..."]</span>
                 </div>
-                
-                <button class="btn btn-sm btn-outline-secondary" id="reinitSpeechBtn" onclick="reinitializeSpeechRecognition()" style="display: none;">
+
+                <button class="btn btn-sm btn-outline-secondary" id="reinitSpeechBtn"
+                    onclick="reinitializeSpeechRecognition()" style="display: none;">
                     <i class="bi bi-arrow-clockwise"></i> @Localizer["Reinitialize Speech Recognition"]
                 </button>
             </div>
@@ -236,10 +237,14 @@
     }
 
     @@keyframes typing {
-        0%, 80%, 100% {
+
+        0%,
+        80%,
+        100% {
             transform: scale(0.8);
             opacity: 0.5;
         }
+
         40% {
             transform: scale(1);
             opacity: 1;
@@ -738,7 +743,7 @@
         const area = document.getElementById('transcriptionArea');
         const sendBtn = document.getElementById('sendVoiceBtn');
         if (!area || !sendBtn) return;
-        
+
         const hasText = area.value.trim().length > 0;
         const shouldEnable = hasText && isWaitingForUserResponse;
     }
@@ -813,7 +818,7 @@
             for (let i = 0; i < volumeHistory.length; i++) {
                 const x = (width / (maxHistoryLength - 1)) * i;
                 const y = height - (volumeHistory[i] / 100) * height;
-                
+
                 if (i === 0) {
                     ctx.moveTo(x, y);
                 } else {
@@ -826,7 +831,7 @@
             const gradient = ctx.createLinearGradient(0, 0, 0, height);
             gradient.addColorStop(0, graphColor + '40');
             gradient.addColorStop(1, graphColor + '10');
-            
+
             ctx.fillStyle = gradient;
             ctx.lineTo(width, height);
             ctx.lineTo(0, height);
@@ -838,15 +843,15 @@
     // Update user status
     function updateUserStatus(status, volume = 0) {
         currentUserStatus = status;
-        
+
         // Update status text and dot
         const statusText = document.getElementById('userStatus');
         const statusDot = document.getElementById('statusDot');
-        
+
         if (statusText && statusDot) {
             // Remove all status classes
             statusDot.classList.remove('speaking', 'listening', 'processing');
-            
+
             switch (status) {
                 case 'speaking':
                     statusText.textContent = 'Speaking';
@@ -877,14 +882,14 @@
     function updateMicStatus(status, message) {
         const statusDot = document.getElementById('micStatusDot');
         const statusText = document.getElementById('micStatusText');
-        
+
         if (statusDot && statusText) {
             // Remove all status classes
             statusDot.classList.remove('connected', 'disconnected', 'checking', 'error');
-            
+
             // Add new status class
             statusDot.classList.add(status);
-            
+
             // Update status text
             statusText.textContent = message;
         }
@@ -896,7 +901,7 @@
             console.log('=== INITIALIZING VOICE ===');
             // Update status to checking
             updateMicStatus('checking', 'Checking microphone...');
-            
+
             // Check if getUserMedia is supported
             if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
                 console.error('getUserMedia not supported');
@@ -913,23 +918,23 @@
                     autoGainControl: true
                 }
             });
-            
+
             console.log('Microphone access granted, stream:', localStream);
-            
+
             // Initialize audio context for microphone monitoring
             await initializeAudioContext();
-            
+
             // Initialize speech recognition
             initializeSpeechRecognition();
-            
+
             // Update status to connected
             updateMicStatus('connected', 'Microphone connected');
             addSystemMessage("Voice interview is ready. Click 'Start Recording' to begin.");
             console.log('=== VOICE INITIALIZATION COMPLETE ===');
-            
+
         } catch (error) {
             console.error('Voice initialization error:', error);
-            
+
             // Update status based on error type
             if (error.name === 'NotAllowedError' || error.name === 'PermissionDeniedError') {
                 updateMicStatus('error', 'Microphone permission denied');
@@ -950,18 +955,18 @@
             console.log('=== INITIALIZING AUDIO CONTEXT ===');
             audioContext = new (window.AudioContext || window.webkitAudioContext)();
             console.log('Audio context created:', audioContext);
-            
+
             analyser = audioContext.createAnalyser();
             analyser.fftSize = 256;
             console.log('Analyser created:', analyser);
-            
+
             microphone = audioContext.createMediaStreamSource(localStream);
             microphone.connect(analyser);
             console.log('Microphone connected to analyser');
-            
+
             // Create voice monitor destination (speakers)
             voiceMonitorDestination = audioContext.destination;
-            
+
             dataArray = new Uint8Array(analyser.frequencyBinCount);
             console.log('Data array created, size:', dataArray.length);
             console.log('=== AUDIO CONTEXT INITIALIZATION COMPLETE ===');
@@ -999,7 +1004,7 @@
                 console.error('Error stopping speech recognition:', error);
             }
         }
-        
+
         // Wait a bit before reinitializing
         setTimeout(() => {
             initializeSpeechRecognition();
@@ -1012,58 +1017,58 @@
             console.log('=== INITIALIZING SPEECH RECOGNITION ===');
             const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
             console.log('SpeechRecognition available:', !!SpeechRecognition);
-            
+
             if (SpeechRecognition) {
                 speechRecognition = new SpeechRecognition();
                 speechRecognition.continuous = true;
                 speechRecognition.interimResults = true;
-                
+
                 // Set language based on current culture
                 const currentCulture = new URLSearchParams(window.location.search).get('culture') || 'en';
                 speechRecognition.lang = currentCulture === 'es' ? 'es-ES' : 'en-US';
-                
+
                 // Additional settings for better recognition
                 if (speechRecognition.maxAlternatives) {
                     speechRecognition.maxAlternatives = 3; // Get more alternatives for better accuracy
                 }
-                
+
                 console.log('Speech recognition language set to:', speechRecognition.lang);
                 console.log('Speech recognition culture:', currentCulture);
                 console.log('Speech recognition object created:', speechRecognition);
-                
-                speechRecognition.onresult = function(event) {
+
+                speechRecognition.onresult = function (event) {
                     let finalTranscript = '';
                     let interimTranscript = '';
-                    
+
                     console.log('Speech recognition result event:', event);
                     console.log('Number of results:', event.results.length);
-                    
+
                     for (let i = event.resultIndex; i < event.results.length; i++) {
                         const result = event.results[i];
                         const transcript = result[0].transcript;
                         const confidence = result[0].confidence;
-                        
+
                         console.log(`Result ${i}: "${transcript}" (confidence: ${confidence}, isFinal: ${result.isFinal})`);
-                        
+
                         if (result.isFinal) {
                             finalTranscript += transcript;
                         } else {
                             interimTranscript += transcript;
                         }
                     }
-                    
+
                     // Update transcription area with interim results
                     if (interimTranscript) {
                         console.log('Interim transcript:', interimTranscript);
                         document.getElementById('transcriptionArea').value = interimTranscript;
                     }
-                    
+
                     // If we have a final result, automatically send the message
                     if (finalTranscript.trim()) {
                         console.log('Final transcript:', finalTranscript);
                         console.log('Final transcript length:', finalTranscript.length);
                         document.getElementById('transcriptionArea').value = finalTranscript.trim();
-                        
+
                         // Automatically send the message if we're waiting for user response
                         if (isWaitingForUserResponse) {
                             console.log('Auto-sending message from speech recognition...');
@@ -1074,11 +1079,11 @@
                         }
                     }
                 };
-                
-                speechRecognition.onerror = function(event) {
+
+                speechRecognition.onerror = function (event) {
                     console.error('Speech recognition error:', event.error);
                     console.error('Error details:', event);
-                    
+
                     if (event.error === 'no-speech') {
                         console.log('No speech detected, restarting...');
                         // Restart listening if no speech detected
@@ -1106,8 +1111,8 @@
                         addSystemMessage("Network error in speech recognition. Please check your connection.");
                     }
                 };
-                
-                speechRecognition.onend = function() {
+
+                speechRecognition.onend = function () {
                     // Restart listening if still active
                     if (isListening && isVoiceActive) {
                         setTimeout(() => {
@@ -1118,7 +1123,7 @@
                     }
                 };
                 console.log('=== SPEECH RECOGNITION INITIALIZATION COMPLETE ===');
-                
+
                 // Test speech recognition with a short test
                 setTimeout(() => {
                     testSpeechRecognition();
@@ -1136,15 +1141,15 @@
     // Test speech recognition functionality
     function testSpeechRecognition() {
         if (!speechRecognition) return;
-        
+
         console.log('Testing speech recognition...');
         const currentCulture = new URLSearchParams(window.location.search).get('culture') || 'en';
         const expectedLanguage = currentCulture === 'es' ? 'es-ES' : 'en-US';
-        
+
         if (speechRecognition.lang !== expectedLanguage) {
             console.warn(`Language mismatch: expected ${expectedLanguage}, got ${speechRecognition.lang}`);
             addSystemMessage(`Speech recognition language set to ${speechRecognition.lang}. If you're speaking Spanish, please ensure the page language is set to Spanish.`);
-            
+
             // Show reinitialize button
             const reinitBtn = document.getElementById('reinitSpeechBtn');
             if (reinitBtn) {
@@ -1152,7 +1157,7 @@
             }
         } else {
             console.log(`Speech recognition language correctly set to ${speechRecognition.lang}`);
-            
+
             // Hide reinitialize button
             const reinitBtn = document.getElementById('reinitSpeechBtn');
             if (reinitBtn) {
@@ -1164,13 +1169,13 @@
     // Monitor microphone activity
     function monitorMicrophone() {
         if (!analyser || !dataArray) return;
-        
+
         analyser.getByteFrequencyData(dataArray);
-        
+
         // Calculate average volume
         const average = dataArray.reduce((a, b) => a + b) / dataArray.length;
         const normalizedVolume = Math.min((average / 128) * 100, 100);
-        
+
         // Update real-time status based on volume and voice activity
         if (isVoiceActive) {
             if (average > 30) {
@@ -1193,7 +1198,7 @@
         } else {
             updateUserStatus('ready', normalizedVolume);
         }
-        
+
         // Continue monitoring
         animationId = requestAnimationFrame(monitorMicrophone);
     }
@@ -1203,16 +1208,16 @@
         console.log('isVoiceActive:', isVoiceActive);
         console.log('localStream:', localStream);
         console.log('speechRecognition:', speechRecognition);
-        
+
         if (!isVoiceActive) {
             console.log('Starting recording...');
             isVoiceActive = true;
             document.getElementById('recordButton').classList.add('recording');
             document.getElementById('recordButton').innerHTML = '<i class="bi bi-stop-fill"></i>';
-            
+
             // Show listening indicator
             document.getElementById('recordingIndicator').style.display = 'flex';
-            
+
             // Start the interview if not already started
             if (!isInterviewStarted) {
                 console.log('Starting interview...');
@@ -1220,7 +1225,7 @@
             } else {
                 addSystemMessage("Voice interview resumed. You can now speak and type simultaneously.");
             }
-            
+
             // Start microphone monitoring
             if (analyser && dataArray) {
                 console.log('Starting microphone monitoring...');
@@ -1228,7 +1233,7 @@
             } else {
                 console.error('Cannot start microphone monitoring - analyser or dataArray not available');
             }
-            
+
             // Start speech recognition
             if (speechRecognition) {
                 try {
@@ -1251,16 +1256,16 @@
             document.getElementById('recordButton').classList.remove('recording');
             document.getElementById('recordButton').innerHTML = '<i class="bi bi-mic-fill"></i>';
             addSystemMessage("Voice interview paused.");
-            
+
             // Hide listening indicator
             document.getElementById('recordingIndicator').style.display = 'none';
-            
+
             // Stop microphone monitoring
             if (animationId) {
                 cancelAnimationFrame(animationId);
                 animationId = null;
             }
-            
+
             // Stop speech recognition
             if (speechRecognition && isListening) {
                 try {
@@ -1270,7 +1275,7 @@
                     console.error('Error stopping speech recognition:', error);
                 }
             }
-            
+
             // Hide recording indicator
             isUserSpeaking = false;
         }
@@ -1279,7 +1284,7 @@
     // Clean text for speech synthesis
     function cleanTextForSpeech(text) {
         if (!text) return '';
-        
+
         // Remove special characters and formatting that TTS shouldn't read
         let cleaned = text
             // Remove markdown formatting
@@ -1302,7 +1307,7 @@
             // Remove extra whitespace
             .replace(/\s+/g, ' ')
             .trim();
-            
+
         return cleaned;
     }
 
@@ -1333,35 +1338,35 @@
         // Try to get a good voice for the target language
         const voices = speechSynthesis.getVoices();
         let preferredVoice;
-        
+
         if (targetLanguage === 'es') {
             // For Spanish, try to find natural-sounding Spanish voices
-            preferredVoice = voices.find(voice => 
+            preferredVoice = voices.find(voice =>
                 voice.lang.includes('es') && (voice.name.includes('Google') || voice.name.includes('Microsoft'))
-            ) || voices.find(voice => 
+            ) || voices.find(voice =>
                 voice.lang.includes('es') && voice.name.includes('Natural')
-            ) || voices.find(voice => 
+            ) || voices.find(voice =>
                 voice.lang.includes('es-ES')
-            ) || voices.find(voice => 
+            ) || voices.find(voice =>
                 voice.lang.includes('es-MX')
-            ) || voices.find(voice => 
+            ) || voices.find(voice =>
                 voice.lang.includes('es')
             );
         } else {
             // For English, try to find natural-sounding English voices
-            preferredVoice = voices.find(voice => 
+            preferredVoice = voices.find(voice =>
                 voice.lang.includes('en') && (voice.name.includes('Google') || voice.name.includes('Microsoft'))
-            ) || voices.find(voice => 
+            ) || voices.find(voice =>
                 voice.lang.includes('en') && voice.name.includes('Natural')
-            ) || voices.find(voice => 
+            ) || voices.find(voice =>
                 voice.lang.includes('en-US') && voice.name.includes('Female')
-            ) || voices.find(voice => 
+            ) || voices.find(voice =>
                 voice.lang.includes('en-US') && voice.name.includes('Male')
-            ) || voices.find(voice => 
+            ) || voices.find(voice =>
                 voice.lang.includes('en')
             );
         }
-        
+
         // Fallback to any available voice
         if (!preferredVoice) {
             preferredVoice = voices[0];
@@ -1396,25 +1401,25 @@
     // Start the interview
     async function startInterview() {
         if (isInterviewStarted) return;
-        
+
         isInterviewStarted = true;
         currentQuestionNumber = 0;
         isWaitingForUserResponse = true; // Enable waiting for user response
-        
+
         addSystemMessage("Interview started! The AI will ask you questions. Please answer each question thoroughly.");
-        
+
         // Display the greeting message directly (don't send to AI)
         const greetingMessage = '@Model.GreetingMessage';
-        
+
         // Add AI greeting to chat
         addAIVoiceMessage(greetingMessage);
-        
+
         // Speak the greeting
         speakAIMessage(greetingMessage);
-        
+
         // Update status
         updateUserStatus('listening', 0);
-        
+
         // Enable send button
         updateSendAvailability();
     }
@@ -1429,17 +1434,17 @@
         try {
             // Generate AI question based on conversation context
             const aiResponse = await getVoiceAIResponse("Please ask the next interview question based on our conversation so far.");
-            
+
             if (aiResponse) {
                 currentQuestionNumber++;
                 isWaitingForUserResponse = true;
 
                 // Add AI question to chat
                 addAIVoiceMessage(aiResponse);
-                
+
                 // Speak the question
                 speakAIMessage(aiResponse);
-                
+
                 // Update status
                 updateUserStatus('listening', 0);
 
@@ -1503,28 +1508,28 @@
     // Create conversation summary for analysis
     function createConversationSummary() {
         let summary = "Voice Interview Conversation Analysis:\n\n";
-        
+
         // Add questions and answers
         for (let i = 0; i < interviewConversation.length; i++) {
             const item = interviewConversation[i];
             if (item.type === 'ai') {
-                summary += `Question ${Math.floor(i/2) + 1}: ${item.message}\n\n`;
+                summary += `Question ${Math.floor(i / 2) + 1}: ${item.message}\n\n`;
             } else if (item.type === 'user') {
                 summary += `Answer: ${item.message}\n\n`;
             }
         }
-        
+
         // Add analysis based on conversation
         summary += "AI Analysis:\n";
         summary += "1. Summary of Key Points: The interview covered the candidate's experience, skills, achievements, and career goals. ";
         summary += "The candidate provided detailed responses to all 6 questions, demonstrating good communication skills and thoughtful consideration of each topic.\n\n";
-        
+
         summary += "2. Assessment of Responses: The candidate articulated their experiences effectively, showcasing a blend of technical expertise and leadership qualities. ";
         summary += "Their responses showed depth of understanding and practical experience in their field. The candidate demonstrated good storytelling ability and provided specific examples when appropriate.\n\n";
-        
+
         summary += "3. Key Strengths: The candidate demonstrated strong communication skills, clear thinking, and the ability to provide comprehensive answers. ";
         summary += "They showed enthusiasm for their field and a proactive approach to professional development. The responses indicated good problem-solving abilities and a forward-thinking mindset.";
-        
+
         return summary;
     }
 
@@ -1532,15 +1537,15 @@
     function completeInterview() {
         isWaitingForUserResponse = false;
         const completionMessage = "Thank you for completing the interview! You've answered all the questions. The interview is now complete.";
-        
+
         addAIMessage(completionMessage);
         speakAIMessage(completionMessage);
-        
+
         addSystemMessage("Interview completed! Redirecting to results page...");
-        
+
         // Disable the send button
         document.getElementById('transcriptionArea').readOnly = true;
-        
+
         updateUserStatus('ready', 0);
 
         // Update interview status to Completed and redirect to results page
@@ -1550,25 +1555,25 @@
                 const urlParams = new URLSearchParams(window.location.search);
                 const currentCulture = urlParams.get('culture') || 'en';
                 const interviewId = urlParams.get('interviewId') || '@Model.InterviewId';
-                
+
                 // Update interview status to Completed
                 const formData = new FormData();
                 formData.append('handler', 'CompleteInterview');
-                
+
                 const response = await fetch(window.location.pathname + '?culture=' + currentCulture, {
                     method: 'POST',
                     body: formData
                 });
-                
+
                 if (response.ok) {
                     console.log('Interview status updated to Completed');
                 } else {
                     console.error('Failed to update interview status');
                 }
-                
+
                 // Create conversation summary for analysis
                 const conversationSummary = createConversationSummary();
-                
+
                 // Redirect to interviewResults page with interview ID and conversation data
                 window.location.href = `/interviewResults?interviewId=${interviewId}&culture=${currentCulture}&summary=${encodeURIComponent(conversationSummary)}`;
             } catch (error) {
@@ -1587,7 +1592,7 @@
         try {
             const form = document.getElementById('voiceForm');
             const area = document.getElementById('transcriptionArea');
-            
+
             if (!form || !area) {
                 console.error('Form or transcriptionArea not found');
                 addSystemMessage('Input form not ready. Please reload this page.');
@@ -1619,14 +1624,14 @@
             try {
                 // Call the Voice Chat API to get AI response
                 const aiResponse = await getVoiceAIResponse(transcription);
-                
+
                 if (aiResponse) {
                     // Add AI response to chat
                     addAIVoiceMessage(aiResponse);
-                    
+
                     // Speak the AI response
                     speakAIMessage(aiResponse);
-                    
+
                     // Set waiting for user response back to true for next response
                     isWaitingForUserResponse = true;
                 } else {
@@ -1738,7 +1743,7 @@
             if (aiResponse) {
                 // Add AI response to chat
                 addAIVoiceMessage(aiResponse);
-                
+
                 // Speak the AI response
                 speakAIMessage(aiResponse);
             } else {
@@ -1800,13 +1805,13 @@
             console.log('Sending request to Voice Chat API...');
             console.log('User message:', userMessage);
             console.log('InterviewId:', window.interviewId);
-            
+
             const requestBody = {
                 message: userMessage,
                 interviewId: window.interviewId
             };
             console.log('Request body:', JSON.stringify(requestBody));
-            
+
             const response = await fetch('/VoiceInterview?handler=VoiceChat&culture=' + currentCulture, {
                 method: 'POST',
                 headers: {
@@ -1861,6 +1866,13 @@
 
     function finishInterview() {
         if (confirm('Are you sure you want to finish this interview? This action cannot be undone.')) {
+            // Show loading state
+            const finishBtn = document.querySelector('button[onclick="finishInterview()"]');
+            const originalText = finishBtn.innerHTML;
+            finishBtn.innerHTML = '<i class="bi bi-hourglass-split"></i> Finishing Interview...';
+            finishBtn.disabled = true;
+            const interviewId = '@Model.InterviewId';
+
             // Stop local stream
             if (localStream) {
                 localStream.getTracks().forEach(track => track.stop());
@@ -1885,9 +1897,31 @@
                 microphone.disconnect(voiceMonitorDestination);
             }
 
-            alert('Interview finished! Redirecting to dashboard...');
-            const currentCulture = new URLSearchParams(window.location.search).get('culture') || 'en';
-            window.location.href = `/Dashboard?culture=${currentCulture}`;
+            // Call the CompleteInterview API
+            fetch('/VoiceInterview?handler=CompleteInterview&interviewId=' + interviewId, {
+                method: 'POST',
+                headers: {
+                    'RequestVerificationToken': document.querySelector('input[name="__RequestVerificationToken"]').value,
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                }
+            })
+                .then(response => {
+                    if (response.ok) {
+                        // Get current culture and redirect to InterviewResults
+                        const currentCulture = new URLSearchParams(window.location.search).get('culture') || 'en';
+                        const interviewId = '@Model.InterviewId';
+                        window.location.href = `/InterviewResults?interviewId=${interviewId}&culture=${currentCulture}`;
+                    } else {
+                        throw new Error('Failed to complete interview');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error finishing interview:', error);
+                    alert('Error finishing interview. Please try again.');
+                    // Restore button state
+                    finishBtn.innerHTML = originalText;
+                    finishBtn.disabled = false;
+                });
         }
     }
 
@@ -1897,11 +1931,11 @@
             speechSynthesis.onvoiceschanged = () => {
                 const voices = speechSynthesis.getVoices();
                 console.log('Voices loaded:', voices.length);
-                
+
                 // Log available languages
                 const languages = [...new Set(voices.map(v => v.lang))];
                 console.log('Available languages:', languages);
-                
+
                 // Log Spanish and English voices specifically
                 const spanishVoices = voices.filter(v => v.lang.includes('es'));
                 const englishVoices = voices.filter(v => v.lang.includes('en'));

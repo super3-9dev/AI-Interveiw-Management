@@ -383,10 +383,6 @@ namespace InterviewBot.Pages
                 };
 
                 var request = JsonSerializer.Deserialize<OpenAIChatRequest>(requestBody, jsonOptions);
-                Console.WriteLine($"Deserialized request object: {request != null}");
-                Console.WriteLine($"Message property value: '{request?.Message}'");
-                Console.WriteLine($"Message length: {request?.Message?.Length ?? 0}");
-                Console.WriteLine($"InterviewId from request: '{request?.InterviewId}'");
 
                 if (request == null || string.IsNullOrEmpty(request.Message))
                 {
@@ -405,7 +401,6 @@ namespace InterviewBot.Pages
                 }
 
                 var userId = GetCurrentUserId();
-                Console.WriteLine($"User ID: {userId}");
 
                 if (userId == null)
                 {
@@ -413,19 +408,14 @@ namespace InterviewBot.Pages
                     return Unauthorized();
                 }
 
-                Console.WriteLine($"Generating AI response for topic: {InterviewTopic ?? "Career Interview"}");
-                Console.WriteLine($"User message: {request.Message}");
-
                 // Get current question count from session and increment
                 var currentCount = GetQuestionCount();
                 currentCount++;
                 SetQuestionCount(currentCount);
-                Console.WriteLine($"Question count: {currentCount}");
 
                 // Check if interview should end (limit to 6 questions)
                 if (currentCount >= 6)
                 {
-                    Console.WriteLine("Interview ending - reached maximum questions (6)");
                     var summaryResponse = await GenerateInterviewSummaryAsync();
                     IsInterviewComplete = true;
                     InterviewSummary = summaryResponse;
@@ -437,7 +427,6 @@ namespace InterviewBot.Pages
                     try
                     {
                         await CallAnalysisApiAndStoreResultAsync(InterviewId, GetCurrentCulture());
-                        Console.WriteLine("Analysis API called successfully for interview: " + InterviewId);
                     }
                     catch (Exception ex)
                     {
@@ -483,7 +472,6 @@ namespace InterviewBot.Pages
                     try
                     {
                         await CallAnalysisApiAndStoreResultAsync(InterviewId, GetCurrentCulture());
-                        Console.WriteLine("Analysis API called successfully for terminated interview: " + InterviewId);
                         ClearQuestionCount();
                         return new JsonResult(new
                         {
@@ -499,9 +487,6 @@ namespace InterviewBot.Pages
                         // Continue with interview completion even if API call fails
                     }
                 }
-
-
-                Console.WriteLine($"AI Response generated: {aiResponse}");
 
                 // Check if AI wants to terminate the interview
                 bool isTerminated = false;
@@ -519,21 +504,17 @@ namespace InterviewBot.Pages
 
                     // Mark interview as complete
                     SetQuestionCount(1000); // Set high number to indicate termination
-                    Console.WriteLine("Interview terminated by AI due to inadequate responses");
                 }
 
                 // Save chat messages to database
                 try
                 {
-                    Console.WriteLine($"Saving OpenAI chat messages - UserId: {userId.Value}, InterviewId: '{InterviewId}', UserMessage: '{request.Message}'");
-
                     // Save the user's message
                     await _interviewService.SaveChatMessageAsync(userId.Value, InterviewId, null, request.Message);
 
                     // Save the AI's response (use finalResponse which may be cleaned up)
                     await _interviewService.SaveChatMessageAsync(userId.Value, InterviewId, request.Message, finalResponse);
 
-                    Console.WriteLine($"OpenAI chat messages saved successfully for InterviewId: '{InterviewId}'");
                 }
                 catch (Exception ex)
                 {
@@ -544,7 +525,6 @@ namespace InterviewBot.Pages
                 if (currentCount >= 5 && (aiResponse.Contains("interview complete") || aiResponse.Contains("enough information") ||
                     aiResponse.Contains("Thank you")))
                 {
-                    Console.WriteLine("AI indicates interview should end");
                     var summaryResponse = await GenerateInterviewSummaryAsync();
                     IsInterviewComplete = true;
                     InterviewSummary = summaryResponse;
@@ -570,8 +550,6 @@ namespace InterviewBot.Pages
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"Error in OpenAI chat: {ex.Message}");
-                Console.WriteLine($"Stack trace: {ex.StackTrace}");
                 return StatusCode(500, new { error = "Internal server error: " + ex.Message });
             }
         }
@@ -818,7 +796,7 @@ namespace InterviewBot.Pages
         {
             try
             {
-                Console.WriteLine($"OnPostCompleteInterviewAsync called for InterviewId: {InterviewId}");
+                Console.WriteLine($"OnPostCompleteInterviewAsync called for InterviewId: {HttpContext.Request.Query["interviewId"]}");
 
                 var userId = GetCurrentUserId();
                 if (userId == null)
@@ -861,6 +839,19 @@ namespace InterviewBot.Pages
 
                 // Call analysis API
                 Console.WriteLine("Calling analysis API...");
+                try
+                {
+                    await CallAnalysisApiAndStoreResultAsync(InterviewId, GetCurrentCulture());
+                    ClearQuestionCount();
+                    Console.WriteLine("Analysis API called successfully");
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine($"Error calling analysis API: {ex.Message}");
+                    // Continue with interview completion even if API call fails
+                }
+
+                // Also call the completion service for additional processing
                 var analysisSuccess = await _interviewCompletionService.CompleteInterviewWithAnalysisAsync(
                     userId.Value,
                     InterviewId,
@@ -879,9 +870,9 @@ namespace InterviewBot.Pages
                     Console.WriteLine("Analysis failed, but continuing with interview completion");
                 }
 
-                // Redirect to dashboard page
-                Console.WriteLine("Redirecting to Dashboard page");
-                return RedirectToPage("/Dashboard", new { culture = GetCurrentCulture() });
+                // Redirect to InterviewResults page
+                Console.WriteLine("Redirecting to InterviewResults page");
+                return RedirectToPage("/InterviewResults", new { interviewId = InterviewId, culture = GetCurrentCulture() });
             }
             catch (Exception ex)
             {

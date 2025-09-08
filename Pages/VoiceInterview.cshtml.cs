@@ -574,7 +574,7 @@ namespace InterviewBot.Pages
         {
             try
             {
-                Console.WriteLine($"OnPostCompleteInterviewAsync called for InterviewId: {InterviewId}");
+                Console.WriteLine($"OnPostCompleteInterviewAsync called for InterviewId: {HttpContext.Request.Query["interviewId"]}");
 
                 var userId = GetCurrentUserId();
                 if (userId == null)
@@ -617,6 +617,19 @@ namespace InterviewBot.Pages
 
                 // Call analysis API
                 Console.WriteLine("Calling analysis API...");
+                try
+                {
+                    await CallAnalysisApiAndStoreResultAsync(InterviewId, GetCurrentCulture());
+                    ClearQuestionCount();
+                    Console.WriteLine("Analysis API called successfully");
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine($"Error calling analysis API: {ex.Message}");
+                    // Continue with interview completion even if API call fails
+                }
+
+                // Also call the completion service for additional processing
                 var analysisSuccess = await _interviewCompletionService.CompleteInterviewWithAnalysisAsync(
                     userId.Value,
                     InterviewId,
@@ -635,9 +648,9 @@ namespace InterviewBot.Pages
                     Console.WriteLine("Analysis failed, but continuing with interview completion");
                 }
 
-                // Redirect to dashboard page
-                Console.WriteLine("Redirecting to Dashboard page");
-                return RedirectToPage("/Dashboard", new { culture = GetCurrentCulture() });
+                // Redirect to InterviewResults page
+                Console.WriteLine("Redirecting to InterviewResults page");
+                return RedirectToPage("/InterviewResults", new { interviewId = InterviewId, culture = GetCurrentCulture() });
             }
             catch (Exception ex)
             {
