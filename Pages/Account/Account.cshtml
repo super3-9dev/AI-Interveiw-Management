@@ -129,16 +129,17 @@
                     </h3>
                 </div>
                 <div class="card-body">
+                <form method="post" asp-page-handler="UpdateProfile" class="update-form">
                     <div class="profile-section">
                         <h4 class="profile-section-title">@Localizer["Strengths"]</h4>
                         <div class="profile-content">
                             @if (!string.IsNullOrEmpty(Model.Strengths))
                             {
-                                <p>@Model.Strengths</p>
+                                <textarea asp-for="Strengths" style="height: 178px; resize: none;" class="form-control" rows="6" placeholder="@Localizer["Enter your strengths"]">@Model.Strengths</textarea>
                             }
                             else
                             {
-                                <p class="text-muted">@Localizer["No strengths information available."]</p>
+                                <textarea asp-for="Strengths" style="height: 178px; resize: none;" class="form-control" rows="6" placeholder="@Localizer["Enter your strengths"]"></textarea>
                             }
                         </div>
                     </div>
@@ -148,11 +149,11 @@
                         <div class="profile-content">
                             @if (!string.IsNullOrEmpty(Model.Weaknesses))
                             {
-                                <p>@Model.Weaknesses</p>
+                                <textarea asp-for="Weaknesses" style="height: 178px; resize: none;" class="form-control" rows="6" placeholder="@Localizer["Enter your weaknesses"]">@Model.Weaknesses</textarea>
                             }
                             else
                             {
-                                <p class="text-muted">@Localizer["No areas for improvement information available."]</p>
+                                <textarea asp-for="Weaknesses" style="height: 178px; resize: none;" class="form-control" rows="6" placeholder="@Localizer["Enter your weaknesses"]"></textarea>
                             }
                         </div>
                     </div>
@@ -162,21 +163,22 @@
                         <div class="profile-content">
                             @if (!string.IsNullOrEmpty(Model.FutureCareerGoals))
                             {
-                                <p>@Model.FutureCareerGoals</p>
+                                <textarea asp-for="FutureCareerGoals" style="height: 178px; resize: none;" class="form-control" rows="6" placeholder="@Localizer["Enter your future career goals"]">@Model.FutureCareerGoals</textarea>
                             }
                             else
                             {
-                                <p class="text-muted">@Localizer["No career goals information available."]</p>
+                                <textarea asp-for="FutureCareerGoals" style="height: 178px; resize: none;" class="form-control" rows="6" placeholder="@Localizer["Enter your future career goals"]"></textarea>
                             }
                         </div>
                     </div>
 
                     <div class="form-actions">
-                        <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#profileModal">
+                        <button type="submit" class="btn btn-primary">
                             <i class="bi bi-person-check"></i>
                             @Localizer["Update Profile"]
                         </button>
                     </div>
+                </form>
                 </div>
             </div>
         </div>
@@ -193,7 +195,7 @@
 </div>
 
 <!-- Profile Update Modal -->
-<div class="modal fade" id="profileModal" tabindex="-1" aria-labelledby="profileModalLabel" aria-hidden="true">
+<!-- <div class="modal fade" id="profileModal" tabindex="-1" aria-labelledby="profileModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
             <div class="modal-header">
@@ -231,7 +233,7 @@
             </div>
         </div>
     </div>
-</div>
+</div> -->
 
 <style>
     .account-page-container {
@@ -423,9 +425,7 @@
     }
 
     .profile-content {
-        padding: 1rem;
         border-radius: 0.5rem;
-        border: 1px solid #ceccd1;
         height: 180px;
         overflow: auto;
     }
