@@ -2,6 +2,9 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.AspNetCore.Mvc.Localization;
 using Microsoft.AspNetCore.Authorization;
+using InterviewBot.Services;
+using InterviewBot.Models;
+using System.Security.Claims;
 
 namespace InterviewBot.Pages
 {
@@ -9,15 +12,81 @@ namespace InterviewBot.Pages
     public class ReportModel : PageModel
     {
         private readonly ILogger<ReportModel> _logger;
+        private readonly IStudentReportService _studentReportService;
 
-        public ReportModel(ILogger<ReportModel> logger)
+        public ReportModel(ILogger<ReportModel> logger, IStudentReportService studentReportService)
         {
             _logger = logger;
+            _studentReportService = studentReportService;
         }
 
-        public void OnGet()
+        public StudentReportResponse? StudentReport { get; set; }
+        public ComprehensiveReportResponse? ComprehensiveReport { get; set; }
+        public bool IsLoading { get; set; } = true;
+        public string? ErrorMessage { get; set; }
+
+        public async Task OnGetAsync()
         {
-            // Initialize any data needed for the report page
+            await LoadStudentReport();
+        }
+
+        public async Task<IActionResult> OnPostTestApiAsync()
+        {
+            await LoadStudentReport();
+            return Page();
+        }
+
+        private async Task LoadStudentReport()
+        {
+            try
+            {
+                IsLoading = true;
+                ErrorMessage = null;
+
+                // Get the current user ID from claims
+                var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? "9"; // Default to "9" for testing (matching the Postman example)
+                
+                _logger.LogInformation("Loading comprehensive report for userId: {UserId}", userId);
+                
+                // Try to get comprehensive report first
+                ComprehensiveReport = await _studentReportService.GetComprehensiveReportAsync(userId);
+                
+                if (ComprehensiveReport?.Response != null)
+                {
+                    _logger.LogInformation("Successfully loaded comprehensive report for {Name}", 
+                        ComprehensiveReport.Response.ClientInfo.Name);
+                }
+                else
+                {
+                    // Fallback to basic student report
+                    _logger.LogInformation("Comprehensive report not available, falling back to basic report for userId: {UserId}", userId);
+                    StudentReport = await _studentReportService.GetStudentReportAsync(userId);
+                    
+                    if (StudentReport?.StudentData?.Interviews?.Any() == true)
+                    {
+                        _logger.LogInformation("First interview title: {Title}", StudentReport.StudentData.Interviews[0].Title);
+                    }
+                    else
+                    {
+                        _logger.LogInformation("No interviews found for userId: {UserId}", userId);
+                    }
+                }
+                
+                if (ComprehensiveReport == null && StudentReport == null)
+                {
+                    ErrorMessage = "Unable to load report data. Please try again later.";
+                    _logger.LogWarning("Both comprehensive and basic reports are null for userId: {UserId}", userId);
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error loading student report");
+                ErrorMessage = "An error occurred while loading the report. Please try again later.";
+            }
+            finally
+            {
+                IsLoading = false;
+            }
         }
     }
 }

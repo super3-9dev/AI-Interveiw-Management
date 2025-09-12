@@ -76,6 +76,20 @@ builder.Services.AddHttpClient<IInterviewCompletionService, InterviewCompletionS
 // Add Interview Analysis service
 builder.Services.AddHttpClient<IInterviewAnalysisService, InterviewAnalysisService>();
 
+// Add Student Report service
+builder.Services.AddHttpClient<IStudentReportService, StudentReportService>(client =>
+{
+    client.Timeout = TimeSpan.FromMinutes(5);
+    client.DefaultRequestHeaders.Add("User-Agent", "InterviewBot/1.0");
+})
+.ConfigurePrimaryHttpMessageHandler(() =>
+{
+    var handler = new HttpClientHandler();
+    // Handle SSL certificate issues
+    handler.ServerCertificateCustomValidationCallback = (message, cert, chain, errors) => true;
+    return handler;
+});
+
 // Database
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection"),
