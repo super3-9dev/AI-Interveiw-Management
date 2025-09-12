@@ -85,24 +85,24 @@ namespace InterviewBot.Pages
                 if (!hasAnalysisResults)
                 {
                     // If no analysis results, try to load stored interview results
-                    bool hasStoredResults = await LoadStoredInterviewResultAsync(userId.Value);
+                bool hasStoredResults = await LoadStoredInterviewResultAsync(userId.Value);
 
-                    if (!hasStoredResults)
+                if (!hasStoredResults)
+                {
+                    // If no stored results, load from catalog and save new results
+                    await LoadInterviewContentAsync();
+
+                    if (string.IsNullOrEmpty(InterviewTopic))
                     {
-                        // If no stored results, load from catalog and save new results
-                        await LoadInterviewContentAsync();
-
-                        if (string.IsNullOrEmpty(InterviewTopic))
-                        {
-                            ErrorMessage = "Interview not found or access denied.";
+                        ErrorMessage = "Interview not found or access denied.";
                             return RedirectToPage("/Dashboard", new { culture = GetCurrentCulture() });
-                        }
+                    }
 
-                        // Set the interview summary from query parameter
-                        if (!string.IsNullOrEmpty(Summary))
-                        {
-                            InterviewSummary = Summary;
-                        }
+                    // Set the interview summary from query parameter
+                    if (!string.IsNullOrEmpty(Summary))
+                    {
+                        InterviewSummary = Summary;
+                    }
                         else
                         {
                             // Generate default summary for voice interviews
@@ -112,15 +112,15 @@ namespace InterviewBot.Pages
                         // Set question count for voice interviews
                         QuestionCount = 10;
 
-                        // Update interview status to "Completed" when results page loads
-                        if (int.TryParse(InterviewId, out int catalogId))
-                        {
-                            Console.WriteLine($"Updating interview catalog {catalogId} status to Completed");
-                            var result = await _interviewCatalogService.UpdateInterviewCatalogStatusAsync(catalogId, "Completed");
-                            Console.WriteLine($"Status update result: {result}");
+                    // Update interview status to "Completed" when results page loads
+                    if (int.TryParse(InterviewId, out int catalogId))
+                    {
+                        Console.WriteLine($"Updating interview catalog {catalogId} status to Completed");
+                        var result = await _interviewCatalogService.UpdateInterviewCatalogStatusAsync(catalogId, "Completed");
+                        Console.WriteLine($"Status update result: {result}");
 
-                            // Save interview results to database
-                            await SaveInterviewResultsAsync(catalogId);
+                        // Save interview results to database
+                        await SaveInterviewResultsAsync(catalogId);
                         }
                     }
                 }

@@ -128,6 +128,12 @@
                             </a>
                         </li>
                         <li class="nav-item">
+                            <a href="/Report@(!string.IsNullOrEmpty(currentCulture) ? $"?culture={currentCulture}" : "")" class="nav-link" id="nav-report">
+                                <i class="bi bi-graph-up"></i>
+                                <span>@Localizer["Report"]</span>
+                            </a>
+                        </li>
+                        <li class="nav-item">
                             <a href="/CustomInterview@(!string.IsNullOrEmpty(currentCulture) ? $"?culture={currentCulture}" : "")" class="nav-link" id="nav-custominterview">
                                 <i class="bi bi-plus-circle"></i>
                                 <span>@Localizer["Custom Interview"]</span>
