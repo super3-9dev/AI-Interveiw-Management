@@ -1,7 +1,14 @@
 @page
 @model InterviewBot.Pages.ReportModel
+@using Microsoft.AspNetCore.Mvc.Localization
+@inject IViewLocalizer Localizer
 @{
-    ViewData["Title"] = "Coachee Tracking Dashboard";
+    ViewData["Title"] = Localizer["Coachee Tracking Dashboard"];
+    var currentCulture = HttpContext.Request.Query["culture"].ToString();
+    if (string.IsNullOrEmpty(currentCulture))
+    {
+        currentCulture = HttpContext.Request.Cookies["culture"] ?? "en";
+    }
 }
 
 @section Styles {
@@ -13,39 +20,221 @@
             font-family: 'Inter', sans-serif;
             background-color: #f3f4f6;
         }
+        
+        /* Main container padding */
+        .container-fluid {
+            padding: 2rem 2.5rem;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+        
+        /* Header section */
+        .dashboard-header {
+            margin-bottom: 3rem;
+            padding: 1.5rem 0;
+        }
+        
+        .dashboard-header h1 {
+            margin-bottom: 0.5rem;
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: #1f2937;
+        }
+        
+        .dashboard-header p {
+            font-size: 1.1rem;
+            color: #6b7280;
+            margin: 0;
+        }
+        
+        /* Card styling */
         .card {
             background-color: white;
             border-radius: 0.75rem;
             box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
             transition: all 0.3s ease;
-            margin-bottom: 1.5rem;
+            margin-bottom: 2rem;
+            border: 1px solid #e5e7eb;
         }
+        
         .card:hover {
-            transform: translateY(-5px);
+            transform: translateY(-2px);
             box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
         }
+        
+        .card h3, .card h4 {
+            margin-bottom: 1rem;
+            color: #1f2937;
+        }
+        
+        .card p {
+            margin-bottom: 1rem;
+            color: #6b7280;
+        }
+        
+        /* Section titles */
         .section-title {
-            font-size: 1.5rem;
+            font-size: 1.75rem;
             font-weight: 700;
             color: #1f2937;
-            margin: 2rem 0 1rem;
-            padding-bottom: 0.5rem;
-            border-bottom: 2px solid #e5e7eb;
+            margin: 3rem 0 2rem 0;
+            padding: 1rem 0;
+            border-bottom: 3px solid #3b82f6;
+            position: relative;
         }
+        
+        .section-title:first-child {
+            margin-top: 0;
+        }
+        
+        .section-title::before {
+            content: '';
+            position: absolute;
+            bottom: -3px;
+            left: 0;
+            width: 60px;
+            height: 3px;
+            background-color: #10b981;
+        }
+        
+        /* Chart containers */
         .chart-container {
             position: relative;
             height: 400px;
             width: 100%;
+            margin: 1rem 0;
+        }
+        
+        /* Row spacing */
+        .row {
+            margin-bottom: 2rem;
+        }
+        
+        .row:last-child {
+            margin-bottom: 0;
+        }
+        
+        /* Column spacing */
+        .col-12, .col-md-6, .col-lg-4, .col-lg-8 {
+            padding-left: 1rem;
+            padding-right: 1rem;
+        }
+        
+        /* Table styling */
+        .table {
+            margin-bottom: 0;
+        }
+        
+        .table thead th {
+            background-color: #f8f9fa;
+            border: none;
+            padding: 1rem;
+            font-weight: 600;
+            color: #374151;
+        }
+        
+        .table tbody td {
+            padding: 1rem;
+            vertical-align: top;
+            border-top: 1px solid #e5e7eb;
+        }
+        
+        .table tbody tr:hover {
+            background-color: #f9fafb;
+        }
+        
+        /* Progress bars */
+        .progress {
+            height: 10px;
+            border-radius: 5px;
+            background-color: #e5e7eb;
+        }
+        
+        .progress-bar {
+            border-radius: 5px;
+        }
+        
+        /* Goal tracking */
+        .goal-tracking {
+            padding: 0.5rem 0;
+        }
+        
+        .goal-item {
+            padding: 1rem 0;
+            border-bottom: 1px solid #f3f4f6;
+        }
+        
+        .goal-item:last-child {
+            border-bottom: none;
+        }
+        
+        /* Habit tracker */
+        .habit-tracker {
+            display: flex;
+            justify-content: space-between;
+            gap: 0.5rem;
+        }
+        
+        .habit-day {
+            flex: 1;
+            text-align: center;
+            padding: 0.75rem 0.5rem;
+            border-radius: 0.5rem;
+            font-weight: 600;
+            font-size: 0.875rem;
+        }
+        
+        /* Responsive adjustments */
+        @@media (max-width: 768px) {
+            .container-fluid {
+                padding: 1rem;
+            }
+            
+            .dashboard-header h1 {
+                font-size: 2rem;
+            }
+            
+            .section-title {
+                font-size: 1.5rem;
+                margin: 2rem 0 1.5rem 0;
+            }
+            
+            .chart-container {
+                height: 300px;
+            }
+            
+            .col-12, .col-md-6, .col-lg-4, .col-lg-8 {
+                padding-left: 0.5rem;
+                padding-right: 0.5rem;
+            }
+        }
+        
+        @@media (max-width: 576px) {
+            .container-fluid {
+                padding: 0.5rem;
+            }
+            
+            .dashboard-header {
+                margin-bottom: 2rem;
+            }
+            
+            .dashboard-header h1 {
+                font-size: 1.75rem;
+            }
+            
+            .chart-container {
+                height: 250px;
+            }
         }
     </style>
 }
 
 <div class="container-fluid">
     <!-- Header -->
-    <div class="d-flex justify-content-between align-items-center mb-4">
+    <div class="dashboard-header">
         <div>
-            <h1 class="h2">Coachee Tracking Dashboard</h1>
-            <p class="text-muted">Client: Ana Garcia | Process Started: @DateTime.Now.ToString("MMMM d, yyyy")</p>
+            <h1 style="text-align: center;">@Localizer["Coachee Tracking Dashboard"]</h1>
+            <p style="text-align: center;">@Localizer["Client: Ana Garcia | Process Started: {0}", DateTime.Now.ToString("MMMM d, yyyy")]</p>
         </div>
     </div>
 
@@ -94,21 +283,21 @@
                             <div class="col-md-6">
                                 <!-- Personal Information and Context -->
                                 <div class="mb-4">
-                                    <h4 class="h5 text-muted mb-3">Personal Information and Context</h4>
+                                    <h4 class="h5 text-muted mb-3">@Localizer["Personal Information and Context"]</h4>
                                     <div class="bg-light p-3 rounded border">
-                                        <p class="mb-2"><strong>History:</strong> Background in Social Sciences, switched from Law to Psychology. Strong family support.</p>
-                                        <p class="mb-2"><strong>Motivations:</strong> Driven by curiosity about human behavior and a desire to help.</p>
-                                        <p class="mb-0"><strong>Values:</strong> Honesty, commitment to excellence, and continuous learning.</p>
+                                        <p class="mb-2"><strong>@Localizer["History:"]</strong> @Localizer["Background in Social Sciences, switched from Law to Psychology. Strong family support."]</p>
+                                        <p class="mb-2"><strong>@Localizer["Motivations:"]</strong> @Localizer["Driven by curiosity about human behavior and a desire to help."]</p>
+                                        <p class="mb-0"><strong>@Localizer["Values:"]</strong> @Localizer["Honesty, commitment to excellence, and continuous learning."]</p>
                                     </div>
                                 </div>
                                 
                                 <!-- Perceptions and Experiences -->
                                 <div class="mb-4">
-                                    <h4 class="h5 text-muted mb-3">Perceptions and Experiences</h4>
+                                    <h4 class="h5 text-muted mb-3">@Localizer["Perceptions and Experiences"]</h4>
                                     <div class="bg-light p-3 rounded border">
-                                        <p class="mb-2"><strong>Learning:</strong> Prefers practical methods and debate; finds evaluations too theoretical.</p>
-                                        <p class="mb-2"><strong>Environment:</strong> Positive relationship with peers, though perceives competitiveness. Feels a sense of belonging.</p>
-                                        <p class="mb-0"><strong>Challenges:</strong> Time management during exams and anxiety in oral presentations.</p>
+                                        <p class="mb-2"><strong>@Localizer["Learning:"]</strong> @Localizer["Prefers practical methods and debate; finds evaluations too theoretical."]</p>
+                                        <p class="mb-2"><strong>@Localizer["Environment:"]</strong> @Localizer["Positive relationship with peers, though perceives competitiveness. Feels a sense of belonging."]</p>
+                                        <p class="mb-0"><strong>@Localizer["Challenges:"]</strong> @Localizer["Time management during exams and anxiety in oral presentations."]</p>
                                     </div>
                                 </div>
                             </div>
@@ -117,21 +306,21 @@
                             <div class="col-md-6">
                                 <!-- Skills and Competencies -->
                                 <div class="mb-4">
-                                    <h4 class="h5 text-muted mb-3">Skills and Competencies</h4>
+                                    <h4 class="h5 text-muted mb-3">@Localizer["Skills and Competencies"]</h4>
                                     <div class="bg-light p-3 rounded border">
-                                        <p class="mb-2"><strong>Strategies:</strong> Uses mind maps; needs to improve long-term planning.</p>
-                                        <p class="mb-2"><strong>Communication:</strong> Argues coherently and reflects on questions.</p>
-                                        <p class="mb-0"><strong>Self-assessment:</strong> Aware of her strength (empathy) and weakness (organization).</p>
+                                        <p class="mb-2"><strong>@Localizer["Strategies:"]</strong> @Localizer["Uses mind maps; needs to improve long-term planning."]</p>
+                                        <p class="mb-2"><strong>@Localizer["Communication:"]</strong> @Localizer["Argues coherently and reflects on questions."]</p>
+                                        <p class="mb-0"><strong>@Localizer["Self-assessment:"]</strong> @Localizer["Aware of her strength (empathy) and weakness (organization)."]</p>
                                     </div>
                                 </div>
 
                                 <!-- Attitudes and Emotions -->
                                 <div class="mb-4">
-                                    <h4 class="h5 text-muted mb-3">Attitudes and Emotions</h4>
+                                    <h4 class="h5 text-muted mb-3">@Localizer["Attitudes and Emotions"]</h4>
                                     <div class="bg-light p-3 rounded border">
-                                        <p class="mb-2"><strong>Satisfaction:</strong> Happy with her major (8/10), but not with the workload (5/10).</p>
-                                        <p class="mb-2"><strong>Emotional State:</strong> Enthusiasm is predominant, with peaks of stress.</p>
-                                        <p class="mb-0"><strong>Future:</strong> Optimistic and proactive attitude towards her opportunities.</p>
+                                        <p class="mb-2"><strong>@Localizer["Satisfaction:"]</strong> @Localizer["Happy with her major (8/10), but not with the workload (5/10)."]</p>
+                                        <p class="mb-2"><strong>@Localizer["Emotional State:"]</strong> @Localizer["Enthusiasm is predominant, with peaks of stress."]</p>
+                                        <p class="mb-0"><strong>@Localizer["Future:"]</strong> @Localizer["Optimistic and proactive attitude towards her opportunities."]</p>
                                     </div>
                                 </div>
                             </div>
@@ -149,31 +338,31 @@
                 <div class="col-lg-8 mb-4">
                     <div class="card h-100 p-4">
                         <h3 class="h4 mb-4">Goal Tracking (SMART)</h3>
-                        <div class="space-y-4">
-                            <div>
-                                <div class="d-flex justify-content-between mb-1">
-                                    <span class="font-weight-medium">Improve work-life balance</span>
+                        <div class="goal-tracking">
+                            <div class="goal-item mb-4">
+                                <div class="d-flex justify-content-between mb-2">
+                                    <span class="font-weight-medium">@Localizer["Improve work-life balance"]</span>
                                     <span class="text-primary font-weight-medium">75%</span>
                                 </div>
-                                <div class="progress" style="height: 8px;">
+                                <div class="progress">
                                     <div class="progress-bar bg-primary" role="progressbar" style="width: 75%" aria-valuenow="75" aria-valuemin="0" aria-valuemax="100"></div>
                                 </div>
                             </div>
-                            <div>
-                                <div class="d-flex justify-content-between mb-1">
-                                    <span class="font-weight-medium">Lead project meeting</span>
+                            <div class="goal-item mb-4">
+                                <div class="d-flex justify-content-between mb-2">
+                                    <span class="font-weight-medium">@Localizer["Lead project meeting"]</span>
                                     <span class="text-success font-weight-medium">100%</span>
                                 </div>
-                                <div class="progress" style="height: 8px;">
+                                <div class="progress">
                                     <div class="progress-bar bg-success" role="progressbar" style="width: 100%" aria-valuenow="100" aria-valuemin="0" aria-valuemax="100"></div>
                                 </div>
                             </div>
-                            <div>
-                                <div class="d-flex justify-content-between mb-1">
-                                    <span class="font-weight-medium">Establish exercise routine</span>
+                            <div class="goal-item mb-4">
+                                <div class="d-flex justify-content-between mb-2">
+                                    <span class="font-weight-medium">@Localizer["Establish exercise routine"]</span>
                                     <span class="text-warning font-weight-medium">40%</span>
                                 </div>
-                                <div class="progress" style="height: 8px;">
+                                <div class="progress">
                                     <div class="progress-bar bg-warning" role="progressbar" style="width: 40%" aria-valuenow="40" aria-valuemin="0" aria-valuemax="100"></div>
                                 </div>
                             </div>
@@ -185,15 +374,15 @@
                 <div class="col-lg-4 mb-4">
                     <div class="card h-100 p-4">
                         <h3 class="h4 mb-4">Habit Tracker (Weekly)</h3>
-                        <p class="text-muted mb-3">Habit: Meditate 10 min daily</p>
-                        <div class="d-flex justify-content-between text-center">
-                            <div class="p-2 rounded bg-light">M</div>
-                            <div class="p-2 rounded bg-success text-white font-weight-bold">T</div>
-                            <div class="p-2 rounded bg-success text-white font-weight-bold">W</div>
-                            <div class="p-2 rounded bg-light">T</div>
-                            <div class="p-2 rounded bg-success text-white font-weight-bold">F</div>
-                            <div class="p-2 rounded bg-success text-white font-weight-bold">S</div>
-                            <div class="p-2 rounded bg-light">S</div>
+                        <p class="text-muted mb-3">@Localizer["Habit: Meditate 10 min daily"]</p>
+                        <div class="habit-tracker">
+                            <div class="habit-day bg-light">M</div>
+                            <div class="habit-day bg-success text-white">T</div>
+                            <div class="habit-day bg-success text-white">W</div>
+                            <div class="habit-day bg-light">T</div>
+                            <div class="habit-day bg-success text-white">F</div>
+                            <div class="habit-day bg-success text-white">S</div>
+                            <div class="habit-day bg-light">S</div>
                         </div>
                     </div>
                 </div>

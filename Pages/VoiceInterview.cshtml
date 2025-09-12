@@ -1892,36 +1892,35 @@
                 }
             }
 
-            console.log('Calling CompleteInterview API...========================>');
             // Disconnect voice monitoring
             @* if (microphone && voiceMonitorDestination) {
                 microphone.disconnect(voiceMonitorDestination);
             } *@
-            // Call the CompleteInterview API
-            fetch('/VoiceInterview?handler=CompleteInterview&interviewId=' + interviewId, {
-                method: 'POST',
-                headers: {
-                    'RequestVerificationToken': document.querySelector('input[name="__RequestVerificationToken"]').value,
-                    'Content-Type': 'application/x-www-form-urlencoded',
-                }
-            })
-                .then(response => {
-                    if (response.ok) {
-                        // Get current culture and redirect to InterviewResults
-                        const currentCulture = new URLSearchParams(window.location.search).get('culture') || 'en';
-                        const interviewId = '@Model.InterviewId';
-                        window.location.href = `/InterviewResults?interviewId=${interviewId}&culture=${currentCulture}`;
-                    } else {
-                        throw new Error('Failed to complete interview');
+                // Call the CompleteInterview API
+                fetch('/VoiceInterview?handler=CompleteInterview&interviewId=' + interviewId, {
+                    method: 'POST',
+                    headers: {
+                        'RequestVerificationToken': document.querySelector('input[name="__RequestVerificationToken"]').value,
+                        'Content-Type': 'application/x-www-form-urlencoded',
                     }
                 })
-                .catch(error => {
-                    console.error('Error finishing interview:', error);
-                    alert('Error finishing interview. Please try again.');
-                    // Restore button state
-                    finishBtn.innerHTML = originalText;
-                    finishBtn.disabled = false;
-                });
+                    .then(response => {
+                        if (response.ok) {
+                            // Get current culture and redirect to InterviewResults
+                            const currentCulture = new URLSearchParams(window.location.search).get('culture') || 'en';
+                            const interviewId = '@Model.InterviewId';
+                            window.location.href = `/InterviewResults?interviewId=${interviewId}&culture=${currentCulture}`;
+                        } else {
+                            throw new Error('Failed to complete interview');
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error finishing interview:', error);
+                        alert('Error finishing interview. Please try again.');
+                        // Restore button state
+                        finishBtn.innerHTML = originalText;
+                        finishBtn.disabled = false;
+                    });
         }
     }
 
