@@ -167,4 +167,106 @@
   <data name="There is no report data available at this time. Please try again later." xml:space="preserve">
     <value>No hay datos de informe disponibles en este momento. Por favor, inténtalo de nuevo más tarde.</value>
   </data>
+  <data name="1. Initial Assessments and Self-Knowledge" xml:space="preserve">
+    <value>1. Evaluaciones Iniciales y Autoconocimiento</value>
+  </data>
+  <data name="2. Goal and Progress Tracking" xml:space="preserve">
+    <value>2. Seguimiento de Objetivos y Progreso</value>
+  </data>
+  <data name="3. Well-being and Emotional State Assessments" xml:space="preserve">
+    <value>3. Evaluaciones de Bienestar y Estado Emocional</value>
+  </data>
+  <data name="4. Reflection Log" xml:space="preserve">
+    <value>4. Registro de Reflexiones</value>
+  </data>
+  <data name="5. Feedback and Competency Assessments" xml:space="preserve">
+    <value>5. Evaluaciones de Retroalimentación y Competencias</value>
+  </data>
+  <data name="Wheel of Life" xml:space="preserve">
+    <value>Rueda de la Vida</value>
+  </data>
+  <data name="Comparison between current and desired satisfaction." xml:space="preserve">
+    <value>Comparación entre la satisfacción actual y la deseada.</value>
+  </data>
+  <data name="Personality Analysis (DISC)" xml:space="preserve">
+    <value>Análisis de Personalidad (DISC)</value>
+  </data>
+  <data name="Strengths Analysis (Top 5)" xml:space="preserve">
+    <value>Análisis de Fortalezas (Top 5)</value>
+  </data>
+  <data name="Qualitative Interview Analysis" xml:space="preserve">
+    <value>Análisis Cualitativo de Entrevistas</value>
+  </data>
+  <data name="Goal Tracking (SMART)" xml:space="preserve">
+    <value>Seguimiento de Objetivos (SMART)</value>
+  </data>
+  <data name="Habit Tracker (Weekly)" xml:space="preserve">
+    <value>Rastreador de Hábitos (Semanal)</value>
+  </data>
+  <data name="Well-being Surveys (Trend)" xml:space="preserve">
+    <value>Encuestas de Bienestar (Tendencia)</value>
+  </data>
+  <data name="Evolution of Key Emotions" xml:space="preserve">
+    <value>Evolución de Emociones Clave</value>
+  </data>
+  <data name="Evolution of General Sentiment" xml:space="preserve">
+    <value>Evolución del Sentimiento General</value>
+  </data>
+  <data name="Tracking the overall attitude session by session." xml:space="preserve">
+    <value>Seguimiento de la actitud general sesión por sesión.</value>
+  </data>
+  <data name="Emotion Map per Session" xml:space="preserve">
+    <value>Mapa de Emociones por Sesión</value>
+  </data>
+  <data name="Visualization of the intensity and frequency of key emotions in each session." xml:space="preserve">
+    <value>Visualización de la intensidad y frecuencia de emociones clave en cada sesión.</value>
+  </data>
+  <data name="Emotion Log (Monthly)" xml:space="preserve">
+    <value>Registro de Emociones (Mensual)</value>
+  </data>
+  <data name="Sentiment Analysis" xml:space="preserve">
+    <value>Análisis de Sentimientos</value>
+  </data>
+  <data name="Key Emotion Analysis" xml:space="preserve">
+    <value>Análisis de Emociones Clave</value>
+  </data>
+  <data name="Reflection Title" xml:space="preserve">
+    <value>Título de Reflexión</value>
+  </data>
+  <data name="Date" xml:space="preserve">
+    <value>Fecha</value>
+  </data>
+  <data name="Summary" xml:space="preserve">
+    <value>Resumen</value>
+  </data>
+  <data name="360° Feedback Assessment" xml:space="preserve">
+    <value>Evaluación de Retroalimentación 360°</value>
+  </data>
+  <data name="Competency Assessment (Before and After)" xml:space="preserve">
+    <value>Evaluación de Competencias (Antes y Después)</value>
+  </data>
+  <data name="Report Filter" xml:space="preserve">
+    <value>Filtro de Informe</value>
+  </data>
+  <data name="Select a date range to generate your personalized report" xml:space="preserve">
+    <value>Selecciona un rango de fechas para generar tu informe personalizado</value>
+  </data>
+  <data name="From Date" xml:space="preserve">
+    <value>Fecha Desde</value>
+  </data>
+  <data name="To Date" xml:space="preserve">
+    <value>Fecha Hasta</value>
+  </data>
+  <data name="Include all available data (ignore date filter)" xml:space="preserve">
+    <value>Incluir todos los datos disponibles (ignorar filtro de fecha)</value>
+  </data>
+  <data name="Back" xml:space="preserve">
+    <value>Atrás</value>
+  </data>
+  <data name="View Report" xml:space="preserve">
+    <value>Ver Informe</value>
+  </data>
+  <data name="Filter Report" xml:space="preserve">
+    <value>Filtrar Informe</value>
+  </data>
 </root>

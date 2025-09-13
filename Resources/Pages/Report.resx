@@ -167,4 +167,106 @@
   <data name="There is no report data available at this time. Please try again later." xml:space="preserve">
     <value>There is no report data available at this time. Please try again later.</value>
   </data>
+  <data name="1. Initial Assessments and Self-Knowledge" xml:space="preserve">
+    <value>1. Initial Assessments and Self-Knowledge</value>
+  </data>
+  <data name="2. Goal and Progress Tracking" xml:space="preserve">
+    <value>2. Goal and Progress Tracking</value>
+  </data>
+  <data name="3. Well-being and Emotional State Assessments" xml:space="preserve">
+    <value>3. Well-being and Emotional State Assessments</value>
+  </data>
+  <data name="4. Reflection Log" xml:space="preserve">
+    <value>4. Reflection Log</value>
+  </data>
+  <data name="5. Feedback and Competency Assessments" xml:space="preserve">
+    <value>5. Feedback and Competency Assessments</value>
+  </data>
+  <data name="Wheel of Life" xml:space="preserve">
+    <value>Wheel of Life</value>
+  </data>
+  <data name="Comparison between current and desired satisfaction." xml:space="preserve">
+    <value>Comparison between current and desired satisfaction.</value>
+  </data>
+  <data name="Personality Analysis (DISC)" xml:space="preserve">
+    <value>Personality Analysis (DISC)</value>
+  </data>
+  <data name="Strengths Analysis (Top 5)" xml:space="preserve">
+    <value>Strengths Analysis (Top 5)</value>
+  </data>
+  <data name="Qualitative Interview Analysis" xml:space="preserve">
+    <value>Qualitative Interview Analysis</value>
+  </data>
+  <data name="Goal Tracking (SMART)" xml:space="preserve">
+    <value>Goal Tracking (SMART)</value>
+  </data>
+  <data name="Habit Tracker (Weekly)" xml:space="preserve">
+    <value>Habit Tracker (Weekly)</value>
+  </data>
+  <data name="Well-being Surveys (Trend)" xml:space="preserve">
+    <value>Well-being Surveys (Trend)</value>
+  </data>
+  <data name="Evolution of Key Emotions" xml:space="preserve">
+    <value>Evolution of Key Emotions</value>
+  </data>
+  <data name="Evolution of General Sentiment" xml:space="preserve">
+    <value>Evolution of General Sentiment</value>
+  </data>
+  <data name="Tracking the overall attitude session by session." xml:space="preserve">
+    <value>Tracking the overall attitude session by session.</value>
+  </data>
+  <data name="Emotion Map per Session" xml:space="preserve">
+    <value>Emotion Map per Session</value>
+  </data>
+  <data name="Visualization of the intensity and frequency of key emotions in each session." xml:space="preserve">
+    <value>Visualization of the intensity and frequency of key emotions in each session.</value>
+  </data>
+  <data name="Emotion Log (Monthly)" xml:space="preserve">
+    <value>Emotion Log (Monthly)</value>
+  </data>
+  <data name="Sentiment Analysis" xml:space="preserve">
+    <value>Sentiment Analysis</value>
+  </data>
+  <data name="Key Emotion Analysis" xml:space="preserve">
+    <value>Key Emotion Analysis</value>
+  </data>
+  <data name="Reflection Title" xml:space="preserve">
+    <value>Reflection Title</value>
+  </data>
+  <data name="Date" xml:space="preserve">
+    <value>Date</value>
+  </data>
+  <data name="Summary" xml:space="preserve">
+    <value>Summary</value>
+  </data>
+  <data name="360° Feedback Assessment" xml:space="preserve">
+    <value>360° Feedback Assessment</value>
+  </data>
+  <data name="Competency Assessment (Before and After)" xml:space="preserve">
+    <value>Competency Assessment (Before and After)</value>
+  </data>
+  <data name="Report Filter" xml:space="preserve">
+    <value>Report Filter</value>
+  </data>
+  <data name="Select a date range to generate your personalized report" xml:space="preserve">
+    <value>Select a date range to generate your personalized report</value>
+  </data>
+  <data name="From Date" xml:space="preserve">
+    <value>From Date</value>
+  </data>
+  <data name="To Date" xml:space="preserve">
+    <value>To Date</value>
+  </data>
+  <data name="Include all available data (ignore date filter)" xml:space="preserve">
+    <value>Include all available data (ignore date filter)</value>
+  </data>
+  <data name="Back" xml:space="preserve">
+    <value>Back</value>
+  </data>
+  <data name="View Report" xml:space="preserve">
+    <value>View Report</value>
+  </data>
+  <data name="Filter Report" xml:space="preserve">
+    <value>Filter Report</value>
+  </data>
 </root>

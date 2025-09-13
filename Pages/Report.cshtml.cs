@@ -23,9 +23,15 @@ namespace InterviewBot.Pages
         public StudentReportResponse? StudentReport { get; set; }
         public bool IsLoading { get; set; } = true;
         public string? ErrorMessage { get; set; }
+        public DateTime? FromDate { get; set; }
+        public DateTime? ToDate { get; set; }
+        public bool IncludeAllData { get; set; } = false;
 
-        public async Task OnGetAsync()
+        public async Task OnGetAsync(DateTime? fromDate = null, DateTime? toDate = null, bool includeAll = false)
         {
+            FromDate = fromDate;
+            ToDate = toDate;
+            IncludeAllData = includeAll;
             await LoadStudentReport();
         }
 
@@ -45,9 +51,10 @@ namespace InterviewBot.Pages
                 // Get the current user ID from claims
                 var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? "9"; // Default to "9" for testing (matching the Postman example)
                 
-                _logger.LogInformation("Loading student report for userId: {UserId}", userId);
+                _logger.LogInformation("Loading student report for userId: {UserId}, FromDate: {FromDate}, ToDate: {ToDate}, IncludeAll: {IncludeAll}", 
+                    userId, FromDate, ToDate, IncludeAllData);
                 
-                StudentReport = await _studentReportService.GetStudentReportAsync(userId);
+                StudentReport = await _studentReportService.GetStudentReportAsync(userId, FromDate, ToDate, IncludeAllData);
                 
                 if (StudentReport?.Response != null)
                 {

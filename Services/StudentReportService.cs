@@ -20,15 +20,19 @@ namespace InterviewBot.Services
         }
 
 
-        public async Task<StudentReportResponse?> GetStudentReportAsync(string userId)
+        public async Task<StudentReportResponse?> GetStudentReportAsync(string userId, DateTime? fromDate = null, DateTime? toDate = null, bool includeAllData = false)
         {
             try
             {
-                _logger.LogInformation("Calling getStudentReport API for userId: {UserId}", userId);
+                _logger.LogInformation("Calling getStudentReport API for userId: {UserId}, FromDate: {FromDate}, ToDate: {ToDate}, IncludeAll: {IncludeAll}", 
+                    userId, fromDate, toDate, includeAllData);
 
                 var requestBody = new
                 {
-                    userId = userId
+                    userId = userId,
+                    fromDate = fromDate?.ToString("yyyy-MM-dd"),
+                    toDate = toDate?.ToString("yyyy-MM-dd"),
+                    includeAllData = includeAllData
                 };
 
                 var json = JsonSerializer.Serialize(requestBody);
@@ -38,7 +42,7 @@ namespace InterviewBot.Services
                 if (response.IsSuccessStatusCode)
                 {
                     var responseContent = await response.Content.ReadAsStringAsync();
-                Console.WriteLine("response====================>" + responseContent);
+                    Console.WriteLine("response====================>" + responseContent);
                     _logger.LogInformation("API response received successfully");
                     
                     var options = new JsonSerializerOptions
