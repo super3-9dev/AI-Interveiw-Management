@@ -21,7 +21,6 @@ namespace InterviewBot.Pages
         }
 
         public StudentReportResponse? StudentReport { get; set; }
-        public ComprehensiveReportResponse? ComprehensiveReport { get; set; }
         public bool IsLoading { get; set; } = true;
         public string? ErrorMessage { get; set; }
 
@@ -46,36 +45,24 @@ namespace InterviewBot.Pages
                 // Get the current user ID from claims
                 var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? "9"; // Default to "9" for testing (matching the Postman example)
                 
-                _logger.LogInformation("Loading comprehensive report for userId: {UserId}", userId);
+                _logger.LogInformation("Loading student report for userId: {UserId}", userId);
                 
-                // Try to get comprehensive report first
-                ComprehensiveReport = await _studentReportService.GetComprehensiveReportAsync(userId);
+                StudentReport = await _studentReportService.GetStudentReportAsync(userId);
                 
-                if (ComprehensiveReport?.Response != null)
+                if (StudentReport?.Response != null)
                 {
-                    _logger.LogInformation("Successfully loaded comprehensive report for {Name}", 
-                        ComprehensiveReport.Response.ClientInfo.Name);
+                    _logger.LogInformation("Successfully loaded student report for {Name}", 
+                        StudentReport.Response.ClientInfo.Name);
                 }
                 else
                 {
-                    // Fallback to basic student report
-                    _logger.LogInformation("Comprehensive report not available, falling back to basic report for userId: {UserId}", userId);
-                    StudentReport = await _studentReportService.GetStudentReportAsync(userId);
-                    
-                    if (StudentReport?.StudentData?.Interviews?.Any() == true)
-                    {
-                        _logger.LogInformation("First interview title: {Title}", StudentReport.StudentData.Interviews[0].Title);
-                    }
-                    else
-                    {
-                        _logger.LogInformation("No interviews found for userId: {UserId}", userId);
-                    }
+                    _logger.LogInformation("No report data found for userId: {UserId}", userId);
                 }
                 
-                if (ComprehensiveReport == null && StudentReport == null)
+                if (StudentReport == null)
                 {
                     ErrorMessage = "Unable to load report data. Please try again later.";
-                    _logger.LogWarning("Both comprehensive and basic reports are null for userId: {UserId}", userId);
+                    _logger.LogWarning("StudentReport is null for userId: {UserId}", userId);
                 }
             }
             catch (Exception ex)

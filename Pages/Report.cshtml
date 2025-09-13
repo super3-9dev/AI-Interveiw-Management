@@ -18,68 +18,74 @@
         /* Custom styles and base typography */
         body {
             font-family: 'Inter', sans-serif;
-            background-color: #f3f4f6;
+            background-color: #f8f9fa;
+            font-size: 14px;
+            line-height: 1.5;
         }
         
         /* Main container padding */
         .container-fluid {
-            padding: 2rem 2.5rem;
-            max-width: 1400px;
+            padding: 1.5rem 2rem;
+            max-width: 1200px;
             margin: 0 auto;
         }
         
         /* Header section */
         .dashboard-header {
-            margin-bottom: 3rem;
-            padding: 1.5rem 0;
+            margin-bottom: 2rem;
+            padding: 1rem 0;
         }
         
         .dashboard-header h1 {
             margin-bottom: 0.5rem;
-            font-size: 2.5rem;
-            font-weight: 700;
+            font-size: 1.875rem;
+            font-weight: 600;
             color: #1f2937;
+            text-align: center;
         }
         
         .dashboard-header p {
-            font-size: 1.1rem;
+            font-size: 0.875rem;
             color: #6b7280;
             margin: 0;
+            text-align: center;
         }
         
         /* Card styling */
         .card {
             background-color: white;
-            border-radius: 0.75rem;
-            box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
-            transition: all 0.3s ease;
-            margin-bottom: 2rem;
+            border-radius: 0.5rem;
+            box-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
+            transition: all 0.2s ease;
+            margin-bottom: 1.25rem;
             border: 1px solid #e5e7eb;
         }
         
         .card:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+            box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
         }
         
         .card h3, .card h4 {
-            margin-bottom: 1rem;
+            margin-bottom: 0.75rem;
             color: #1f2937;
+            font-size: 1.125rem;
+            font-weight: 600;
         }
         
         .card p {
-            margin-bottom: 1rem;
+            margin-bottom: 0.75rem;
             color: #6b7280;
+            font-size: 0.875rem;
         }
         
         /* Section titles */
         .section-title {
-            font-size: 1.75rem;
-            font-weight: 700;
+            font-size: 1.5rem;
+            font-weight: 600;
             color: #1f2937;
-            margin: 3rem 0 2rem 0;
-            padding: 1rem 0;
-            border-bottom: 3px solid #3b82f6;
+            margin: 2.5rem 0 1.75rem 0;
+            padding: 0.75rem 0;
+            border-bottom: 2px solid #e5e7eb;
             position: relative;
         }
         
@@ -90,24 +96,24 @@
         .section-title::before {
             content: '';
             position: absolute;
-            bottom: -3px;
+            bottom: -2px;
             left: 0;
-            width: 60px;
-            height: 3px;
-            background-color: #10b981;
+            width: 40px;
+            height: 2px;
+            background-color: #3b82f6;
         }
         
         /* Chart containers */
         .chart-container {
             position: relative;
-            height: 400px;
+            height: 300px;
             width: 100%;
-            margin: 1rem 0;
+            margin: 0.5rem 0;
         }
         
         /* Row spacing */
         .row {
-            margin-bottom: 2rem;
+            margin-bottom: 1.25rem;
         }
         
         .row:last-child {
@@ -116,27 +122,30 @@
         
         /* Column spacing */
         .col-12, .col-md-6, .col-lg-4, .col-lg-8 {
-            padding-left: 1rem;
-            padding-right: 1rem;
+            padding-left: 0.75rem;
+            padding-right: 0.75rem;
         }
         
         /* Table styling */
         .table {
             margin-bottom: 0;
+            font-size: 0.875rem;
         }
         
         .table thead th {
             background-color: #f8f9fa;
             border: none;
-            padding: 1rem;
+            padding: 0.75rem;
             font-weight: 600;
             color: #374151;
+            font-size: 0.875rem;
         }
         
         .table tbody td {
-            padding: 1rem;
+            padding: 0.75rem;
             vertical-align: top;
             border-top: 1px solid #e5e7eb;
+            font-size: 0.875rem;
         }
         
         .table tbody tr:hover {
@@ -145,22 +154,36 @@
         
         /* Progress bars */
         .progress {
-            height: 10px;
-            border-radius: 5px;
+            height: 8px;
+            border-radius: 4px;
             background-color: #e5e7eb;
+            box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.1);
         }
         
         .progress-bar {
-            border-radius: 5px;
+            border-radius: 4px;
+            transition: width 0.6s ease;
+        }
+        
+        .progress-bar.bg-primary {
+            background: linear-gradient(90deg, #3b82f6, #1d4ed8);
+        }
+        
+        .progress-bar.bg-success {
+            background: linear-gradient(90deg, #10b981, #059669);
+        }
+        
+        .progress-bar.bg-warning {
+            background: linear-gradient(90deg, #f59e0b, #d97706);
         }
         
         /* Goal tracking */
         .goal-tracking {
-            padding: 0.5rem 0;
+            padding: 0.25rem 0;
         }
         
         .goal-item {
-            padding: 1rem 0;
+            padding: 0.75rem 0;
             border-bottom: 1px solid #f3f4f6;
         }
         
@@ -172,24 +195,30 @@
         .habit-tracker {
             display: flex;
             justify-content: space-between;
-            gap: 0.5rem;
+            gap: 0.25rem;
         }
         
         .habit-day {
             flex: 1;
             text-align: center;
-            padding: 0.75rem 0.5rem;
-            border-radius: 0.5rem;
+            padding: 0.5rem 0.25rem;
+            border-radius: 0.25rem;
             font-weight: 600;
-            font-size: 0.875rem;
+            font-size: 0.75rem;
+            min-width: 32px;
+            transition: all 0.2s ease;
+        }
+        
+        .habit-day:hover {
+            transform: translateY(-1px);
         }
         
         /* Interview summary styling */
         .interview-summary {
             background-color: #f8f9fa;
-            padding: 1.5rem;
-            border-radius: 0.5rem;
-            border-left: 4px solid #3b82f6;
+            padding: 1rem;
+            border-radius: 0.375rem;
+            border-left: 3px solid #3b82f6;
         }
         
         .interview-summary h6 {
@@ -197,12 +226,13 @@
             color: #6b7280;
             text-transform: uppercase;
             letter-spacing: 0.05em;
-            font-size: 0.875rem;
+            font-size: 0.75rem;
         }
         
         .interview-summary p {
-            line-height: 1.6;
+            line-height: 1.5;
             color: #374151;
+            font-size: 0.875rem;
         }
         
         .card-header {
@@ -212,7 +242,50 @@
         
         .badge {
             font-size: 0.75rem;
-            padding: 0.5rem 0.75rem;
+            padding: 0.375rem 0.5rem;
+        }
+        
+        /* Key Emotion Analysis specific styling */
+        .key-emotion-item {
+            display: flex;
+            align-items: center;
+            margin-bottom: 1.25rem;
+            padding: 0.5rem 0;
+        }
+        
+        .key-emotion-item:last-child {
+            margin-bottom: 0;
+        }
+        
+        .key-emotion-icon {
+            font-size: 1.75rem;
+            margin-right: 1rem;
+            flex-shrink: 0;
+        }
+        
+        .key-emotion-content {
+            flex-grow: 1;
+        }
+        
+        .key-emotion-label {
+            font-weight: 600;
+            color: #374151;
+            margin-bottom: 0.75rem;
+            font-size: 0.875rem;
+        }
+        
+        .key-emotion-progress {
+            width: 100%;
+            height: 8px;
+            background-color: #e5e7eb;
+            border-radius: 4px;
+            overflow: hidden;
+        }
+        
+        .key-emotion-progress-bar {
+            height: 100%;
+            border-radius: 4px;
+            transition: width 0.6s ease;
         }
         
         /* Responsive adjustments */
@@ -222,16 +295,16 @@
             }
             
             .dashboard-header h1 {
-                font-size: 2rem;
+                font-size: 1.5rem;
             }
             
             .section-title {
-                font-size: 1.5rem;
-                margin: 2rem 0 1.5rem 0;
+                font-size: 1.25rem;
+                margin: 1.5rem 0 1rem 0;
             }
             
             .chart-container {
-                height: 300px;
+                height: 250px;
             }
             
             .col-12, .col-md-6, .col-lg-4, .col-lg-8 {
@@ -242,19 +315,19 @@
         
         @@media (max-width: 576px) {
             .container-fluid {
-                padding: 0.5rem;
+                padding: 0.75rem;
             }
             
             .dashboard-header {
-                margin-bottom: 2rem;
+                margin-bottom: 1.5rem;
             }
             
             .dashboard-header h1 {
-                font-size: 1.75rem;
+                font-size: 1.25rem;
             }
             
             .chart-container {
-                height: 250px;
+                height: 200px;
             }
         }
     </style>
@@ -269,13 +342,9 @@
             {
                 <p style="text-align: center;" class="text-muted">@Localizer["Loading report data..."]</p>
             }
-            else if (Model.ComprehensiveReport?.Response?.ClientInfo != null)
+            else if (Model.StudentReport?.Response?.ClientInfo != null)
             {
-                <p style="text-align: center;">@Localizer["Client: {0} | Process Started: {1}", Model.ComprehensiveReport.Response.ClientInfo.Name, Model.ComprehensiveReport.Response.ClientInfo.ProcessStartDate]</p>
-            }
-            else if (Model.StudentReport?.StudentData != null)
-            {
-                <p style="text-align: center;">@Localizer["Client: {0} | Process Started: {1}", Model.StudentReport.StudentData.FullName, Model.StudentReport.StudentData.ProcessDate]</p>
+                <p style="text-align: center;">@Localizer["Client: {0} | Process Started: {1}", Model.StudentReport.Response.ClientInfo.Name, Model.StudentReport.Response.ClientInfo.ProcessStartDate]</p>
             }
             else
             {
@@ -300,7 +369,7 @@
             @Model.ErrorMessage
         </div>
     }
-    else if (Model.ComprehensiveReport?.Response != null)
+    else if (Model.StudentReport?.Response != null)
     {
         <!-- Display Comprehensive Report Data -->
         <div class="row">
@@ -350,9 +419,9 @@
                                     <div class="mb-4">
                                         <h4 class="h5 text-muted mb-3">@Localizer["Personal Information and Context"]</h4>
                                         <div class="bg-light p-3 rounded border">
-                                            <p class="mb-2"><strong>@Localizer["History:"]</strong> @Model.ComprehensiveReport.Response.InitialAssessments.QualitativeAnalysis.PersonalContext.History</p>
-                                            <p class="mb-2"><strong>@Localizer["Motivations:"]</strong> @Model.ComprehensiveReport.Response.InitialAssessments.QualitativeAnalysis.PersonalContext.Motivations</p>
-                                            <p class="mb-0"><strong>@Localizer["Values:"]</strong> @Model.ComprehensiveReport.Response.InitialAssessments.QualitativeAnalysis.PersonalContext.Values</p>
+                                            <p class="mb-2"><strong>@Localizer["History:"]</strong> @Model.StudentReport.Response.InitialAssessments.QualitativeAnalysis.PersonalContext.History</p>
+                                            <p class="mb-2"><strong>@Localizer["Motivations:"]</strong> @Model.StudentReport.Response.InitialAssessments.QualitativeAnalysis.PersonalContext.Motivations</p>
+                                            <p class="mb-0"><strong>@Localizer["Values:"]</strong> @Model.StudentReport.Response.InitialAssessments.QualitativeAnalysis.PersonalContext.Values</p>
                                         </div>
                                     </div>
                                     
@@ -360,9 +429,9 @@
                                     <div class="mb-4">
                                         <h4 class="h5 text-muted mb-3">@Localizer["Perceptions and Experiences"]</h4>
                                         <div class="bg-light p-3 rounded border">
-                                            <p class="mb-2"><strong>@Localizer["Learning:"]</strong> @Model.ComprehensiveReport.Response.InitialAssessments.QualitativeAnalysis.Perceptions.Learning</p>
-                                            <p class="mb-2"><strong>@Localizer["Environment:"]</strong> @Model.ComprehensiveReport.Response.InitialAssessments.QualitativeAnalysis.Perceptions.Environment</p>
-                                            <p class="mb-0"><strong>@Localizer["Challenges:"]</strong> @Model.ComprehensiveReport.Response.InitialAssessments.QualitativeAnalysis.Perceptions.Challenges</p>
+                                            <p class="mb-2"><strong>@Localizer["Learning:"]</strong> @Model.StudentReport.Response.InitialAssessments.QualitativeAnalysis.Perceptions.Learning</p>
+                                            <p class="mb-2"><strong>@Localizer["Environment:"]</strong> @Model.StudentReport.Response.InitialAssessments.QualitativeAnalysis.Perceptions.Environment</p>
+                                            <p class="mb-0"><strong>@Localizer["Challenges:"]</strong> @Model.StudentReport.Response.InitialAssessments.QualitativeAnalysis.Perceptions.Challenges</p>
                                         </div>
                                     </div>
                                 </div>
@@ -373,9 +442,9 @@
                                     <div class="mb-4">
                                         <h4 class="h5 text-muted mb-3">@Localizer["Skills and Competencies"]</h4>
                                         <div class="bg-light p-3 rounded border">
-                                            <p class="mb-2"><strong>@Localizer["Strategies:"]</strong> @Model.ComprehensiveReport.Response.InitialAssessments.QualitativeAnalysis.Skills.Strategies</p>
-                                            <p class="mb-2"><strong>@Localizer["Communication:"]</strong> @Model.ComprehensiveReport.Response.InitialAssessments.QualitativeAnalysis.Skills.Communication</p>
-                                            <p class="mb-0"><strong>@Localizer["Self-assessment:"]</strong> @Model.ComprehensiveReport.Response.InitialAssessments.QualitativeAnalysis.Skills.SelfAssessment</p>
+                                            <p class="mb-2"><strong>@Localizer["Strategies:"]</strong> @Model.StudentReport.Response.InitialAssessments.QualitativeAnalysis.Skills.Strategies</p>
+                                            <p class="mb-2"><strong>@Localizer["Communication:"]</strong> @Model.StudentReport.Response.InitialAssessments.QualitativeAnalysis.Skills.Communication</p>
+                                            <p class="mb-0"><strong>@Localizer["Self-assessment:"]</strong> @Model.StudentReport.Response.InitialAssessments.QualitativeAnalysis.Skills.SelfAssessment</p>
                                         </div>
                                     </div>
 
@@ -383,9 +452,9 @@
                                     <div class="mb-4">
                                         <h4 class="h5 text-muted mb-3">@Localizer["Attitudes and Emotions"]</h4>
                                         <div class="bg-light p-3 rounded border">
-                                            <p class="mb-2"><strong>@Localizer["Satisfaction:"]</strong> @Model.ComprehensiveReport.Response.InitialAssessments.QualitativeAnalysis.Attitudes.Satisfaction</p>
-                                            <p class="mb-2"><strong>@Localizer["Emotional State:"]</strong> @Model.ComprehensiveReport.Response.InitialAssessments.QualitativeAnalysis.Attitudes.EmotionalState</p>
-                                            <p class="mb-0"><strong>@Localizer["Future:"]</strong> @Model.ComprehensiveReport.Response.InitialAssessments.QualitativeAnalysis.Attitudes.Future</p>
+                                            <p class="mb-2"><strong>@Localizer["Satisfaction:"]</strong> @Model.StudentReport.Response.InitialAssessments.QualitativeAnalysis.Attitudes.Satisfaction</p>
+                                            <p class="mb-2"><strong>@Localizer["Emotional State:"]</strong> @Model.StudentReport.Response.InitialAssessments.QualitativeAnalysis.Attitudes.EmotionalState</p>
+                                            <p class="mb-0"><strong>@Localizer["Future:"]</strong> @Model.StudentReport.Response.InitialAssessments.QualitativeAnalysis.Attitudes.Future</p>
                                         </div>
                                     </div>
                                 </div>
@@ -404,15 +473,21 @@
                         <div class="card h-100 p-4">
                             <h3 class="h4 mb-4">Goal Tracking (SMART)</h3>
                             <div class="goal-tracking">
-                                @foreach (var goal in Model.ComprehensiveReport.Response.ProgressTracking.Goals)
+                                @{
+                                    var goals = Model.StudentReport.Response.ProgressTracking.Goals;
+                                    var goalColors = new[] { "bg-primary", "bg-success", "bg-warning" };
+                                }
+                                @for (int i = 0; i < goals.Count; i++)
                                 {
+                                    var goal = goals[i];
+                                    var colorClass = i < goalColors.Length ? goalColors[i] : "bg-primary";
                                     <div class="goal-item mb-4">
                                         <div class="d-flex justify-content-between mb-2">
                                             <span class="font-weight-medium">@goal.Title</span>
-                                            <span class="text-primary font-weight-medium">@goal.Percentage%</span>
+                                            <span class="@(colorClass.Replace("bg-", "text-")) font-weight-medium">@goal.Percentage%</span>
                                         </div>
                                         <div class="progress">
-                                            <div class="progress-bar bg-primary" role="progressbar" style="width: @goal.Percentage%" aria-valuenow="@goal.Percentage" aria-valuemin="0" aria-valuemax="100"></div>
+                                            <div class="progress-bar @colorClass" role="progressbar" style="width: @goal.Percentage%;" aria-valuenow="@goal.Percentage" aria-valuemin="0" aria-valuemax="100"></div>
                                         </div>
                                     </div>
                                 }
@@ -424,16 +499,16 @@
                     <div class="col-lg-4 mb-4">
                         <div class="card h-100 p-4">
                             <h3 class="h4 mb-4">Habit Tracker (Weekly)</h3>
-                            <p class="text-muted mb-3">@Model.ComprehensiveReport.Response.ProgressTracking.HabitTracker.HabitName</p>
+                            <p class="text-muted mb-3">@Model.StudentReport.Response.ProgressTracking.HabitTracker.HabitName</p>
                             <div class="habit-tracker">
                                 @{
                                     var days = new[] { "M", "T", "W", "T", "F", "S", "S" };
                                 }
                                 @for (int i = 0; i < days.Length; i++)
                                 {
-                                    var isCompleted = i < Model.ComprehensiveReport.Response.ProgressTracking.HabitTracker.WeeklyStatus.Count && 
-                                                    Model.ComprehensiveReport.Response.ProgressTracking.HabitTracker.WeeklyStatus[i];
-                                    <div class="habit-day @(isCompleted ? "bg-success text-white" : "bg-light")">@days[i]</div>
+                                    var isCompleted = i < Model.StudentReport.Response.ProgressTracking.HabitTracker.WeeklyStatus.Count && 
+                                                    Model.StudentReport.Response.ProgressTracking.HabitTracker.WeeklyStatus[i];
+                                    <div class="habit-day @(isCompleted ? "bg-success text-white" : "bg-light text-dark")" style="border: 1px solid #e5e7eb;">@days[i]</div>
                                 }
                             </div>
                         </div>
@@ -454,6 +529,25 @@
                                 <canvas id="progressChart"></canvas>
                             </div>
                         </div>
+
+                        <!-- Evolution of Key Emotions -->
+                        <div class="card p-4 mb-4">
+                            <h3 class="h4 mb-3">Evolution of Key Emotions</h3>
+                            <div class="chart-container">
+                                <canvas id="emotionProgressChart"></canvas>
+                            </div>
+                        </div>
+
+                        <!-- Evolution of General Sentiment -->
+                        <div class="card p-4 mb-4">
+                            <h3 class="h4 mb-3">Evolution of General Sentiment</h3>
+                            <p class="text-muted mb-3">Tracking the overall attitude session by session.</p>
+                            <div class="chart-container">
+                                <canvas id="sentimentProgressChart"></canvas>
+                            </div>
+                        </div>
+
+
 
                         <!-- Emotion Map per Session -->
                         <div class="card p-4 mb-4">
@@ -478,10 +572,35 @@
                         <!-- Sentiment Analysis -->
                         <div class="card p-4 mb-4 text-center">
                             <h3 class="h4 mb-3">Sentiment Analysis</h3>
-                            <span class="display-4 mb-2">@Model.ComprehensiveReport.Response.WellbeingAssessments.SentimentAnalysis.Icon</span>
-                            <p class="h5 text-success font-weight-bold">@Model.ComprehensiveReport.Response.WellbeingAssessments.SentimentAnalysis.Label</p>
-                            <p class="text-muted mt-1">@Model.ComprehensiveReport.Response.WellbeingAssessments.SentimentAnalysis.Description</p>
+                            <span class="display-4 mb-2">@Model.StudentReport.Response.WellbeingAssessments.SentimentAnalysis.Icon</span>
+                            <p class="h5 text-success font-weight-bold">@Model.StudentReport.Response.WellbeingAssessments.SentimentAnalysis.Label</p>
+                            <p class="text-muted mt-1">@Model.StudentReport.Response.WellbeingAssessments.SentimentAnalysis.Description</p>
                         </div>
+
+                        <!-- Key Emotion Analysis -->
+                        <div class="card p-4 mb-4">
+                            <h3 class="h4 mb-3">Key Emotion Analysis</h3>
+                            <div>
+                                @foreach (var emotion in Model.StudentReport.Response.WellbeingAssessments.KeyEmotionAnalysis)
+                                {
+                                    <div class="key-emotion-item">
+                                        <span class="key-emotion-icon">@emotion.Icon</span>
+                                        <div class="key-emotion-content">
+                                            <p class="key-emotion-label">@emotion.Label</p>
+                                            <div class="key-emotion-progress">
+                                                <div class="key-emotion-progress-bar @(emotion.Label == "Determinación" || emotion.Label == "Determination" ? "bg-primary" : 
+                                                                                    emotion.Label == "Optimismo" || emotion.Label == "Optimism" ? "bg-warning" : 
+                                                                                    emotion.Label == "Estrés" || emotion.Label == "Stress" ? "bg-danger" : 
+                                                                                    emotion.Label == "Duda" || emotion.Label == "Doubt" ? "bg-secondary" : 
+                                                                                    emotion.Label == "Entusiasmo" || emotion.Label == "Enthusiasm" ? "bg-info" : 
+                                                                                    "bg-secondary")" style="width: @emotion.Score%"></div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                }
+                            </div>
+                        </div>
+
                     </div>
                 </div>
             </div>
@@ -500,7 +619,7 @@
                                 </tr>
                             </thead>
                             <tbody>
-                                @foreach (var reflection in Model.ComprehensiveReport.Response.ReflectionLog)
+                                @foreach (var reflection in Model.StudentReport.Response.ReflectionLog)
                                 {
                                     <tr>
                                         <td class="font-weight-bold">@reflection.Title</td>
@@ -541,301 +660,6 @@
             </div>
         </div>
     }
-    else if (Model.StudentReport?.StudentData != null)
-    {
-
-    <div class="row">
-        <!-- 1. Initial Assessments and Self-Knowledge -->
-        <div class="col-12">
-            <h2 class="section-title">1. Initial Assessments and Self-Knowledge</h2>
-            <div class="row">
-                <!-- Wheel of Life (Current vs Ideal) -->
-                <div class="col-12 mb-4">
-                    <div class="card p-4">
-                        <h3 class="h4 mb-3">Wheel of Life</h3>
-                        <p class="text-muted mb-4">Comparison between current and desired satisfaction.</p>
-                        <div class="chart-container">
-                            <canvas id="lifeWheelChart"></canvas>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Personality Analysis (DISC) -->
-                <div class="col-md-6 mb-4">
-                    <div class="card h-100 p-4">
-                        <h3 class="h4 mb-3">Personality Analysis (DISC)</h3>
-                        <div class="chart-container">
-                            <canvas id="personalityChart"></canvas>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Strengths Analysis -->
-                <div class="col-md-6 mb-4">
-                    <div class="card h-100 p-4">
-                        <h3 class="h4 mb-3">Strengths Analysis (Top 5)</h3>
-                        <div class="chart-container">
-                            <canvas id="strengthsChart"></canvas>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Qualitative Analysis -->
-                <div class="col-12">
-                    <div class="card p-4">
-                        <h3 class="h4 mb-4 pb-2 border-bottom">Qualitative Interview Analysis</h3>
-                        <div class="row">
-                            <!-- Left Column -->
-                            <div class="col-md-6">
-                                <!-- Personal Information and Context -->
-                                <div class="mb-4">
-                                    <h4 class="h5 text-muted mb-3">@Localizer["Personal Information and Context"]</h4>
-                                    <div class="bg-light p-3 rounded border">
-                                        <p class="mb-2"><strong>@Localizer["History:"]</strong> @Localizer["Background in Social Sciences, switched from Law to Psychology. Strong family support."]</p>
-                                        <p class="mb-2"><strong>@Localizer["Motivations:"]</strong> @Localizer["Driven by curiosity about human behavior and a desire to help."]</p>
-                                        <p class="mb-0"><strong>@Localizer["Values:"]</strong> @Localizer["Honesty, commitment to excellence, and continuous learning."]</p>
-                                    </div>
-                                </div>
-                                
-                                <!-- Perceptions and Experiences -->
-                                <div class="mb-4">
-                                    <h4 class="h5 text-muted mb-3">@Localizer["Perceptions and Experiences"]</h4>
-                                    <div class="bg-light p-3 rounded border">
-                                        <p class="mb-2"><strong>@Localizer["Learning:"]</strong> @Localizer["Prefers practical methods and debate; finds evaluations too theoretical."]</p>
-                                        <p class="mb-2"><strong>@Localizer["Environment:"]</strong> @Localizer["Positive relationship with peers, though perceives competitiveness. Feels a sense of belonging."]</p>
-                                        <p class="mb-0"><strong>@Localizer["Challenges:"]</strong> @Localizer["Time management during exams and anxiety in oral presentations."]</p>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <!-- Right Column -->
-                            <div class="col-md-6">
-                                <!-- Skills and Competencies -->
-                                <div class="mb-4">
-                                    <h4 class="h5 text-muted mb-3">@Localizer["Skills and Competencies"]</h4>
-                                    <div class="bg-light p-3 rounded border">
-                                        <p class="mb-2"><strong>@Localizer["Strategies:"]</strong> @Localizer["Uses mind maps; needs to improve long-term planning."]</p>
-                                        <p class="mb-2"><strong>@Localizer["Communication:"]</strong> @Localizer["Argues coherently and reflects on questions."]</p>
-                                        <p class="mb-0"><strong>@Localizer["Self-assessment:"]</strong> @Localizer["Aware of her strength (empathy) and weakness (organization)."]</p>
-                                    </div>
-                                </div>
-
-                                <!-- Attitudes and Emotions -->
-                                <div class="mb-4">
-                                    <h4 class="h5 text-muted mb-3">@Localizer["Attitudes and Emotions"]</h4>
-                                    <div class="bg-light p-3 rounded border">
-                                        <p class="mb-2"><strong>@Localizer["Satisfaction:"]</strong> @Localizer["Happy with her major (8/10), but not with the workload (5/10)."]</p>
-                                        <p class="mb-2"><strong>@Localizer["Emotional State:"]</strong> @Localizer["Enthusiasm is predominant, with peaks of stress."]</p>
-                                        <p class="mb-0"><strong>@Localizer["Future:"]</strong> @Localizer["Optimistic and proactive attitude towards her opportunities."]</p>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- 2. Goal and Progress Tracking -->
-        <div class="col-12 mt-5">
-            <h2 class="section-title">2. Goal and Progress Tracking</h2>
-            <div class="row">
-                <!-- Goal Tracking (SMART) -->
-                <div class="col-lg-8 mb-4">
-                    <div class="card h-100 p-4">
-                        <h3 class="h4 mb-4">Goal Tracking (SMART)</h3>
-                        <div class="goal-tracking">
-                            <div class="goal-item mb-4">
-                                <div class="d-flex justify-content-between mb-2">
-                                    <span class="font-weight-medium">@Localizer["Improve work-life balance"]</span>
-                                    <span class="text-primary font-weight-medium">75%</span>
-                                </div>
-                                <div class="progress">
-                                    <div class="progress-bar bg-primary" role="progressbar" style="width: 75%" aria-valuenow="75" aria-valuemin="0" aria-valuemax="100"></div>
-                                </div>
-                            </div>
-                            <div class="goal-item mb-4">
-                                <div class="d-flex justify-content-between mb-2">
-                                    <span class="font-weight-medium">@Localizer["Lead project meeting"]</span>
-                                    <span class="text-success font-weight-medium">100%</span>
-                                </div>
-                                <div class="progress">
-                                    <div class="progress-bar bg-success" role="progressbar" style="width: 100%" aria-valuenow="100" aria-valuemin="0" aria-valuemax="100"></div>
-                                </div>
-                            </div>
-                            <div class="goal-item mb-4">
-                                <div class="d-flex justify-content-between mb-2">
-                                    <span class="font-weight-medium">@Localizer["Establish exercise routine"]</span>
-                                    <span class="text-warning font-weight-medium">40%</span>
-                                </div>
-                                <div class="progress">
-                                    <div class="progress-bar bg-warning" role="progressbar" style="width: 40%" aria-valuenow="40" aria-valuemin="0" aria-valuemax="100"></div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Habit Tracker -->
-                <div class="col-lg-4 mb-4">
-                    <div class="card h-100 p-4">
-                        <h3 class="h4 mb-4">Habit Tracker (Weekly)</h3>
-                        <p class="text-muted mb-3">@Localizer["Habit: Meditate 10 min daily"]</p>
-                        <div class="habit-tracker">
-                            <div class="habit-day bg-light">M</div>
-                            <div class="habit-day bg-success text-white">T</div>
-                            <div class="habit-day bg-success text-white">W</div>
-                            <div class="habit-day bg-light">T</div>
-                            <div class="habit-day bg-success text-white">F</div>
-                            <div class="habit-day bg-success text-white">S</div>
-                            <div class="habit-day bg-light">S</div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- 3. Well-being and Emotional State Assessments -->
-        <div class="col-12 mt-5">
-            <h2 class="section-title">3. Well-being and Emotional State Assessments</h2>
-            <div class="row">
-                <!-- Left Column with Line Charts -->
-                <div class="col-lg-8">
-                    <!-- Well-being Surveys -->
-                    <div class="card p-4 mb-4">
-                        <h3 class="h4 mb-4">Well-being Surveys (Trend)</h3>
-                        <div class="chart-container">
-                            <canvas id="progressChart"></canvas>
-                        </div>
-                    </div>
-
-                    <!-- Emotion Map per Session -->
-                    <div class="card p-4 mb-4">
-                        <h3 class="h4 mb-4">Emotion Map per Session</h3>
-                        <p class="text-muted mb-4">Visualization of the intensity and frequency of key emotions in each session.</p>
-                        <div class="chart-container">
-                            <canvas id="emotionBubbleChart"></canvas>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Right Column with Qualitative Analysis -->
-                <div class="col-lg-4">
-                    <!-- Emotion Log -->
-                    <div class="card p-4 mb-4">
-                        <h3 class="h4 mb-4">Emotion Log (Monthly)</h3>
-                        <div class="chart-container">
-                            <canvas id="emotionDistributionChart"></canvas>
-                        </div>
-                    </div>
-
-                    <!-- Sentiment Analysis -->
-                    <div class="card p-4 mb-4 text-center">
-                        <h3 class="h4 mb-3">Sentiment Analysis</h3>
-                        <span class="display-4 mb-2">😊</span>
-                        <p class="h5 text-success font-weight-bold">Positive</p>
-                        <p class="text-muted mt-1">Overall constructive and optimistic attitude.</p>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- 4. Reflection Log -->
-        <div class="col-12 mt-5">
-            <h2 class="section-title">4. Reflection Log</h2>
-            <div class="card">
-                <div class="table-responsive">
-                    <table class="table table-hover mb-0">
-                        <thead class="bg-light">
-                            <tr>
-                                <th class="border-0">Reflection Title</th>
-                                <th class="border-0">Date</th>
-                                <th class="border-0">Summary</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr>
-                                <td class="font-weight-bold">First Week Learnings</td>
-                                <td>August 21, 2025</td>
-                                <td>Reflected on the challenge of time management. Realized that blocking time in the calendar is effective, but requires discipline to avoid interruptions.</td>
-                            </tr>
-                            <tr>
-                                <td class="font-weight-bold">Handling a Difficult Conversation</td>
-                                <td>September 5, 2025</td>
-                                <td>Applied the assertive communication techniques we discussed. The outcome was better than expected. I was able to express my point of view without becoming defensive.</td>
-                            </tr>
-                            <tr>
-                                <td class="font-weight-bold">Mid-process Review</td>
-                                <td>September 10, 2025</td>
-                                <td>Feeling more confident and clear about my goals. The Wheel of Life has visibly improved in the 'Career' and 'Development' areas.</td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-        </div>
-
-        <!-- 5. Feedback and Competency Assessments -->
-        <div class="col-12 mt-5">
-            <h2 class="section-title">5. Feedback and Competency Assessments</h2>
-            <div class="row">
-                <!-- 360° Feedback Assessment -->
-                <div class="col-md-6 mb-4">
-                    <div class="card h-100 p-4">
-                        <h3 class="h4 mb-4">360° Feedback Assessment</h3>
-                        <div class="chart-container">
-                            <canvas id="feedback360Chart"></canvas>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Competency Assessment -->
-                <div class="col-md-6 mb-4">
-                    <div class="card h-100 p-4">
-                        <h3 class="h4 mb-4">Competency Assessment (Before and After)</h3>
-                        <div class="chart-container">
-                            <canvas id="competencyChart"></canvas>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- 6. Interview Analysis from API -->
-        @if (Model.StudentReport?.StudentData?.Interviews?.Any() == true)
-        {
-            <div class="col-12 mt-5">
-                <h2 class="section-title">6. Interview Analysis</h2>
-                <div class="row">
-                    @foreach (var interview in Model.StudentReport.StudentData.Interviews)
-                    {
-                        <div class="col-12 mb-4">
-                            <div class="card">
-                                <div class="card-header d-flex justify-content-between align-items-center">
-                                    <h3 class="h5 mb-0">@interview.Title</h3>
-                                    <div>
-                                        <span class="badge @(interview.Status == "Completed" ? "bg-success" : "bg-warning")">
-                                            @interview.Status
-                                        </span>
-                                        <small class="text-muted ms-2">
-                                            @DateTime.Parse(interview.Date).ToString("MMM dd, yyyy")
-                                        </small>
-                                    </div>
-                                </div>
-                                <div class="card-body">
-                                    <div class="interview-summary">
-                                        <h6 class="text-muted mb-3">@Localizer["Summary"]</h6>
-                                        <p class="mb-0">@interview.Summary</p>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    }
-                </div>
-            </div>
-        }
-    </div>
-    }
     else
     {
         <div class="text-center py-5">
@@ -849,7 +673,7 @@
 @section Scripts {
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script>
-        @if (Model.ComprehensiveReport?.Response != null)
+        @if (Model.StudentReport?.Response != null)
         {
             <text>
         // 1. INITIAL ASSESSMENTS - Dynamic Data from API
@@ -858,18 +682,18 @@
         new Chart(lifeWheelCtx, {
             type: 'radar', 
             data: { 
-                labels: @Html.Raw(Json.Serialize(Model.ComprehensiveReport.Response.InitialAssessments.WheelOfLife.Labels)), 
+                labels: @Html.Raw(Json.Serialize(Model.StudentReport.Response.InitialAssessments.WheelOfLife.Labels)), 
                 datasets: [
                     { 
                         label: 'Current Wheel', 
-                        data: @Html.Raw(Json.Serialize(Model.ComprehensiveReport.Response.InitialAssessments.WheelOfLife.CurrentWheelData)), 
+                        data: @Html.Raw(Json.Serialize(Model.StudentReport.Response.InitialAssessments.WheelOfLife.CurrentWheelData)), 
                         backgroundColor: 'rgba(59, 130, 246, 0.2)', 
                         borderColor: 'rgba(59, 130, 246, 1)', 
                         borderWidth: 2 
                     },
                     {
                         label: 'Ideal Wheel',
-                        data: @Html.Raw(Json.Serialize(Model.ComprehensiveReport.Response.InitialAssessments.WheelOfLife.IdealWheelData)),
+                        data: @Html.Raw(Json.Serialize(Model.StudentReport.Response.InitialAssessments.WheelOfLife.IdealWheelData)),
                         backgroundColor: 'rgba(34, 197, 94, 0.2)',
                         borderColor: 'rgba(34, 197, 94, 1)',
                         borderWidth: 2,
@@ -888,10 +712,10 @@
         new Chart(personalityCtx, {
             type: 'bar',
             data: {
-                labels: @Html.Raw(Json.Serialize(Model.ComprehensiveReport.Response.InitialAssessments.PersonalityDISC.Labels)),
+                labels: @Html.Raw(Json.Serialize(Model.StudentReport.Response.InitialAssessments.PersonalityDISC.Labels)),
                 datasets: [{
                     label: 'DISC Profile',
-                    data: @Html.Raw(Json.Serialize(Model.ComprehensiveReport.Response.InitialAssessments.PersonalityDISC.Data)),
+                    data: @Html.Raw(Json.Serialize(Model.StudentReport.Response.InitialAssessments.PersonalityDISC.Data)),
                     backgroundColor: ['#ef4444', '#f97316', '#22c55e', '#3b82f6'],
                     borderRadius: 5
                 }]
@@ -909,10 +733,10 @@
         new Chart(strengthsCtx, {
             type: 'bar',
             data: {
-                labels: @Html.Raw(Json.Serialize(Model.ComprehensiveReport.Response.InitialAssessments.Strengths.Labels)),
+                labels: @Html.Raw(Json.Serialize(Model.StudentReport.Response.InitialAssessments.Strengths.Labels)),
                 datasets: [{
                     label: 'Strength Score',
-                    data: @Html.Raw(Json.Serialize(Model.ComprehensiveReport.Response.InitialAssessments.Strengths.Data)),
+                    data: @Html.Raw(Json.Serialize(Model.StudentReport.Response.InitialAssessments.Strengths.Data)),
                     backgroundColor: '#8b5cf6',
                     borderRadius: 5
                 }]
@@ -931,11 +755,11 @@
         new Chart(progressCtx, {
             type: 'line', 
             data: { 
-                labels: @Html.Raw(Json.Serialize(Model.ComprehensiveReport.Response.WellbeingAssessments.WellbeingTrend.Labels)), 
-                datasets: @Html.Raw(Json.Serialize(Model.ComprehensiveReport.Response.WellbeingAssessments.WellbeingTrend.Datasets.Select(d => new { 
+                labels: @Html.Raw(Json.Serialize(Model.StudentReport.Response.WellbeingAssessments.WellbeingTrend.Labels)), 
+                datasets: @Html.Raw(Json.Serialize(Model.StudentReport.Response.WellbeingAssessments.WellbeingTrend.Datasets.Select(d => new { 
                     label = d.Label, 
                     data = d.Data, 
-                    borderColor = d.Label == "Confidence" ? "#10b981" : d.Label == "Mental Clarity" ? "#3b82f6" : "#f59e0b",
+                    borderColor = d.Label == "Confidence" || d.Label == "Confianza" ? "#10b981" : d.Label == "Mental Clarity" || d.Label == "Claridad Mental" ? "#3b82f6" : "#f59e0b",
                     tension = 0.1 
                 })))
             },
@@ -951,13 +775,15 @@
         new Chart(emotionBubbleCtx, {
             type: 'bubble',
             data: {
-                datasets: @Html.Raw(Json.Serialize(Model.ComprehensiveReport.Response.WellbeingAssessments.EmotionMap.Datasets.Select(d => new { 
+                datasets: @Html.Raw(Json.Serialize(Model.StudentReport.Response.WellbeingAssessments.EmotionMap.Datasets.Select(d => new { 
                     label = d.Label, 
                     data = d.Data, 
-                    backgroundColor = d.Label == "Optimism" ? "rgba(250, 204, 21, 0.7)" : 
-                                   d.Label == "Determination" ? "rgba(59, 130, 246, 0.7)" : 
-                                   d.Label == "Inseguridad" ? "rgba(239, 68, 68, 0.7)" : 
-                                   "rgba(20, 184, 166, 0.7)"
+                    backgroundColor = d.Label == "Optimism" || d.Label == "Optimismo" ? "rgba(250, 204, 21, 0.7)" : 
+                                     d.Label == "Determination" || d.Label == "Determinación" ? "rgba(59, 130, 246, 0.7)" : 
+                                     d.Label == "Stress" || d.Label == "Estrés" ? "rgba(239, 68, 68, 0.7)" : 
+                                     d.Label == "Doubt" || d.Label == "Duda" ? "rgba(161, 161, 170, 0.7)" :
+                                     d.Label == "Enthusiasm" || d.Label == "Entusiasmo" ? "rgba(20, 184, 166, 0.7)" :
+                                     "rgba(156, 163, 175, 0.7)"
                 })))
             },
             options: {
@@ -999,10 +825,10 @@
         new Chart(emotionDistributionCtx, {
             type: 'pie',
             data: {
-                labels: @Html.Raw(Json.Serialize(Model.ComprehensiveReport.Response.WellbeingAssessments.MonthlyEmotionLog.Labels)),
+                labels: @Html.Raw(Json.Serialize(Model.StudentReport.Response.WellbeingAssessments.MonthlyEmotionLog.Labels)),
                 datasets: [{
                     label: '% of Emotions',
-                    data: @Html.Raw(Json.Serialize(Model.ComprehensiveReport.Response.WellbeingAssessments.MonthlyEmotionLog.Data)),
+                    data: @Html.Raw(Json.Serialize(Model.StudentReport.Response.WellbeingAssessments.MonthlyEmotionLog.Data)),
                     backgroundColor: ['#facc15', '#3b82f6', '#ef4444', '#a1a1aa', '#14b8a6'],
                     hoverOffset: 4
                 }]
@@ -1023,14 +849,81 @@
             }
         });
 
+        // Evolution of Key Emotions
+        const emotionProgressCtx = document.getElementById('emotionProgressChart').getContext('2d');
+        new Chart(emotionProgressCtx, {
+            type: 'line',
+            data: {
+                labels: @Html.Raw(Json.Serialize(Model.StudentReport.Response.WellbeingAssessments.KeyEmotionsTrend.Labels)),
+                datasets: @Html.Raw(Json.Serialize(Model.StudentReport.Response.WellbeingAssessments.KeyEmotionsTrend.Datasets.Select(d => new { 
+                    label = d.Label, 
+                    data = d.Data, 
+                    borderColor = d.Label == "Optimismo" ? "rgb(250, 204, 21)" : d.Label == "Determinación" ? "rgb(59, 130, 246)" : d.Label == "Optimism" ? "rgb(250, 204, 21)" : "rgb(16, 185, 129)",
+                    backgroundColor = d.Label == "Optimismo" ? "rgba(250, 204, 21, 0.2)" : d.Label == "Determinación" ? "rgba(59, 130, 246, 0.2)" : d.Label == "Optimism" ? "rgba(250, 204, 21, 0.2)" : "rgba(16, 185, 129, 0.2)",
+                    tension = 0.2,
+                    fill = true
+                })))
+            },
+            options: { 
+                maintainAspectRatio: false, 
+                scales: { 
+                    y: { 
+                        beginAtZero: true, 
+                        suggestedMax: 10 
+                    } 
+                }, 
+                plugins: { 
+                    legend: { 
+                        position: 'top' 
+                    } 
+                } 
+            }
+        });
+
+        // Evolution of General Sentiment
+        const sentimentProgressCtx = document.getElementById('sentimentProgressChart').getContext('2d');
+        new Chart(sentimentProgressCtx, {
+            type: 'line',
+            data: {
+                labels: @Html.Raw(Json.Serialize(Model.StudentReport.Response.WellbeingAssessments.SentimentTrend.Labels)),
+                datasets: [{
+                    label: 'Sentiment Score',
+                    data: @Html.Raw(Json.Serialize(Model.StudentReport.Response.WellbeingAssessments.SentimentTrend.Data)),
+                    borderColor: 'rgb(74, 222, 128)',
+                    backgroundColor: 'rgba(74, 222, 128, 0.2)',
+                    tension: 0.2,
+                    fill: true
+                }]
+            },
+            options: {
+                maintainAspectRatio: false,
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        suggestedMax: 10,
+                        ticks: {
+                            callback: function(value) {
+                                if (value >= 8) return 'Positive';
+                                if (value >= 4) return 'Neutral';
+                                return 'Negative';
+                            }
+                        }
+                    }
+                },
+                plugins: {
+                    legend: { display: false }
+                }
+            }
+        });
+
         // 5. FEEDBACK AND COMPETENCIES
         // 360° Feedback Assessment
         const feedback360Ctx = document.getElementById('feedback360Chart').getContext('2d');
         new Chart(feedback360Ctx, {
             type: 'radar',
             data: {
-                labels: @Html.Raw(Json.Serialize(Model.ComprehensiveReport.Response.FeedbackAssessments.Feedback360.Labels)),
-                datasets: @Html.Raw(Json.Serialize(Model.ComprehensiveReport.Response.FeedbackAssessments.Feedback360.Datasets.Select(d => new { 
+                labels: @Html.Raw(Json.Serialize(Model.StudentReport.Response.FeedbackAssessments.Feedback360.Labels)),
+                datasets: @Html.Raw(Json.Serialize(Model.StudentReport.Response.FeedbackAssessments.Feedback360.Datasets.Select(d => new { 
                     label = d.Label, 
                     data = d.Data, 
                     fill = true, 
@@ -1063,8 +956,8 @@
         new Chart(competencyCtx, {
             type: 'bar',
             data: {
-                labels: @Html.Raw(Json.Serialize(Model.ComprehensiveReport.Response.FeedbackAssessments.Competency.Labels)),
-                datasets: @Html.Raw(Json.Serialize(Model.ComprehensiveReport.Response.FeedbackAssessments.Competency.Datasets.Select(d => new { 
+                labels: @Html.Raw(Json.Serialize(Model.StudentReport.Response.FeedbackAssessments.Competency.Labels)),
+                datasets: @Html.Raw(Json.Serialize(Model.StudentReport.Response.FeedbackAssessments.Competency.Datasets.Select(d => new { 
                     label = d.Label, 
                     data = d.Data, 
                     backgroundColor = d.Label == "Evaluación Inicial" ? "#a5b4fc" : "#4f46e5",
@@ -1276,6 +1169,69 @@
                         }
                     } 
                 } 
+            }
+        });
+
+        // Evolution of Key Emotions (Fallback)
+        const emotionProgressCtx = document.getElementById('emotionProgressChart').getContext('2d');
+        new Chart(emotionProgressCtx, {
+            type: 'line',
+            data: {
+                labels: ['Session 1 (08/14)', 'Session 2 (08/28)', 'Session 3 (09/11)'],
+                datasets: [
+                    { label: 'Optimism', data: [6, 6.5, 7], borderColor: 'rgb(250, 204, 21)', backgroundColor: 'rgba(250, 204, 21, 0.2)', tension: 0.2, fill: true },
+                    { label: 'Determination', data: [5, 6.5, 8], borderColor: 'rgb(59, 130, 246)', backgroundColor: 'rgba(59, 130, 246, 0.2)', tension: 0.2, fill: true }
+                ]
+            },
+            options: { 
+                maintainAspectRatio: false, 
+                scales: { 
+                    y: { 
+                        beginAtZero: true, 
+                        suggestedMax: 10 
+                    } 
+                }, 
+                plugins: { 
+                    legend: { 
+                        position: 'top' 
+                    } 
+                } 
+            }
+        });
+
+        // Evolution of General Sentiment (Fallback)
+        const sentimentProgressCtx = document.getElementById('sentimentProgressChart').getContext('2d');
+        new Chart(sentimentProgressCtx, {
+            type: 'line',
+            data: {
+                labels: ['Session 1 (08/14)', 'Session 2 (08/28)', 'Session 3 (09/11)'],
+                datasets: [{
+                    label: 'Sentiment Score',
+                    data: [7, 7.5, 8.5], // Scale 1-10: Neutral (7) -> Positive (8.5)
+                    borderColor: 'rgb(74, 222, 128)',
+                    backgroundColor: 'rgba(74, 222, 128, 0.2)',
+                    tension: 0.2,
+                    fill: true
+                }]
+            },
+            options: {
+                maintainAspectRatio: false,
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        suggestedMax: 10,
+                        ticks: {
+                            callback: function(value) {
+                                if (value >= 8) return 'Positive';
+                                if (value >= 4) return 'Neutral';
+                                return 'Negative';
+                            }
+                        }
+                    }
+                },
+                plugins: {
+                    legend: { display: false }
+                }
             }
         });
 
