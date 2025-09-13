@@ -135,5 +135,20 @@
   <data name="Create Your Own">
     <value>Create Your Own</value>
   </data>
+  <data name="Delete Interview">
+    <value>Delete Interview</value>
+  </data>
+  <data name="Are you sure you want to delete this interview? This action cannot be undone.">
+    <value>Are you sure you want to delete this interview? This action cannot be undone.</value>
+  </data>
+  <data name="Cancel">
+    <value>Cancel</value>
+  </data>
+  <data name="Delete">
+    <value>Delete</value>
+  </data>
+  <data name="Are you sure you want to delete this interview?">
+    <value>Are you sure you want to delete this interview?</value>
+  </data>
 </root>
 

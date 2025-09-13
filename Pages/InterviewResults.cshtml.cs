@@ -560,7 +560,8 @@ namespace InterviewBot.Pages
                 "bi bi-lightbulb",
                 "bi bi-people",
                 "bi bi-gear",
-                "bi bi-target"
+                "bi bi-briefcase",
+                "bi bi-target",
             };
 
             return icons[index % icons.Length];

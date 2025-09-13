@@ -20,6 +20,8 @@ namespace InterviewBot.Services
         Task<IEnumerable<CustomInterview>> GetUserCustomInterviewsAsync(int userId);
         Task<bool> SaveChatMessageAsync(int userId, string interviewId, string? question, string content);
         Task<IEnumerable<ChatMessage>> GetChatMessagesAsync(int userId, string interviewId);
+        Task<bool> DeleteInterviewCatalogAsync(int catalogId, int userId);
+        Task<bool> DeleteCustomInterviewAsync(int customInterviewId, int userId);
     }
 
     public class InterviewService : IInterviewService
@@ -593,6 +595,84 @@ namespace InterviewBot.Services
             {
                 _logger.LogError(ex, "Error retrieving chat messages for user {UserId}, interview {InterviewId}", userId, interviewId);
                 return new List<ChatMessage>();
+            }
+        }
+
+        public async Task<bool> DeleteInterviewCatalogAsync(int catalogId, int userId)
+        {
+            try
+            {
+                _logger.LogInformation("Deleting interview catalog {CatalogId} for user {UserId}", catalogId, userId);
+
+                var catalog = await _dbContext.InterviewCatalogs
+                    .FirstOrDefaultAsync(c => c.Id == catalogId && c.UserId == userId);
+
+                if (catalog == null)
+                {
+                    _logger.LogWarning("Interview catalog {CatalogId} not found for user {UserId}", catalogId, userId);
+                    return false;
+                }
+
+                // Delete related interview sessions first
+                var sessions = await _dbContext.InterviewSessions
+                    .Where(s => s.InterviewCatalogId == catalogId)
+                    .ToListAsync();
+
+                if (sessions.Any())
+                {
+                    _dbContext.InterviewSessions.RemoveRange(sessions);
+                }
+
+                // Delete the catalog
+                _dbContext.InterviewCatalogs.Remove(catalog);
+                await _dbContext.SaveChangesAsync();
+
+                _logger.LogInformation("Successfully deleted interview catalog {CatalogId} for user {UserId}", catalogId, userId);
+                return true;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error deleting interview catalog {CatalogId} for user {UserId}", catalogId, userId);
+                return false;
+            }
+        }
+
+        public async Task<bool> DeleteCustomInterviewAsync(int customInterviewId, int userId)
+        {
+            try
+            {
+                _logger.LogInformation("Deleting custom interview {CustomInterviewId} for user {UserId}", customInterviewId, userId);
+
+                var customInterview = await _dbContext.CustomInterviews
+                    .FirstOrDefaultAsync(c => c.Id == customInterviewId && c.UserId == userId);
+
+                if (customInterview == null)
+                {
+                    _logger.LogWarning("Custom interview {CustomInterviewId} not found for user {UserId}", customInterviewId, userId);
+                    return false;
+                }
+
+                // Delete related interview sessions first
+                var sessions = await _dbContext.InterviewSessions
+                    .Where(s => s.CustomInterviewId == customInterviewId)
+                    .ToListAsync();
+
+                if (sessions.Any())
+                {
+                    _dbContext.InterviewSessions.RemoveRange(sessions);
+                }
+
+                // Delete the custom interview
+                _dbContext.CustomInterviews.Remove(customInterview);
+                await _dbContext.SaveChangesAsync();
+
+                _logger.LogInformation("Successfully deleted custom interview {CustomInterviewId} for user {UserId}", customInterviewId, userId);
+                return true;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error deleting custom interview {CustomInterviewId} for user {UserId}", customInterviewId, userId);
+                return false;
             }
         }
     }

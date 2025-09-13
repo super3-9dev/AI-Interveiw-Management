@@ -135,5 +135,20 @@
   <data name="Create Your Own">
     <value>Crea la Tuya</value>
   </data>
+  <data name="Delete Interview">
+    <value>Eliminar Entrevista</value>
+  </data>
+  <data name="Are you sure you want to delete this interview? This action cannot be undone.">
+    <value>¿Estás seguro de que quieres eliminar esta entrevista? Esta acción no se puede deshacer.</value>
+  </data>
+  <data name="Cancel">
+    <value>Cancelar</value>
+  </data>
+  <data name="Delete">
+    <value>Eliminar</value>
+  </data>
+  <data name="Are you sure you want to delete this interview?">
+    <value>¿Estás seguro de que quieres eliminar esta entrevista?</value>
+  </data>
 </root>
 

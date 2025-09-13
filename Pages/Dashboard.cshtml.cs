@@ -54,45 +54,10 @@ namespace InterviewBot.Pages
 
         public async Task OnGetAsync()
         {
-            try
+            var userId = GetCurrentUserId();
+            if (userId.HasValue)
             {
-                var userId = GetCurrentUserId();
-                if (userId.HasValue)
-                {
-                    // Check if user has any profiles
-                    var userProfiles = await _profileService.GetUserProfilesAsync(userId.Value);
-                    HasProfiles = userProfiles.Any();
-
-                    // Load user profile for display
-                    if (HasProfiles)
-                    {
-                        UserProfile = userProfiles.FirstOrDefault();
-                    }
-
-                    // Only load interview data if user has profiles
-                    if (HasProfiles)
-                    {
-                        InterviewCatalogs = await _interviewService.GetUserInterviewCatalogsAsync(userId.Value);
-                        ActiveInterviewSessions = await _interviewService.GetUserInterviewSessionsAsync(userId.Value);
-                        CustomInterviews = await _interviewService.GetUserCustomInterviewsAsync(userId.Value);
-
-                        // If no interview catalogs exist, generate some default ones
-                        if (!InterviewCatalogs.Any())
-                        {
-                            var userProfile = userProfiles.FirstOrDefault();
-                            if (userProfile != null)
-                            {
-                                // Generate default interview catalogs
-                                var defaultCatalogs = await _interviewCatalogService.GenerateInterviewCatalogsAsync(userId.Value, userProfile.Id);
-                                InterviewCatalogs = defaultCatalogs;
-                            }
-                        }
-                    }
-                }
-            }
-            catch (Exception ex)
-            {
-                ErrorMessage = "Error loading interview data: " + ex.Message;
+                await LoadDataAsync(userId.Value);
             }
         }
 
@@ -178,6 +143,136 @@ namespace InterviewBot.Pages
             {
                 ErrorMessage = "Error continuing interview.";
                 return Page();
+            }
+        }
+
+        public async Task<IActionResult> OnPostDeleteInterviewCatalogAsync(int catalogId)
+        {
+            try
+            {
+                Console.WriteLine($"DeleteInterviewCatalogAsync called with catalogId: {catalogId}");
+                var userId = GetCurrentUserId();
+                if (userId == null)
+                {
+                    Console.WriteLine("User not authenticated");
+                    return RedirectToPage("/Account/Login");
+                }
+
+                Console.WriteLine($"Deleting catalog {catalogId} for user {userId.Value}");
+                var success = await _interviewService.DeleteInterviewCatalogAsync(catalogId, userId.Value);
+                if (success)
+                {
+                    Console.WriteLine("Interview deleted successfully");
+                    SuccessMessage = "Interview deleted successfully.";
+                }
+                else
+                {
+                    Console.WriteLine("Failed to delete interview");
+                    ErrorMessage = "Failed to delete interview. Please try again.";
+                }
+
+                // Reload data
+                await LoadDataAsync(userId.Value);
+                
+                // Preserve culture parameter in redirect
+                var culture = Request.Form["culture"].FirstOrDefault();
+                if (!string.IsNullOrEmpty(culture))
+                {
+                    return RedirectToPage("/Dashboard", new { culture = culture });
+                }
+                
+                return Page();
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error deleting interview: {ex.Message}");
+                ErrorMessage = "Error deleting interview: " + ex.Message;
+                return Page();
+            }
+        }
+
+        public async Task<IActionResult> OnPostDeleteCustomInterviewAsync(int customInterviewId)
+        {
+            try
+            {
+                Console.WriteLine($"DeleteCustomInterviewAsync called with customInterviewId: {customInterviewId}");
+                var userId = GetCurrentUserId();
+                if (userId == null)
+                {
+                    Console.WriteLine("User not authenticated");
+                    return RedirectToPage("/Account/Login");
+                }
+
+                Console.WriteLine($"Deleting custom interview {customInterviewId} for user {userId.Value}");
+                var success = await _interviewService.DeleteCustomInterviewAsync(customInterviewId, userId.Value);
+                if (success)
+                {
+                    Console.WriteLine("Custom interview deleted successfully");
+                    SuccessMessage = "Custom interview deleted successfully.";
+                }
+                else
+                {
+                    Console.WriteLine("Failed to delete custom interview");
+                    ErrorMessage = "Failed to delete custom interview. Please try again.";
+                }
+
+                // Reload data
+                await LoadDataAsync(userId.Value);
+                
+                // Preserve culture parameter in redirect
+                var culture = Request.Form["culture"].FirstOrDefault();
+                if (!string.IsNullOrEmpty(culture))
+                {
+                    return RedirectToPage("/Dashboard", new { culture = culture });
+                }
+                
+                return Page();
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error deleting custom interview: {ex.Message}");
+                ErrorMessage = "Error deleting custom interview: " + ex.Message;
+                return Page();
+            }
+        }
+
+        private async Task LoadDataAsync(int userId)
+        {
+            try
+            {
+                // Check if user has any profiles
+                var userProfiles = await _profileService.GetUserProfilesAsync(userId);
+                HasProfiles = userProfiles.Any();
+
+                // Load user profile for display
+                if (HasProfiles)
+                {
+                    UserProfile = userProfiles.FirstOrDefault();
+                }
+
+                // Only load interview data if user has profiles
+                if (HasProfiles)
+                {
+                    InterviewCatalogs = await _interviewService.GetUserInterviewCatalogsAsync(userId);
+                    ActiveInterviewSessions = await _interviewService.GetUserInterviewSessionsAsync(userId);
+                    CustomInterviews = await _interviewService.GetUserCustomInterviewsAsync(userId);
+
+                    // If no interview catalogs exist, generate some default ones
+                    if (!InterviewCatalogs.Any())
+                    {
+                        var userProfile = userProfiles.FirstOrDefault();
+                        if (userProfile != null)
+                        {
+                            // Generate default interview catalogs
+                            var defaultCatalogs = await _interviewCatalogService.GenerateInterviewCatalogsAsync(userId, userProfile.Id);
+                            InterviewCatalogs = defaultCatalogs;
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                ErrorMessage = "Error loading interview data: " + ex.Message;
             }
         }
 
