@@ -67,6 +67,9 @@ builder.Services.AddScoped<IOpenAIService, OpenAIService>();
 // Add Interview Analysis service
 builder.Services.AddHttpClient<IInterviewAnalysisService, InterviewAnalysisService>();
 
+// Add Interview Note service
+builder.Services.AddScoped<IInterviewNoteService, InterviewNoteService>();
+
 // Add External API service
 builder.Services.AddHttpClient<IExternalAPIService, ExternalAPIService>();
 

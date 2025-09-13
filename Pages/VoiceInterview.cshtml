@@ -1739,7 +1739,6 @@
         try {
             // Call the Voice Chat API to get AI response
             const aiResponse = await getVoiceAIResponse(userAnswer);
-            console.log('AI response=========================>:', aiResponse);
             if (aiResponse) {
                 // Add AI response to chat
                 addAIVoiceMessage(aiResponse);

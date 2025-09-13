@@ -88,7 +88,6 @@ namespace InterviewBot.Services
 
                     var response = await _httpClient.PostAsync(_baseUrl, content);
                     var responseContent = await response.Content.ReadAsStringAsync();
-                    Console.WriteLine("Response======================>: " + responseContent);
 
                     if (!response.IsSuccessStatusCode)
                     {

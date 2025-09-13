@@ -147,4 +147,67 @@
   <data name="Start New Analysis">
     <value>Iniciar Nuevo Análisis</value>
   </data>
+  <data name="Add Notes">
+    <value>Agregar Notas</value>
+  </data>
+  <data name="Interview Name">
+    <value>Nombre de la Entrevista</value>
+  </data>
+  <data name="Edit">
+    <value>Editar</value>
+  </data>
+  <data name="Delete">
+    <value>Eliminar</value>
+  </data>
+  <data name="Add Action">
+    <value>Agregar Acción</value>
+  </data>
+  <data name="Action Taken">
+    <value>Acción Realizada</value>
+  </data>
+  <data name="Describe the action you completed...">
+    <value>Describe la acción que completaste...</value>
+  </data>
+  <data name="Date">
+    <value>Fecha</value>
+  </data>
+  <data name="Additional Note">
+    <value>Nota Adicional</value>
+  </data>
+  <data name="Add details, results, or reflections...">
+    <value>Agrega detalles, resultados o reflexiones...</value>
+  </data>
+  <data name="Cancel">
+    <value>Cancelar</value>
+  </data>
+  <data name="Save Action">
+    <value>Guardar Acción</value>
+  </data>
+  <data name="Interview Notes">
+    <value>Notas de Entrevista</value>
+  </data>
+  <data name="No notes yet. Click 'Add Notes' to create your first action item.">
+    <value>Aún no hay notas. Haz clic en 'Agregar Notas' para crear tu primer elemento de acción.</value>
+  </data>
+  <data name="No notes yet. Click 'Add Action' to create your first action item.">
+    <value>Aún no hay notas. Haz clic en 'Agregar Acción' para crear tu primer elemento de acción.</value>
+  </data>
+  <data name="Are you sure you want to delete this note?">
+    <value>¿Estás seguro de que quieres eliminar esta nota?</value>
+  </data>
+  <data name="Are you sure you want to delete all notes?">
+    <value>¿Estás seguro de que quieres eliminar todas las notas?</value>
+  </data>
+  <data name="Delete All Notes">
+    <value>Eliminar Todas las Notas</value>
+  </data>
+  <data name="all remove">
+    <value>eliminar todo</value>
+  </data>
+  <data name="Edit Note">
+    <value>Editar Nota</value>
+  </data>
+  <data name="Update Note">
+    <value>Actualizar Nota</value>
+  </data>
 </root>

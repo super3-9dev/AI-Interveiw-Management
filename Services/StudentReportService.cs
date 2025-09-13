@@ -42,7 +42,6 @@ namespace InterviewBot.Services
                 if (response.IsSuccessStatusCode)
                 {
                     var responseContent = await response.Content.ReadAsStringAsync();
-                    Console.WriteLine("response====================>" + responseContent);
                     _logger.LogInformation("API response received successfully");
                     
                     var options = new JsonSerializerOptions

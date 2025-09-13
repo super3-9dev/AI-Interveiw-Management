@@ -19,6 +19,7 @@ namespace InterviewBot.Data
         public DbSet<CustomInterview> CustomInterviews { get; set; }
         public DbSet<InterviewCatalogItem> InterviewCatalogItems { get; set; }
         public DbSet<InterviewAnalysisResult> InterviewAnalysisResults { get; set; }
+        public DbSet<InterviewNote> InterviewNotes { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -40,6 +41,32 @@ namespace InterviewBot.Data
                 .WithMany()
                 .HasForeignKey(m => m.UserId)
                 .OnDelete(DeleteBehavior.Cascade);
+
+            // Configure InterviewResult-InterviewNote relationship (one-to-many)
+            modelBuilder.Entity<InterviewNote>()
+                .HasOne(n => n.InterviewResult)
+                .WithMany()
+                .HasForeignKey(n => n.InterviewId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            // Configure DateTime properties for InterviewNote
+            modelBuilder.Entity<InterviewNote>(entity =>
+            {
+                entity.Property(e => e.Date)
+                    .HasConversion(
+                        v => v.Kind == DateTimeKind.Utc ? v : v.ToUniversalTime(),
+                        v => DateTime.SpecifyKind(v, DateTimeKind.Utc));
+                
+                entity.Property(e => e.CreatedAt)
+                    .HasConversion(
+                        v => v.Kind == DateTimeKind.Utc ? v : v.ToUniversalTime(),
+                        v => DateTime.SpecifyKind(v, DateTimeKind.Utc));
+                
+                entity.Property(e => e.UpdatedAt)
+                    .HasConversion(
+                        v => v.HasValue ? (v.Value.Kind == DateTimeKind.Utc ? v.Value : v.Value.ToUniversalTime()) : v,
+                        v => v.HasValue ? DateTime.SpecifyKind(v.Value, DateTimeKind.Utc) : v);
+            });
 
             modelBuilder.Entity<User>(entity =>
             {

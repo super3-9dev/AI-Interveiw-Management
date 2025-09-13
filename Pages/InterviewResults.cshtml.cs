@@ -18,13 +18,15 @@ namespace InterviewBot.Pages
         private readonly AppDbContext _dbContext;
         private readonly IInterviewCatalogService _interviewCatalogService;
         private readonly IInterviewAnalysisService _analysisService;
+        private readonly IInterviewNoteService _noteService;
 
-        public InterviewResultsModel(IInterviewService interviewService, AppDbContext dbContext, IInterviewCatalogService interviewCatalogService, IInterviewAnalysisService analysisService)
+        public InterviewResultsModel(IInterviewService interviewService, AppDbContext dbContext, IInterviewCatalogService interviewCatalogService, IInterviewAnalysisService analysisService, IInterviewNoteService noteService)
         {
             _interviewService = interviewService;
             _dbContext = dbContext;
             _interviewCatalogService = interviewCatalogService;
             _analysisService = analysisService;
+            _noteService = noteService;
         }
 
         [BindProperty(SupportsGet = true)]
@@ -50,7 +52,34 @@ namespace InterviewBot.Pages
         public List<CareerRoadmapItem> YourCareerRoadmaps { get; set; } = new();
         public List<string> AdditionalTips { get; set; } = new();
 
+        // Interview Notes properties
+        public List<InterviewNote> InterviewNotes { get; set; } = new();
+
+        // Form properties for Add Action
+        [BindProperty]
+        public string ActionTaken { get; set; } = string.Empty;
+
+        [BindProperty]
+        public DateTime ActionDate { get; set; } = DateTime.UtcNow;
+
+        [BindProperty]
+        public string AdditionalNotes { get; set; } = string.Empty;
+
+        // Edit form properties
+        [BindProperty]
+        public int EditNoteId { get; set; }
+
+        [BindProperty]
+        public string EditActionTaken { get; set; } = string.Empty;
+
+        [BindProperty]
+        public DateTime EditActionDate { get; set; } = DateTime.UtcNow;
+
+        [BindProperty]
+        public string EditAdditionalNotes { get; set; } = string.Empty;
+
         public string? ErrorMessage { get; set; }
+        public string? SuccessMessage { get; set; }
 
         private string GetCurrentCulture()
         {
@@ -124,6 +153,9 @@ namespace InterviewBot.Pages
                         }
                     }
                 }
+
+                // Load interview notes
+                await LoadInterviewNotesAsync();
 
                 return Page();
             }
@@ -565,6 +597,267 @@ namespace InterviewBot.Pages
             };
 
             return icons[index % icons.Length];
+        }
+
+        private async Task LoadInterviewNotesAsync()
+        {
+            try
+            {
+                Console.WriteLine($"LoadInterviewNotesAsync - Looking for InterviewResult with InterviewId = '{InterviewId}'");
+                
+                // Find the InterviewResult by InterviewId (string field) to get the actual Id
+                var interviewResult = await _dbContext.InterviewResults
+                    .FirstOrDefaultAsync(ir => ir.InterviewId == InterviewId);
+                
+                Console.WriteLine($"LoadInterviewNotesAsync - Found InterviewResult: {interviewResult != null}");
+                if (interviewResult != null)
+                {
+                    Console.WriteLine($"LoadInterviewNotesAsync - Using InterviewResult.Id = {interviewResult.Id}");
+                    InterviewNotes = (await _noteService.GetInterviewNotesAsync(interviewResult.Id)).ToList();
+                    Console.WriteLine($"LoadInterviewNotesAsync - Loaded {InterviewNotes.Count} notes");
+                }
+                else
+                {
+                    Console.WriteLine("LoadInterviewNotesAsync - No InterviewResult found, setting empty list");
+                    InterviewNotes = new List<InterviewNote>();
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error loading interview notes: {ex.Message}");
+                InterviewNotes = new List<InterviewNote>();
+            }
+        }
+
+        public async Task<IActionResult> OnPostSaveActionAsync()
+        {
+            try
+            {
+                Console.WriteLine($"SaveAction called - ActionTaken: '{ActionTaken}', InterviewId: '{InterviewId}'");
+                
+                if (string.IsNullOrEmpty(ActionTaken))
+                {
+                    ErrorMessage = "Action Taken is required.";
+                    await LoadInterviewNotesAsync();
+                    return Page();
+                }
+
+                if (int.TryParse(InterviewId, out int catalogId))
+                {
+                    Console.WriteLine($"Looking for InterviewResult with InterviewId = '{InterviewId}'");
+                    
+                    // Find the InterviewResult by InterviewId (string field) not Id (int field)
+                    var interviewResult = await _dbContext.InterviewResults
+                        .FirstOrDefaultAsync(ir => ir.InterviewId == InterviewId);
+                    
+                    Console.WriteLine($"Found InterviewResult: {interviewResult != null}");
+                    if (interviewResult != null)
+                    {
+                        Console.WriteLine($"InterviewResult.Id = {interviewResult.Id}, InterviewResult.InterviewId = '{interviewResult.InterviewId}'");
+                    }
+                    
+                    if (interviewResult == null)
+                    {
+                        // Let's also check what InterviewResults exist
+                        var allResults = await _dbContext.InterviewResults.ToListAsync();
+                        Console.WriteLine($"Total InterviewResults in database: {allResults.Count}");
+                        foreach (var result in allResults.Take(5))
+                        {
+                            Console.WriteLine($"  - Id: {result.Id}, InterviewId: '{result.InterviewId}', UserId: {result.UserId}");
+                        }
+                        
+                        ErrorMessage = "Interview not found. Please ensure you're accessing a valid interview.";
+                        await LoadInterviewNotesAsync();
+                        return Page();
+                    }
+
+                    var note = new InterviewNote
+                    {
+                        InterviewId = interviewResult.Id, // Use the actual Id field for foreign key
+                        ActionTaken = ActionTaken,
+                        Date = ActionDate.Kind == DateTimeKind.Utc ? ActionDate : ActionDate.ToUniversalTime(),
+                        AdditionalNotes = AdditionalNotes
+                    };
+
+                    Console.WriteLine($"Creating note for InterviewResult.Id: {interviewResult.Id}, ActionTaken: '{ActionTaken}'");
+                    await _noteService.CreateInterviewNoteAsync(note);
+                    SuccessMessage = "Action saved successfully!";
+                    
+                    // Clear form
+                    ActionTaken = string.Empty;
+                    ActionDate = DateTime.UtcNow;
+                    AdditionalNotes = string.Empty;
+                }
+                else
+                {
+                    ErrorMessage = "Invalid Interview ID.";
+                }
+
+                // Redirect to preserve URL parameters
+                return RedirectToPage("/InterviewResults", new { 
+                    interviewId = InterviewId, 
+                    culture = GetCurrentCulture() 
+                });
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error in SaveAction: {ex.Message}");
+                ErrorMessage = "Error saving action: " + ex.Message;
+                
+                // Redirect to preserve URL parameters even on error
+                return RedirectToPage("/InterviewResults", new { 
+                    interviewId = InterviewId, 
+                    culture = GetCurrentCulture() 
+                });
+            }
+        }
+
+        public async Task<IActionResult> OnPostEditNoteAsync()
+        {
+            try
+            {
+                Console.WriteLine($"EditNote called - EditNoteId: {EditNoteId}, EditActionTaken: '{EditActionTaken}'");
+                
+                if (string.IsNullOrEmpty(EditActionTaken))
+                {
+                    ErrorMessage = "Action Taken is required.";
+                    return RedirectToPage("/InterviewResults", new { 
+                        interviewId = InterviewId, 
+                        culture = GetCurrentCulture() 
+                    });
+                }
+
+                // Find the InterviewResult by InterviewId (string field) to get the actual Id
+                var interviewResult = await _dbContext.InterviewResults
+                    .FirstOrDefaultAsync(ir => ir.InterviewId == InterviewId);
+                
+                if (interviewResult == null)
+                {
+                    ErrorMessage = "Interview not found. Please ensure you're accessing a valid interview.";
+                    return RedirectToPage("/InterviewResults", new { 
+                        interviewId = InterviewId, 
+                        culture = GetCurrentCulture() 
+                    });
+                }
+
+                // Get the existing note
+                var existingNote = await _noteService.GetInterviewNoteByIdAsync(EditNoteId);
+                if (existingNote == null)
+                {
+                    ErrorMessage = "Note not found.";
+                    return RedirectToPage("/InterviewResults", new { 
+                        interviewId = InterviewId, 
+                        culture = GetCurrentCulture() 
+                    });
+                }
+
+                // Update the note
+                existingNote.ActionTaken = EditActionTaken;
+                existingNote.Date = EditActionDate.Kind == DateTimeKind.Utc ? EditActionDate : EditActionDate.ToUniversalTime();
+                existingNote.AdditionalNotes = EditAdditionalNotes;
+
+                Console.WriteLine($"Updating note {EditNoteId} for InterviewResult.Id: {interviewResult.Id}");
+                await _noteService.UpdateInterviewNoteAsync(existingNote);
+                SuccessMessage = "Note updated successfully!";
+                
+                // Clear edit form
+                EditNoteId = 0;
+                EditActionTaken = string.Empty;
+                EditActionDate = DateTime.UtcNow;
+                EditAdditionalNotes = string.Empty;
+
+                // Redirect to preserve URL parameters
+                return RedirectToPage("/InterviewResults", new { 
+                    interviewId = InterviewId, 
+                    culture = GetCurrentCulture() 
+                });
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error in EditNote: {ex.Message}");
+                ErrorMessage = "Error updating note: " + ex.Message;
+                
+                // Redirect to preserve URL parameters even on error
+                return RedirectToPage("/InterviewResults", new { 
+                    interviewId = InterviewId, 
+                    culture = GetCurrentCulture() 
+                });
+            }
+        }
+
+        public async Task<IActionResult> OnPostDeleteNoteAsync(int noteId)
+        {
+            try
+            {
+                var success = await _noteService.DeleteInterviewNoteAsync(noteId);
+                if (success)
+                {
+                    SuccessMessage = "Note deleted successfully!";
+                }
+                else
+                {
+                    ErrorMessage = "Failed to delete note.";
+                }
+
+                // Redirect to preserve URL parameters
+                return RedirectToPage("/InterviewResults", new { 
+                    interviewId = InterviewId, 
+                    culture = GetCurrentCulture() 
+                });
+            }
+            catch (Exception ex)
+            {
+                ErrorMessage = "Error deleting note: " + ex.Message;
+                
+                // Redirect to preserve URL parameters even on error
+                return RedirectToPage("/InterviewResults", new { 
+                    interviewId = InterviewId, 
+                    culture = GetCurrentCulture() 
+                });
+            }
+        }
+
+        public async Task<IActionResult> OnPostDeleteAllNotesAsync()
+        {
+            try
+            {
+                // Find the InterviewResult by InterviewId (string field) to get the actual Id
+                var interviewResult = await _dbContext.InterviewResults
+                    .FirstOrDefaultAsync(ir => ir.InterviewId == InterviewId);
+                
+                if (interviewResult != null)
+                {
+                    var success = await _noteService.DeleteAllInterviewNotesAsync(interviewResult.Id);
+                    if (success)
+                    {
+                        SuccessMessage = "All notes deleted successfully!";
+                    }
+                    else
+                    {
+                        ErrorMessage = "No notes found to delete.";
+                    }
+                }
+                else
+                {
+                    ErrorMessage = "Interview not found.";
+                }
+
+                // Redirect to preserve URL parameters
+                return RedirectToPage("/InterviewResults", new { 
+                    interviewId = InterviewId, 
+                    culture = GetCurrentCulture() 
+                });
+            }
+            catch (Exception ex)
+            {
+                ErrorMessage = "Error deleting all notes: " + ex.Message;
+                
+                // Redirect to preserve URL parameters even on error
+                return RedirectToPage("/InterviewResults", new { 
+                    interviewId = InterviewId, 
+                    culture = GetCurrentCulture() 
+                });
+            }
         }
     }
 

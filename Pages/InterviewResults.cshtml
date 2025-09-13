@@ -14,9 +14,35 @@
 <div class="career-guidance-container">
     <!-- Header -->
     <div class="career-header">
-        <h1 class="career-title">@Localizer["Your Personalized Career Guidance"]</h1>
-        <p class="career-subtitle">@Localizer["Based on your profile and interview, here are your tailored insights and potential career roadmaps."]</p>
+        <div class="header-content">
+            <div class="header-text">
+                <h1 class="career-title">@Localizer["Your Personalized Career Guidance"]</h1>
+                <p class="career-subtitle">@Localizer["Based on your profile and interview, here are your tailored insights and potential career roadmaps."]</p>
+            </div>
+            <div class="header-actions">
+                <button type="button" class="btn btn-outline" data-bs-toggle="modal" data-bs-target="#addNotesModal">
+                    <i class="bi bi-plus-circle"></i>
+                    @Localizer["Add Notes"]
+                </button>
+            </div>
+        </div>
     </div>
+
+    <!-- Success/Error Messages -->
+    @if (!string.IsNullOrEmpty(Model.SuccessMessage))
+    {
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            @Model.SuccessMessage
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    }
+    @if (!string.IsNullOrEmpty(Model.ErrorMessage))
+    {
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            @Model.ErrorMessage
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    }
 
     <!-- Main Content Grid -->
     <div class="career-content">
@@ -52,6 +78,49 @@
                     @Localizer["Additional Tips"]
                 </h2>
                 <p>@(Model.AdditionalTips.Any() ? string.Join(" ", Model.AdditionalTips) : "Practice your public speaking by joining a club like Toastmasters. Seek informational interviews with professionals in roles you admire to gain more industry insight.")</p>
+            </div>
+
+            <!-- Interview Notes Card -->
+            <div class="career-card notes-card">
+                <h2 class="card-title">
+                    <i class="bi bi-journal-text"></i>
+                    @Localizer["Interview Notes"]
+                </h2>
+                @if (Model.InterviewNotes.Any())
+                {
+                    <div class="notes-list">
+                        @foreach (var note in Model.InterviewNotes)
+                        {
+                            <div class="note-item" data-note-id="@note.Id">
+                                <div class="note-content">
+                                    <div class="note-action-name">
+                                        <div class="note-action">@note.ActionTaken</div>
+                                        <div class="note-actions">
+                                            <button type="button" class="note-action-btn edit-btn" onclick="editNote(@note.Id)" title="@Localizer["Edit"]">
+                                                <i class="bi bi-pencil"></i>
+                                            </button>
+                                            <form method="post" style="display: inline;" onsubmit="return confirm('@Localizer["Are you sure you want to delete this note?"]')">
+                                                <input type="hidden" name="noteId" value="@note.Id" />
+                                                <button type="submit" class="note-action-btn delete-btn" asp-page-handler="DeleteNote" title="@Localizer["Delete"]">
+                                                    <i class="bi bi-trash"></i>
+                                                </button>
+                                            </form>
+                                        </div>
+                                    </div>
+                                    <div class="note-date">@note.Date.ToString("yyyy-MM-dd")</div>
+                                    @if (!string.IsNullOrEmpty(note.AdditionalNotes))
+                                    {
+                                        <div class="note-additional">@note.AdditionalNotes</div>
+                                    }
+                                </div>
+                            </div>
+                        }
+                    </div>
+                }
+                else
+                {
+                    <p class="no-notes">@Localizer["No notes yet. Click 'Add Notes' to create your first action item."]</p>
+                }
             </div>
         </div>              
 
@@ -158,6 +227,138 @@
             @Localizer["Start New Analysis"]
         </a>
     </div>
+
+    <!-- Add Notes Modal -->
+    <div class="modal fade" id="addNotesModal" tabindex="-1" aria-labelledby="addNotesModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered interview-modal-dialog">
+            <div class="modal-content interview-modal-content">
+                <div class="modal-header interview-modal-header">
+                    <h5 class="modal-title interview-modal-title" id="addNotesModalLabel">@Localizer["Interview Name"]</h5>
+                    <div class="header-actions">
+                        <form method="post" style="display: inline;" onsubmit="return confirm('@Localizer["Are you sure you want to delete all notes?"]')">
+                            <button type="submit" class="btn btn-sm btn-outline-danger" style="padding: 0.5rem 0.8rem;" asp-page-handler="DeleteAllNotes" title="@Localizer["Delete All Notes"]">
+                                <i class="bi bi-trash"></i>
+                            </button>
+                        </form>
+                    </div>
+                </div>
+                <div class="modal-body interview-modal-body">
+                    <div class="interview-list-container">
+                        @if (Model.InterviewNotes.Any())
+                        {
+                            @foreach (var note in Model.InterviewNotes)
+                            {
+                                <div class="interview-list-item" data-note-id="@note.Id">
+                                    <div class="interview-item-content">
+                                        <div class="interview-item-name-action">
+                                            <div class="interview-item-name">@note.ActionTaken</div>
+                                            <div class="interview-item-actions">
+                                                <button type="button" class="interview-action-btn edit-btn" onclick="editNote(@note.Id)" title="@Localizer["Edit"]">
+                                                    <i class="bi bi-pencil"></i>
+                                                </button>
+                                                <form method="post" style="display: inline;" onsubmit="return confirm('@Localizer["Are you sure you want to delete this note?"]')">
+                                                    <input type="hidden" name="noteId" value="@note.Id" />
+                                                    <button type="submit" class="interview-action-btn delete-btn" asp-page-handler="DeleteNote" title="@Localizer["Delete"]">
+                                                        <i class="bi bi-trash"></i>
+                                                    </button>
+                                                </form>
+                                            </div>
+                                        </div>
+                                        <div class="interview-item-date">@note.Date.ToString("yyyy-MM-dd")</div>
+                                        <div class="interview-item-description">@(string.IsNullOrEmpty(note.AdditionalNotes) ? note.ActionTaken : note.AdditionalNotes)</div>
+                                    </div>
+                                </div>
+                            }
+                        }
+                        else
+                        {
+                            <div class="no-notes-message">
+                                <p>@Localizer["No notes yet. Click 'Add Action' to create your first action item."]</p>
+                            </div>
+                        }
+                    </div>
+                    
+                    <button type="button" class="btn btn-primary add-action-btn" data-bs-toggle="modal" data-bs-target="#addActionModal" data-bs-dismiss="modal">
+                        @Localizer["Add Action"]
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Add Action Modal -->
+    <div class="modal fade" id="addActionModal" tabindex="-1" aria-labelledby="addActionModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="addActionModalLabel">@Localizer["Add Action"]</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <form method="post" id="addActionForm">
+                    <input type="hidden" asp-for="InterviewId" />
+                    <div class="modal-body">
+                        <div class="form-group">
+                            <label asp-for="ActionTaken" class="form-label">@Localizer["Action Taken"]</label>
+                            <textarea asp-for="ActionTaken" class="form-control" rows="4" placeholder="@Localizer["Describe the action you completed..."]"></textarea>
+                            <span asp-validation-for="ActionTaken" class="text-danger"></span>
+                        </div>
+                        <div class="form-group">
+                            <label asp-for="ActionDate" class="form-label">@Localizer["Date"]</label>
+                            <div class="date-input-group">
+                                <input asp-for="ActionDate" type="date" class="form-control" />
+                            </div>
+                            <span asp-validation-for="ActionDate" class="text-danger"></span>
+                        </div>
+                        <div class="form-group">
+                            <label asp-for="AdditionalNotes" class="form-label">@Localizer["Additional Note"]</label>
+                            <textarea asp-for="AdditionalNotes" class="form-control" rows="3" placeholder="@Localizer["Add details, results, or reflections..."]"></textarea>
+                            <span asp-validation-for="AdditionalNotes" class="text-danger"></span>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">@Localizer["Cancel"]</button>
+                        <button type="submit" asp-page-handler="SaveAction" class="btn btn-primary">@Localizer["Save Action"]</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Edit Note Modal -->
+<div class="modal fade" id="editNoteModal" tabindex="-1" aria-labelledby="editNoteModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="editNoteModalLabel">@Localizer["Edit Note"]</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form method="post" id="editNoteForm">
+                <input type="hidden" id="editNoteId" name="EditNoteId" />
+                <input type="hidden" asp-for="InterviewId" />
+                <div class="modal-body">
+                    <div class="form-group">
+                        <label for="editActionTaken" class="form-label">@Localizer["Action Taken"]</label>
+                        <textarea id="editActionTaken" name="EditActionTaken" class="form-control" rows="4" placeholder="@Localizer["Describe the action you completed..."]"></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label for="editActionDate" class="form-label">@Localizer["Date"]</label>
+                        <div class="date-input-group">
+                            <input id="editActionDate" name="EditActionDate" type="date" class="form-control" />
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="editAdditionalNotes" class="form-label">@Localizer["Additional Note"]</label>
+                        <textarea id="editAdditionalNotes" name="EditAdditionalNotes" class="form-control" rows="3" placeholder="@Localizer["Add details, results, or reflections..."]"></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">@Localizer["Cancel"]</button>
+                    <button type="submit" asp-page-handler="EditNote" class="btn btn-primary">@Localizer["Update Note"]</button>
+                </div>
+            </form>
+        </div>
+    </div>
 </div>
 
 <style>
@@ -168,9 +369,26 @@
 
     /* Header */
     .career-header {
-        text-align: center;
         margin-bottom: 3rem;
         padding: 0 2rem;
+    }
+
+    .header-content {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        max-width: 1200px;
+        margin: 0 auto;
+    }
+
+    .header-text {
+        flex: 1;
+        text-align: left;
+    }
+
+    .header-actions {
+        flex-shrink: 0;
+        margin-left: 2rem;
     }
 
     .career-title {
@@ -185,7 +403,6 @@
         color: #666;
         margin: 0;
         max-width: 600px;
-        margin: 0 auto;
     }
 
     .career-card-flex {
@@ -229,6 +446,12 @@
         color: #666;
         margin: 0 0 1.5rem 0;
         font-size: 1rem;
+    }
+
+    .note-action-name {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
     }
 
     /* Interview Summary Card */
@@ -343,6 +566,12 @@
         margin-bottom: 0;
     }
 
+    .interview-item-name-action {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
     /* MBA Focus Area Card */
     .mba-card {
         grid-column: 1;
@@ -408,8 +637,382 @@
         text-decoration: none;
     }
 
+    /* Modal Styles */
+    .modal-content {
+        border-radius: 12px;
+        border: none;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+    }
+
+    .modal-header {
+        border-bottom: 1px solid #e0e0e0;
+        padding: 1.5rem 2rem 1rem 2rem;
+    }
+
+    .modal-title {
+        font-size: 1.5rem;
+        font-weight: 600;
+        color: #1a1a1a;
+        margin: 0;
+    }
+
+    .modal-body {
+        padding: 2rem;
+    }
+
+    .modal-footer {
+        border-top: 1px solid #e0e0e0;
+        padding: 1rem 2rem 2rem 2rem;
+        display: flex;
+        justify-content: flex-end;
+        gap: 1rem;
+    }
+
+    /* Interview Modal Specific Styles */
+    .interview-modal-dialog {
+        max-width: 500px;
+    }
+
+    .interview-modal-content {
+        padding: 2px 30px 30px 30px;
+        border-radius: 12px;
+        border: none;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+        overflow: hidden;
+    }
+
+    .interview-modal-header {
+        border-bottom: 1px solid #e0e0e0;
+        padding: 1.5rem 0 1rem 0;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .interview-modal-title {
+        font-size: 1.5rem;
+        font-weight: 700;
+        color: #2c3e50;
+        margin: 0;
+    }
+
+    .interview-close-btn {
+        background: none;
+        border: none;
+        color: #666;
+        font-size: 1.2rem;
+        padding: 0.5rem;
+        cursor: pointer;
+        border-radius: 4px;
+        transition: all 0.2s ease;
+    }
+
+    .interview-modal-body {
+        padding: 0;
+        background: white;
+    }
+
+    .interview-list-container {
+        padding: 0;
+    }
+
+    .interview-list-item {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 1.25rem 0;
+        border-bottom: 1px solid #f0f0f0;
+        transition: background-color 0.2s ease;
+    }
+
+    .interview-list-item:last-of-type {
+        border-bottom: none;
+    }
+
+    .interview-item-content {
+        flex: 1;
+    }
+
+    .interview-item-name {
+        font-size: 18px;
+        font-weight: bold;
+        color: #2c3e50;
+        margin-bottom: 0.3rem;
+        line-height: 1.3;
+    }
+
+    .interview-item-date {
+        font-size: 0.85rem;
+        color: #7f8c8d;
+        margin-bottom: 0.3rem;
+        line-height: 1.2;
+        font-weight: 500;
+    }
+
+    .interview-item-description {
+        font-size: 0.85rem;
+        color: #7f8c8d;
+        line-height: 1.2;
+        background-color: #e4e9ed61;
+        padding: 10px 15px;
+        border-radius: 7px;
+    }
+
+    .interview-item-actions {
+        display: flex;
+        gap: 0.5rem;
+        align-items: center;
+    }
+
+    .interview-action-btn {
+        background: none;
+        border: unset !important;
+        border-radius: 4px;
+        padding: 0.4rem;
+        color: #7f8c8d;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 32px;
+        height: 32px;
+        font-size: 0.9rem;
+    }
+
+    .interview-action-btn:hover {
+        background: #f8f9fa;
+        color: #2c3e50;
+        border-color: #b0b0b0;
+    }
+
+    .edit-btn:hover {
+        background: #e3f2fd;
+        color: #1976d2;
+        border-color: #bbdefb;
+    }
+
+    .delete-btn:hover {
+        background: #ffebee;
+        color: #d32f2f;
+        border-color: #ffcdd2;
+    }
+
+    .add-action-btn {
+        border-radius: 10px !important;
+        margin-top: 20px;
+        width: 100%;
+        margin: 0;
+        border-radius: 0;
+        padding: 1.25rem 2rem;
+        font-weight: 600;
+        font-size: 1rem;
+        background: #4285f4;
+        border: none;
+        color: white;
+        cursor: pointer;
+        transition: background-color 0.2s ease;
+    }
+
+    .add-action-btn:hover {
+        background: #3367d6;
+        color: white;
+    }
+
+    /* Form Styles */
+    .form-group {
+        margin-bottom: 1.5rem;
+    }
+
+    .form-label {
+        display: block;
+        font-weight: 600;
+        color: #1a1a1a;
+        margin-bottom: 0.5rem;
+        font-size: 0.95rem;
+    }
+
+    .form-control {
+        width: 100%;
+        padding: 0.75rem;
+        border: 1px solid #e0e0e0;
+        border-radius: 6px;
+        font-size: 0.95rem;
+        transition: border-color 0.2s ease;
+        resize: vertical;
+    }
+
+    .form-control:focus {
+        outline: none;
+        border-color: #4285f4;
+        box-shadow: 0 0 0 2px rgba(66, 133, 244, 0.1);
+    }
+
+    .date-input-group {
+        position: relative;
+    }
+
+    .date-icon {
+        position: absolute;
+        right: 0.75rem;
+        top: 50%;
+        transform: translateY(-50%);
+        color: #666;
+        pointer-events: none;
+    }
+
+    .btn-secondary {
+        background: #f8f9fa;
+        color: #666;
+        border: 1px solid #e0e0e0;
+        padding: 0.75rem 1.5rem;
+        border-radius: 6px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.2s ease;
+    }
+
+    .btn-secondary:hover {
+        background: #e9ecef;
+        color: #1a1a1a;
+    }
+
+    /* Interview Notes Styles */
+    .notes-card {
+        grid-column: 1;
+        grid-row: 3;
+    }
+
+    .notes-list {
+        margin-top: 1rem;
+    }
+
+    .note-item {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        padding: 1rem;
+        border: 1px solid #e0e0e0;
+        border-radius: 8px;
+        margin-bottom: 0.75rem;
+        background: #f8f9fa;
+        transition: all 0.2s ease;
+    }
+
+    .note-item:hover {
+        background: #e9ecef;
+        border-color: #d0d0d0;
+    }
+
+    .note-content {
+        flex: 1;
+        margin-right: 1rem;
+    }
+
+    .note-action {
+        font-size: 1rem;
+        font-weight: 600;
+        color: #2c3e50;
+        margin-bottom: 0.25rem;
+        line-height: 1.3;
+    }
+
+    .note-date {
+        font-size: 0.85rem;
+        color: #7f8c8d;
+        margin-bottom: 0.5rem;
+    }
+
+    .note-additional {
+        font-size: 0.9rem;
+        color: #666;
+        line-height: 1.4;
+        background: #e4e9ed61;
+        padding: 8px 12px;
+        border-radius: 6px;
+    }
+
+    .note-actions {
+        display: flex;
+        gap: 0.5rem;
+        align-items: center;
+    }
+
+    .note-action-btn {
+        background: none;
+        border: 1px solid #d0d0d0;
+        border-radius: 4px;
+        padding: 0.4rem;
+        color: #7f8c8d;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 32px;
+        height: 32px;
+        font-size: 0.9rem;
+    }
+
+    .note-action-btn:hover {
+        background: #f8f9fa;
+        color: #2c3e50;
+        border-color: #b0b0b0;
+    }
+
+    .note-action-btn.edit-btn:hover {
+        background: #e3f2fd;
+        color: #1976d2;
+        border-color: #bbdefb;
+    }
+
+    .note-action-btn.delete-btn:hover {
+        background: #ffebee;
+        color: #d32f2f;
+        border-color: #ffcdd2;
+    }
+
+    .no-notes {
+        text-align: center;
+        color: #666;
+        font-style: italic;
+        padding: 2rem;
+        background: #f8f9fa;
+        border-radius: 8px;
+        border: 2px dashed #e0e0e0;
+    }
+
+    .no-notes-message {
+        text-align: center;
+        color: #666;
+        font-style: italic;
+        padding: 2rem;
+    }
+
+    .header-actions {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
     /* Responsive Design */
     @@media (max-width: 768px) {
+        .header-content {
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 1.5rem;
+        }
+
+        .header-text {
+            text-align: center;
+            width: 100%;
+        }
+
+        .header-actions {
+            margin-left: 0;
+            width: 100%;
+        }
+
         .career-content {
             grid-template-columns: 1fr;
             padding: 0 1rem;
@@ -442,6 +1045,56 @@
         .btn {
             width: 100%;
             max-width: 300px;
+        }
+
+        .interview-modal-dialog {
+            max-width: 95%;
+            margin: 1rem auto;
+        }
+
+        .interview-modal-header {
+            padding: 1rem 0 0.75rem 0;
+        }
+
+        .interview-modal-title {
+            font-size: 1.25rem;
+        }
+
+        .interview-list-item {
+            padding: 1rem 1.5rem;
+        }
+
+        .interview-item-name {
+            font-size: 18px;
+        }
+
+        .interview-item-date,
+        .interview-item-description {
+            font-size: 16px;
+        }
+
+        .interview-action-btn {
+            width: 28px;
+            height: 28px;
+            padding: 0.3rem;
+        }
+
+        .add-action-btn {
+            padding: 1rem 1.5rem;
+            font-size: 0.95rem;
+        }
+
+        .modal-body {
+            padding: 1.5rem;
+        }
+
+        .modal-footer {
+            padding: 1rem 1.5rem 1.5rem 1.5rem;
+            flex-direction: column;
+        }
+
+        .modal-footer .btn {
+            width: 100%;
         }
     }
 
@@ -502,6 +1155,107 @@
                 shortTermContent.classList.add('expanded');
                 shortTermArrow.style.transform = 'rotate(180deg)';
             }
+        }
+
+        // Initialize date picker for action date
+        initializeDatePicker();
+    });
+
+    // Initialize date picker
+    function initializeDatePicker() {
+        const dateInput = document.querySelector('input[type="date"]');
+        if (dateInput) {
+            // Set current date as default in local timezone
+            const today = new Date();
+            const year = today.getFullYear();
+            const month = String(today.getMonth() + 1).padStart(2, '0');
+            const day = String(today.getDate()).padStart(2, '0');
+            const formattedDate = `${year}-${month}-${day}`;
+            dateInput.value = formattedDate;
+        }
+    }
+
+    // Edit note function
+    function editNote(noteId) {
+        console.log('Edit note:', noteId);
+        
+        // Find the note data from the displayed notes
+        const noteElement = document.querySelector(`[data-note-id="${noteId}"]`);
+        if (!noteElement) {
+            console.error('Note element not found for ID:', noteId);
+            return;
+        }
+        
+        // Extract note data from the DOM
+        const actionTaken = noteElement.querySelector('.note-action').textContent.trim();
+        const date = noteElement.querySelector('.note-date').textContent.trim();
+        const additionalNotes = noteElement.querySelector('.note-additional')?.textContent.trim() || '';
+        
+        // Populate the edit form
+        document.getElementById('editNoteId').value = noteId;
+        document.getElementById('editActionTaken').value = actionTaken;
+        document.getElementById('editActionDate').value = formatDateForInput(date);
+        document.getElementById('editAdditionalNotes').value = additionalNotes;
+        
+        // Show the edit modal
+        const editModal = new bootstrap.Modal(document.getElementById('editNoteModal'));
+        editModal.show();
+    }
+    
+    // Helper function to format date for input field
+    function formatDateForInput(dateString) {
+        // Convert from "MMM dd, yyyy" format to "yyyy-MM-dd" format
+        const date = new Date(dateString);
+        if (isNaN(date.getTime())) {
+            // If parsing fails, try alternative format
+            const parts = dateString.split('-');
+            if (parts.length === 3) {
+                return dateString; // Already in correct format
+            }
+            return new Date().toISOString().split('T')[0]; // Fallback to today
+        }
+        return date.toISOString().split('T')[0];
+    }
+
+    // Add form submission debugging and validation
+    document.addEventListener('DOMContentLoaded', function() {
+        const addActionForm = document.getElementById('addActionForm');
+        if (addActionForm) {
+            addActionForm.addEventListener('submit', function(e) {
+                console.log('Form submitted!');
+                const actionTaken = document.querySelector('[name="ActionTaken"]').value;
+                const actionDate = document.querySelector('[name="ActionDate"]').value;
+                const additionalNotes = document.querySelector('[name="AdditionalNotes"]').value;
+                
+                const interviewId = document.querySelector('[name="InterviewId"]').value;
+                console.log('InterviewId:', interviewId);
+                console.log('ActionTaken:', actionTaken);
+                console.log('ActionDate:', actionDate);
+                console.log('AdditionalNotes:', additionalNotes);
+                
+                // Basic client-side validation
+                if (!actionTaken.trim()) {
+                    e.preventDefault();
+                    alert('Please describe the action you completed.');
+                    return false;
+                }
+                
+                if (!actionDate) {
+                    e.preventDefault();
+                    alert('Please select a date.');
+                    return false;
+                }
+                
+                console.log('Form validation passed, submitting...');
+            });
+        }
+        
+        // Also add click handler for the Save Action button
+        const saveActionBtn = document.querySelector('button[asp-page-handler="SaveAction"]');
+        if (saveActionBtn) {
+            saveActionBtn.addEventListener('click', function(e) {
+                console.log('Save Action button clicked!');
+            });
         }
     });
 
