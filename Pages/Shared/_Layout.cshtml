@@ -128,7 +128,7 @@
                             </a>
                         </li>
                         <li class="nav-item">
-                            <a href="/Report@(!string.IsNullOrEmpty(currentCulture) ? $"?culture={currentCulture}" : "")" class="nav-link" id="nav-report">
+                            <a href="/ReportFilter@(!string.IsNullOrEmpty(currentCulture) ? $"?culture={currentCulture}" : "")" class="nav-link" id="nav-report">
                                 <i class="bi bi-graph-up"></i>
                                 <span>@Localizer["Report"]</span>
                             </a>
@@ -484,14 +484,6 @@
 
         .mobile-close-btn:active {
             transform: scale(0.9);
-        }
-
-        /* Responsive Design */
-        @@media (max-width: 1024px) {
-            .sidebar {
-                width: 200px;
-                min-width: 200px;
-            }
         }
 
         @@media (max-width: 768px) {

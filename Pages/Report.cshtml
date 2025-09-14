@@ -37,10 +37,10 @@
         
         .dashboard-header h1 {
             margin-bottom: 0.5rem;
-            font-size: 1.875rem;
-            font-weight: 600;
+            font-size: 2.5rem;
+            font-weight: 700;
             color: #1f2937;
-            text-align: center;
+            text-align: left;
         }
         
         .dashboard-header p {
@@ -337,22 +337,22 @@
     <div class="dashboard-header">
         <div>
             <div class="d-flex justify-content-between align-items-center mb-3">
-                <h1 style="text-align: center; flex: 1;">@Localizer["Coachee Tracking Dashboard"]</h1>
+                <h1 style="text-align: left; flex: 1;">@Localizer["Coachee Tracking Dashboard"]</h1>
                 <a href="/ReportFilter?culture=@currentCulture" class="btn btn-outline-primary">
                     <i class="bi bi-funnel"></i> @Localizer["Filter Report"]
                 </a>
             </div>
             @if (Model.IsLoading)
             {
-                <p style="text-align: center;" class="text-muted">@Localizer["Loading report data..."]</p>
+                <p style="text-align: centerleft" class="text-muted">@Localizer["Loading report data..."]</p>
             }
             else if (Model.StudentReport?.Response?.ClientInfo != null)
             {
-                <p style="text-align: center;">@Localizer["Client: {0} | Process Started: {1}", Model.StudentReport.Response.ClientInfo.Name, Model.StudentReport.Response.ClientInfo.ProcessStartDate]</p>
+                <p style="text-align: left;">@Localizer["Client: {0} | Process Started: {1}", Model.ClientName, Model.ProcessStartDate]</p>
             }
             else
             {
-                <p style="text-align: center;" class="text-muted">@Localizer["Client: Ana Garcia | Process Started: {0}", DateTime.Now.ToString("MMMM d, yyyy")]</p>
+                <p style="text-align: left;" class="text-muted">@Localizer["Client: {0} | Process Started: {1}", Model.ClientName, Model.ProcessStartDate]</p>
             }
         </div>
     </div>
