@@ -186,6 +186,30 @@
   <data name="Title">
     <value>Title</value>
   </data>
+  <data name="Resource Name">
+    <value>Resource Name</value>
+  </data>
+  <data name="Interview Results">
+    <value>Interview Results</value>
+  </data>
+  <data name="Filter by Student">
+    <value>Filter by Student</value>
+  </data>
+  <data name="All Students">
+    <value>All Students</value>
+  </data>
+  <data name="No Interview Results">
+    <value>No Interview Results</value>
+  </data>
+  <data name="No interview results found for the selected student(s).">
+    <value>No interview results found for the selected student(s).</value>
+  </data>
+  <data name="COMPLETED">
+    <value>COMPLETED</value>
+  </data>
+  <data name="View Result">
+    <value>View Result</value>
+  </data>
   <data name="e.g., Documentation">
     <value>e.g., Documentation</value>
   </data>

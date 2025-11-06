@@ -7,11 +7,11 @@ namespace InterviewBot.Models
         public int Id { get; set; }
 
         [Required]
-        [StringLength(200)]
-        public string Title { get; set; } = string.Empty;
+        [StringLength(255)]
+        public string ResourceName { get; set; } = string.Empty;
 
         [Required]
-        [StringLength(500)]
+        [StringLength(255)]
         [Url]
         public string Url { get; set; } = string.Empty;
 
@@ -21,7 +21,10 @@ namespace InterviewBot.Models
         public Group Group { get; set; } = null!;
 
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
-        public DateTime? UpdatedAt { get; set; }
+        public DateTime UpdatedAt { get; set; } = DateTime.UtcNow;
+
+        // Computed property for backward compatibility with UI (if needed)
+        public string Title => ResourceName;
     }
 }
 

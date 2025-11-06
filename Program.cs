@@ -258,6 +258,37 @@ using (var scope = app.Services.CreateScope())
             var logger = scope.ServiceProvider.GetRequiredService<ILogger<Program>>();
             logger.LogWarning(fixEx, "Could not fix Tasks IsVisible column. This may be normal if the table doesn't exist yet.");
         }
+
+        // Fix Resources table Id column - ensure it's configured as an identity column
+        try
+        {
+            await dbContext.Database.ExecuteSqlRawAsync(@"
+                DO $$ 
+                BEGIN 
+                    IF EXISTS (
+                        SELECT 1 FROM information_schema.tables 
+                        WHERE table_schema = 'public' AND table_name = 'Resources'
+                    ) THEN
+                        -- Create sequence if it doesn't exist
+                        CREATE SEQUENCE IF NOT EXISTS ""Resources_Id_seq"";
+                        
+                        -- Set the sequence value based on current max Id
+                        PERFORM setval('""Resources_Id_seq""', COALESCE((SELECT MAX(""Id"") FROM ""Resources""), 0) + 1, false);
+                        
+                        -- Set the default value for Id column to use the sequence
+                        ALTER TABLE ""Resources"" ALTER COLUMN ""Id"" SET DEFAULT nextval('""Resources_Id_seq""');
+                    END IF;
+                EXCEPTION WHEN OTHERS THEN
+                    -- Ignore errors
+                    NULL;
+                END $$;
+            ");
+        }
+        catch (Exception fixEx)
+        {
+            var logger = scope.ServiceProvider.GetRequiredService<ILogger<Program>>();
+            logger.LogWarning(fixEx, "Could not fix Resources Id column. This may be normal if the table doesn't exist yet.");
+        }
     }
     catch (Exception ex)
     {

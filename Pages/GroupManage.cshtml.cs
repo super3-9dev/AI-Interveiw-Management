@@ -61,9 +61,14 @@ namespace InterviewBot.Pages
         public Group? Group { get; set; }
         public List<GroupTask> Tasks { get; set; } = new();
         public List<GroupResource> Resources { get; set; } = new();
+        public List<InterviewResult> InterviewResults { get; set; } = new();
+        public List<User> GroupStudents { get; set; } = new();
         public string? ErrorMessage { get; set; }
         public string? SuccessMessage { get; set; }
         public string ActiveTab { get; set; } = "students";
+        
+        [BindProperty(SupportsGet = true)]
+        public int? SelectedStudentId { get; set; }
 
         public async Task<IActionResult> OnGetAsync(string tab = "students")
         {
@@ -107,10 +112,17 @@ namespace InterviewBot.Pages
                 await LoadTasksAsync();
             }
 
-            // Load resources if on resources tab (using mock data for now)
+            // Load resources if on resources tab
             if (ActiveTab == "resources")
             {
-                LoadMockResources();
+                await LoadResourcesAsync();
+            }
+
+            // Load analytics (interview results) if on analytics tab
+            if (ActiveTab == "analytics")
+            {
+                await LoadGroupStudentsAsync();
+                await LoadInterviewResultsAsync();
             }
 
             return Page();
@@ -425,45 +437,309 @@ namespace InterviewBot.Pages
             }
         }
 
-        private void LoadMockResources()
+        public async Task<IActionResult> OnPostCreateResourceAsync()
         {
-            // Mock data for resources
-            Resources = new List<GroupResource>
+            // Check if user is a Teacher (idProfile = 1)
+            var idProfileClaim = User.FindFirst("IdProfile");
+            if (idProfileClaim == null || !int.TryParse(idProfileClaim.Value, out int idProfile) || idProfile != 1)
             {
-                new GroupResource
+                return RedirectToPage("/Index");
+            }
+
+            var userId = GetCurrentUserId();
+            if (userId == null)
+            {
+                return RedirectToPage("/Account/Login");
+            }
+
+            // Load the group and verify ownership
+            Group = await _db.Groups
+                .FirstOrDefaultAsync(g => g.Id == Id && g.UserId == userId.Value);
+
+            if (Group == null)
+            {
+                ErrorMessage = "Group not found or you don't have permission to access it.";
+                ActiveTab = "resources";
+                await LoadResourcesAsync();
+                return Page();
+            }
+
+            ActiveTab = "resources";
+
+            // Validate input
+            if (string.IsNullOrWhiteSpace(ResourceTitle))
+            {
+                ErrorMessage = "Please enter a resource name.";
+                await LoadResourcesAsync();
+                return Page();
+            }
+
+            if (string.IsNullOrWhiteSpace(ResourceUrl))
+            {
+                ErrorMessage = "Please enter a URL.";
+                await LoadResourcesAsync();
+                return Page();
+            }
+
+            // Validate field lengths
+            if (ResourceTitle.Length > 255)
+            {
+                ErrorMessage = "Resource name cannot exceed 255 characters.";
+                await LoadResourcesAsync();
+                return Page();
+            }
+
+            if (ResourceUrl.Length > 255)
+            {
+                ErrorMessage = "URL cannot exceed 255 characters.";
+                await LoadResourcesAsync();
+                return Page();
+            }
+
+            // Validate URL format
+            if (!Uri.TryCreate(ResourceUrl, UriKind.Absolute, out Uri? validatedUri) || 
+                (validatedUri.Scheme != Uri.UriSchemeHttp && validatedUri.Scheme != Uri.UriSchemeHttps))
+            {
+                ErrorMessage = "Please enter a valid URL (must start with http:// or https://).";
+                await LoadResourcesAsync();
+                return Page();
+            }
+
+            try
+            {
+                GroupResource resourceToSave;
+                
+                if (ResourceId.HasValue && ResourceId.Value > 0)
                 {
-                    Id = 1,
-                    Title = "Documentación de Agentes IA",
-                    Url = "https://docs.example.com/agents",
-                    GroupId = Group?.Id ?? 0,
-                    CreatedAt = DateTime.UtcNow.AddDays(-5)
-                },
-                new GroupResource
-                {
-                    Id = 2,
-                    Title = "Tutorial de Tailwind CSS",
-                    Url = "https://tailwindcss.com/docs",
-                    GroupId = Group?.Id ?? 0,
-                    CreatedAt = DateTime.UtcNow.AddDays(-3)
+                    // Edit existing resource
+                    resourceToSave = await _db.Resources
+                        .FirstOrDefaultAsync(r => r.Id == ResourceId.Value && r.GroupId == Group.Id);
+                    
+                    if (resourceToSave == null)
+                    {
+                        ErrorMessage = "Resource not found or you don't have permission to edit it.";
+                        await LoadResourcesAsync();
+                        return Page();
+                    }
+                    
+                    // Update resource properties
+                    resourceToSave.ResourceName = ResourceTitle.Trim();
+                    resourceToSave.Url = ResourceUrl.Trim();
+                    resourceToSave.UpdatedAt = DateTime.UtcNow;
                 }
-            };
+                else
+                {
+                    // Create new resource
+                    resourceToSave = new GroupResource
+                    {
+                        ResourceName = ResourceTitle.Trim(),
+                        Url = ResourceUrl.Trim(),
+                        GroupId = Group.Id,
+                        CreatedAt = DateTime.UtcNow,
+                        UpdatedAt = DateTime.UtcNow
+                    };
+                    
+                    _db.Resources.Add(resourceToSave);
+                }
+
+                // Save to database
+                await _db.SaveChangesAsync();
+                
+                // Reload resources from database
+                await LoadResourcesAsync();
+
+                SuccessMessage = ResourceId.HasValue ? "Resource updated successfully!" : "Resource created successfully!";
+                // Clear form
+                ResourceId = null;
+                ResourceTitle = string.Empty;
+                ResourceUrl = string.Empty;
+
+                // Redirect to refresh the page
+                var currentCulture = HttpContext.Request.Query["culture"].ToString();
+                if (string.IsNullOrEmpty(currentCulture))
+                {
+                    currentCulture = HttpContext.Request.Cookies["culture"] ?? "en";
+                }
+
+                return RedirectToPage("/GroupManage", new { id = Id, tab = "resources", culture = currentCulture });
+            }
+            catch (Exception ex)
+            {
+                ErrorMessage = "Error saving resource: " + ex.Message;
+                await LoadResourcesAsync();
+                return Page();
+            }
+        }
+
+        public async Task<IActionResult> OnPostDeleteResourceAsync(int resourceId)
+        {
+            // Check if user is a Teacher (idProfile = 1)
+            var idProfileClaim = User.FindFirst("IdProfile");
+            if (idProfileClaim == null || !int.TryParse(idProfileClaim.Value, out int idProfile) || idProfile != 1)
+            {
+                return RedirectToPage("/Index");
+            }
+
+            var userId = GetCurrentUserId();
+            if (userId == null)
+            {
+                return RedirectToPage("/Account/Login");
+            }
+
+            // Load the group and verify ownership
+            Group = await _db.Groups
+                .FirstOrDefaultAsync(g => g.Id == Id && g.UserId == userId.Value);
+
+            if (Group == null)
+            {
+                ErrorMessage = "Group not found or you don't have permission to access it.";
+                ActiveTab = "resources";
+                await LoadResourcesAsync();
+                return Page();
+            }
+
+            ActiveTab = "resources";
+
+            try
+            {
+                var resourceToDelete = await _db.Resources
+                    .FirstOrDefaultAsync(r => r.Id == resourceId && r.GroupId == Group.Id);
+
+                if (resourceToDelete == null)
+                {
+                    ErrorMessage = "Resource not found or you don't have permission to delete it.";
+                    await LoadResourcesAsync();
+                    return Page();
+                }
+
+                _db.Resources.Remove(resourceToDelete);
+                await _db.SaveChangesAsync();
+
+                SuccessMessage = "Resource deleted successfully!";
+                await LoadResourcesAsync();
+
+                // Redirect to refresh the page
+                var currentCulture = HttpContext.Request.Query["culture"].ToString();
+                if (string.IsNullOrEmpty(currentCulture))
+                {
+                    currentCulture = HttpContext.Request.Cookies["culture"] ?? "en";
+                }
+
+                return RedirectToPage("/GroupManage", new { id = Id, tab = "resources", culture = currentCulture });
+            }
+            catch (Exception ex)
+            {
+                ErrorMessage = "Error deleting resource: " + ex.Message;
+                await LoadResourcesAsync();
+                return Page();
+            }
         }
 
         private async Task LoadResourcesAsync()
         {
-            if (Group == null) return;
+            if (Group == null)
+            {
+                Resources = new List<GroupResource>();
+                return;
+            }
 
             try
             {
                 Resources = await _db.Resources
                     .Where(r => r.GroupId == Group.Id)
                     .OrderByDescending(r => r.CreatedAt)
+                    .AsNoTracking() // Prevent tracking and loading navigation properties
                     .ToListAsync();
             }
-            catch
+            catch (Exception ex)
             {
-                // If table doesn't exist, use mock data
-                LoadMockResources();
+                // Log error but don't crash
+                ErrorMessage = "Error loading resources: " + ex.Message;
+                Resources = new List<GroupResource>();
+            }
+        }
+
+        private async Task LoadGroupStudentsAsync()
+        {
+            if (Group == null || string.IsNullOrWhiteSpace(Group.Emails))
+            {
+                GroupStudents = new List<User>();
+                return;
+            }
+
+            try
+            {
+                // Parse emails from the group
+                var emails = Group.Emails
+                    .Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries)
+                    .Select(e => e.Trim())
+                    .Where(e => !string.IsNullOrWhiteSpace(e))
+                    .Distinct()
+                    .ToList();
+
+                if (emails.Count == 0)
+                {
+                    GroupStudents = new List<User>();
+                    return;
+                }
+
+                // Find users with those emails
+                GroupStudents = await _db.Users
+                    .Where(u => emails.Contains(u.Email))
+                    .OrderBy(u => u.Email)
+                    .AsNoTracking()
+                    .ToListAsync();
+            }
+            catch (Exception ex)
+            {
+                // Log error but don't crash
+                ErrorMessage = "Error loading group students: " + ex.Message;
+                GroupStudents = new List<User>();
+            }
+        }
+
+        private async Task LoadInterviewResultsAsync()
+        {
+            if (Group == null)
+            {
+                InterviewResults = new List<InterviewResult>();
+                return;
+            }
+
+            try
+            {
+                // Get student user IDs from the group
+                var studentUserIds = GroupStudents.Select(s => s.Id).ToList();
+
+                if (studentUserIds.Count == 0)
+                {
+                    InterviewResults = new List<InterviewResult>();
+                    return;
+                }
+
+                // Build query for interview results
+                var query = _db.InterviewResults
+                    .Include(r => r.User)
+                    .Where(r => studentUserIds.Contains(r.UserId))
+                    .AsQueryable();
+
+                // Filter by selected student if provided
+                if (SelectedStudentId.HasValue && SelectedStudentId.Value > 0)
+                {
+                    query = query.Where(r => r.UserId == SelectedStudentId.Value);
+                }
+
+                // Order by completion date (newest first)
+                InterviewResults = await query
+                    .OrderByDescending(r => r.CompleteDate)
+                    .AsNoTracking()
+                    .ToListAsync();
+            }
+            catch (Exception ex)
+            {
+                // Log error but don't crash
+                ErrorMessage = "Error loading interview results: " + ex.Message;
+                InterviewResults = new List<InterviewResult>();
             }
         }
     }

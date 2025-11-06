@@ -226,9 +226,30 @@ namespace InterviewBot.Data
             // Configure GroupResource entity properties
             modelBuilder.Entity<GroupResource>(entity =>
             {
-                entity.ToTable("Resources"); // Keep table name as "Resources" for backward compatibility
-                entity.Property(r => r.Title).IsRequired().HasMaxLength(200);
-                entity.Property(r => r.Url).IsRequired().HasMaxLength(500);
+                entity.ToTable("Resources"); // Map to "Resources" table
+                
+                // Configure Id as identity column for PostgreSQL
+                entity.Property(r => r.Id)
+                    .ValueGeneratedOnAdd();
+                NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(entity.Property(r => r.Id));
+                
+                // Map ResourceName to the database column
+                entity.Property(r => r.ResourceName)
+                    .IsRequired()
+                    .HasMaxLength(255)
+                    .HasColumnName("ResourceName");
+                
+                entity.Property(r => r.Url)
+                    .IsRequired()
+                    .HasMaxLength(255)
+                    .HasColumnName("URL");
+                
+                entity.Property(r => r.UpdatedAt)
+                    .IsRequired()
+                    .HasDefaultValueSql("NOW()");
+                
+                // Ignore computed property
+                entity.Ignore(r => r.Title);
             });
 
             // Configure InterviewSession relationships

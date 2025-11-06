@@ -676,8 +676,22 @@
             // Remove all active classes
             allNavLinks.forEach(link => link.classList.remove('active'));
             
+            // Special handling for "My Group" menu - should be active on both MyGroups and GroupManage pages
+            const myGroupsLink = document.getElementById('nav-mygroups');
+            if (myGroupsLink) {
+                if (currentPath === '/mygroups' || currentPath.startsWith('/mygroups') ||
+                    currentPath === '/groupmanage' || currentPath.startsWith('/groupmanage')) {
+                    myGroupsLink.classList.add('active');
+                }
+            }
+            
             // Set active based on current page
             allNavLinks.forEach(link => {
+                // Skip nav-mygroups as it's already handled above
+                if (link.id === 'nav-mygroups') {
+                    return;
+                }
+                
                 const href = link.getAttribute('href');
                 if (href) {
                     const linkPath = href.split('?')[0].toLowerCase();
