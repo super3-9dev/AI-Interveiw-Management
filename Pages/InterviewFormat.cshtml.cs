@@ -2,6 +2,9 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.AspNetCore.Authorization;
 using InterviewBot.Services;
+using InterviewBot.Data;
+using InterviewBot.Models;
+using Microsoft.EntityFrameworkCore;
 using System.Security.Claims;
 
 namespace InterviewBot.Pages
@@ -10,20 +13,43 @@ namespace InterviewBot.Pages
     public class InterviewFormatModel : PageModel
     {
         private readonly IInterviewCatalogService _interviewCatalogService;
+        private readonly AppDbContext _db;
 
         [BindProperty(SupportsGet = true)]
         public string InterviewId { get; set; } = string.Empty;
 
+        [BindProperty(SupportsGet = true)]
+        public string? TaskId { get; set; }
+
         [BindProperty]
         public string Culture { get; set; } = string.Empty;
 
-        public InterviewFormatModel(IInterviewCatalogService interviewCatalogService)
+        public string? TaskTitle { get; set; }
+        public bool IsTaskBased { get; set; } = false;
+
+        public InterviewFormatModel(IInterviewCatalogService interviewCatalogService, AppDbContext db)
         {
             _interviewCatalogService = interviewCatalogService;
+            _db = db;
         }
 
-        public void OnGet()
+        public async Task OnGetAsync()
         {
+            // If TaskId is provided, load task information
+            if (!string.IsNullOrEmpty(TaskId) && int.TryParse(TaskId, out int taskIdInt))
+            {
+                var task = await _db.Tasks
+                    .Include(t => t.Group)
+                    .FirstOrDefaultAsync(t => t.Id == taskIdInt);
+
+                if (task != null)
+                {
+                    IsTaskBased = true;
+                    TaskTitle = task.TaskName;
+                    // Set InterviewId to a special format for task-based interviews
+                    InterviewId = $"task-{taskIdInt}";
+                }
+            }
             // The InterviewId is automatically bound from the query string
         }
 
@@ -37,16 +63,26 @@ namespace InterviewBot.Pages
                     return RedirectToPage("/Account/Login");
                 }
 
+                // Handle task-based interviews
+                if (!string.IsNullOrEmpty(TaskId) && int.TryParse(TaskId, out int taskIdInt))
+                {
+                    var currentCulture = !string.IsNullOrEmpty(Culture) ? Culture : 
+                        (HttpContext.Request.Query["culture"].ToString() ?? HttpContext.Request.Cookies["culture"] ?? "en");
+                    
+                    return RedirectToPage("/TextInterview", new { interviewId = $"task-{taskIdInt}", taskId = taskIdInt, culture = currentCulture });
+                }
+
+                // Handle regular interview catalog
                 if (int.TryParse(InterviewId, out int catalogId))
                 {
                     // Update the interviewKind to "text" for text interview
                     await _interviewCatalogService.UpdateInterviewKindAsync(catalogId, "text");
                 }
                 // Redirect to text interview page
-                var currentCulture = !string.IsNullOrEmpty(Culture) ? Culture : 
+                var currentCulture2 = !string.IsNullOrEmpty(Culture) ? Culture : 
                     (HttpContext.Request.Query["culture"].ToString() ?? HttpContext.Request.Cookies["culture"] ?? "en");
 
-                return RedirectToPage("/TextInterview", new { interviewId = InterviewId, culture = currentCulture });
+                return RedirectToPage("/TextInterview", new { interviewId = InterviewId, culture = currentCulture2 });
             }
             catch (Exception)
             {
@@ -70,6 +106,16 @@ namespace InterviewBot.Pages
                     return RedirectToPage("/Account/Login");
                 }
 
+                // Handle task-based interviews
+                if (!string.IsNullOrEmpty(TaskId) && int.TryParse(TaskId, out int taskIdInt))
+                {
+                    var currentCulture = !string.IsNullOrEmpty(Culture) ? Culture : 
+                        (HttpContext.Request.Query["culture"].ToString() ?? HttpContext.Request.Cookies["culture"] ?? "en");
+                    
+                    return RedirectToPage("/VoiceInterview", new { interviewId = $"task-{taskIdInt}", taskId = taskIdInt, culture = currentCulture });
+                }
+
+                // Handle regular interview catalog
                 if (int.TryParse(InterviewId, out int catalogId))
                 {
                     // Update the interviewKind to "voice" for voice interview
@@ -77,10 +123,10 @@ namespace InterviewBot.Pages
                 }
 
                 // Redirect to voice interview page
-                var currentCulture = !string.IsNullOrEmpty(Culture) ? Culture : 
+                var currentCulture2 = !string.IsNullOrEmpty(Culture) ? Culture : 
                     (HttpContext.Request.Query["culture"].ToString() ?? HttpContext.Request.Cookies["culture"] ?? "en");
 
-                return RedirectToPage("/VoiceInterview", new { interviewId = InterviewId, culture = currentCulture });
+                return RedirectToPage("/VoiceInterview", new { interviewId = InterviewId, culture = currentCulture2 });
             }
             catch (Exception)
             {

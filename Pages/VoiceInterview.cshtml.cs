@@ -36,6 +36,9 @@ namespace InterviewBot.Pages
         [BindProperty(SupportsGet = true)]
         public string InterviewId { get; set; } = string.Empty;
 
+        [BindProperty(SupportsGet = true)]
+        public int? TaskId { get; set; }
+
         [BindProperty]
         [Required(ErrorMessage = "Please provide an answer")]
         [StringLength(2000, ErrorMessage = "Answer cannot exceed 2000 characters")]
@@ -47,6 +50,7 @@ namespace InterviewBot.Pages
         // Interview content properties
         public string InterviewTopic { get; set; } = string.Empty;
         public string InterviewIntroduction { get; set; } = string.Empty;
+        public string AgentInstructions { get; set; } = string.Empty;
         public string CurrentQuestion { get; set; } = string.Empty;
         public List<InterviewHistoryItem> InterviewHistory { get; set; } = new List<InterviewHistoryItem>();
         public string GreetingMessage { get; set; } = string.Empty;
@@ -401,6 +405,13 @@ namespace InterviewBot.Pages
             if (string.IsNullOrEmpty(InterviewId))
                 return;
 
+            // Handle task-based interviews
+            if (InterviewId.StartsWith("task-") || TaskId.HasValue)
+            {
+                await LoadTaskBasedInterviewContentAsync();
+                return;
+            }
+
             // Handle default interviews
             if (InterviewId.StartsWith("default-"))
             {
@@ -423,6 +434,111 @@ namespace InterviewBot.Pages
                     CurrentQuestion = interviewCatalog.Introduction;
                 }
             }
+
+            // Load interview history if session exists
+            await LoadInterviewHistoryAsync();
+        }
+
+        private async Task LoadTaskBasedInterviewContentAsync()
+        {
+            int taskIdToLoad = 0;
+
+            // Get taskId from InterviewId prefix or TaskId parameter
+            if (InterviewId.StartsWith("task-"))
+            {
+                var taskIdStr = InterviewId.Replace("task-", "");
+                if (int.TryParse(taskIdStr, out int parsedTaskId))
+                {
+                    taskIdToLoad = parsedTaskId;
+                }
+            }
+            else if (TaskId.HasValue)
+            {
+                taskIdToLoad = TaskId.Value;
+            }
+
+            if (taskIdToLoad == 0)
+            {
+                ErrorMessage = "Invalid task ID.";
+                return;
+            }
+
+            // Load task from database
+            var task = await _dbContext.Tasks
+                .Include(t => t.Group)
+                .FirstOrDefaultAsync(t => t.Id == taskIdToLoad && t.IsVisible == true);
+
+            if (task == null)
+            {
+                ErrorMessage = "Task not found or not available.";
+                return;
+            }
+
+            // Verify user is a student and belongs to the group
+            var userId = GetCurrentUserId();
+            if (!userId.HasValue)
+            {
+                ErrorMessage = "User not authenticated.";
+                return;
+            }
+
+            var user = await _dbContext.Users.FirstOrDefaultAsync(u => u.Id == userId.Value);
+            if (user == null || string.IsNullOrWhiteSpace(user.Email))
+            {
+                ErrorMessage = "User not found.";
+                return;
+            }
+
+            // Check if user's email is in the group's emails
+            if (string.IsNullOrWhiteSpace(task.Group?.Emails) || 
+                !task.Group.Emails.Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries)
+                    .Select(e => e.Trim().ToLowerInvariant())
+                    .Contains(user.Email.Trim().ToLowerInvariant()))
+            {
+                ErrorMessage = "You don't have access to this task.";
+                return;
+            }
+
+            // Set interview content from task
+            InterviewTopic = task.TaskName;
+            InterviewIntroduction = !string.IsNullOrWhiteSpace(task.Instructions) 
+                ? task.Instructions 
+                : (!string.IsNullOrWhiteSpace(task.Objective) ? task.Objective : task.TaskName);
+            
+            // Build agent instructions from task details
+            var agentInstructionsBuilder = new System.Text.StringBuilder();
+            agentInstructionsBuilder.AppendLine($"You are an AI interviewer conducting an interview based on the following task: {task.TaskName}");
+            
+            if (!string.IsNullOrWhiteSpace(task.AgentName))
+            {
+                agentInstructionsBuilder.AppendLine($"Agent Role: {task.AgentName}");
+            }
+            
+            if (!string.IsNullOrWhiteSpace(task.Objective))
+            {
+                agentInstructionsBuilder.AppendLine($"Objective: {task.Objective}");
+            }
+            
+            if (!string.IsNullOrWhiteSpace(task.Instructions))
+            {
+                agentInstructionsBuilder.AppendLine($"Instructions: {task.Instructions}");
+            }
+            
+            if (!string.IsNullOrWhiteSpace(task.Constraints))
+            {
+                agentInstructionsBuilder.AppendLine($"Constraints: {task.Constraints}");
+            }
+            
+            if (!string.IsNullOrWhiteSpace(task.Emphasis))
+            {
+                agentInstructionsBuilder.AppendLine($"Emphasis: {task.Emphasis}");
+            }
+
+            AgentInstructions = agentInstructionsBuilder.ToString();
+            CurrentQuestion = InterviewIntroduction;
+            
+            // Set InterviewId to task format for consistency
+            InterviewId = $"task-{taskIdToLoad}";
 
             // Load interview history if session exists
             await LoadInterviewHistoryAsync();

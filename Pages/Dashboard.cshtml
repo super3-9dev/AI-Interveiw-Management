@@ -171,9 +171,68 @@
                     </div>
                 }
 
+
+                <!-- Tasks Section - Only show for students who are in a group -->
+                @if (Model.IsStudent && Model.IsInAnyGroup)
+                {
+                    <div class="tasks-section">
+                        <div class="section-header">
+                            <input type="text" class="search-input" placeholder="@Localizer["Search tasks..."]" id="taskSearch" />
+                            <h5 class="section-title">
+                                <i class="bi bi-list-task"></i>
+                                @Localizer["Tasks"]
+                            </h5>
+                            <p class="section-subtitle">@Localizer["Choose from available tasks to start an interview or create a new one."]
+                            </p>
+                        </div>
+                        <div class="task-cards">
+                            @if (Model.Tasks != null && Model.Tasks.Any())
+                            {
+                                @foreach (var task in Model.Tasks)
+                                {
+                                    <div class="task-card">
+                                        <div class="card-body">
+                                            <h6 class="task-title mb-0">@task.TaskName</h6>
+                                            @if (!string.IsNullOrWhiteSpace(task.AgentName))
+                                            {
+                                                <p class="task-meta mb-2">
+                                                    <small class="text-muted">@Localizer["Agent"]: @task.AgentName</small>
+                                                </p>
+                                            }
+                                            @if (!string.IsNullOrWhiteSpace(task.Instructions))
+                                            {
+                                                <p class="task-description">
+                                                    @task.Instructions
+                                                </p>
+                                            }
+                                            else if (!string.IsNullOrWhiteSpace(task.Objective))
+                                            {
+                                                <p class="task-description">
+                                                    @task.Objective
+                                                </p>
+                                            }
+                                            <a href="/InterviewFormat?taskId=@task.Id@(!string.IsNullOrEmpty(currentCulture) ? $"&culture={currentCulture}" : "")"
+                                                class="btn btn-primary task-btn">
+                                                @Localizer["Start Interview"]
+                                            </a>
+                                        </div>
+                                    </div>
+                                }
+                            }
+                            else
+                            {
+                                <div class="no-tasks-message">
+                                    <p class="text-muted">@Localizer["No tasks available. Tasks will be displayed here when available."]</p>
+                                </div>
+                            }
+                        </div>
+                    </div>
+                }
+                
                 <!-- Interview Catalog Section -->
                 <div class="interview-section">
                     <div class="section-header">
+                        <input type="text" class="search-input" placeholder="@Localizer["Search interviews..."]" id="interviewSearch" />
                         <h5 class="section-title">
                             <i class="bi bi-list-ul"></i>
                             @Localizer["Interview Catalog"]
@@ -494,6 +553,22 @@
 
     .section-header {
         margin-bottom: 1.5rem;
+    }
+
+    .search-input {
+        width: 100%;
+        padding: 0.75rem 1rem;
+        border: 1px solid #d1d5db;
+        border-radius: 0.5rem;
+        font-size: 0.95rem;
+        margin-bottom: 1rem;
+        transition: border-color 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    .search-input:focus {
+        outline: none;
+        border-color: #3b82f6;
+        box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
     }
 
     .section-title {
@@ -837,6 +912,150 @@
     .delete-btn:focus {
         box-shadow: 0 0 0 0.2rem rgba(220, 53, 69, 0.25);
     }
+
+    /* Tasks Section Styles */
+    .tasks-section {
+        padding: 1.5rem;
+        margin-bottom: 1.5rem;
+    }
+
+    .task-cards {
+        display: flex;
+        flex-direction: column;
+        gap: 1rem;
+    }
+
+    .task-card {
+        background-color: white;
+        border: 1px solid #7dd3fc;
+        border-radius: 0.5rem;
+        transition: all 0.2s ease;
+    }
+
+    .task-card:hover {
+        border-color: #0ea5e9;
+        box-shadow: 0 2px 8px rgba(14, 165, 233, 0.15);
+    }
+
+    .task-card .card-body {
+        padding: 1.5rem;
+    }
+
+    .task-title {
+        font-weight: 600;
+        color: #1f2937;
+        margin-bottom: 0.5rem;
+    }
+
+    .task-meta {
+        color: #6b7280;
+        font-size: 0.875rem;
+    }
+
+    .task-description {
+        color: #6b7280;
+        margin-bottom: 1rem;
+        line-height: 1.5;
+    }
+
+    .task-btn {
+        width: 100%;
+        border-radius: 0.5rem;
+        font-weight: 500;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.5rem;
+        padding: 0.75rem 1rem;
+        transition: all 0.2s ease;
+        background-color: #0ea5e9;
+        border-color: #0ea5e9;
+        color: white;
+    }
+
+    .task-btn:hover {
+        background-color: #0284c7;
+        border-color: #0284c7;
+        color: white;
+        transform: translateY(-1px);
+        box-shadow: 0 2px 8px rgba(14, 165, 233, 0.3);
+    }
+
+    .task-delete-btn {
+        border: none;
+        background: none;
+        color: #dc3545;
+        padding: 0.25rem 0.5rem;
+        border-radius: 0.25rem;
+        transition: all 0.2s ease;
+    }
+
+    .task-delete-btn:hover {
+        background-color: #dc3545;
+        color: white;
+        transform: scale(1.05);
+    }
+
+    .task-delete-btn:focus {
+        box-shadow: 0 0 0 0.2rem rgba(220, 53, 69, 0.25);
+    }
+
+    .no-tasks-message {
+        text-align: center;
+        padding: 2rem;
+        color: #6b7280;
+    }
+
+    /* Task section header styling */
+    .tasks-section .section-title {
+        color: #0369a1;
+    }
+
+    .tasks-section .search-input:focus {
+        border-color: #0ea5e9;
+        box-shadow: 0 0 0 3px rgba(14, 165, 233, 0.1);
+    }
 </style>
+
+<script>
+    // Search functionality for interviews
+    document.addEventListener('DOMContentLoaded', function() {
+        const interviewSearch = document.getElementById('interviewSearch');
+        if (interviewSearch) {
+            interviewSearch.addEventListener('input', function(e) {
+                const searchTerm = e.target.value.toLowerCase();
+                const interviewCards = document.querySelectorAll('.interview-card');
+                interviewCards.forEach(card => {
+                    const title = card.querySelector('.interview-title')?.textContent.toLowerCase() || '';
+                    const description = card.querySelector('.interview-description')?.textContent.toLowerCase() || '';
+                    if (title.includes(searchTerm) || description.includes(searchTerm)) {
+                        card.style.display = '';
+                    } else {
+                        card.style.display = 'none';
+                    }
+                });
+            });
+        }
+
+        // Search functionality for tasks
+        const taskSearch = document.getElementById('taskSearch');
+        if (taskSearch) {
+            taskSearch.addEventListener('input', function(e) {
+                const searchTerm = e.target.value.toLowerCase();
+                const taskCards = document.querySelectorAll('.task-card');
+                taskCards.forEach(card => {
+                    const title = card.querySelector('.task-title')?.textContent.toLowerCase() || '';
+                    const description = card.querySelector('.task-description')?.textContent.toLowerCase() || '';
+                    const meta = card.querySelector('.task-meta')?.textContent.toLowerCase() || '';
+                    if (title.includes(searchTerm) || description.includes(searchTerm) || meta.includes(searchTerm)) {
+                        card.style.display = '';
+                    } else {
+                        card.style.display = 'none';
+                    }
+                });
+            });
+        }
+    });
+</script>
 
 

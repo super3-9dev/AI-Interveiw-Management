@@ -150,5 +150,29 @@
   <data name="Are you sure you want to delete this interview?">
     <value>Are you sure you want to delete this interview?</value>
   </data>
+  <data name="Tasks">
+    <value>Tasks</value>
+  </data>
+  <data name="Choose from available tasks to start an interview or create a new one.">
+    <value>Choose from available tasks to start an interview or create a new one.</value>
+  </data>
+  <data name="No tasks available. Tasks will be displayed here when available.">
+    <value>No tasks available. Tasks will be displayed here when available.</value>
+  </data>
+  <data name="Delete Task">
+    <value>Delete Task</value>
+  </data>
+  <data name="Are you sure you want to delete this task?">
+    <value>Are you sure you want to delete this task?</value>
+  </data>
+  <data name="Search interviews...">
+    <value>Search interviews...</value>
+  </data>
+  <data name="Search tasks...">
+    <value>Search tasks...</value>
+  </data>
+  <data name="Agent">
+    <value>Agent</value>
+  </data>
 </root>
 
