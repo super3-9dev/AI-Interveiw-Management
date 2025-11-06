@@ -1,5 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using InterviewBot.Models;
+using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
 namespace InterviewBot.Data
 {
@@ -21,6 +22,8 @@ namespace InterviewBot.Data
         public DbSet<InterviewAnalysisResult> InterviewAnalysisResults { get; set; }
         public DbSet<InterviewNote> InterviewNotes { get; set; }
         public DbSet<Group> Groups { get; set; }
+        public DbSet<GroupTask> Tasks { get; set; }
+        public DbSet<GroupResource> Resources { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -157,11 +160,76 @@ namespace InterviewBot.Data
                 entity.Property(g => g.Description).HasMaxLength(1000);
                 entity.Property(g => g.StudentCount)
                     .HasDefaultValue(0);
+                // Configure Emails column - map to "emails" column name (lowercase) if it exists
+                entity.Property(g => g.Emails)
+                    .HasMaxLength(5000) // Store emails separated by newlines
+                    .HasColumnName("emails"); // Map to lowercase column name if it exists in DB
                 // Ignore the computed property
                 entity.Ignore(g => g.StudentCountValue);
             });
 
+            // Configure Group-Task relationship
+            modelBuilder.Entity<GroupTask>()
+                .HasOne(t => t.Group)
+                .WithMany(g => g.Tasks)
+                .HasForeignKey(t => t.GroupId)
+                .OnDelete(DeleteBehavior.Cascade);
 
+            // Configure GroupTask entity properties
+            modelBuilder.Entity<GroupTask>(entity =>
+            {
+                entity.ToTable("Tasks"); // Map to "Tasks" table
+                
+                // Configure Id as identity column for PostgreSQL
+                entity.Property(t => t.Id)
+                    .ValueGeneratedOnAdd();
+                NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(entity.Property(t => t.Id));
+                
+                // Map properties to database columns
+                entity.Property(t => t.AgentName)
+                    .IsRequired()
+                    .HasMaxLength(255)
+                    .HasColumnName("AgentName");
+                
+                entity.Property(t => t.TaskName)
+                    .IsRequired()
+                    .HasMaxLength(255);
+                
+                entity.Property(t => t.Instructions)
+                    .HasMaxLength(255);
+                
+                entity.Property(t => t.Objective)
+                    .HasMaxLength(255);
+                
+                entity.Property(t => t.Constraints)
+                    .HasMaxLength(255);
+                
+                entity.Property(t => t.Emphasis)
+                    .HasMaxLength(255);
+                
+                entity.Property(t => t.IsVisible)
+                    .HasColumnName("IsVisible")
+                    .IsRequired()
+                    .HasDefaultValue(false);
+                
+                // Ignore computed property
+                entity.Ignore(t => t.Title);
+            });
+
+            // Configure Group-Resource relationship
+            modelBuilder.Entity<GroupResource>()
+                .HasOne(r => r.Group)
+                .WithMany(g => g.Resources)
+                .HasForeignKey(r => r.GroupId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            // Configure GroupResource entity properties
+            modelBuilder.Entity<GroupResource>(entity =>
+            {
+                entity.ToTable("Resources"); // Keep table name as "Resources" for backward compatibility
+                entity.Property(r => r.Title).IsRequired().HasMaxLength(200);
+                entity.Property(r => r.Url).IsRequired().HasMaxLength(500);
+            });
 
             // Configure InterviewSession relationships
             modelBuilder.Entity<InterviewSession>()

@@ -293,7 +293,7 @@
                 <p class="group-description">@group.Description</p>
                 <div class="group-footer">
                     <span class="student-count">@(group.StudentCount ?? 0) @Localizer["Students"]</span>
-                    <a href="#" class="manage-link" onclick="alert('Manage functionality coming soon'); return false;">
+                    <a href="/GroupManage?id=@group.Id@(!string.IsNullOrEmpty(currentCulture) ? $"&culture={currentCulture}" : "")" class="manage-link">
                         @Localizer["Manage"]
                     </a>
                 </div>

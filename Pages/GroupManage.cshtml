@@ -1,0 +1,1262 @@
+@page "/GroupManage"
+@model InterviewBot.Pages.GroupManageModel
+@using Microsoft.AspNetCore.Mvc.Localization
+@using System.Linq
+@using InterviewBot.Models
+@inject IViewLocalizer Localizer
+@{
+    ViewData["Title"] = Model.Group?.Name ?? Localizer["Group Management"].ToString();
+    var currentCulture = HttpContext.Request.Query["culture"].ToString();
+    if (string.IsNullOrEmpty(currentCulture))
+    {
+        currentCulture = HttpContext.Request.Cookies["culture"] ?? "en";
+    }
+}
+
+@section Styles {
+    <style>
+        .group-manage-container {
+            padding: 2rem;
+            min-height: calc(100vh - 2rem);
+        }
+
+        .group-header {
+            margin-bottom: 2rem;
+        }
+
+        .group-name {
+            font-size: 2rem;
+            font-weight: 700;
+            color: #1f2937;
+            margin: 0 0 1.5rem 0;
+        }
+
+        .group-tabs {
+            display: flex;
+            gap: 0.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .group-tab {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.75rem 1.5rem;
+            background-color: #4285f4;
+            border: none;
+            border-radius: 0.375rem;
+            color: white;
+            font-size: 1rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            text-decoration: none;
+        }
+
+        .group-tab:hover {
+            background-color: #3367d6;
+            color: white;
+        }
+
+        .group-tab.active {
+            background-color: #1f2937;
+            color: white;
+        }
+
+        .group-tab:not(.active) {
+            background-color: #4285f4;
+        }
+
+        .group-tab.resources-tab:not(.active) {
+            background-color: white;
+            color: #1f2937;
+            border: 1px solid #1f2937;
+        }
+
+        .group-tab.resources-tab:not(.active):hover {
+            background-color: #f3f4f6;
+        }
+
+        .group-tab i {
+            font-size: 1.1rem;
+        }
+
+        .tab-content {
+            min-height: 400px;
+        }
+
+        .tab-pane {
+            display: none;
+        }
+
+        .tab-pane.active {
+            display: block;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 3rem;
+            color: #6b7280;
+        }
+
+        .empty-state i {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            opacity: 0.5;
+        }
+
+        .empty-state h3 {
+            font-size: 1.25rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+        }
+
+        .empty-state p {
+            font-size: 0.95rem;
+        }
+
+        /* Add Students Section Styles */
+        .add-students-section {
+            margin-top: 1rem;
+        }
+
+        .add-students-section h2 {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: #1f2937;
+            margin: 0 0 1.5rem 0;
+        }
+
+        .add-students-section .form-label {
+            font-weight: 500;
+            color: #374151;
+            margin-bottom: 0.5rem;
+            display: block;
+        }
+
+        .add-students-section .form-control {
+            border: 1px solid #d1d5db;
+            border-radius: 0.375rem;
+            padding: 0.75rem;
+            font-size: 1rem;
+            transition: border-color 0.2s ease, box-shadow 0.2s ease;
+            width: 100%;
+        }
+
+        .add-students-section .form-control:focus {
+            border-color: #4285f4;
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(66, 133, 244, 0.1);
+        }
+
+        .add-students-section textarea.form-control {
+            resize: vertical;
+            min-height: 150px;
+            font-family: monospace;
+        }
+
+        .add-students-section .form-text {
+            color: #6b7280;
+            font-size: 0.875rem;
+            margin-top: 0.5rem;
+        }
+
+        .add-students-section .form-actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: 0.75rem;
+            margin-top: 1.5rem;
+        }
+
+        .add-students-section .btn-add {
+            background-color: #4285f4;
+            color: white;
+            border: none;
+            padding: 0.625rem 1.25rem;
+            border-radius: 0.375rem;
+            font-size: 0.95rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: background-color 0.2s ease;
+        }
+
+        .add-students-section .btn-add:hover {
+            background-color: #3367d6;
+        }
+
+        .add-students-section .btn-add:disabled {
+            background-color: #9ca3af;
+            cursor: not-allowed;
+        }
+
+        .add-students-section .btn-add .spinner-border {
+            width: 1rem;
+            height: 1rem;
+            border-width: 0.15em;
+            margin-left: 0.5rem;
+        }
+
+        .add-students-section .btn-add .btn-text {
+            display: inline-block;
+        }
+
+        .add-students-section .btn-add.loading .btn-text {
+            display: none;
+        }
+
+        .add-students-section .btn-add.loading .spinner-border {
+            display: inline-block !important;
+        }
+
+        .add-students-section .alert {
+            margin-bottom: 1rem;
+        }
+
+        .add-students-section .text-danger {
+            font-size: 0.875rem;
+            margin-top: 0.25rem;
+        }
+
+        .add-students-card {
+            background-color: white;
+            border: 1px solid #e5e7eb;
+            border-radius: 0.5rem;
+            padding: 1.5rem;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        }
+
+        .add-students-card .card-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: #1f2937;
+            margin: 0 0 1.5rem 0;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid #e5e7eb;
+        }
+
+        .alert-success {
+            background-color: #d1fae5;
+            border-color: #10b981;
+            color: #065f46;
+            margin-bottom: 1rem;
+            padding: 1rem;
+            border-radius: 0.5rem;
+        }
+
+        /* Tasks Section Styles */
+        .tasks-section {
+            margin-top: 1rem;
+        }
+
+        .tasks-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .tasks-header h2 {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: #1f2937;
+            margin: 0;
+        }
+
+        .btn-create-task {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            background-color: #4285f4;
+            color: white;
+            padding: 0.75rem 1.5rem;
+            border: none;
+            border-radius: 0.5rem;
+            font-size: 1rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: background-color 0.2s ease;
+        }
+
+        .btn-create-task:hover {
+            background-color: #3367d6;
+        }
+
+        .btn-create-task i {
+            font-size: 1.2rem;
+        }
+
+        .tasks-list {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .task-card {
+            background-color: white;
+            border: 1px solid #e5e7eb;
+            border-radius: 0.5rem;
+            padding: 1.5rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            transition: box-shadow 0.2s ease;
+        }
+
+        .task-card:hover {
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        }
+
+        .task-content {
+            flex: 1;
+        }
+
+        .task-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: #1f2937;
+            margin: 0 0 0.5rem 0;
+        }
+
+        .task-details {
+            color: #6b7280;
+            font-size: 0.9rem;
+            margin: 0;
+        }
+
+        .task-actions {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .status-badge {
+            padding: 0.25rem 0.75rem;
+            border-radius: 1rem;
+            font-size: 0.875rem;
+            font-weight: 500;
+        }
+
+        .status-visible {
+            background-color: #d1fae5;
+            color: #065f46;
+        }
+
+        .status-hidden {
+            background-color: #f3f4f6;
+            color: #6b7280;
+        }
+
+        .edit-link {
+            color: #4285f4;
+            text-decoration: none;
+            font-size: 0.9rem;
+            font-weight: 500;
+            transition: color 0.2s ease;
+        }
+
+        .edit-link:hover {
+            color: #3367d6;
+            text-decoration: underline;
+        }
+
+        /* Create Task Modal Styles */
+        .create-task-modal .modal-content {
+            border-radius: 0.5rem;
+            border: none;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+        }
+
+        .create-task-modal .modal-header {
+            border-bottom: 1px solid #e9ecef;
+            padding: 1.5rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .create-task-modal .modal-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: #1f2937;
+            margin: 0;
+        }
+
+        .create-task-modal .btn-close {
+            opacity: 0.5;
+            transition: opacity 0.2s ease;
+        }
+
+        .create-task-modal .btn-close:hover {
+            opacity: 1;
+        }
+
+        .create-task-modal .modal-body {
+            padding: 1.5rem;
+        }
+
+        .create-task-modal .form-label {
+            font-weight: 500;
+            color: #374151;
+            margin-bottom: 0.5rem;
+            display: block;
+        }
+
+        .create-task-modal .form-control {
+            border: 1px solid #d1d5db;
+            border-radius: 0.375rem;
+            padding: 0.75rem;
+            font-size: 1rem;
+            transition: border-color 0.2s ease, box-shadow 0.2s ease;
+            width: 100%;
+        }
+
+        .create-task-modal .form-control:focus {
+            border-color: #4285f4;
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(66, 133, 244, 0.1);
+        }
+
+        .create-task-modal .modal-footer {
+            border-top: 1px solid #e9ecef;
+            padding: 1rem 1.5rem;
+            display: flex;
+            justify-content: flex-end;
+            gap: 0.75rem;
+        }
+
+        .create-task-modal .btn-cancel {
+            background-color: #6b7280;
+            color: white;
+            border: none;
+            padding: 0.625rem 1.25rem;
+            border-radius: 0.375rem;
+            font-size: 0.95rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: background-color 0.2s ease;
+        }
+
+        .create-task-modal .btn-cancel:hover {
+            background-color: #4b5563;
+        }
+
+        .create-task-modal .btn-create {
+            background-color: #4285f4;
+            color: white;
+            border: none;
+            padding: 0.625rem 1.25rem;
+            border-radius: 0.375rem;
+            font-size: 0.95rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: background-color 0.2s ease;
+        }
+
+        .create-task-modal .btn-create:hover {
+            background-color: #3367d6;
+        }
+
+        .create-task-modal .btn-create:disabled {
+            background-color: #9ca3af;
+            cursor: not-allowed;
+        }
+
+        .create-task-modal .alert {
+            margin-bottom: 1rem;
+        }
+
+        .create-task-modal .text-danger {
+            font-size: 0.875rem;
+            margin-top: 0.25rem;
+        }
+
+        /* Resources Section Styles */
+        .resources-section {
+            margin-top: 1rem;
+        }
+
+        .resources-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .resources-header h2 {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: #1f2937;
+            margin: 0;
+        }
+
+        .btn-add-resource {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            background-color: #4285f4;
+            color: white;
+            padding: 0.75rem 1.5rem;
+            border: none;
+            border-radius: 0.5rem;
+            font-size: 1rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: background-color 0.2s ease;
+        }
+
+        .btn-add-resource:hover {
+            background-color: #3367d6;
+        }
+
+        .btn-add-resource i {
+            font-size: 1.2rem;
+        }
+
+        .resources-list {
+            background-color: white;
+            border: 1px solid #e5e7eb;
+            border-radius: 0.5rem;
+            padding: 0;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        }
+
+        .resource-item {
+            padding: 1.5rem;
+            border-bottom: 1px solid #e5e7eb;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .resource-item:last-child {
+            border-bottom: none;
+        }
+
+        .resource-content {
+            flex: 1;
+        }
+
+        .resource-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: #1f2937;
+            margin: 0 0 0.5rem 0;
+        }
+
+        .resource-url {
+            color: #4285f4;
+            text-decoration: none;
+            font-size: 0.9rem;
+            display: block;
+            transition: color 0.2s ease;
+        }
+
+        .resource-url:hover {
+            color: #3367d6;
+            text-decoration: underline;
+        }
+
+        .resource-actions {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .delete-link {
+            background: none;
+            border: none;
+            color: #ef4444;
+            text-decoration: none;
+            font-size: 0.9rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: color 0.2s ease;
+            padding: 0;
+        }
+
+        .delete-link:hover {
+            color: #dc2626;
+            text-decoration: underline;
+        }
+
+        /* Create Resource Modal Styles */
+        .create-resource-modal .modal-content {
+            border-radius: 0.5rem;
+            border: none;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+        }
+
+        .create-resource-modal .modal-header {
+            border-bottom: 1px solid #e9ecef;
+            padding: 1.5rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .create-resource-modal .modal-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: #1f2937;
+            margin: 0;
+        }
+
+        .create-resource-modal .btn-close {
+            opacity: 0.5;
+            transition: opacity 0.2s ease;
+        }
+
+        .create-resource-modal .btn-close:hover {
+            opacity: 1;
+        }
+
+        .create-resource-modal .modal-body {
+            padding: 1.5rem;
+        }
+
+        .create-resource-modal .form-label {
+            font-weight: 500;
+            color: #374151;
+            margin-bottom: 0.5rem;
+            display: block;
+        }
+
+        .create-resource-modal .form-control {
+            border: 1px solid #d1d5db;
+            border-radius: 0.375rem;
+            padding: 0.75rem;
+            font-size: 1rem;
+            transition: border-color 0.2s ease, box-shadow 0.2s ease;
+            width: 100%;
+        }
+
+        .create-resource-modal .form-control:focus {
+            border-color: #4285f4;
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(66, 133, 244, 0.1);
+        }
+
+        .create-resource-modal .modal-footer {
+            border-top: 1px solid #e9ecef;
+            padding: 1rem 1.5rem;
+            display: flex;
+            justify-content: flex-end;
+            gap: 0.75rem;
+        }
+
+        .create-resource-modal .btn-cancel {
+            background-color: #6b7280;
+            color: white;
+            border: none;
+            padding: 0.625rem 1.25rem;
+            border-radius: 0.375rem;
+            font-size: 0.95rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: background-color 0.2s ease;
+        }
+
+        .create-resource-modal .btn-cancel:hover {
+            background-color: #4b5563;
+        }
+
+        .create-resource-modal .btn-save {
+            background-color: #4285f4;
+            color: white;
+            border: none;
+            padding: 0.625rem 1.25rem;
+            border-radius: 0.375rem;
+            font-size: 0.95rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: background-color 0.2s ease;
+        }
+
+        .create-resource-modal .btn-save:hover {
+            background-color: #3367d6;
+        }
+
+        .create-resource-modal .btn-save:disabled {
+            background-color: #9ca3af;
+            cursor: not-allowed;
+        }
+
+        .create-resource-modal .alert {
+            margin-bottom: 1rem;
+        }
+
+        .create-resource-modal .text-danger {
+            font-size: 0.875rem;
+            margin-top: 0.25rem;
+        }
+
+        .error-message {
+            background-color: #fee2e2;
+            border: 1px solid #ef4444;
+            color: #991b1b;
+            padding: 1rem;
+            border-radius: 0.5rem;
+            margin-bottom: 1rem;
+        }
+
+        @@media (max-width: 768px) {
+            .group-manage-container {
+                padding: 1rem;
+            }
+
+            .group-name {
+                font-size: 1.5rem;
+            }
+
+            .group-tabs {
+                flex-wrap: wrap;
+            }
+
+            .group-tab {
+                padding: 0.5rem 1rem;
+                font-size: 0.9rem;
+            }
+        }
+    </style>
+}
+
+<div class="group-manage-container">
+    @if (!string.IsNullOrEmpty(Model.ErrorMessage))
+    {
+        <div class="error-message">
+            @Model.ErrorMessage
+        </div>
+    }
+
+    @if (Model.Group != null)
+    {
+        <div class="group-header">
+            <h1 class="group-name">@Model.Group.Name</h1>
+            
+            <div class="group-tabs">
+                <a href="/GroupManage?id=@Model.Group.Id&tab=students@(!string.IsNullOrEmpty(currentCulture) ? $"&culture={currentCulture}" : "")" 
+                   class="group-tab @(Model.ActiveTab == "students" ? "active" : "")">
+                    <i class="bi bi-people"></i>
+                    <span>@Localizer["Students"]</span>
+                </a>
+                <a href="/GroupManage?id=@Model.Group.Id&tab=tasks@(!string.IsNullOrEmpty(currentCulture) ? $"&culture={currentCulture}" : "")" 
+                   class="group-tab @(Model.ActiveTab == "tasks" ? "active" : "")">
+                    <i class="bi bi-list-task"></i>
+                    <span>@Localizer["Tasks"]</span>
+                </a>
+                <a href="/GroupManage?id=@Model.Group.Id&tab=analytics@(!string.IsNullOrEmpty(currentCulture) ? $"&culture={currentCulture}" : "")" 
+                   class="group-tab @(Model.ActiveTab == "analytics" ? "active" : "")">
+                    <i class="bi bi-grid-3x3-gap"></i>
+                    <span>@Localizer["Analytics"]</span>
+                </a>
+                <a href="/GroupManage?id=@Model.Group.Id&tab=resources@(!string.IsNullOrEmpty(currentCulture) ? $"&culture={currentCulture}" : "")" 
+                   class="group-tab resources-tab @(Model.ActiveTab == "resources" ? "active" : "")">
+                    <i class="bi bi-folder"></i>
+                    <span>@Localizer["RESOURCES"]</span>
+                </a>
+            </div>
+        </div>
+
+        <div class="tab-content">
+            @if (Model.ActiveTab == "students")
+            {
+                <div class="tab-pane active">
+                    <div class="add-students-section">
+                        <h2>@Localizer["Manage Students"]</h2>
+                        
+                        <div class="add-students-card">
+                            <h3 class="card-title">@Localizer["Add Students (Bulk)"]</h3>
+                            
+                            @if (!string.IsNullOrEmpty(Model.SuccessMessage))
+                            {
+                                <div class="alert alert-success alert-dismissible fade show" role="alert">
+                                    <i class="bi bi-check-circle"></i>
+                                    @Model.SuccessMessage
+                                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                                </div>
+                            }
+
+                            <form method="post" asp-page-handler="AddStudents" id="addStudentsForm">
+                                <input type="hidden" asp-for="Id" value="@Model.Group.Id" />
+                                
+                                @if (!string.IsNullOrEmpty(Model.ErrorMessage))
+                                {
+                                    <div class="alert alert-danger" role="alert">
+                                        @Model.ErrorMessage
+                                    </div>
+                                }
+
+                                <div class="mb-3">
+                                    <label class="form-label">@Localizer["Group"]</label>
+                                    <input type="text" class="form-control" value="@Model.Group.Name" readonly />
+                                </div>
+
+                                <div class="mb-3">
+                                    <label for="studentEmails" class="form-label">@Localizer["Student Emails"]</label>
+                                    <textarea id="studentEmails" name="StudentEmails" class="form-control" rows="8" placeholder="@Localizer["Enter emails separated by commas, e.g., email1@example.com, email2@example.com"]" required>@Model.StudentEmails</textarea>
+                                    <small class="form-text">@Localizer["Add multiple students by entering their emails separated by commas (,) or one per line."]</small>
+                                </div>
+
+                                <div class="form-actions">
+                                    <button type="submit" class="btn-add" id="addStudentsBtn">
+                                        <span class="btn-text">@Localizer["Add Students"]</span>
+                                        <span class="spinner-border spinner-border-sm d-none" role="status" aria-hidden="true"></span>
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            }
+            else if (Model.ActiveTab == "tasks")
+            {
+                <div class="tab-pane active">
+                    <div class="tasks-section">
+                        <div class="tasks-header">
+                            <h2>@Localizer["Tasks"]</h2>
+                            <button type="button" class="btn-create-task" data-bs-toggle="modal" data-bs-target="#createTaskModal">
+                                <i class="bi bi-plus-circle"></i>
+                                <span>@Localizer["Create Task"]</span>
+                            </button>
+                        </div>
+
+                        @if (!string.IsNullOrEmpty(Model.SuccessMessage))
+                        {
+                            <div class="alert alert-success alert-dismissible fade show" role="alert">
+                                <i class="bi bi-check-circle"></i>
+                                @Model.SuccessMessage
+                                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                            </div>
+                        }
+
+                        @if (Model.Tasks != null && Model.Tasks.Any())
+                        {
+                            <div class="tasks-list">
+                                @foreach (var task in Model.Tasks)
+                                {
+                                    <div class="task-card">
+                                        <div class="task-content">
+                                            <h3 class="task-title">@task.TaskName</h3>
+                                            <p class="task-details">
+                                                @if (!string.IsNullOrEmpty(task.AgentName))
+                                                {
+                                                    <text>@Localizer["Agent"]: "@task.AgentName" | </text>
+                                                }
+                                                @Localizer["Group"]: @Model.Group?.Name
+                                            </p>
+                                        </div>
+                                        <div class="task-actions">
+                                            <span class="status-badge @(task.IsVisible ? "status-visible" : "status-hidden")">
+                                                @(task.IsVisible ? Localizer["Visible"] : Localizer["Hidden"])
+                                            </span>
+                                            <a href="#" class="edit-link" data-task-id="@task.Id" onclick="editTask(@task.Id); return false;">
+                                                @Localizer["Edit"]
+                                            </a>
+                                        </div>
+                                    </div>
+                                }
+                            </div>
+                        }
+                        else
+                        {
+                            <div class="empty-state">
+                                <i class="bi bi-list-task"></i>
+                                <h3>@Localizer["No Tasks"]</h3>
+                                <p>@Localizer["No tasks have been created yet. Click 'Create Task' to add one."]</p>
+                            </div>
+                        }
+                    </div>
+                </div>
+            }
+            else if (Model.ActiveTab == "analytics")
+            {
+                <div class="tab-pane active">
+                    <div class="empty-state">
+                        <i class="bi bi-grid-3x3-gap"></i>
+                        <h3>@Localizer["Analytics"]</h3>
+                        <p>@Localizer["Analytics functionality coming soon."]</p>
+                    </div>
+                </div>
+            }
+            else if (Model.ActiveTab == "resources")
+            {
+                <div class="tab-pane active">
+                    <div class="resources-section">
+                        <div class="resources-header">
+                            <h2>@Localizer["RESOURCES"]</h2>
+                            <button type="button" class="btn-add-resource" data-bs-toggle="modal" data-bs-target="#createResourceModal">
+                                <i class="bi bi-plus-circle"></i>
+                                <span>@Localizer["Add New Resource"]</span>
+                            </button>
+                        </div>
+
+                        @if (!string.IsNullOrEmpty(Model.SuccessMessage))
+                        {
+                            <div class="alert alert-success alert-dismissible fade show" role="alert">
+                                <i class="bi bi-check-circle"></i>
+                                @Model.SuccessMessage
+                                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                            </div>
+                        }
+
+                        @if (Model.Resources != null && Model.Resources.Any())
+                        {
+                            <div class="resources-list">
+                                @foreach (var resource in Model.Resources)
+                                {
+                                    <div class="resource-item">
+                                        <div class="resource-content">
+                                            <h3 class="resource-title">@resource.Title</h3>
+                                            <a href="@resource.Url" target="_blank" rel="noopener noreferrer" class="resource-url">@resource.Url</a>
+                                        </div>
+                                        <div class="resource-actions">
+                                            <a href="#" class="edit-link" onclick="editResource(@resource.Id); return false;">
+                                                @Localizer["Edit"]
+                                            </a>
+                                            <form method="post" asp-page-handler="DeleteResource" style="display: inline;" onsubmit="return confirm('@Localizer["Are you sure you want to delete this resource?"]');">
+                                                <input type="hidden" asp-for="Id" value="@Model.Group.Id" />
+                                                <input type="hidden" name="resourceId" value="@resource.Id" />
+                                                <button type="submit" class="delete-link">@Localizer["Delete"]</button>
+                                            </form>
+                                        </div>
+                                    </div>
+                                }
+                            </div>
+                        }
+                        else
+                        {
+                            <div class="empty-state">
+                                <i class="bi bi-folder"></i>
+                                <h3>@Localizer["No Resources"]</h3>
+                                <p>@Localizer["No resources have been added yet. Click 'Add Resource' to add one."]</p>
+                            </div>
+                        }
+                    </div>
+                </div>
+            }
+        </div>
+    }
+</div>
+
+<!-- Create/Edit Task Modal -->
+@if (Model.Group != null)
+{
+    <div class="modal fade create-task-modal" id="createTaskModal" tabindex="-1" aria-labelledby="createTaskModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="createTaskModalLabel">@Localizer["Create/Edit Task"]</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <form method="post" asp-page-handler="CreateTask" id="createTaskForm">
+                    <input type="hidden" asp-for="Id" value="@Model.Group.Id" />
+                    <input type="hidden" asp-for="TaskId" id="taskIdInput" />
+                    <div class="modal-body">
+                        @if (!string.IsNullOrEmpty(Model.ErrorMessage) && Model.ActiveTab == "tasks")
+                        {
+                            <div class="alert alert-danger" role="alert">
+                                <i class="bi bi-exclamation-triangle"></i>
+                                @Model.ErrorMessage
+                            </div>
+                        }
+                        <div class="mb-3">
+                            <label asp-for="TaskAgent" class="form-label">@Localizer["Agent Name"] <span class="text-danger">*</span></label>
+                            <input asp-for="TaskAgent" type="text" class="form-control @(ViewData.ModelState["TaskAgent"]?.Errors.Count > 0 ? "is-invalid" : "")" id="taskAgentInput" placeholder="@Localizer["e.g., Researcher"]" required maxlength="255" />
+                            <span asp-validation-for="TaskAgent" class="text-danger"></span>
+                        </div>
+                        <div class="mb-3">
+                            <label asp-for="TaskName" class="form-label">@Localizer["Task Name"] <span class="text-danger">*</span></label>
+                            <input asp-for="TaskName" type="text" class="form-control @(ViewData.ModelState["TaskName"]?.Errors.Count > 0 ? "is-invalid" : "")" id="taskNameInput" placeholder="@Localizer["e.g., Market Analysis"]" required maxlength="255" />
+                            <span asp-validation-for="TaskName" class="text-danger"></span>
+                        </div>
+                        <div class="mb-3">
+                            <label asp-for="Instructions" class="form-label">@Localizer["Instructions"]</label>
+                            <textarea asp-for="Instructions" class="form-control" id="instructionsInput" rows="4" placeholder="@Localizer["Detailed instructions for the agent..."]" maxlength="255"></textarea>
+                            <span asp-validation-for="Instructions" class="text-danger"></span>
+                            <small class="form-text text-muted">@Localizer["Maximum 255 characters"]</small>
+                        </div>
+                        <div class="mb-3">
+                            <label asp-for="Objective" class="form-label">@Localizer["Objective"]</label>
+                            <textarea asp-for="Objective" class="form-control" id="objectiveInput" rows="3" placeholder="@Localizer["What is the goal of this task?"]" maxlength="255"></textarea>
+                            <span asp-validation-for="Objective" class="text-danger"></span>
+                            <small class="form-text text-muted">@Localizer["Maximum 255 characters"]</small>
+                        </div>
+                        <div class="mb-3">
+                            <label asp-for="Constraints" class="form-label">@Localizer["Constraints"]</label>
+                            <textarea asp-for="Constraints" class="form-control" id="constraintsInput" rows="3" placeholder="@Localizer["e.g., Use only reliable sources..."]" maxlength="255"></textarea>
+                            <span asp-validation-for="Constraints" class="text-danger"></span>
+                            <small class="form-text text-muted">@Localizer["Maximum 255 characters"]</small>
+                        </div>
+                        <div class="mb-3">
+                            <label asp-for="Emphasis" class="form-label">@Localizer["Emphasis"]</label>
+                            <textarea asp-for="Emphasis" class="form-control" id="emphasisInput" rows="3" placeholder="@Localizer["e.g., Focus on recent trends..."]" maxlength="255"></textarea>
+                            <span asp-validation-for="Emphasis" class="text-danger"></span>
+                            <small class="form-text text-muted">@Localizer["Maximum 255 characters"]</small>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">@Localizer["Task Visibility"]</label>
+                            <p class="text-muted small mb-2">@Localizer["Make this task visible to all students in the group."]</p>
+                            <div class="form-check form-switch">
+                                <input class="form-check-input" type="checkbox" asp-for="TaskIsVisible" id="taskIsVisibleInput" style="width: 3rem; height: 1.5rem; cursor: pointer;">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn-cancel" data-bs-dismiss="modal">@Localizer["Cancel"]</button>
+                        <button type="submit" class="btn-create" id="submitTaskBtn">@Localizer["Save Task"]</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+}
+
+<!-- Create/Edit Resource Modal -->
+@if (Model.Group != null)
+{
+    <div class="modal fade create-resource-modal" id="createResourceModal" tabindex="-1" aria-labelledby="createResourceModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="createResourceModalLabel">@Localizer["Add Resource"]</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <form method="post" asp-page-handler="CreateResource" id="createResourceForm">
+                    <input type="hidden" asp-for="Id" value="@Model.Group.Id" />
+                    <input type="hidden" asp-for="ResourceId" id="resourceIdInput" />
+                    <div class="modal-body">
+                        @if (!string.IsNullOrEmpty(Model.ErrorMessage) && Model.ActiveTab == "resources")
+                        {
+                            <div class="alert alert-danger" role="alert">
+                                @Model.ErrorMessage
+                            </div>
+                        }
+                        <div class="mb-3">
+                            <label asp-for="ResourceTitle" class="form-label">@Localizer["Title"]</label>
+                            <input asp-for="ResourceTitle" type="text" class="form-control" id="resourceTitleInput" placeholder="@Localizer["e.g., Documentation"]" required />
+                            <span asp-validation-for="ResourceTitle" class="text-danger"></span>
+                        </div>
+                        <div class="mb-3">
+                            <label asp-for="ResourceUrl" class="form-label">@Localizer["URL"]</label>
+                            <input asp-for="ResourceUrl" type="url" class="form-control" id="resourceUrlInput" placeholder="https://example.com" required />
+                            <span asp-validation-for="ResourceUrl" class="text-danger"></span>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn-cancel" data-bs-dismiss="modal">@Localizer["Cancel"]</button>
+                        <button type="submit" class="btn-save" id="submitResourceBtn">@Localizer["Save Resource"]</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+}
+
+@section Scripts {
+    <script>
+        // Store tasks data for editing (only include necessary properties to avoid circular references)
+        const tasksData = @Html.Raw(Json.Serialize((Model.Tasks ?? new List<GroupTask>()).Select(t => new {
+            id = t.Id,
+            agentName = t.AgentName,
+            taskName = t.TaskName,
+            instructions = t.Instructions,
+            objective = t.Objective,
+            constraints = t.Constraints,
+            emphasis = t.Emphasis,
+            isVisible = t.IsVisible
+        })));
+        
+        // Store resources data for editing (only include necessary properties to avoid circular references)
+        const resourcesData = @Html.Raw(Json.Serialize((Model.Resources ?? new List<GroupResource>()).Select(r => new {
+            id = r.Id,
+            title = r.Title,
+            url = r.Url
+        })));
+
+        function editTask(taskId) {
+            const task = tasksData.find(t => t.id === taskId);
+            if (!task) return;
+
+            // Populate form fields
+            document.getElementById('taskIdInput').value = task.id;
+            document.getElementById('taskAgentInput').value = task.agentName || '';
+            document.getElementById('taskNameInput').value = task.taskName || '';
+            document.getElementById('instructionsInput').value = task.instructions || '';
+            document.getElementById('objectiveInput').value = task.objective || '';
+            document.getElementById('constraintsInput').value = task.constraints || '';
+            document.getElementById('emphasisInput').value = task.emphasis || '';
+            document.getElementById('taskIsVisibleInput').checked = task.isVisible === true;
+            
+            // Update modal title and button
+            document.getElementById('createTaskModalLabel').textContent = '@Localizer["Create/Edit Task"]';
+            document.getElementById('submitTaskBtn').textContent = '@Localizer["Save Task"]';
+
+            // Show modal
+            const modal = new bootstrap.Modal(document.getElementById('createTaskModal'));
+            modal.show();
+        }
+
+        function resetTaskForm() {
+            document.getElementById('taskIdInput').value = '';
+            document.getElementById('taskAgentInput').value = '';
+            document.getElementById('taskNameInput').value = '';
+            document.getElementById('instructionsInput').value = '';
+            document.getElementById('objectiveInput').value = '';
+            document.getElementById('constraintsInput').value = '';
+            document.getElementById('emphasisInput').value = '';
+            document.getElementById('taskIsVisibleInput').checked = false;
+            document.getElementById('createTaskModalLabel').textContent = '@Localizer["Create/Edit Task"]';
+            document.getElementById('submitTaskBtn').textContent = '@Localizer["Save Task"]';
+        }
+
+        function editResource(resourceId) {
+            const resource = resourcesData.find(r => r.id === resourceId);
+            if (!resource) return;
+
+            // Populate form fields
+            document.getElementById('resourceIdInput').value = resource.id;
+            document.getElementById('resourceTitleInput').value = resource.title || '';
+            document.getElementById('resourceUrlInput').value = resource.url || '';
+            
+            // Update modal title and button
+            document.getElementById('createResourceModalLabel').textContent = '@Localizer["Edit Resource"]';
+            document.getElementById('submitResourceBtn').textContent = '@Localizer["Save Resource"]';
+
+            // Show modal
+            const modal = new bootstrap.Modal(document.getElementById('createResourceModal'));
+            modal.show();
+        }
+
+        function resetResourceForm() {
+            document.getElementById('resourceIdInput').value = '';
+            document.getElementById('resourceTitleInput').value = '';
+            document.getElementById('resourceUrlInput').value = '';
+            document.getElementById('createResourceModalLabel').textContent = '@Localizer["Add Resource"]';
+            document.getElementById('submitResourceBtn').textContent = '@Localizer["Save Resource"]';
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            const createTaskModal = document.getElementById('createTaskModal');
+            const createTaskForm = document.getElementById('createTaskForm');
+            const createResourceModal = document.getElementById('createResourceModal');
+            const createResourceForm = document.getElementById('createResourceForm');
+            
+            // Open modal if there's an error message (validation error)
+            @if (!string.IsNullOrEmpty(Model.ErrorMessage) && Model.ActiveTab == "tasks")
+            {
+                <text>
+                if (createTaskModal) {
+                    var bootstrapModal = new bootstrap.Modal(createTaskModal);
+                    bootstrapModal.show();
+                }
+                </text>
+            }
+
+            // Clear form when modal is closed
+            if (createTaskModal) {
+                createTaskModal.addEventListener('hidden.bs.modal', function () {
+                    if (createTaskForm) {
+                        resetTaskForm();
+                        createTaskForm.reset();
+                        // Clear validation errors
+                        document.querySelectorAll('#createTaskModal .text-danger').forEach(el => el.textContent = '');
+                        document.querySelectorAll('#createTaskModal .alert-danger').forEach(el => el.remove());
+                        // Re-enable submit button
+                        const submitBtn = createTaskForm.querySelector('button[type="submit"]');
+                        if (submitBtn) {
+                            submitBtn.disabled = false;
+                            submitBtn.textContent = '@Localizer["Save Task"]';
+                        }
+                    }
+                });
+            }
+
+            // Handle "Create Task" button click
+            const createTaskBtn = document.querySelector('.btn-create-task');
+            if (createTaskBtn) {
+                createTaskBtn.addEventListener('click', function() {
+                    resetTaskForm();
+                });
+            }
+
+            // Handle form submission
+            if (createTaskForm) {
+                createTaskForm.addEventListener('submit', function(e) {
+                    const submitBtn = createTaskForm.querySelector('button[type="submit"]');
+                    
+                    // Disable submit button to prevent double submission
+                    if (submitBtn) {
+                        submitBtn.disabled = true;
+                        submitBtn.textContent = '@Localizer["Saving..."]';
+                    }
+                });
+            }
+
+            // Handle "Add Resource" button click
+            const addResourceBtn = document.querySelector('.btn-add-resource');
+            if (addResourceBtn) {
+                addResourceBtn.addEventListener('click', function() {
+                    resetResourceForm();
+                });
+            }
+
+            // Clear resource form when modal is closed
+            if (createResourceModal) {
+                createResourceModal.addEventListener('hidden.bs.modal', function () {
+                    if (createResourceForm) {
+                        resetResourceForm();
+                        createResourceForm.reset();
+                        // Clear validation errors
+                        document.querySelectorAll('#createResourceModal .text-danger').forEach(el => el.textContent = '');
+                        document.querySelectorAll('#createResourceModal .alert-danger').forEach(el => el.remove());
+                        // Re-enable submit button
+                        const submitBtn = createResourceForm.querySelector('button[type="submit"]');
+                        if (submitBtn) {
+                            submitBtn.disabled = false;
+                            submitBtn.textContent = '@Localizer["Save Resource"]';
+                        }
+                    }
+                });
+            }
+
+            // Handle resource form submission
+            if (createResourceForm) {
+                createResourceForm.addEventListener('submit', function(e) {
+                    const submitBtn = createResourceForm.querySelector('button[type="submit"]');
+                    
+                    // Disable submit button to prevent double submission
+                    if (submitBtn) {
+                        submitBtn.disabled = true;
+                        submitBtn.textContent = '@Localizer["Saving..."]';
+                    }
+                });
+            }
+
+            // Open resource modal if there's an error message (validation error)
+            @if (!string.IsNullOrEmpty(Model.ErrorMessage) && Model.ActiveTab == "resources")
+            {
+                <text>
+                if (createResourceModal) {
+                    var bootstrapModal = new bootstrap.Modal(createResourceModal);
+                    bootstrapModal.show();
+                }
+                </text>
+            }
+
+            // Handle "Add Students" form submission with loading spinner
+            const addStudentsForm = document.getElementById('addStudentsForm');
+            const addStudentsBtn = document.getElementById('addStudentsBtn');
+            
+            if (addStudentsForm && addStudentsBtn) {
+                addStudentsForm.addEventListener('submit', function(e) {
+                    // Show loading spinner
+                    addStudentsBtn.classList.add('loading');
+                    addStudentsBtn.disabled = true;
+                });
+            }
+        });
+    </script>
+}
+
+

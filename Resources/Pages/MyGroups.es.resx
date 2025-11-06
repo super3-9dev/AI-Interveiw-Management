@@ -72,5 +72,29 @@
   <data name="Creating...">
     <value>Creando...</value>
   </data>
+  <data name="Group Management">
+    <value>Gestión de Grupo</value>
+  </data>
+  <data name="Tasks">
+    <value>Tareas</value>
+  </data>
+  <data name="Analytics">
+    <value>Analíticas</value>
+  </data>
+  <data name="RESOURCES">
+    <value>RECURSOS</value>
+  </data>
+  <data name="Student management functionality coming soon.">
+    <value>La funcionalidad de gestión de estudiantes estará disponible pronto.</value>
+  </data>
+  <data name="Task management functionality coming soon.">
+    <value>La funcionalidad de gestión de tareas estará disponible pronto.</value>
+  </data>
+  <data name="Analytics functionality coming soon.">
+    <value>La funcionalidad de analíticas estará disponible pronto.</value>
+  </data>
+  <data name="Resources functionality coming soon.">
+    <value>La funcionalidad de recursos estará disponible pronto.</value>
+  </data>
 </root>
 

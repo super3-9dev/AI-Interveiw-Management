@@ -1,0 +1,211 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+    <xsd:element name="root" msdata:IsDataSet="true">
+      <xsd:complexType>
+        <xsd:choice maxOccurs="unbounded">
+          <xsd:element name="data">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" />
+                <xsd:element name="comment" type="xsd:string" minOccurs="0" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" />
+              <xsd:attribute name="type" type="xsd:string" />
+              <xsd:attribute name="mimetype" type="xsd:string" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="resheader">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" />
+            </xsd:complexType>
+          </xsd:element>
+        </xsd:choice>
+      </xsd:complexType>
+    </xsd:element>
+  </xsd:schema>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="Group Management">
+    <value>Gestión de Grupo</value>
+  </data>
+  <data name="Students">
+    <value>Estudiantes</value>
+  </data>
+  <data name="Tasks">
+    <value>Tareas</value>
+  </data>
+  <data name="Analytics">
+    <value>Analíticas</value>
+  </data>
+  <data name="RESOURCES">
+    <value>RECURSOS</value>
+  </data>
+  <data name="Student management functionality coming soon.">
+    <value>La funcionalidad de gestión de estudiantes estará disponible pronto.</value>
+  </data>
+  <data name="Task management functionality coming soon.">
+    <value>La funcionalidad de gestión de tareas estará disponible pronto.</value>
+  </data>
+  <data name="Analytics functionality coming soon.">
+    <value>La funcionalidad de analíticas estará disponible pronto.</value>
+  </data>
+  <data name="Resources functionality coming soon.">
+    <value>La funcionalidad de recursos estará disponible pronto.</value>
+  </data>
+  <data name="Manage Students">
+    <value>Gestionar Estudiantes</value>
+  </data>
+  <data name="Add Students (Bulk)">
+    <value>Agregar Estudiantes (Múltiple)</value>
+  </data>
+  <data name="Group">
+    <value>Grupo</value>
+  </data>
+  <data name="Student Emails">
+    <value>Correos de Estudiantes</value>
+  </data>
+  <data name="Enter emails, one per line...">
+    <value>Ingrese correos, uno por línea...</value>
+  </data>
+  <data name="Add multiple students by pasting their emails, each on a new line.">
+    <value>Agregue múltiples estudiantes pegando sus correos, cada uno en una nueva línea.</value>
+  </data>
+  <data name="Enter emails separated by commas, e.g., email1@example.com, email2@example.com">
+    <value>Ingrese correos electrónicos separados por comas, ej., email1@ejemplo.com, email2@ejemplo.com</value>
+  </data>
+  <data name="Add multiple students by entering their emails separated by commas (,) or one per line.">
+    <value>Agregue múltiples estudiantes ingresando sus correos electrónicos separados por comas (,) o uno por línea.</value>
+  </data>
+  <data name="Add Students">
+    <value>Agregar Estudiantes</value>
+  </data>
+  <data name="Create Task">
+    <value>Crear Tarea</value>
+  </data>
+  <data name="Task Title">
+    <value>Título de la Tarea</value>
+  </data>
+  <data name="e.g., Task 1: Research Agent">
+    <value>p. ej., Tarea 1: Agente de Investigación</value>
+  </data>
+  <data name="Agent">
+    <value>Agente</value>
+  </data>
+  <data name="e.g., Researcher">
+    <value>p. ej., Investigador</value>
+  </data>
+  <data name="Visible">
+    <value>Visible</value>
+  </data>
+  <data name="Hidden">
+    <value>Oculto</value>
+  </data>
+  <data name="Edit">
+    <value>Editar</value>
+  </data>
+  <data name="No Tasks">
+    <value>Sin Tareas</value>
+  </data>
+  <data name="No tasks have been created yet. Click 'Create Task' to add one.">
+    <value>No se han creado tareas aún. Haga clic en 'Crear Tarea' para agregar una.</value>
+  </data>
+  <data name="Creating...">
+    <value>Creando...</value>
+  </data>
+  <data name="Create/Edit Task">
+    <value>Crear/Editar Tarea</value>
+  </data>
+  <data name="Agent Name">
+    <value>Nombre del Agente</value>
+  </data>
+  <data name="Task Name">
+    <value>Nombre de la Tarea</value>
+  </data>
+  <data name="Instructions">
+    <value>Instrucciones</value>
+  </data>
+  <data name="Detailed instructions for the agent...">
+    <value>Instrucciones detalladas para el agente...</value>
+  </data>
+  <data name="Objective">
+    <value>Objetivo</value>
+  </data>
+  <data name="What is the goal of this task?">
+    <value>¿Cuál es el objetivo de esta tarea?</value>
+  </data>
+  <data name="Constraints">
+    <value>Restricciones</value>
+  </data>
+  <data name="e.g., Use only reliable sources...">
+    <value>p. ej., Usar solo fuentes confiables...</value>
+  </data>
+  <data name="Emphasis">
+    <value>Énfasis</value>
+  </data>
+  <data name="e.g., Focus on recent trends...">
+    <value>p. ej., Enfocarse en tendencias recientes...</value>
+  </data>
+  <data name="Task Visibility">
+    <value>Visibilidad de la Tarea</value>
+  </data>
+  <data name="Make this task visible to all students in the group.">
+    <value>Hacer esta tarea visible para todos los estudiantes del grupo.</value>
+  </data>
+  <data name="Save Task">
+    <value>Guardar Tarea</value>
+  </data>
+  <data name="Saving...">
+    <value>Guardando...</value>
+  </data>
+  <data name="e.g., Market Analysis">
+    <value>p. ej., Análisis de Mercado</value>
+  </data>
+  <data name="Add Resource">
+    <value>Agregar Recurso</value>
+  </data>
+  <data name="No Resources">
+    <value>Sin Recursos</value>
+  </data>
+  <data name="No resources have been added yet. Click 'Add Resource' to add one.">
+    <value>No se han agregado recursos aún. Haga clic en 'Agregar Recurso' para agregar uno.</value>
+  </data>
+  <data name="Title">
+    <value>Título</value>
+  </data>
+  <data name="e.g., Documentation">
+    <value>p. ej., Documentación</value>
+  </data>
+  <data name="URL">
+    <value>URL</value>
+  </data>
+  <data name="Save Resource">
+    <value>Guardar Recurso</value>
+  </data>
+  <data name="Edit Resource">
+    <value>Editar Recurso</value>
+  </data>
+  <data name="Delete">
+    <value>Eliminar</value>
+  </data>
+  <data name="Are you sure you want to delete this resource?">
+    <value>¿Está seguro de que desea eliminar este recurso?</value>
+  </data>
+  <data name="https://example.com">
+    <value>https://ejemplo.com</value>
+  </data>
+</root>
+

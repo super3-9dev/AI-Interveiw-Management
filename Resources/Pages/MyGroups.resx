@@ -72,5 +72,29 @@
   <data name="Creating...">
     <value>Creating...</value>
   </data>
+  <data name="Group Management">
+    <value>Group Management</value>
+  </data>
+  <data name="Tasks">
+    <value>Tasks</value>
+  </data>
+  <data name="Analytics">
+    <value>Analytics</value>
+  </data>
+  <data name="RESOURCES">
+    <value>RESOURCES</value>
+  </data>
+  <data name="Student management functionality coming soon.">
+    <value>Student management functionality coming soon.</value>
+  </data>
+  <data name="Task management functionality coming soon.">
+    <value>Task management functionality coming soon.</value>
+  </data>
+  <data name="Analytics functionality coming soon.">
+    <value>Analytics functionality coming soon.</value>
+  </data>
+  <data name="Resources functionality coming soon.">
+    <value>Resources functionality coming soon.</value>
+  </data>
 </root>
 

@@ -19,6 +19,10 @@ namespace InterviewBot.Models
         // Property to get StudentCount with default value of 0
         public int StudentCountValue => StudentCount ?? 0;
 
+        // Emails stored as newline-separated string
+        [StringLength(5000)]
+        public string? Emails { get; set; }
+
         // Link to the teacher who created the group
         [Required]
         public int UserId { get; set; }
@@ -26,6 +30,10 @@ namespace InterviewBot.Models
 
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
         public DateTime? UpdatedAt { get; set; }
+
+        // Navigation properties
+        public ICollection<GroupTask> Tasks { get; set; } = new List<GroupTask>();
+        public ICollection<GroupResource> Resources { get; set; } = new List<GroupResource>();
     }
 }
 

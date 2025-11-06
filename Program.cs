@@ -196,6 +196,68 @@ using (var scope = app.Services.CreateScope())
             var logger = scope.ServiceProvider.GetRequiredService<ILogger<Program>>();
             logger.LogWarning(fixEx, "Could not fix StudentCount column. This may be normal if the table doesn't exist yet.");
         }
+
+        // Fix Tasks table Id column - ensure it's configured as an identity column
+        try
+        {
+            await dbContext.Database.ExecuteSqlRawAsync(@"
+                DO $$ 
+                BEGIN 
+                    IF EXISTS (
+                        SELECT 1 FROM information_schema.tables 
+                        WHERE table_schema = 'public' AND table_name = 'Tasks'
+                    ) THEN
+                        -- Create sequence if it doesn't exist
+                        CREATE SEQUENCE IF NOT EXISTS ""Tasks_Id_seq"";
+                        
+                        -- Set the sequence value based on current max Id
+                        PERFORM setval('""Tasks_Id_seq""', COALESCE((SELECT MAX(""Id"") FROM ""Tasks""), 0) + 1, false);
+                        
+                        -- Set the default value for Id column to use the sequence
+                        ALTER TABLE ""Tasks"" ALTER COLUMN ""Id"" SET DEFAULT nextval('""Tasks_Id_seq""');
+                    END IF;
+                EXCEPTION WHEN OTHERS THEN
+                    -- Ignore errors
+                    NULL;
+                END $$;
+            ");
+        }
+        catch (Exception fixEx)
+        {
+            var logger = scope.ServiceProvider.GetRequiredService<ILogger<Program>>();
+            logger.LogWarning(fixEx, "Could not fix Tasks Id column. This may be normal if the table doesn't exist yet.");
+        }
+
+        // Fix Tasks table IsVisible column - ensure it's not null and has default value of false
+        try
+        {
+            await dbContext.Database.ExecuteSqlRawAsync(@"
+                DO $$ 
+                BEGIN 
+                    IF EXISTS (
+                        SELECT 1 FROM information_schema.tables 
+                        WHERE table_schema = 'public' AND table_name = 'Tasks'
+                    ) THEN
+                        -- Update any null IsVisible values to false
+                        UPDATE ""Tasks"" SET ""IsVisible"" = false WHERE ""IsVisible"" IS NULL;
+                        
+                        -- Set default value for IsVisible if not already set
+                        ALTER TABLE ""Tasks"" ALTER COLUMN ""IsVisible"" SET DEFAULT false;
+                        
+                        -- Make IsVisible NOT NULL if it's currently nullable
+                        ALTER TABLE ""Tasks"" ALTER COLUMN ""IsVisible"" SET NOT NULL;
+                    END IF;
+                EXCEPTION WHEN OTHERS THEN
+                    -- Ignore errors
+                    NULL;
+                END $$;
+            ");
+        }
+        catch (Exception fixEx)
+        {
+            var logger = scope.ServiceProvider.GetRequiredService<ILogger<Program>>();
+            logger.LogWarning(fixEx, "Could not fix Tasks IsVisible column. This may be normal if the table doesn't exist yet.");
+        }
     }
     catch (Exception ex)
     {
