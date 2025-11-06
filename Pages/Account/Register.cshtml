@@ -505,6 +505,40 @@
             <!-- Hidden input for objective -->
             <input type="hidden" asp-for="Input.Objective" id="objective-input" />
 
+            <!-- Role Selection Section (Teacher/Student) -->
+            <div class="objective-section">
+                <h3 class="objective-title">@Localizer["Select your role"]</h3>
+
+                <div class="objective-card" onclick="selectRole('Teacher')">
+                    <div class="objective-content">
+                        <div class="objective-icon">
+                            👨‍🏫
+                        </div>
+                        <div class="objective-text">
+                            <h5>@Localizer["Teacher"]</h5>
+                            <p>@Localizer["Educator or instructor role"]</p>
+                        </div>
+                    </div>
+                    <div class="radio-button" id="teacher-radio"></div>
+                </div>
+
+                <div class="objective-card" onclick="selectRole('Student')">
+                    <div class="objective-content">
+                        <div class="objective-icon">
+                            👨‍🎓
+                        </div>
+                        <div class="objective-text">
+                            <h5>@Localizer["Student"]</h5>
+                            <p>@Localizer["Learner or participant role"]</p>
+                        </div>
+                    </div>
+                    <div class="radio-button" id="student-radio"></div>
+                </div>
+            </div>
+
+            <!-- Hidden input for role (idProfile) -->
+            <input type="hidden" asp-for="Input.IdProfile" id="idProfile-input" />
+
             <div class="form-group">
                 <label asp-for="Input.FullName" class="form-label">@Localizer["Full Name"]</label>
                 <input asp-for="Input.FullName" class="form-control" placeholder="@Localizer["Enter your full name"]" />
@@ -540,26 +574,56 @@
 
 <script>
     function selectObjective(type) {
-        // Remove selected class from all cards
-        document.querySelectorAll('.objective-card').forEach(card => {
+        // Remove selected class from all objective cards only
+        const objectiveSection = document.querySelector('.objective-section');
+        const objectiveCards = objectiveSection.querySelectorAll('.objective-card');
+        objectiveCards.forEach(card => {
             card.classList.remove('selected');
         });
 
-        // Remove selected class from all radio buttons
-        document.querySelectorAll('.radio-button').forEach(radio => {
-            radio.classList.remove('selected');
-        });
+        // Remove selected class from objective radio buttons only
+        document.getElementById('career-radio')?.classList.remove('selected');
+        document.getElementById('purpose-radio')?.classList.remove('selected');
 
         // Set the hidden input value
         document.getElementById('objective-input').value = type;
 
         // Add selected class to clicked card and radio
         if (type === 'CareerCounselling') {
-            document.querySelector('.objective-card:first-of-type').classList.add('selected');
+            objectiveCards[0].classList.add('selected');
             document.getElementById('career-radio').classList.add('selected');
         } else if (type === 'PurposeDiscovery') {
-            document.querySelector('.objective-card:last-of-type').classList.add('selected');
+            objectiveCards[1].classList.add('selected');
             document.getElementById('purpose-radio').classList.add('selected');
+        }
+    }
+
+    function selectRole(role) {
+        // Find the role selection section (second objective-section)
+        const allSections = document.querySelectorAll('.objective-section');
+        const roleSection = allSections[1]; // Second section is the role selection
+        
+        // Remove selected class from all role cards only
+        const roleCards = roleSection.querySelectorAll('.objective-card');
+        roleCards.forEach(card => {
+            card.classList.remove('selected');
+        });
+
+        // Remove selected class from role radio buttons only
+        document.getElementById('teacher-radio')?.classList.remove('selected');
+        document.getElementById('student-radio')?.classList.remove('selected');
+
+        // Set the hidden input value (1 for Teacher, 2 for Student)
+        const idProfile = role === 'Teacher' ? 1 : 2;
+        document.getElementById('idProfile-input').value = idProfile;
+
+        // Add selected class to clicked card and radio
+        if (role === 'Teacher') {
+            roleCards[0].classList.add('selected');
+            document.getElementById('teacher-radio').classList.add('selected');
+        } else if (role === 'Student') {
+            roleCards[1].classList.add('selected');
+            document.getElementById('student-radio').classList.add('selected');
         }
     }
 </script>

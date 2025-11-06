@@ -11,6 +11,17 @@
     }
     var isEnglish = currentCulture == "en";
     var isSpanish = currentCulture == "es";
+    
+    // Check if user is a Teacher (idProfile = 1) to show "My Group" menu
+    var isTeacher = false;
+    if (User.Identity?.IsAuthenticated == true)
+    {
+        var idProfileClaim = User.FindFirst("IdProfile");
+        if (idProfileClaim != null && int.TryParse(idProfileClaim.Value, out int idProfile))
+        {
+            isTeacher = idProfile == 1; // 1 = Teacher, 2 = Student
+        }
+    }
 }
 
 <!DOCTYPE html>
@@ -139,15 +150,18 @@
                                 <span>@Localizer["Custom Interview"]</span>
                             </a>
                         </li>
+                        @if (isTeacher)
+                        {
+                            <li class="nav-item">
+                                <a href="/MyGroups@(!string.IsNullOrEmpty(currentCulture) ? $"?culture={currentCulture}" : "")" class="nav-link" id="nav-mygroups">
+                                    <i class="bi bi-people"></i>
+                                    <span>@Localizer["My Group"]</span>
+                                </a>
+                            </li>
+                        }
                     </ul>
                     
                     <ul class="nav-list bottom-nav">
-                        <!-- <li class="nav-item">
-                            <a href="/Settings@(!string.IsNullOrEmpty(currentCulture) ? $"?culture={currentCulture}" : "")" class="nav-link" id="nav-settings">
-                                <i class="bi bi-gear"></i>
-                                <span>@Localizer["Settings"]</span>
-                            </a>
-                        </li> -->
                         <li class="nav-item">
                             <a href="/Account@(!string.IsNullOrEmpty(currentCulture) ? $"?culture={currentCulture}" : "")" class="nav-link" id="nav-account">
                                 <i class="bi bi-person"></i>
@@ -656,7 +670,7 @@
 
         // Function to set active navigation
         function setActiveNavigation() {
-            const currentPath = window.location.pathname;
+            const currentPath = window.location.pathname.toLowerCase();
             const allNavLinks = document.querySelectorAll('.nav-link');
             
             // Remove all active classes
@@ -666,11 +680,12 @@
             allNavLinks.forEach(link => {
                 const href = link.getAttribute('href');
                 if (href) {
-                    const linkPath = href.split('?')[0];
+                    const linkPath = href.split('?')[0].toLowerCase();
                     
                     if (linkPath === currentPath || 
                         (currentPath === '/' && linkPath === '/') ||
-                        (currentPath === '/Index' && linkPath === '/')) {
+                        (currentPath === '/index' && linkPath === '/') ||
+                        (currentPath.startsWith(linkPath) && linkPath !== '/')) {
                         link.classList.add('active');
                     }
                 }

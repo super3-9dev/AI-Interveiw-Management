@@ -120,4 +120,22 @@
   <data name="Passwords don't match.">
     <value>Las contraseñas no coinciden.</value>
   </data>
+  <data name="Select your role">
+    <value>Selecciona tu rol</value>
+  </data>
+  <data name="Teacher">
+    <value>Profesor</value>
+  </data>
+  <data name="Educator or instructor role">
+    <value>Rol de educador o instructor</value>
+  </data>
+  <data name="Student">
+    <value>Estudiante</value>
+  </data>
+  <data name="Learner or participant role">
+    <value>Rol de aprendiz o participante</value>
+  </data>
+  <data name="Please select your role (Teacher or Student).">
+    <value>Por favor selecciona tu rol (Profesor o Estudiante).</value>
+  </data>
 </root> 

@@ -99,5 +99,23 @@
   <data name="Invalid objective selection.">
     <value>Invalid objective selection.</value>
   </data>
+  <data name="Select your role">
+    <value>Select your role</value>
+  </data>
+  <data name="Teacher">
+    <value>Teacher</value>
+  </data>
+  <data name="Educator or instructor role">
+    <value>Educator or instructor role</value>
+  </data>
+  <data name="Student">
+    <value>Student</value>
+  </data>
+  <data name="Learner or participant role">
+    <value>Learner or participant role</value>
+  </data>
+  <data name="Please select your role (Teacher or Student).">
+    <value>Please select your role (Teacher or Student).</value>
+  </data>
 </root>
 

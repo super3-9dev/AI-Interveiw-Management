@@ -39,37 +39,38 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
-  <data name="Home">
-    <value>Home</value>
+  <data name="My Groups">
+    <value>Mis Grupos</value>
   </data>
-  <data name="Dashboard">
-    <value>Dashboard</value>
+  <data name="Create Group">
+    <value>Crear Grupo</value>
   </data>
-  <data name="New Analysis">
-    <value>New Analysis</value>
+  <data name="Students">
+    <value>Estudiantes</value>
   </data>
-  <data name="Results">
-    <value>Results</value>
+  <data name="Manage">
+    <value>Gestionar</value>
   </data>
-  <data name="Custom Interview">
-    <value>Custom Interview</value>
+  <data name="Create a New Group">
+    <value>Crear un Nuevo Grupo</value>
   </data>
-  <data name="My Group">
-    <value>My Group</value>
+  <data name="Group Name">
+    <value>Nombre del Grupo</value>
   </data>
-  <data name="Settings">
-    <value>Settings</value>
+  <data name="e.g., Grupo Alpha">
+    <value>p. ej., Grupo Alpha</value>
   </data>
-  <data name="Account">
-    <value>Account</value>
+  <data name="Description">
+    <value>Descripción</value>
   </data>
-  <data name="Logout">
-    <value>Logout</value>
+  <data name="Brief description of the group...">
+    <value>Descripción breve del grupo...</value>
   </data>
-  <data name="Login">
-    <value>Login</value>
+  <data name="Cancel">
+    <value>Cancelar</value>
   </data>
-  <data name="Register">
-    <value>Register</value>
+  <data name="Creating...">
+    <value>Creando...</value>
   </data>
 </root>
+

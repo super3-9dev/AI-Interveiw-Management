@@ -43,6 +43,13 @@ namespace InterviewBot.Pages.Account
                 return Page();
             }
 
+            // Validate role selection (idProfile)
+            if (!Input.IdProfile.HasValue || (Input.IdProfile.Value != 1 && Input.IdProfile.Value != 2))
+            {
+                ModelState.AddModelError("Input.IdProfile", "Please select your role (Teacher or Student).");
+                return Page();
+            }
+
             // Get the AI agent role based on the selected objective
             var aiAgentRole = await _db.AIAgentRoles
                 .FirstOrDefaultAsync(r => r.RoleType == Input.Objective);
@@ -59,6 +66,7 @@ namespace InterviewBot.Pages.Account
                 PasswordHash = BCrypt.Net.BCrypt.HashPassword(Input.Password),
                 FullName = Input.FullName,
                 SelectedAIAgentRoleId = aiAgentRole.Id,
+                IdProfile = Input.IdProfile.Value, // 1 for Teacher, 2 for Student
                 CreatedAt = DateTime.UtcNow
             };
 
@@ -88,5 +96,8 @@ namespace InterviewBot.Pages.Account
 
         [Required(ErrorMessage = "Please select your main objective.")]
         public string Objective { get; set; } = string.Empty; // "CareerCounselling" or "PurposeDiscovery"
+
+        [Required(ErrorMessage = "Please select your role (Teacher or Student).")]
+        public int? IdProfile { get; set; } // 1 for Teacher, 2 for Student
     }
 }

@@ -20,11 +20,15 @@ namespace InterviewBot.Models
         public int? SelectedAIAgentRoleId { get; set; }
         public AIAgentRole? SelectedAIAgentRole { get; set; }
 
+        // User Profile (1 = Teacher, 2 = Student)
+        public int? IdProfile { get; set; }
+
         // Navigation properties
         public ICollection<Profile> Profiles { get; set; } = new List<Profile>();
         public ICollection<InterviewSession> InterviewSessions { get; set; } = new List<InterviewSession>();
         public ICollection<InterviewCatalog> InterviewCatalogs { get; set; } = new List<InterviewCatalog>();
         public ICollection<CustomInterview> CustomInterviews { get; set; } = new List<CustomInterview>();
+        public ICollection<Group> Groups { get; set; } = new List<Group>();
 
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
         public DateTime? LastLogin { get; set; }

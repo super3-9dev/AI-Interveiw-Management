@@ -20,6 +20,7 @@ namespace InterviewBot.Data
         public DbSet<InterviewCatalogItem> InterviewCatalogItems { get; set; }
         public DbSet<InterviewAnalysisResult> InterviewAnalysisResults { get; set; }
         public DbSet<InterviewNote> InterviewNotes { get; set; }
+        public DbSet<Group> Groups { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -141,6 +142,24 @@ namespace InterviewBot.Data
                 .WithMany(u => u.CustomInterviews)
                 .HasForeignKey(ci => ci.UserId)
                 .OnDelete(DeleteBehavior.Cascade);
+
+            // Configure User-Group relationship
+            modelBuilder.Entity<Group>()
+                .HasOne(g => g.User)
+                .WithMany(u => u.Groups)
+                .HasForeignKey(g => g.UserId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            // Configure Group entity properties
+            modelBuilder.Entity<Group>(entity =>
+            {
+                entity.Property(g => g.Name).IsRequired().HasMaxLength(200);
+                entity.Property(g => g.Description).HasMaxLength(1000);
+                entity.Property(g => g.StudentCount)
+                    .HasDefaultValue(0);
+                // Ignore the computed property
+                entity.Ignore(g => g.StudentCountValue);
+            });
 
 
 

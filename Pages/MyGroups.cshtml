@@ -1,0 +1,383 @@
+@page
+@model InterviewBot.Pages.MyGroupsModel
+@using Microsoft.AspNetCore.Mvc.Localization
+@inject IViewLocalizer Localizer
+@{
+    ViewData["Title"] = Localizer["My Groups"];
+    var currentCulture = HttpContext.Request.Query["culture"].ToString();
+    if (string.IsNullOrEmpty(currentCulture))
+    {
+        currentCulture = HttpContext.Request.Cookies["culture"] ?? "en";
+    }
+}
+
+@section Styles {
+    <style>
+        .my-groups-container {
+            padding: 2rem;
+            min-height: calc(100vh - 2rem);
+        }
+
+        .groups-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+        }
+
+        .groups-title {
+            font-size: 2rem;
+            font-weight: 700;
+            color: #1f2937;
+            margin: 0;
+        }
+
+        .create-group-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            background-color: #4285f4;
+            color: white;
+            padding: 0.75rem 1.5rem;
+            border: none;
+            border-radius: 0.5rem;
+            font-size: 1.2rem;
+            font-weight: 500;
+            text-decoration: none;
+            transition: background-color 0.2s ease;
+            cursor: pointer;
+        }
+
+        .create-group-btn:hover {
+            background-color: #3367d6;
+            color: white;
+            text-decoration: none;
+        }
+
+        /* Modal Styles */
+        .create-group-modal .modal-content {
+            border-radius: 0.5rem;
+            border: none;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+        }
+
+        .create-group-modal .modal-header {
+            border-bottom: 1px solid #e9ecef;
+            padding: 1.5rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .create-group-modal .modal-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: #1f2937;
+            margin: 0;
+        }
+
+        .create-group-modal .btn-close {
+            opacity: 0.5;
+            transition: opacity 0.2s ease;
+        }
+
+        .create-group-modal .btn-close:hover {
+            opacity: 1;
+        }
+
+        .create-group-modal .modal-body {
+            padding: 1.5rem;
+        }
+
+        .create-group-modal .form-label {
+            font-weight: 500;
+            color: #374151;
+            margin-bottom: 0.5rem;
+            display: block;
+        }
+
+        .create-group-modal .form-control {
+            border: 1px solid #d1d5db;
+            border-radius: 0.375rem;
+            padding: 0.75rem;
+            font-size: 1rem;
+            transition: border-color 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        .create-group-modal .form-control:focus {
+            border-color: #4285f4;
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(66, 133, 244, 0.1);
+        }
+
+        .create-group-modal textarea.form-control {
+            resize: vertical;
+            min-height: 100px;
+        }
+
+        .create-group-modal .modal-footer {
+            border-top: 1px solid #e9ecef;
+            padding: 1rem 1.5rem;
+            display: flex;
+            justify-content: flex-end;
+            gap: 0.75rem;
+        }
+
+        .create-group-modal .btn-cancel {
+            background-color: #6b7280;
+            color: white;
+            border: none;
+            padding: 0.625rem 1.25rem;
+            border-radius: 0.375rem;
+            font-size: 0.95rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: background-color 0.2s ease;
+        }
+
+        .create-group-modal .btn-cancel:hover {
+            background-color: #4b5563;
+            color: white;
+        }
+
+        .create-group-modal .btn-create {
+            background-color: #4285f4;
+            color: white;
+            border: none;
+            padding: 0.625rem 1.25rem;
+            border-radius: 0.375rem;
+            font-size: 0.95rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: background-color 0.2s ease;
+        }
+
+        .create-group-modal .btn-create:hover {
+            background-color: #3367d6;
+            color: white;
+        }
+
+        .create-group-modal .btn-create:disabled {
+            background-color: #9ca3af;
+            cursor: not-allowed;
+        }
+
+        .create-group-modal .alert {
+            margin-bottom: 1rem;
+        }
+
+        .create-group-modal .text-danger {
+            font-size: 0.875rem;
+            margin-top: 0.25rem;
+        }
+
+        .create-group-btn i {
+            font-size: 1.2rem;
+        }
+
+        .alert-success {
+            background-color: #d1fae5;
+            border-color: #10b981;
+            color: #065f46;
+        }
+
+        .alert-danger {
+            background-color: #fee2e2;
+            border-color: #ef4444;
+            color: #991b1b;
+        }
+
+        .groups-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .group-card {
+            background-color: white;
+            border-radius: 0.5rem;
+            padding: 1.5rem;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        .group-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        }
+
+        .group-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: #1f2937;
+            margin: 0 0 0.75rem 0;
+        }
+
+        .group-description {
+            color: #6b7280;
+            font-size: 0.95rem;
+            line-height: 1.5;
+            margin-bottom: 1.5rem;
+        }
+
+        .group-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .student-count {
+            color: #6b7280;
+            font-size: 0.9rem;
+            font-weight: 500;
+        }
+
+        .manage-link {
+            color: #4285f4;
+            text-decoration: none;
+            font-size: 0.9rem;
+            font-weight: 500;
+            transition: color 0.2s ease;
+        }
+
+        .manage-link:hover {
+            color: #3367d6;
+            text-decoration: underline;
+        }
+
+        @@media (max-width: 768px) {
+            .my-groups-container {
+                padding: 1rem;
+            }
+
+            .groups-header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 1rem;
+            }
+
+            .groups-title {
+                font-size: 1.5rem;
+            }
+
+            .groups-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+}
+
+<div class="my-groups-container">
+    <div class="groups-header">
+        <h1 class="groups-title">@Localizer["My Groups"]</h1>
+        <button type="button" class="create-group-btn" data-bs-toggle="modal" data-bs-target="#createGroupModal">
+            <i class="bi bi-plus"></i>
+            <span>@Localizer["Create Group"]</span>
+        </button>
+    </div>
+
+    @if (!string.IsNullOrEmpty(Model.SuccessMessage))
+    {
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            <i class="bi bi-check-circle"></i>
+            @Model.SuccessMessage
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    }
+
+    <div class="groups-grid">
+        @foreach (var group in Model.Groups)
+        {
+            <div class="group-card">
+                <h2 class="group-title">@group.Name</h2>
+                <p class="group-description">@group.Description</p>
+                <div class="group-footer">
+                    <span class="student-count">@(group.StudentCount ?? 0) @Localizer["Students"]</span>
+                    <a href="#" class="manage-link" onclick="alert('Manage functionality coming soon'); return false;">
+                        @Localizer["Manage"]
+                    </a>
+                </div>
+            </div>
+        }
+    </div>
+</div>
+
+<!-- Create New Group Modal -->
+<div class="modal fade create-group-modal" id="createGroupModal" tabindex="-1" aria-labelledby="createGroupModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="createGroupModalLabel">@Localizer["Create a New Group"]</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form method="post" asp-page-handler="CreateGroup" id="createGroupForm">
+                <div class="modal-body">
+                    @if (!string.IsNullOrEmpty(Model.ErrorMessage))
+                    {
+                        <div class="alert alert-danger" role="alert">
+                            @Model.ErrorMessage
+                        </div>
+                    }
+                    <div class="mb-3">
+                        <label asp-for="GroupName" class="form-label">@Localizer["Group Name"]</label>
+                        <input asp-for="GroupName" type="text" class="form-control" placeholder="@Localizer["e.g., Grupo Alpha"]" required />
+                        <span asp-validation-for="GroupName" class="text-danger"></span>
+                    </div>
+                    <div class="mb-3">
+                        <label asp-for="GroupDescription" class="form-label">@Localizer["Description"]</label>
+                        <textarea asp-for="GroupDescription" class="form-control" rows="4" placeholder="@Localizer["Brief description of the group..."]" required></textarea>
+                        <span asp-validation-for="GroupDescription" class="text-danger"></span>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn-cancel" data-bs-dismiss="modal">@Localizer["Cancel"]</button>
+                    <button type="submit" class="btn-create">@Localizer["Create Group"]</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const modal = document.getElementById('createGroupModal');
+            const form = document.getElementById('createGroupForm');
+            
+            // Open modal if there's an error message (validation error)
+            @if (!string.IsNullOrEmpty(Model.ErrorMessage))
+            {
+                <text>
+                var bootstrapModal = new bootstrap.Modal(modal);
+                bootstrapModal.show();
+                </text>
+            }
+
+            // Clear form when modal is closed
+            modal.addEventListener('hidden.bs.modal', function () {
+                form.reset();
+                // Clear validation errors
+                document.querySelectorAll('#createGroupModal .text-danger').forEach(el => el.textContent = '');
+                document.querySelectorAll('#createGroupModal .alert-danger').forEach(el => el.remove());
+                // Re-enable submit button
+                const submitBtn = form.querySelector('button[type="submit"]');
+                if (submitBtn) {
+                    submitBtn.disabled = false;
+                    submitBtn.textContent = '@Localizer["Create Group"]';
+                }
+            });
+
+            // Handle form submission
+            form.addEventListener('submit', function(e) {
+                const submitBtn = form.querySelector('button[type="submit"]');
+                
+                // Disable submit button to prevent double submission
+                if (submitBtn) {
+                    submitBtn.disabled = true;
+                    submitBtn.textContent = '@Localizer["Creating..."]';
+                }
+            });
+        });
+    </script>
+}
+

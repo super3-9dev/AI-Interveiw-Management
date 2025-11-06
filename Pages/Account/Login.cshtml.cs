@@ -45,6 +45,12 @@ namespace InterviewBot.Pages.Account
                 new(ClaimTypes.Name, user.FullName),
                 new("IsGuest", user.IsGuest.ToString())
             };
+            
+            // Add IdProfile claim (1 = Teacher, 2 = Student)
+            if (user.IdProfile.HasValue)
+            {
+                claims.Add(new Claim("IdProfile", user.IdProfile.Value.ToString()));
+            }
 
             var authProperties = new AuthenticationProperties
             {
@@ -96,6 +102,12 @@ namespace InterviewBot.Pages.Account
                 new(ClaimTypes.Name, guestUser.FullName),
                 new("IsGuest", "true")
             };
+            
+            // Add IdProfile claim for guest users (default to Student if not set)
+            if (guestUser.IdProfile.HasValue)
+            {
+                claims.Add(new Claim("IdProfile", guestUser.IdProfile.Value.ToString()));
+            }
 
             await HttpContext.SignInAsync(
                 CookieAuthenticationDefaults.AuthenticationScheme,

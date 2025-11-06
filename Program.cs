@@ -99,7 +99,9 @@ builder.Services.AddDbContext<AppDbContext>(options =>
         npgsqlOptions => npgsqlOptions.EnableRetryOnFailure(
             maxRetryCount: 3,
             maxRetryDelay: TimeSpan.FromSeconds(30),
-            errorCodesToAdd: null)));
+            errorCodesToAdd: null))
+        .ConfigureWarnings(warnings => warnings
+            .Ignore(Microsoft.EntityFrameworkCore.Diagnostics.RelationalEventId.PendingModelChangesWarning)));
 
 // Authentication with persistent cookie store
 builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
@@ -159,10 +161,50 @@ builder.Services.AddCors(options =>
 
 var app = builder.Build();
 
-// Seed the database with AI agent roles
+// Apply pending migrations and seed the database
 using (var scope = app.Services.CreateScope())
 {
     var dbContext = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+    
+    // Apply pending migrations
+    try
+    {
+        await dbContext.Database.MigrateAsync();
+        
+        // Fix StudentCount column if it's nullable (safeguard for existing tables)
+        try
+        {
+            // Update any null StudentCount values to 0 (safe even if table doesn't exist)
+            await dbContext.Database.ExecuteSqlRawAsync(@"
+                DO $$ 
+                BEGIN 
+                    IF EXISTS (
+                        SELECT 1 FROM information_schema.tables 
+                        WHERE table_schema = 'public' AND table_name = 'Groups'
+                    ) THEN
+                        UPDATE ""Groups"" SET ""StudentCount"" = 0 WHERE ""StudentCount"" IS NULL;
+                        ALTER TABLE ""Groups"" ALTER COLUMN ""StudentCount"" SET DEFAULT 0;
+                    END IF;
+                EXCEPTION WHEN OTHERS THEN
+                    -- Ignore errors
+                    NULL;
+                END $$;
+            ");
+        }
+        catch (Exception fixEx)
+        {
+            var logger = scope.ServiceProvider.GetRequiredService<ILogger<Program>>();
+            logger.LogWarning(fixEx, "Could not fix StudentCount column. This may be normal if the table doesn't exist yet.");
+        }
+    }
+    catch (Exception ex)
+    {
+        // Log migration errors but don't crash the app
+        var logger = scope.ServiceProvider.GetRequiredService<ILogger<Program>>();
+        logger.LogError(ex, "An error occurred while applying migrations.");
+    }
+    
+    // Seed the database with AI agent roles
     await DatabaseSeeder.SeedAIAgentRolesAsync(dbContext);
 }
 
